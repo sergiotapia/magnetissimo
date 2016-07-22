@@ -1,20 +1,23 @@
 # Magnetissimo
 
-To start your Phoenix app:
+To start Magnetissimo:
 
   * Install dependencies with `mix deps.get`
   * Create and migrate your database with `mix ecto.create && mix ecto.migrate`
   * Install Node.js dependencies with `npm install`
   * Start Phoenix endpoint with `mix phoenix.server`
+  * Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+# How it works
 
-Ready to run in production? Please [check our deployment guides](http://www.phoenixframework.org/docs/deployment).
+Magnetissimo has different torrent site indexers that run on GenServer. Each
+will process a site asynchronously and save the torrents it's find in the
+database.
 
-## Learn more
+Visit the home page and you'll see a paginated collection of torrents you can
+use.
 
-  * Official website: http://www.phoenixframework.org/
-  * Guides: http://phoenixframework.org/docs/overview
-  * Docs: https://hexdocs.pm/phoenix
-  * Mailing list: http://groups.google.com/group/phoenix-talk
-  * Source: https://github.com/phoenixframework/phoenix
+**There is no configuration needed**.
+
+It'll just do it's thing and serve up torrents so fast your hard drive will
+explode.
