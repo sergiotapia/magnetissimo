@@ -1,3 +1,7 @@
+# Work in progress, not fit for use yet!
+
+Should be done in a few days.
+
 # Magnetissimo
 
 To start Magnetissimo:
