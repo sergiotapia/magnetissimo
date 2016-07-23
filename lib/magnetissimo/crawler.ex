@@ -45,7 +45,15 @@ defmodule Magnetissimo.Crawler do
   end
 
   def create_torrent(url) do
-    IO.puts "Success! Found magnet link, creating Torrent for: #{url}"
-    # Create Torrent object and save to database.
+    torrent = %Magnetissimo.Torrent{
+      name: magnet_torrent_name(url),
+      magnet: url
+    }
+    IO.inspect torrent
+  end
+
+  def magnet_torrent_name(magnet) do
+    params = URI.parse(magnet).query |> URI.query_decoder |> Enum.to_list() |> Enum.into(%{})
+    HtmlEntities.decode(params["dn"])
   end
 end
