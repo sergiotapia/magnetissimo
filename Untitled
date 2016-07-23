@@ -1,0 +1,9 @@
+Magnetissimo.Crawler.crawl("https://thepiratebay.org", "https://thepiratebay.org", [])
+
+
+Magnetissimo.Crawler.crawl("http://1337x.to", "http://1337x.to", [])
+
+
+Magnetissimo.Crawler.crawl("http://www.seedpeer.eu", "http://www.seedpeer.eu", [])
+
+Magnetissimo.Crawler.crawl("http://extratorrent.cc", "http://extratorrent.cc", [])

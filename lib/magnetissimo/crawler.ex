@@ -6,9 +6,8 @@ defmodule Magnetissimo.Crawler do
     cond do
       url in previously_crawled -> nil
       true ->
-        canonical_url = clean_up_url(root, url)
-        IO.puts "Crawling: #{canonical_url}"
-        case HTTPoison.get(canonical_url) do
+        IO.puts "Crawling: #{url}"
+        case HTTPoison.get(url) do
           {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
             body
             |> Floki.find("a")
@@ -18,7 +17,8 @@ defmodule Magnetissimo.Crawler do
                 is_magnet_link(href) ->
                   create_torrent(href, root)
                 is_internal_url(href) ->
-                  crawl(href, root, [url | previously_crawled])
+                  clean_href = clean_up_url(root, href)
+                  crawl(clean_href, root, [url | previously_crawled])
                 true ->
                   nil
               end
