@@ -1,40 +1,51 @@
 defmodule Magnetissimo.Crawler do
   def crawl(url, root, previously_crawled) do
-    IO.puts url
     cond do
-      String.starts_with?(url, "magnet") ->
-        create_torrent(url)
+      url in previously_crawled -> nil
       true ->
-        cond do
-          url in previously_crawled -> nil
-          true ->
-            IO.puts "Crawling: #{url}"
-            IO.puts "----------"
-            Process.sleep(1000)
-            case HTTPoison.get(url) do
-              {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-                body
-                |> Floki.find("a")
-                |> Floki.attribute("href")
-                |> Enum.each(fn(href) ->
-                  cond do
-                    String.starts_with?(href, "/")  ->
-                      crawl_url = root <> href
-                      crawl(crawl_url, root, [url | previously_crawled])
-                    true ->
-                  end
-                end)
-              {:ok, %HTTPoison.Response{status_code: 404}} ->
-                nil
-              _ ->
-                nil
-            end
+        canonical_url = clean_up_url(root, url)
+        IO.puts "Crawling: #{canonical_url}"
+        case HTTPoison.get(canonical_url) do
+          {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
+            body
+            |> Floki.find("a")
+            |> Floki.attribute("href")
+            |> Enum.each(fn(href) ->
+              cond do
+                is_magnet_link(href) ->
+                  create_torrent(href)
+                is_internal_url(href) ->
+                  crawl(href, root, [url | previously_crawled])
+                true ->
+                  nil
+              end
+            end)
+          {:ok, %HTTPoison.Response{status_code: 404}} ->
+            nil
+          _ ->
+            nil
         end
     end
   end
 
+  def clean_up_url(root, url) do
+    cond do
+      String.starts_with?(url, "/") -> root <> url
+      String.starts_with?(url, "http") -> url
+      true -> "#{root}/#{url}"
+    end
+  end
+
+  def is_magnet_link(url) do
+    String.starts_with?(url, "magnet")
+  end
+
+  def is_internal_url(url) do
+    !String.starts_with?(url, "http")
+  end
+
   def create_torrent(url) do
-    IO.puts "Creating Torrent for: #{url}"
+    IO.puts "Success! Found magnet link, creating Torrent for: #{url}"
     # Create Torrent object and save to database.
   end
 end
