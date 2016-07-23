@@ -1,14 +1,15 @@
 defmodule Magnetissimo.Crawler do
   def crawl(url, root, previously_crawled) do
+    IO.puts url
     cond do
       String.starts_with?(url, "magnet") ->
         create_torrent(url)
       true ->
         cond do
-          url in previously_crawled ->
-            IO.puts "Duplicate url: #{url}"
+          url in previously_crawled -> nil
           true ->
             IO.puts "Crawling: #{url}"
+            IO.puts "----------"
             Process.sleep(1000)
             case HTTPoison.get(url) do
               {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
@@ -24,9 +25,9 @@ defmodule Magnetissimo.Crawler do
                   end
                 end)
               {:ok, %HTTPoison.Response{status_code: 404}} ->
-                IO.puts "Not found :("
+                nil
               _ ->
-                IO.puts "Who knows lol"
+                nil
             end
         end
     end
