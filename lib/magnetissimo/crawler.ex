@@ -1,4 +1,7 @@
 defmodule Magnetissimo.Crawler do
+  alias Magnetissimo.Torrent
+  alias Magnetissimo.Repo
+
   def crawl(url, root, previously_crawled) do
     cond do
       url in previously_crawled -> nil
@@ -13,7 +16,7 @@ defmodule Magnetissimo.Crawler do
             |> Enum.each(fn(href) ->
               cond do
                 is_magnet_link(href) ->
-                  create_torrent(href)
+                  create_torrent(href, root)
                 is_internal_url(href) ->
                   crawl(href, root, [url | previously_crawled])
                 true ->
@@ -44,12 +47,21 @@ defmodule Magnetissimo.Crawler do
     !String.starts_with?(url, "http")
   end
 
-  def create_torrent(url) do
-    torrent = %Magnetissimo.Torrent{
+  def create_torrent(url, root) do
+    params = %{
       name: magnet_torrent_name(url),
-      magnet: url
+      magnet: url,
+      source: URI.parse(root).host
     }
-    IO.inspect torrent
+
+    changeset = Torrent.changeset(%Torrent{}, params)
+
+    case Repo.insert(changeset) do
+      {:ok, _torrent} ->
+        IO.puts "Torrent saved to database"
+      _ ->
+        nil
+    end
   end
 
   def magnet_torrent_name(magnet) do
