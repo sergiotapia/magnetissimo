@@ -204,7 +204,6 @@ defmodule Magnetissimo.Parsers.TorrentDownloads do
       |> Enum.at(1)
       |> String.trim
     {leechers, _} = Integer.parse(leechers)
-    IO.inspect leechers
 
     %{
       name: name,
