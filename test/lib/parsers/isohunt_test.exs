@@ -17,6 +17,7 @@ defmodule Magnetissimo.Parsers.IsohuntTest do
 
   test "scrapes torrent information from detail page" do
     torrent = Magnetissimo.Parsers.Isohunt.scrape_torrent_information(detail_sample)
+    IO.inspect torrent
     assert torrent != nil
   end
 

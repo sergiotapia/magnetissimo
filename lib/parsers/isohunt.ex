@@ -67,8 +67,8 @@ defmodule Magnetissimo.Parsers.Isohunt do
       |> String.split
 
     size_value = Enum.at(attributes, 0) |> String.replace("Size", "") |> String.trim
-    size_type = Enum.at(attributes, 1)
-    size = "#{size_value} #{size_type}"
+    unit = Enum.at(attributes, 1)
+    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit)
 
     {seeders, _} = Enum.at(attributes, 2) |> String.replace("seeders", "") |> String.trim |> Integer.parse
 
