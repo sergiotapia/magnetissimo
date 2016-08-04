@@ -40,7 +40,8 @@ defmodule Magnetissimo.Mixfile do
      {:cowboy, "~> 1.0"},
      {:httpoison, "~> 0.9.0"},
      {:floki, "~> 0.9.0"},
-     {:html_entities, "~> 0.3.0"}]
+     {:html_entities, "~> 0.3.0"},
+     {:elixilorem, "~> 0.0.1"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

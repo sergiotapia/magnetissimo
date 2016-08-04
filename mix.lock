@@ -5,6 +5,7 @@
   "db_connection": {:hex, :db_connection, "1.0.0-rc.3", "d9ceb670fe300271140af46d357b669983cd16bc0d01206d7d3222dde56cf038", [:mix], [{:connection, "~> 1.0.2", [hex: :connection, optional: false]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: true]}, {:sbroker, "~> 1.0.0-beta.3", [hex: :sbroker, optional: true]}]},
   "decimal": {:hex, :decimal, "1.1.2", "79a769d4657b2d537b51ef3c02d29ab7141d2b486b516c109642d453ee08e00c", [:mix], []},
   "ecto": {:hex, :ecto, "2.0.2", "b02331c1f20bbe944dbd33c8ecd8f1ccffecc02e344c4471a891baf3a25f5406", [:mix], [{:db_connection, "~> 1.0-rc.2", [hex: :db_connection, optional: true]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}, {:mariaex, "~> 0.7.7", [hex: :mariaex, optional: true]}, {:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}, {:postgrex, "~> 0.11.2", [hex: :postgrex, optional: true]}, {:sbroker, "~> 1.0-beta", [hex: :sbroker, optional: true]}]},
+  "elixilorem": {:hex, :elixilorem, "0.0.1", "bda0c7666b2ccbf27a5f1d9fcb2df9661f7351ac03796e2ac1c5b8e476d08585", [:mix], []},
   "floki": {:hex, :floki, "0.9.0", "e952ca71a453f7827ab5405106ac8d9ac5c9602d18aa5d2d893e5b9944e2499e", [:mix], [{:mochiweb_html, "~> 2.15", [hex: :mochiweb_html, optional: false]}]},
   "fs": {:hex, :fs, "0.9.2", "ed17036c26c3f70ac49781ed9220a50c36775c6ca2cf8182d123b6566e49ec59", [:rebar], []},
   "gettext": {:hex, :gettext, "0.11.0", "80c1dd42d270482418fa158ec5ba073d2980e3718bacad86f3d4ad71d5667679", [:mix], []},
