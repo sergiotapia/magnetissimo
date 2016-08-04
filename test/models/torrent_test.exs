@@ -15,4 +15,13 @@ defmodule Magnetissimo.TorrentTest do
     changeset = Torrent.changeset(%Torrent{}, @invalid_attrs)
     refute changeset.valid?
   end
+
+  test "change is invalid if existing magnet link is in db" do
+    Torrent.changeset(%Torrent{}, %{magnet: "some_content", leechers: 10, seeders: 10, name: "example", source: "example"})
+    |> Magnetissimo.Repo.insert
+
+    new_torrent = Torrent.changeset(%Torrent{}, %{magnet: "some_content", leechers: 10, seeders: 10, name: "example", source: "example"})
+    {:error, changeset} = Repo.insert(new_torrent)
+    assert {"has already been taken", []} == changeset.errors[:magnet]
+  end
 end
