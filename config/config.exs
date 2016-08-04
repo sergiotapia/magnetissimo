@@ -17,6 +17,9 @@ config :magnetissimo, Magnetissimo.Endpoint,
   pubsub: [name: Magnetissimo.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :scrivener_html,
+  routes_helper: Magnetissimo.Router.Helpers           
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",

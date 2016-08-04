@@ -1,0 +1,26 @@
+<h2>List of torrents</h2>
+
+<table class="table">
+  <thead>
+    <tr>
+      <td>Magnet</td>
+      <td>Name</td>
+      <td>Seeders</td>
+      <td>Leechers</td>
+      <td>Size</td>
+    </tr>
+  </thead>
+  <tbody>
+    <%= for torrent <- @torrents do %>
+      <tr>
+        <td><%= link "Download", to: torrent.magnet %></td>
+        <td><%= torrent.name %></td>
+        <td><%= torrent.seeders %></td>
+        <td><%= torrent.leechers %></td>
+        <td><%= torrent.filesize %></td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
+
+<%= pagination_links @conn, @page %>

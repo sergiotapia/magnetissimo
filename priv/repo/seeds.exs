@@ -16,9 +16,10 @@ alias Magnetissimo.Torrent
 |> Enum.each(fn i ->
   Repo.insert! %Torrent{
     name: Elixilorem.sentence,
-    magnet: "magnet:#{:random.uniform(200000)}#{i}",
-    leechers: :random.uniform(1000),
-    seeders: :random.uniform(1000),
-    source: ""
+    magnet: "magnet:#{:random.uniform(200_000)}#{i}",
+    leechers: :random.uniform(1_000),
+    seeders: :random.uniform(1_000),
+    source: "",
+    filesize: "#{:random.uniform(7_000_000)}"
   }
 end)

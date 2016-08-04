@@ -11,6 +11,7 @@ defmodule Magnetissimo.Torrent do
     field :leechers, :integer
     field :seeders, :integer
     field :source, :string
+    field :filesize, :string
 
     timestamps()
   end
@@ -25,6 +26,26 @@ defmodule Magnetissimo.Torrent do
     |> validate_number(:leechers, greater_than: 0)
     |> validate_number(:seeders, greater_than: 0)
     |> unique_constraint(:magnet)
+  end
+
+  def order_by_name(query) do
+    from p in query,
+    order_by: [asc: p.name]
+  end
+
+  def order_by_inserted_at(query) do
+    from p in query,
+    order_by: [desc: p.inserted_at]
+  end
+
+  def order_by_leechers(query) do
+    from p in query,
+    order_by: [desc: p.leechers]
+  end
+
+  def order_by_seeders(query) do
+    from p in query,
+    order_by: [desc: p.seeders]
   end
 
   def save_torrent(torrent) do
