@@ -1,5 +1,5 @@
 defmodule Magnetissimo.Parsers.IsohuntTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "has correct list of root urls" do
     assert Enum.count(Magnetissimo.Parsers.Isohunt.root_urls) == 9

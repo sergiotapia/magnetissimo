@@ -1,5 +1,5 @@
 defmodule Magnetissimo.Parsers.TorrentDownloadsTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "has correct list of root urls" do
     assert Enum.count(Magnetissimo.Parsers.TorrentDownloads.root_urls) == 131

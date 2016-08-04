@@ -1,5 +1,5 @@
 defmodule Magnetissimo.SizeConverterTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: true
 
   test "converts units properly" do
     kb = Magnetissimo.SizeConverter.size_to_bytes("1", "KB")
