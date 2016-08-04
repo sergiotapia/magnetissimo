@@ -17,7 +17,9 @@ defmodule Magnetissimo.Torrent do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :magnet, :leechers, :seeders, :source])
-    |> validate_required([:name, :magnet, :source])
+    |> validate_required([:name, :magnet, :leechers, :seeders, :source])
+    |> validate_length(:leechers, min: 0)
+    |> validate_length(:seeders, min: 0)
     |> unique_constraint(:magnet)
   end
 end
