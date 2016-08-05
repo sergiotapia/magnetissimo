@@ -31,10 +31,10 @@ config :exq,
   port: 6379,
   namespace: "exq",
   queues: [
-    {"demonoid", 10}, 
-    {"isohunt", 10},
-    {"limetorrents", 10},
-    {"torrentdownloads", 10}
+    {"demonoid", 15}, 
+    {"isohunt", 15},
+    {"limetorrents", 15},
+    {"torrentdownloads", 15}
   ],
   middleware: []
 

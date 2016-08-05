@@ -1,11 +1,19 @@
 defmodule Magnetissimo.TorrentController do
   use Magnetissimo.Web, :controller
+  alias Magnetissimo.Torrent
 
   def index(conn, params) do
-   	page =
-      Magnetissimo.Torrent
-      |> order_by(desc: :inserted_at)
-      |> Magnetissimo.Repo.paginate(params)
+   	results = 
+      from t in Torrent,
+      where: ilike(t.name, ^"%#{params["term"]}%"),
+      order_by: [desc: :inserted_at]
+
+    page = results
+           |> Magnetissimo.Repo.paginate(params)
+      # Magnetissimo.Torrent
+      # |> where()
+      # |> order_by(desc: :inserted_at)
+      # |> Magnetissimo.Repo.paginate(params)
 
     render conn, :index,
       page: page,
@@ -14,5 +22,5 @@ defmodule Magnetissimo.TorrentController do
       page_size: page.page_size,
       total_pages: page.total_pages,
       total_entries: page.total_entries
-    end
+  end
 end

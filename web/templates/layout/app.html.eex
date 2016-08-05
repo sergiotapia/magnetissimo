@@ -36,8 +36,10 @@
 
     <div class="search-nav">
       <div class="container">
-        <input type="text" class="form-control" placeholder="Search for games, movies, music, software and more...">
-        <i class="material-icons md-dark md-inactive">search</i>
+        <form action="">
+          <input type="text" autofocus="true" name="term" class="form-control" placeholder="Search for games, movies, music, software and more...">
+          <i class="material-icons md-dark md-inactive">search</i>
+        </form>
       </div>
     </div>
 
