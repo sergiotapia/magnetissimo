@@ -9,8 +9,21 @@ defmodule Magnetissimo.Router do
     plug :put_secure_browser_headers
   end
 
+  pipeline :exq do
+    plug :accepts, ["html"]
+    plug :fetch_session
+    plug :fetch_flash
+    plug :put_secure_browser_headers
+    plug ExqUi.RouterPlug, namespace: "exq"
+  end
+
   pipeline :api do
     plug :accepts, ["json"]
+  end
+
+  scope "/exq", ExqUi do
+    pipe_through :exq
+    forward "/", RouterPlug.Router, :index
   end
 
   scope "/", Magnetissimo do

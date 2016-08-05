@@ -23,8 +23,8 @@ defmodule Magnetissimo.Torrent do
     struct
     |> cast(params, [:name, :magnet, :leechers, :seeders, :source])
     |> validate_required([:name, :magnet, :leechers, :seeders, :source])
-    |> validate_number(:leechers, greater_than: 0)
-    |> validate_number(:seeders, greater_than: 0)
+    |> validate_number(:leechers, greater_than_or_equal_to: 0)
+    |> validate_number(:seeders, greater_than_or_equal_to: 0)
     |> unique_constraint(:magnet)
   end
 
@@ -52,9 +52,10 @@ defmodule Magnetissimo.Torrent do
     changeset = Torrent.changeset(%Torrent{}, torrent)
     case Repo.insert(changeset) do
       {:ok, _torrent} ->
-        Logger.info "Torrent saved to database: #{torrent.name}"
-      {:error, _changeset} ->
-        Logger.info "Duplicate torrent: #{torrent.name}"
+        Logger.info "★★★ - Torrent saved to database: #{torrent.name}"
+      {:error, changeset} ->
+        Logger.error "Couldn't save: #{torrent.name}"
+        Logger.error changeset.errors
     end
   end
 end

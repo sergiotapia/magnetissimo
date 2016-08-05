@@ -19,7 +19,7 @@ defmodule Magnetissimo.Mixfile do
   def application do
     [mod: {Magnetissimo, []},
      applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext,
-                    :phoenix_ecto, :postgrex, :httpoison]]
+                    :phoenix_ecto, :postgrex, :httpoison, :exq, :tzdata]]
   end
 
   # Specifies which paths to compile per environment.
@@ -43,7 +43,10 @@ defmodule Magnetissimo.Mixfile do
      {:html_entities, "~> 0.3.0"},
      {:elixilorem, "~> 0.0.1"},
      {:scrivener_ecto, "~> 1.0"},
-     {:scrivener_html, "~> 1.1"}]
+     {:scrivener_html, "~> 1.1"},
+     {:timex, "~> 2.0"},
+     {:exq, "~> 0.7.2"},
+     {:exq_ui, "~> 0.7.0"}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.

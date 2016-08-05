@@ -1,4 +1,5 @@
 %{"certifi": {:hex, :certifi, "0.4.0", "a7966efb868b179023618d29a407548f70c52466bf1849b9e8ebd0e34b7ea11f", [:rebar3], []},
+  "combine": {:hex, :combine, "0.9.1", "5fd778ee77032ae593bf79aedb8519d9e36283e4f869abd98c2d6029ca476db8", [:mix], []},
   "connection": {:hex, :connection, "1.0.3", "3145f7416be3df248a4935f24e3221dc467c1e3a158d62015b35bd54da365786", [:mix], []},
   "cowboy": {:hex, :cowboy, "1.0.4", "a324a8df9f2316c833a470d918aaf73ae894278b8aa6226ce7a9bf699388f878", [:rebar, :make], [{:cowlib, "~> 1.0.0", [hex: :cowlib, optional: false]}, {:ranch, "~> 1.0", [hex: :ranch, optional: false]}]},
   "cowlib": {:hex, :cowlib, "1.0.2", "9d769a1d062c9c3ac753096f868ca121e2730b9a377de23dec0f7e08b1df84ee", [:make], []},
@@ -6,6 +7,8 @@
   "decimal": {:hex, :decimal, "1.1.2", "79a769d4657b2d537b51ef3c02d29ab7141d2b486b516c109642d453ee08e00c", [:mix], []},
   "ecto": {:hex, :ecto, "2.0.2", "b02331c1f20bbe944dbd33c8ecd8f1ccffecc02e344c4471a891baf3a25f5406", [:mix], [{:db_connection, "~> 1.0-rc.2", [hex: :db_connection, optional: true]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}, {:mariaex, "~> 0.7.7", [hex: :mariaex, optional: true]}, {:poison, "~> 1.5 or ~> 2.0", [hex: :poison, optional: true]}, {:poolboy, "~> 1.5", [hex: :poolboy, optional: false]}, {:postgrex, "~> 0.11.2", [hex: :postgrex, optional: true]}, {:sbroker, "~> 1.0-beta", [hex: :sbroker, optional: true]}]},
   "elixilorem": {:hex, :elixilorem, "0.0.1", "bda0c7666b2ccbf27a5f1d9fcb2df9661f7351ac03796e2ac1c5b8e476d08585", [:mix], []},
+  "exq": {:hex, :exq, "0.7.2", "3f3390eb591118720fbff88a946524c92f98d8c351a346a009eb82c38b80e24f", [:mix], [{:poison, ">= 1.2.0 or ~> 2.0", [hex: :poison, optional: false]}, {:redix, ">= 0.3.4", [hex: :redix, optional: false]}, {:timex, ">= 2.0.0", [hex: :timex, optional: false]}, {:uuid, ">= 1.0.0", [hex: :uuid, optional: false]}]},
+  "exq_ui": {:hex, :exq_ui, "0.7.1", "41cf515b427d8418f10e8f5be6a8859c6b9cf094b66da6daddc067e5826cb177", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, optional: false]}, {:exq, "~> 0.7.0", [hex: :exq, optional: false]}, {:plug, ">= 0.8.1 and < 2.0.0", [hex: :plug, optional: false]}]},
   "floki": {:hex, :floki, "0.9.0", "e952ca71a453f7827ab5405106ac8d9ac5c9602d18aa5d2d893e5b9944e2499e", [:mix], [{:mochiweb_html, "~> 2.15", [hex: :mochiweb_html, optional: false]}]},
   "fs": {:hex, :fs, "0.9.2", "ed17036c26c3f70ac49781ed9220a50c36775c6ca2cf8182d123b6566e49ec59", [:rebar], []},
   "gettext": {:hex, :gettext, "0.11.0", "80c1dd42d270482418fa158ec5ba073d2980e3718bacad86f3d4ad71d5667679", [:mix], []},
@@ -26,7 +29,11 @@
   "poolboy": {:hex, :poolboy, "1.5.1", "6b46163901cfd0a1b43d692657ed9d7e599853b3b21b95ae5ae0a777cf9b6ca8", [:rebar], []},
   "postgrex": {:hex, :postgrex, "0.11.2", "139755c1359d3c5c6d6e8b1ea72556d39e2746f61c6ddfb442813c91f53487e8", [:mix], [{:connection, "~> 1.0", [hex: :connection, optional: false]}, {:db_connection, "~> 1.0-rc", [hex: :db_connection, optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, optional: false]}]},
   "ranch": {:hex, :ranch, "1.2.1", "a6fb992c10f2187b46ffd17ce398ddf8a54f691b81768f9ef5f461ea7e28c762", [:make], []},
+  "redix": {:hex, :redix, "0.4.0", "c8cfad755252e5441c4119437ba3a8989518af7aa90dbd6f4ff7207b72e4a967", [:mix], [{:connection, "~> 1.0.0", [hex: :connection, optional: false]}]},
   "scrivener": {:hex, :scrivener, "2.0.0", "38e59a1c37e989c40a22c019da245a86b257182aee45a074292c9038fab39678", [:mix], []},
   "scrivener_ecto": {:hex, :scrivener_ecto, "1.0.0", "66a0c4cf722e965cd4fc8b5ad48c09409c19a5a125bf2435d2f3fb18d0d72f50", [:mix], [{:ecto, "~> 2.0", [hex: :ecto, optional: false]}, {:postgrex, "~> 0.11.2", [hex: :postgrex, optional: true]}, {:scrivener, "~> 2.0", [hex: :scrivener, optional: false]}]},
   "scrivener_html": {:hex, :scrivener_html, "1.3.1", "06cff5c41407bf2d932df0d8daeeb61f3202ac8b91ccfd39a779fb9b4c85a3dd", [:mix], [{:phoenix, "~> 1.0 or ~> 1.2", [hex: :phoenix, optional: true]}, {:phoenix_html, "~> 2.2", [hex: :phoenix_html, optional: false]}, {:scrivener, "~> 1.2 or ~> 2.0.0", [hex: :scrivener, optional: false]}]},
-  "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.0", "edee20847c42e379bf91261db474ffbe373f8acb56e9079acb6038d4e0bf414f", [:rebar, :make], []}}
+  "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.0", "edee20847c42e379bf91261db474ffbe373f8acb56e9079acb6038d4e0bf414f", [:rebar, :make], []},
+  "timex": {:hex, :timex, "2.2.1", "0d69012a7fd69f4cbdaa00cc5f2a5f30f1bed56072fb362ed4bddf60db343022", [:mix], [{:combine, "~> 0.7", [hex: :combine, optional: false]}, {:gettext, "~> 0.10", [hex: :gettext, optional: false]}, {:tzdata, "~> 0.1.8 or ~> 0.5", [hex: :tzdata, optional: false]}]},
+  "tzdata": {:hex, :tzdata, "0.5.8", "a4ffe564783c6519e4df230a5d0e1cf44b7db7f576bcae76d05540b5da5b6143", [:mix], [{:hackney, "~> 1.0", [hex: :hackney, optional: false]}]},
+  "uuid": {:hex, :uuid, "1.1.4", "36c7734e4c8e357f2f67ba57fb61799d60c20a7f817b104896cca64b857e3686", [:mix], []}}
