@@ -9,7 +9,7 @@ We need:
 - Run a performance load test
 - Write usage documentation
 
-![alt tag](http://i.imgur.com/t9F5lZl.png)
+![alt tag](http://i.imgur.com/DDqWuua.png)
 
 # Magnetissimo
 
