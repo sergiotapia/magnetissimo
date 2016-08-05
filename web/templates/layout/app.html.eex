@@ -34,7 +34,7 @@
     <div class="search-nav">
       <div class="container">
         <form action="">
-          <input type="text" autofocus="true" name="term" class="form-control" placeholder="Search for games, movies, music, software and more...">
+          <input type="text" autofocus="true" name="term" class="form-control" placeholder="Search for the torrent you're looking for">
           <i class="material-icons md-dark md-inactive">search</i>
         </form>
       </div>
