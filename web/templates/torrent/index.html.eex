@@ -9,7 +9,7 @@
     <thead>
       <tr>
         <td>Name</td>
-        <td>Size</td>
+        <td class="size-header">Size</td>
         <td>SE</td>
         <td>LE</td>
         <td>DL</td>
@@ -23,7 +23,11 @@
           <td class="meta size"><%= torrent.filesize %></td>
           <td class="meta seeds"><%= seeders(torrent.seeders) %></td>
           <td class="meta leeches"><%= leechers(torrent.leechers) %></td>
-          <td><%= link "DL", to: torrent.magnet %></td>
+          <td>
+            <%= link to: torrent.magnet do %>
+              <img class="magnet" src="/images/icon-magnet.gif" />
+            <% end %>
+          </td>
           <td class="meta"><%= torrent.source %></td>
         </tr>
       <% end %>
