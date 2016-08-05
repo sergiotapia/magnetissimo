@@ -10,10 +10,6 @@ defmodule Magnetissimo.TorrentController do
 
     page = results
            |> Magnetissimo.Repo.paginate(params)
-      # Magnetissimo.Torrent
-      # |> where()
-      # |> order_by(desc: :inserted_at)
-      # |> Magnetissimo.Repo.paginate(params)
 
     render conn, :index,
       page: page,
