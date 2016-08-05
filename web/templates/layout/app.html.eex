@@ -25,11 +25,8 @@
 
           <div class="flex-item"></div>
 
-          <a href="#" class="nav-btn text-uppercase">About</a>
-          <a href="#" class="nav-btn text-uppercase">Forum</a>
-          <a href="#" class="nav-btn text-uppercase">GitHub Repo</a>
-          <div class="nav-btn separator"></div>
-          <a href="#" class="nav-btn text-uppercase">Process Logs</a>
+          <a target="_blank" href="http://reddit.com/r/magnetissimo" class="nav-btn text-uppercase">Forum</a>
+          <a target="_blank" href="http://github.com/sergiotapia/magnetissimo" class="nav-btn text-uppercase">GitHub Repo</a>
         </div>
       </div>
     </div>

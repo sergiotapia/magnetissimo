@@ -2,10 +2,10 @@
 
 - Crawler is working and performing really well. 1000 torrents added per minute.
 - Tests are written.
+- Search is functional and super fast.
 
 We need:
 
-- Functional search
 - Run a performance load test
 - Write usage documentation
 
