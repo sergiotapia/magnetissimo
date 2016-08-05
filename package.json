@@ -8,7 +8,7 @@
   "dependencies": {
     "phoenix": "file:deps/phoenix",
     "phoenix_html": "file:deps/phoenix_html",
-    "sass-brunch": "^1.9.2"
+    "sass-brunch": "^2.6.3"
   },
   "devDependencies": {
     "babel-brunch": "~6.0.0",

@@ -17,25 +17,25 @@ defmodule Magnetissimo.Crawler do
 
     Magnetissimo.Parsers.Demonoid.root_urls
     |> Enum.each(fn url -> 
-      IO.puts "Queued: Demonoid root_urls"
+      Logger.info "Queued: Demonoid root_urls"
       Exq.enqueue(Exq, "demonoid", "Magnetissimo.DownloadWorker", [url, "demonoid", "root_url"])
     end)
 
     Magnetissimo.Parsers.Isohunt.root_urls
     |> Enum.each(fn url -> 
-      IO.puts "Queued: Isohunt root_urls"
+      Logger.info "Queued: Isohunt root_urls"
       Exq.enqueue(Exq, "isohunt", "Magnetissimo.DownloadWorker", [url, "isohunt", "root_url"])
     end)
 
     Magnetissimo.Parsers.Limetorrents.root_urls
     |> Enum.each(fn url -> 
-      IO.puts "Queued: Limetorrents root_urls"
+      Logger.info "Queued: Limetorrents root_urls"
       Exq.enqueue(Exq, "limetorrents", "Magnetissimo.DownloadWorker", [url, "limetorrents", "root_url"])
     end)
 
     Magnetissimo.Parsers.TorrentDownloads.root_urls
     |> Enum.each(fn url -> 
-      IO.puts "Queued: TorrentDownloads root_urls"
+      Logger.info "Queued: TorrentDownloads root_urls"
       Exq.enqueue(Exq, "torrentdownloads", "Magnetissimo.DownloadWorker", [url, "torrentdownloads", "root_url"])
     end)
 
