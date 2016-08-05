@@ -3,7 +3,7 @@
   <h5>Magnetisimo found 923 results from 4 domains in 30ms</h5>
 </div> %>
 
-<%= pagination_links @conn, @page %>
+<%= pagination_links @conn, @page, term: @term %>
 
 <div class="box results">
   <table class="table">
@@ -36,4 +36,4 @@
   </table>
 </div>
 
-<%= pagination_links @conn, @page %>
+<%= pagination_links @conn, @page, term: @term %>

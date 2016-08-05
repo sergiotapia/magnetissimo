@@ -35,8 +35,7 @@ config :exq,
     {"isohunt", 15},
     {"limetorrents", 15},
     {"torrentdownloads", 15}
-  ],
-  middleware: []
+  ]
 
 # Configure exq_ui
 config :exq_ui,

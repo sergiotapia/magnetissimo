@@ -13,6 +13,7 @@ defmodule Magnetissimo.TorrentController do
 
     render conn, :index,
       page: page,
+      term: params["term"],
       torrents: page.entries,
       page_number: page.page_number,
       page_size: page.page_size,
