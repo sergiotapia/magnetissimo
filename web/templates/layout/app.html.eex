@@ -4,10 +4,10 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="">
+    <meta name="description" content="Magnetissimo - Web application that indexes all popular torrent sites, and saves it to the local database.">
+    <meta name="author" content="Sergio Tapia">
 
-    <title>Hello Magnetissimo!</title>
+    <title>Magnetissimo - Web application that indexes all popular torrent sites, and saves it to the local database.</title>
     
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
@@ -21,7 +21,7 @@
     <div class="header">
       <div class="container">
         <div class="flex-box">
-          <a href="#" class="nav-btn brand">Magnetisimo</a>
+          <a href="/" class="nav-btn brand">Magnetisimo</a>
 
           <div class="flex-item"></div>
 
