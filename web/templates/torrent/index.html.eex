@@ -1,26 +1,32 @@
-<h2>List of torrents</h2>
+<div class="head text-center">
+  <h2>"Drake"</h2>
+  <h5>Magnetisimo found 923 results from 4 domains in 30ms</h5>
+</div>
 
-<table class="table">
-  <thead>
-    <tr>
-      <td>Magnet</td>
-      <td>Name</td>
-      <td>Seeders</td>
-      <td>Leechers</td>
-      <td>Size</td>
-    </tr>
-  </thead>
-  <tbody>
-    <%= for torrent <- @torrents do %>
+
+<div class="box results">
+  <table class="table">
+    <thead>
       <tr>
-        <td><%= link "Download", to: torrent.magnet %></td>
-        <td><%= torrent.name %></td>
-        <td><%= torrent.seeders %></td>
-        <td><%= torrent.leechers %></td>
-        <td><%= torrent.filesize %></td>
+        <td>Name</td>
+        <td>Size</td>
+        <td>SE</td>
+        <td>LE</td>
+        <td>DL</td>
       </tr>
-    <% end %>
-  </tbody>
-</table>
+    </thead>
+    <tbody>
+      <%= for torrent <- @torrents do %>
+        <tr>
+          <td><%= torrent.name %></td>
+          <td class="meta"><%= torrent.filesize %></td>
+          <td class="meta seeds"><%= torrent.seeders %></td>
+          <td class="meta leeches"><%= torrent.leechers %></td>
+          <td><%= link "DL", to: torrent.magnet %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
 
 <%= pagination_links @conn, @page %>

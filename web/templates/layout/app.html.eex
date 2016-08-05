@@ -8,12 +8,41 @@
     <meta name="author" content="">
 
     <title>Hello Magnetissimo!</title>
+    
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Leckerli+One" rel="stylesheet">
   </head>
 
   <body>
+    <div class="header">
+      <div class="container">
+        <div class="flex-box">
+          <a href="#" class="nav-btn brand">Magnetisimo</a>
+
+          <div class="flex-item"></div>
+
+          <a href="#" class="nav-btn text-uppercase">About</a>
+          <a href="#" class="nav-btn text-uppercase">Forum</a>
+          <a href="#" class="nav-btn text-uppercase">GitHub Repo</a>
+          <div class="nav-btn separator"></div>
+          <a href="#" class="nav-btn text-uppercase">Process Logs</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-nav">
+      <div class="container">
+        <input type="text" class="form-control" placeholder="Search for games, movies, music, software and more...">
+        <i class="material-icons md-dark md-inactive">search</i>
+      </div>
+    </div>
+
     <div class="container">
-      <header class="header">
+     <%#  <header class="header">
         <nav role="navigation">
           <ul class="nav nav-pills pull-right">
             <li><a href="http://www.phoenixframework.org/docs">Get Started</a></li>
@@ -21,7 +50,7 @@
         </nav>
         <span class="logo"></span>
       </header>
-
+ %>
       <p class="alert alert-info" role="alert"><%= get_flash(@conn, :info) %></p>
       <p class="alert alert-danger" role="alert"><%= get_flash(@conn, :error) %></p>
 
