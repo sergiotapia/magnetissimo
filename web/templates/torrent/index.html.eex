@@ -13,17 +13,18 @@
         <td>SE</td>
         <td>LE</td>
         <td>DL</td>
+        <td>Source</td>
       </tr>
     </thead>
     <tbody>
       <%= for torrent <- @torrents do %>
         <tr>
           <td><%= torrent.name %></td>
-          <td class="meta"><%= torrent.filesize %></td>
-          <td class="meta seeds"><%= torrent.seeders %></td>
-          <td class="meta leeches"><%= torrent.leechers %></td>
-          <td class="meta"><%= torrent.source %></td>
+          <td class="meta size"><%= torrent.filesize %></td>
+          <td class="meta seeds"><%= seeders(torrent.seeders) %></td>
+          <td class="meta leeches"><%= leechers(torrent.leechers) %></td>
           <td><%= link "DL", to: torrent.magnet %></td>
+          <td class="meta"><%= torrent.source %></td>
         </tr>
       <% end %>
     </tbody>

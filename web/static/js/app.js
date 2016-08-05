@@ -19,3 +19,18 @@ import "phoenix_html"
 // paths "./socket" or full ones "web/static/js/socket".
 
 // import socket from "./socket"
+
+document.addEventListener('DOMContentLoaded', convertSizes);
+
+function convertSizes() {
+  var byteSizes = document.querySelectorAll('td.size'); 
+  for (var size of byteSizes) {
+    convertFileSize(size);
+  }  
+}
+
+function convertFileSize(size) {
+  var text = size.innerText || size.textContent;
+  var sizeInteger = parseInt(text, 10);
+  size.textContent = filesize(sizeInteger);
+}

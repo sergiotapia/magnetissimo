@@ -55,7 +55,7 @@ defmodule Magnetissimo.Parsers.Limetorrents do
       |> Floki.text
     size_value = String.split(size_html) |> Enum.at(0)
     unit = String.split(size_html) |> Enum.at(1)
-    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit)
+    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     seeders = html_body
       |> Floki.find("#content .greenish")
@@ -78,7 +78,7 @@ defmodule Magnetissimo.Parsers.Limetorrents do
     %{
       name: name,
       magnet: magnet,
-      size: size,
+      filesize: size,
       source: "LimeTorrents",
       seeders: seeders,
       leechers: leechers

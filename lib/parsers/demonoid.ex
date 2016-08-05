@@ -57,13 +57,13 @@ defmodule Magnetissimo.Parsers.Demonoid do
 
     size_value = Enum.at(size, 0)
     unit = Enum.at(size, 1)
-    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit)
+    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     %{
       name: name,
       description: description,
       magnet: magnet,
-      size: size,
+      filesize: size,
       source: "Demonoid",
       seeders: 0,
       leechers: 0

@@ -185,7 +185,7 @@ defmodule Magnetissimo.Parsers.TorrentDownloads do
       |> String.split(<<194, 160>>)
     size_value = Enum.at(size_html, 0)
     unit = Enum.at(size_html, 1)
-    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit)
+    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     seeders = html_body
       |> Floki.find(".grey_bar1 p")
@@ -209,7 +209,7 @@ defmodule Magnetissimo.Parsers.TorrentDownloads do
       name: name,
       description: description,
       magnet: magnet,
-      size: size,
+      filesize: size,
       source: "TorrentDownloads",
       seeders: seeders,
       leechers: leechers
