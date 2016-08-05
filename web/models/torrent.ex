@@ -22,9 +22,7 @@ defmodule Magnetissimo.Torrent do
   def changeset(struct, params \\ %{}) do
     struct
     |> cast(params, [:name, :magnet, :leechers, :seeders, :source])
-    |> validate_required([:name, :magnet, :leechers, :seeders, :source])
-    |> validate_number(:leechers, greater_than_or_equal_to: 0)
-    |> validate_number(:seeders, greater_than_or_equal_to: 0)
+    |> validate_required([:name, :magnet, :source])
     |> unique_constraint(:magnet)
   end
 
@@ -55,7 +53,7 @@ defmodule Magnetissimo.Torrent do
         Logger.info "★★★ - Torrent saved to database: #{torrent.name}"
       {:error, changeset} ->
         Logger.error "Couldn't save: #{torrent.name}"
-        Logger.error changeset.errors
+        IO.inspect changeset.errors
     end
   end
 end

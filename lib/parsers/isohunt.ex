@@ -76,6 +76,7 @@ defmodule Magnetissimo.Parsers.Isohunt do
       name: name,
       description: description,
       magnet: magnet,
+      source: "Isohunt",
       size: size,
       seeders: seeders
     }

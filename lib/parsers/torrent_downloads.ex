@@ -210,6 +210,7 @@ defmodule Magnetissimo.Parsers.TorrentDownloads do
       description: description,
       magnet: magnet,
       size: size,
+      source: "TorrentDownloads",
       seeders: seeders,
       leechers: leechers
     }

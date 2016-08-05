@@ -64,6 +64,7 @@ defmodule Magnetissimo.Parsers.Demonoid do
       description: description,
       magnet: magnet,
       size: size,
+      source: "Demonoid",
       seeders: 0,
       leechers: 0
     }

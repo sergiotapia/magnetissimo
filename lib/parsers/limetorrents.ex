@@ -79,6 +79,7 @@ defmodule Magnetissimo.Parsers.Limetorrents do
       name: name,
       magnet: magnet,
       size: size,
+      source: "LimeTorrents",
       seeders: seeders,
       leechers: leechers
     }

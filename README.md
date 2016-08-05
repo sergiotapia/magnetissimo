@@ -1,6 +1,9 @@
-# Work in progress, not fit for use yet!
+# Work in progress, but so nearly there!
 
-Should be done in a few days.
+Crawler is working, about 5,000 new torrents added every 5 minutes. The
+frontend UI needs work, and a simple search feature.
+
+After that's we're golden!
 
 # Magnetissimo
 

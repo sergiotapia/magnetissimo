@@ -1,7 +1,7 @@
-<div class="head text-center">
+<%# <div class="head text-center">
   <h2>"Drake"</h2>
   <h5>Magnetisimo found 923 results from 4 domains in 30ms</h5>
-</div>
+</div> %>
 
 
 <div class="box results">
@@ -22,6 +22,7 @@
           <td class="meta"><%= torrent.filesize %></td>
           <td class="meta seeds"><%= torrent.seeders %></td>
           <td class="meta leeches"><%= torrent.leechers %></td>
+          <td class="meta"><%= torrent.source %></td>
           <td><%= link "DL", to: torrent.magnet %></td>
         </tr>
       <% end %>
