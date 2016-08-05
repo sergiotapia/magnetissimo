@@ -1,9 +1,15 @@
 # Work in progress, but so nearly there!
 
-Crawler is working, about 5,000 new torrents added every 5 minutes. The
-frontend UI needs work, and a simple search feature.
+- Crawler is working and performing really well. 1000 torrents added per minute.
+- Tests are written.
 
-After that's we're golden!
+We need:
+
+- Functional search
+- Run a performance load test
+- Write usage documentation
+
+![alt tag](http://i.imgur.com/t9F5lZl.png)
 
 # Magnetissimo
 
