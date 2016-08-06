@@ -17,3 +17,21 @@
     </tbody>
   </table>
 </div>
+
+<div class="box results">
+  <h1>Totals:</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <td>Source</td>
+        <td>Torrents</td>  
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>All</td>
+        <td><%= Enum.map(@tallies, fn tally -> tally.totals end) |> Enum.sum %></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
