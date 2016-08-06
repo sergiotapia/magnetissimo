@@ -1,6 +1,6 @@
 # Work in progress, but so nearly there!
 
-- Crawler is working and performing really well. 1000 torrents added per minute.
+- Crawler is working and performing really well. 13000 torrents added per minute.
 - Tests are written.
 - Search is functional and super fast.
 
