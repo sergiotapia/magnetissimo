@@ -34,7 +34,8 @@ config :exq,
     {"demonoid", 15}, 
     {"isohunt", 15},
     {"limetorrents", 15},
-    {"torrentdownloads", 15}
+    {"torrentdownloads", 15},
+    {"thepiratebay", 15},
   ]
 
 # Configure exq_ui

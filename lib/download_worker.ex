@@ -14,6 +14,31 @@ defmodule Magnetissimo.DownloadWorker do
     end
   end
 
+  # ThePirateBay workers.
+  def perform(url, "thepiratebay", "root_url") do
+    IO.puts "Crawling: #{url}"
+    pages = Magnetissimo.Parsers.ThePirateBay.paginated_links(download(url))
+    pages 
+    |> Enum.each(fn url ->
+      Exq.enqueue(Exq, "thepiratebay", "Magnetissimo.DownloadWorker", [url, "thepiratebay", "paginated_links"])
+    end)
+  end
+
+  def perform(url, "thepiratebay", "paginated_links") do
+    IO.puts "Crawling: #{url}"
+    torrent_links = Magnetissimo.Parsers.ThePirateBay.torrent_links(download(url))
+    torrent_links
+    |> Enum.each(fn url ->
+      Exq.enqueue(Exq, "thepiratebay", "Magnetissimo.DownloadWorker", [url, "thepiratebay", "torrent_links"])
+    end)
+  end
+
+  def perform(url, "thepiratebay", "torrent_links") do
+    IO.puts "Crawling: #{url}"
+    torrent = Magnetissimo.Parsers.ThePirateBay.scrape_torrent_information(download(url))
+    Torrent.save_torrent(torrent)
+  end
+
   # Demonoid workers.
   def perform(url, "demonoid", "root_url") do
     IO.puts "Crawling: #{url}"

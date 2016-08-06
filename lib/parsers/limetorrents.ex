@@ -57,7 +57,7 @@ defmodule Magnetissimo.Parsers.Limetorrents do
     unit = String.split(size_html) |> Enum.at(1)
     size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit) |> Kernel.to_string
 
-    seeders = html_body
+    {seeders, _} = html_body
       |> Floki.find("#content .greenish")
       |> Floki.text
       |> String.split(":")
@@ -65,8 +65,9 @@ defmodule Magnetissimo.Parsers.Limetorrents do
       |> String.trim
       |> String.replace("Updating", "")
       |> String.slice(0..-2)
+      |> Integer.parse
 
-    leechers = html_body
+    {leechers, _} = html_body
       |> Floki.find("#content .reddish")
       |> Floki.text
       |> String.split(":")
@@ -74,6 +75,7 @@ defmodule Magnetissimo.Parsers.Limetorrents do
       |> String.trim
       |> String.replace("Updating", "")
       |> String.slice(0..-2)
+      |> Integer.parse
 
     %{
       name: name,
