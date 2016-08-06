@@ -30,6 +30,7 @@ defmodule Magnetissimo.Router do
     pipe_through :browser # Use the default browser stack
 
     get "/", TorrentController, :index
+    get "/summary", TorrentController, :summary
   end
 
   # Other scopes may use custom stacks.

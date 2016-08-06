@@ -20,4 +20,18 @@ defmodule Magnetissimo.TorrentController do
       total_pages: page.total_pages,
       total_entries: page.total_entries
   end
+
+  def summary(conn, params) do
+    tallies = 
+      from t in Torrent,
+      group_by: t.source,
+      select: %{
+        name: t.source,
+        totals: count(t.id)
+      }
+    tallies = Repo.all(tallies)
+
+    render conn, :summary, 
+      tallies: tallies
+  end
 end

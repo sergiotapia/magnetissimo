@@ -27,13 +27,15 @@
 
           <a target="_blank" href="http://reddit.com/r/magnetissimo" class="nav-btn text-uppercase">Forum</a>
           <a target="_blank" href="http://github.com/sergiotapia/magnetissimo" class="nav-btn text-uppercase">GitHub Repo</a>
+          <div class="nav-btn separator"></div>
+          <a href="/summary" class="nav-btn text-uppercase">Index Summary</a>
         </div>
       </div>
     </div>
 
     <div class="search-nav">
       <div class="container">
-        <form action="">
+        <form action="/">
           <input type="text" autofocus="true" name="term" class="form-control" placeholder="Search for the torrent you're looking for">
           <i class="material-icons md-dark md-inactive">search</i>
         </form>

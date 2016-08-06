@@ -1,0 +1,19 @@
+<div class="box results">
+  <h1>Index Summary:</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <td>Source</td>
+        <td>Torrents</td>  
+      </tr>
+    </thead>
+    <tbody>
+      <%= for tally <- @tallies do %>
+        <tr>
+          <td><%= tally.name %></td>
+          <td><%= tally.totals %></td>
+        </tr> 
+      <% end %>  
+    </tbody>
+  </table>
+</div>

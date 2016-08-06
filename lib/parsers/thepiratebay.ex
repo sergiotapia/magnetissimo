@@ -8,22 +8,7 @@ defmodule Magnetissimo.Parsers.ThePirateBay do
   end
 
   def paginated_links(html_body) do
-    category_urls = [
-      "https://thepiratebay.org/browse/100/0/3",
-      "https://thepiratebay.org/browse/200/0/3",
-      "https://thepiratebay.org/browse/300/0/3",
-      "https://thepiratebay.org/browse/400/0/3",
-      "https://thepiratebay.org/browse/500/0/3",
-      "https://thepiratebay.org/browse/600/0/3"
-    ]
-    result = 
-      category_urls
-      |> Enum.map(fn category_url ->
-        1..50
-        |> Enum.map(fn i -> String.replace(category_url, "/0/", "/#{i}/") end)
-      end)
-    result = Enum.flat_map(result, &(&1))
-    result  
+    for i <- 1..6, j <- 1..50, do: "https://thepiratebay.org/browse/#{i}00/#{j}/3"
   end
 
   def torrent_links(html_body) do
@@ -45,14 +30,13 @@ defmodule Magnetissimo.Parsers.ThePirateBay do
       |> Enum.filter(fn(url) -> String.starts_with?(url, "magnet:") end)
       |> Enum.at(0)
 
-    {size, _} = html_body
+    size = html_body
       |> Floki.find("#detailsframe #details .col1 dd")
       |> Enum.at(2)
       |> Floki.text
       |> String.split(<<194, 160>>)
       |> Enum.at(2)
-      |> String.replace("(", "") 
-      |> Integer.parse
+      |> String.replace("(", "")
 
     {seeders, _} = html_body
       |> Floki.find("#detailsframe #details .col2 dd")

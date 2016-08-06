@@ -720,7 +720,7 @@ defmodule Magnetissimo.Parsers.ThePirateBayTest do
     <!DOCTYPE html>
     <html lang="en">
     <head>
-        <title>No Man's Sky: Music for an Infinite Universe (WAV) (download torrent) - TPB</title>
+        <title>The Journey Home - Radhanath Swami Audiobook (download torrent) - TPB</title>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
         <meta name="google-site-verification" content="bERYeomIC5eBWlPLupPPYPYGA9GvAUKzFHh3WIw24Xs" />
         <link rel="search" type="application/opensearchdescription+xml" href="/opensearch.xml" title="Search The Pirate Bay" />
@@ -729,7 +729,7 @@ defmodule Magnetissimo.Parsers.ThePirateBayTest do
         <link rel="dns-prefetch" href="//main.exoclick.com/">
         <link rel="dns-prefetch" href="//static-ssl.exoclick.com/">
         <link rel="dns-prefetch" href="//ads.exoclick.com/">
-        <link rel="canonical" href="//thepiratebay.org/torrent/15497471/No_Man_s_Sky__Music_for_an_Infinite_Universe_(WAV)" />
+        <link rel="canonical" href="//thepiratebay.org/torrent/15472797/The_Journey_Home_-_Radhanath_Swami_Audiobook" />
         <style type="text/css">
             .searchBox{
                 margin: 6px;
@@ -772,8 +772,8 @@ defmodule Magnetissimo.Parsers.ThePirateBayTest do
         <script src="//thepiratebay.org/static/js/scriptaculous.js" type="text/javascript"></script>
       <script src="//thepiratebay.org/static/js/details.js" type="text/javascript"></script>
       <link rel="stylesheet" type="text/css" href="//thepiratebay.org/static/css/details.css" />
-      <meta name="description" content="Download No Man's Sky: Music for an Infinite Universe (WAV) torrent or any other torrent from the Audio Music. Direct download via magnet link." />
-      <meta name="keywords" content="No Man's Sky: Music for an Infinite Universe (WAV) Audio Music Direct download torrent magnet" />
+      <meta name="description" content="Download The Journey Home - Radhanath Swami Audiobook torrent or any other torrent from the Audio Audio books. Direct download via magnet link." />
+      <meta name="keywords" content="The Journey Home - Radhanath Swami Audiobook Audio Audio books Direct download torrent magnet" />
 
         <script language="javascript" type="text/javascript">if (top.location != self.location) {top.location.replace(self.location);}</script>
     </head>
@@ -865,47 +865,49 @@ defmodule Magnetissimo.Parsers.ThePirateBayTest do
 
     <div id="content">
 
-                <div id="sky-right">
-                     <iframe src="//thepiratebay.org/static/ads/exo_na/sky2.html" width="160" height="600" frameborder="0" scrolling="no"></iframe>
-                </div>
-        <div id="main-content">
+          <div id="sky-right">
+             <iframe src="//thepiratebay.org/static/ads/exo_na/sky2.html" width="160" height="600" frameborder="0" scrolling="no"></iframe>
+          </div>
+      <div id="main-content">
 
-             <iframe src="//thepiratebay.org/static/ads/exo_na/center.html" id="sky-center" width="728" height="90" frameborder="0" scrolling="no"></iframe>
-        <div>
+         <iframe src="//thepiratebay.org/static/ads/exo_na/center.html" id="sky-center" width="728" height="90" frameborder="0" scrolling="no"></iframe>
+      <div>
     <div id="detailsouterframe">
     <div id="response"></div>
     <div id="message"></div>
     <div id="detailsframe">
     <div id="title">
-            No Man's Sky: Music for an Infinite Universe (WAV)</div>
+            The Journey Home - Radhanath Swami Audiobook</div>
 
         <div id='details'>
             <dl class='col1'>
                 <dt>Type:</dt>
-                <dd><a href="/browse/101" title="More from this category">Audio &gt; Music</a></dd>
+                <dd><a href="/browse/102" title="More from this category">Audio &gt; Audio books</a></dd>
 
             <dt>Files:</dt>
-                <dd><a href="javascript:void(0);" title="Files" onclick="if( filelist &lt; 1 ) { new Ajax.Updater('filelistContainer', '/ajax_details_filelist.php', { method: 'get', parameters: 'id=15497471' } ); filelist=1; }; toggleFilelist(); return false;">17</a></dd>
+                <dd><a href="javascript:void(0);" title="Files" onclick="if( filelist &lt; 1 ) { new Ajax.Updater('filelistContainer', '/ajax_details_filelist.php', { method: 'get', parameters: 'id=15472797' } ); filelist=1; }; toggleFilelist(); return false;">59</a></dd>
 
                 <dt>Size:</dt>
-                <dd>1.1&nbsp;GiB&nbsp;(1178158264&nbsp;Bytes)</dd>
+                <dd>1.07&nbsp;GiB&nbsp;(1147614030&nbsp;Bytes)</dd>
 
-                
+                                        <dt>Spoken language(s):</dt>
+                            <dd>English</dd>
+                    
                     
                                             <dt>Tag(s):</dt>
-                            <dd><a href="/tag/no+mans+sky">no mans sky</a> <a href="/tag/no+man%27s+sky">no man's sky</a> <a href="/tag/soundtrack">soundtrack</a> <a href="/tag/music+for+an+infinite+universe">music for an infinite universe</a> <a href="/tag/65daysofstatic">65daysofstatic</a> <a href="/tag/music">music</a> </dd>
+                            <dd><a href="/tag/radhanath+swami">radhanath swami</a> <a href="/tag/hare+krishna">hare krishna</a> <a href="/tag/iskcon">iskcon</a> <a href="/tag/iskon">iskon</a> <a href="/tag/the+journey+home">the journey home</a> <a href="/tag/radhanath">radhanath</a> <a href="/tag/krishna">krishna</a> <a href="/tag/india">india</a> <a href="/tag/spiritual">spiritual</a> <a href="/tag/india">india</a> <a href="/tag/prabhupada">prabhupada</a> </dd>
                     
             </dl>
             <dl class='col2'>
                 <dt>Uploaded:</dt>
-                <dd>2016-08-06 02:51:01 GMT</dd>
+                <dd>2016-08-02 16:49:45 GMT</dd>
                 <dt>By:</dt>
-                <dd><a href="/user/dlokk/" title="Browse dlokk">dlokk</a></dd>
+                <dd><a href="/user/SachinJ9862/" title="Browse SachinJ9862">SachinJ9862</a></dd>
                 <dt>Seeders:</dt>
-                <dd>3</dd>
+                <dd>7</dd>
 
                 <dt>Leechers:</dt>
-                <dd>6</dd>
+                <dd>2</dd>
 
                 <dt>Comments</dt>
                 <dd><span id='NumComments'>0</span>
@@ -913,12 +915,12 @@ defmodule Magnetissimo.Parsers.ThePirateBayTest do
 
                 <br />
                 <dt>Info Hash:</dt><dd></dd>
-                E3B1DA1775B6A03DF8716F1CEA1749FE80D65058        </dl>
+                F20ED5D4CF26BEF624064D23F89D7A447040CFBE        </dl>
                 <div id="CommentDiv" style="display:none;">
             <form method="post" id="commentsform" name="commentsform" onsubmit="new Ajax.Updater('NumComments', '/ajax_post_comment.php', {evalScripts:true, asynchronous:true, parameters:Form.serialize(this)}); return false;" action="/ajax_post_comment.php">
                 <p class="info">
                     <textarea name="add_comment" id="add_comment" rows="8" cols="50"></textarea><br/>
-                    <input type="hidden" name="id" value="15497471"/>
+                    <input type="hidden" name="id" value="15472797"/>
                     <input type="submit" value="Submit" /><input type="button" value="Hide" onclick="document.getElementById('CommentDiv').style.display = 'none'" />
                 </p>
             </form>
@@ -928,90 +930,82 @@ defmodule Magnetissimo.Parsers.ThePirateBayTest do
         <div id="social">
         </div>
         
-             <iframe src="//adclickservice.com/?display=iframe&zone=1000&size=640x54&sub=top&tags=No_Man%27s_Sky%3A_Music_for_an_Infinite_Universe_%28WAV%29&magnet=bWFnbmV0JTNBJTNGeHQlM0R1cm4lM0FidGloJTNBZTNiMWRhMTc3NWI2YTAzZGY4NzE2ZjFjZWExNzQ5ZmU4MGQ2NTA1OCUyNmRuJTNETm8lMkJNYW4lMjUyN3MlMkJTa3klMjUzQSUyQk11c2ljJTJCZm9yJTJCYW4lMkJJbmZpbml0ZSUyQlVuaXZlcnNlJTJCJTI1MjhXQVYlMjUyOSUyNnRyJTNEdWRwJTI1M0ElMjUyRiUyNTJGdHJhY2tlci5sZWVjaGVycy1wYXJhZGlzZS5vcmclMjUzQTY5NjklMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRnplcjBkYXkuY2glMjUzQTEzMzclMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRm9wZW4uZGVtb25paS5jb20lMjUzQTEzMzclMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRnRyYWNrZXIuY29wcGVyc3VyZmVyLnRrJTI1M0E2OTY5JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZleG9kdXMuZGVzeW5jLmNvbSUyNTNBNjk2OQ==" width="640" height="54" frameborder="0" scrolling="no"></iframe>
-        <br /><br />    <div>
+         <iframe src="//adclickservice.com/?display=iframe&zone=1000&size=640x54&sub=top&tags=The_Journey_Home_-_Radhanath_Swami_Audiobook&magnet=bWFnbmV0JTNBJTNGeHQlM0R1cm4lM0FidGloJTNBZjIwZWQ1ZDRjZjI2YmVmNjI0MDY0ZDIzZjg5ZDdhNDQ3MDQwY2ZiZSUyNmRuJTNEVGhlJTJCSm91cm5leSUyQkhvbWUlMkItJTJCUmFkaGFuYXRoJTJCU3dhbWklMkJBdWRpb2Jvb2slMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRnRyYWNrZXIubGVlY2hlcnMtcGFyYWRpc2Uub3JnJTI1M0E2OTY5JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZ6ZXIwZGF5LmNoJTI1M0ExMzM3JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZvcGVuLmRlbW9uaWkuY29tJTI1M0ExMzM3JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZ0cmFja2VyLmNvcHBlcnN1cmZlci50ayUyNTNBNjk2OSUyNnRyJTNEdWRwJTI1M0ElMjUyRiUyNTJGZXhvZHVzLmRlc3luYy5jb20lMjUzQTY5Njk=" width="640" height="54" frameborder="0" scrolling="no"></iframe>
+      <br /><br />    <div>
             <div class="download">
-                      <a style="background-image: url('//thepiratebay.org/static/img/icons/icon-magnet.gif');" href="magnet:?xt=urn:btih:e3b1da1775b6a03df8716f1cea1749fe80d65058&dn=No+Man%27s+Sky%3A+Music+for+an+Infinite+Universe+%28WAV%29&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Get this torrent">&nbsp;Get this torrent</a>
+                    <a style="background-image: url('//thepiratebay.org/static/img/icons/icon-magnet.gif');" href="magnet:?xt=urn:btih:f20ed5d4cf26bef624064d23f89d7a447040cfbe&dn=The+Journey+Home+-+Radhanath+Swami+Audiobook&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Get this torrent">&nbsp;Get this torrent</a>
                     
             </div>
             <div style="clear:both;">(Problems with magnets links are fixed by upgrading your <a href="http://www.bitlord.com" target="_blank">torrent client</a>!)</div>
             <div class="nfo">
-                <pre>Official soundtrack to No Man's Sky. All songs in WAV format. Please seed :) .
+                <pre>The Journey Home - Autobiography of an American Swami
 
-    Tracklist:
+    Radhanath Swami (Richard Slavin)
 
-    Disc 1.
-    1. Monolith
-    2. Supermoon
-    3. Asimov
-    4. Heliosphere
-    5. Blueprint for a Slow Machine
-    6. Pillars of Frost
-    7. Escape Velocity
-    8. Red Parallax
-    9. Hypersleep
-    10. End of the World Sun
+    Radhanath Swami was born in Chicago in 1950. In his teens he set out to wander the world on a spiritual quest, which led him to eventually discover the yoga path of devotion. He presently travels in Asia, Europe, and America teaching devotional wisdom, but he can often be found with his community in Mumbai, where he works tirelessly to help develop communities, food distribution initiatives, missionary hospitals, schools, ashrams, emergency relief programs, and eco-friendly farms.
 
-    Disc 2.
-    1. NMS_exteriorAtmos1 / False Suns
-    2. Tomorrow / Lull / Celestial Feedback
-    3. Departure / Shortwave / Noisetest
-    4. temporalDissent / ascension_test1 / koaecax
-    5. Borealis / Contrastellar
-    6. Outlier / EOTWS_Variation1</pre>
+
+    Mandala Publishing has released Radhanath Swami’s The Journey Home as an Audio Book. 
+
+    In this extraordinary memoir, he weaves a colorful tapestry of adventure, mysticism, and love. With the author’s masterful reading, listeners are guided by the former Richard Slavin from the suburbs of Chicago to the caves of the Himalayas as he transforms from young seeker to renowned spiritual guide.
+
+
+    The Journey Home is an incredibly intimate account of the author’s steps to self-awareness and also a penetrating glimpse into the heart of mystic traditions and the challenges that all souls must face on the road to inner harmony and a union with the divine. Through near-death encounters, apprenticeships with advanced yogis, and years of travel along the pilgrim’s path, Radhanath Swami eventually reaches the inner sanctum of India’s mystic culture and finds the love he has been seeking. It is a tale told with rare candor, immersing the reader in a journey that is at once engaging, humorous, and heartwarming. 
+
+    A constantly in-demand speaker, Swami’s audiobook presents a rare opportunity for listeners to have an incredibly intimate and personal experience with a globally respected spiritual guru</pre>
             </div>
             <br/>
             <div class="download">
-                <a style="background-image: url('//thepiratebay.org/static/img/icons/icon-magnet.gif');" href="magnet:?xt=urn:btih:e3b1da1775b6a03df8716f1cea1749fe80d65058&dn=No+Man%27s+Sky%3A+Music+for+an+Infinite+Universe+%28WAV%29&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Get this torrent">&nbsp;Get this torrent</a>
+                <a style="background-image: url('//thepiratebay.org/static/img/icons/icon-magnet.gif');" href="magnet:?xt=urn:btih:f20ed5d4cf26bef624064d23f89d7a447040cfbe&dn=The+Journey+Home+-+Radhanath+Swami+Audiobook&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969&tr=udp%3A%2F%2Fzer0day.ch%3A1337&tr=udp%3A%2F%2Fopen.demonii.com%3A1337&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969&tr=udp%3A%2F%2Fexodus.desync.com%3A6969" title="Get this torrent">&nbsp;Get this torrent</a>
                   </div>
 
-             <iframe src="//adclickservice.com/?display=iframe&zone=1000&size=640x54&sub=bot&tags=No_Man%27s_Sky%3A_Music_for_an_Infinite_Universe_%28WAV%29&magnet=bWFnbmV0JTNBJTNGeHQlM0R1cm4lM0FidGloJTNBZTNiMWRhMTc3NWI2YTAzZGY4NzE2ZjFjZWExNzQ5ZmU4MGQ2NTA1OCUyNmRuJTNETm8lMkJNYW4lMjUyN3MlMkJTa3klMjUzQSUyQk11c2ljJTJCZm9yJTJCYW4lMkJJbmZpbml0ZSUyQlVuaXZlcnNlJTJCJTI1MjhXQVYlMjUyOSUyNnRyJTNEdWRwJTI1M0ElMjUyRiUyNTJGdHJhY2tlci5sZWVjaGVycy1wYXJhZGlzZS5vcmclMjUzQTY5NjklMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRnplcjBkYXkuY2glMjUzQTEzMzclMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRm9wZW4uZGVtb25paS5jb20lMjUzQTEzMzclMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRnRyYWNrZXIuY29wcGVyc3VyZmVyLnRrJTI1M0E2OTY5JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZleG9kdXMuZGVzeW5jLmNvbSUyNTNBNjk2OQ==" width="640" height="54" frameborder="0" scrolling="no"></iframe>
-                    <div id="filelistContainer" style="display:none;">
+         <iframe src="//adclickservice.com/?display=iframe&zone=1000&size=640x54&sub=bot&tags=The_Journey_Home_-_Radhanath_Swami_Audiobook&magnet=bWFnbmV0JTNBJTNGeHQlM0R1cm4lM0FidGloJTNBZjIwZWQ1ZDRjZjI2YmVmNjI0MDY0ZDIzZjg5ZDdhNDQ3MDQwY2ZiZSUyNmRuJTNEVGhlJTJCSm91cm5leSUyQkhvbWUlMkItJTJCUmFkaGFuYXRoJTJCU3dhbWklMkJBdWRpb2Jvb2slMjZ0ciUzRHVkcCUyNTNBJTI1MkYlMjUyRnRyYWNrZXIubGVlY2hlcnMtcGFyYWRpc2Uub3JnJTI1M0E2OTY5JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZ6ZXIwZGF5LmNoJTI1M0ExMzM3JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZvcGVuLmRlbW9uaWkuY29tJTI1M0ExMzM3JTI2dHIlM0R1ZHAlMjUzQSUyNTJGJTI1MkZ0cmFja2VyLmNvcHBlcnN1cmZlci50ayUyNTNBNjk2OSUyNnRyJTNEdWRwJTI1M0ElMjUyRiUyNTJGZXhvZHVzLmRlc3luYy5jb20lMjUzQTY5Njk=" width="640" height="54" frameborder="0" scrolling="no"></iframe>
+                  <div id="filelistContainer" style="display:none;">
                     <a id="show"></a>
                 </div>
                 <div id="comments"></div>            </div>
             </div>
         </div>
         
-                <div class="ads" id="sky-banner">
-                     <iframe src="//thepiratebay.org/static/ads/exo_na/sky1.html" width="120" height="600" frameborder="0" scrolling="no"></iframe>
-                </div>
-                <script type="text/javascript" src="//thepiratebay.org/static/ads/ad-scroll.js"></script>
-        </div>
+          <div class="ads" id="sky-banner">
+             <iframe src="//thepiratebay.org/static/ads/exo_na/sky1.html" width="120" height="600" frameborder="0" scrolling="no"></iframe>
+          </div>
+          <script type="text/javascript" src="//thepiratebay.org/static/ads/ad-scroll.js"></script>
+      </div>
     </div><!-- //div:content -->
 
-        <div id="foot" style="text-align:center;margin-top:1em;">
+      <div id="foot" style="text-align:center;margin-top:1em;">
 
-                 <iframe src="//thepiratebay.org/static/ads/exo_na/bottom.html" width="728" height="90" frameborder="0" scrolling="no"></iframe>
-                    <p>
-                <a href="/login" title="Login">Login</a> | 
-                <a href="/register" title="Register">Register</a> | 
-                <a href="/language" title="Select language">Language / Select language</a> |
-                <a href="/about" title="About">About</a> |
-                <a href="/blog" title="Blog">Blog</a>
-                <br />
-                <!--<a href="/contact" title="Contact us">Contact us</a> |-->
-                <a href="/policy" title="Usage policy">Usage policy</a> |
-                <a href="http://uj3wazyk5u4hnvtk.onion" title="TOR">TOR</a> |
-                <a href="/doodles" title="Doodles">Doodles</a> |
-                <a href="http://pirates-forum.org/" title="Forum" target="_blank">Forum</a> 
-                <br />
-            </p>
+           <iframe src="//thepiratebay.org/static/ads/exo_na/bottom.html" width="728" height="90" frameborder="0" scrolling="no"></iframe>
+            <p>
+          <a href="/login" title="Login">Login</a> | 
+          <a href="/register" title="Register">Register</a> | 
+          <a href="/language" title="Select language">Language / Select language</a> |
+          <a href="/about" title="About">About</a> |
+          <a href="/blog" title="Blog">Blog</a>
+          <br />
+          <!--<a href="/contact" title="Contact us">Contact us</a> |-->
+          <a href="/policy" title="Usage policy">Usage policy</a> |
+          <a href="http://uj3wazyk5u4hnvtk.onion" title="TOR">TOR</a> |
+          <a href="/doodles" title="Doodles">Doodles</a> |
+          <a href="http://pirates-forum.org/" title="Forum" target="_blank">Forum</a> 
+          <br />
+        </p>
 
     <br /><a href="http://bitcoin.org" target="_NEW">BitCoin</a>: <b><a href="bitcoin:129TQVAroeehD9fZpzK51NdZGQT4TqifbG">129TQVAroeehD9fZpzK51NdZGQT4TqifbG</a></b><br /><br />
 
-            <div id="fbanners">
-                <a href="/rss" class="rss" title="RSS"><img src="//thepiratebay.org/static/img/rss_small.gif" alt="RSS" /></a>
-            </div><!-- // div:fbanners -->
-        </div><!-- // div:foot -->
+        <div id="fbanners">
+          <a href="/rss" class="rss" title="RSS"><img src="//thepiratebay.org/static/img/rss_small.gif" alt="RSS" /></a>
+        </div><!-- // div:fbanners -->
+      </div><!-- // div:foot -->
 
     <script>
     var _wm_settings = {
       popunder: {
-        url:            'https://traffic.adxprts.com/?placement=289748&redirect',
-        times:      2,
-        hours:      12.000000,
-        cookie:     'tpbpop',
+        url:      'https://traffic.adxprts.com/?placement=289748&redirect',
+        times:    2,
+        hours:    12.000000,
+        cookie:   'tpbpop',
         fastbind:true
       }
     };
