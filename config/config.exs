@@ -26,9 +26,10 @@ config :logger, :console,
   metadata: [:request_id]
 
 # Configure exq
+{redis_port, _} = System.get_env("REDIS_PORT") |> Integer.parse
 config :exq,
-  host: "127.0.0.1",
-  port: 6379,
+  host: System.get_env("REDIS_HOST"),
+  port: redis_port,
   namespace: "exq",
   queues: [
     {"thepiratebay", 15},
