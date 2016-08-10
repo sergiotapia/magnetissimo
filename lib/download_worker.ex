@@ -8,10 +8,35 @@ defmodule Magnetissimo.DownloadWorker do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         IO.puts "Error: #{url} is 404."
         nil
-      {:error, %HTTPoison.Error{reason: reason}} ->
+      {:error, %HTTPoison.Error{reason: _}} ->
         IO.puts "Error: #{url} just ain't workin."
         nil
     end
+  end
+
+  # Leetx workers.
+  def perform(url, "leetx", "root_url") do
+    IO.puts "Crawling: #{url}"
+    pages = Magnetissimo.Parsers.Leetx.paginated_links(download(url))
+    pages 
+    |> Enum.each(fn url ->
+      Exq.enqueue(Exq, "leetx", "Magnetissimo.DownloadWorker", [url, "leetx", "paginated_links"])
+    end)
+  end
+
+  def perform(url, "leetx", "paginated_links") do
+    IO.puts "Crawling: #{url}"
+    torrent_links = Magnetissimo.Parsers.Leetx.torrent_links(download(url))
+    torrent_links
+    |> Enum.each(fn url ->
+      Exq.enqueue(Exq, "leetx", "Magnetissimo.DownloadWorker", [url, "leetx", "torrent_links"])
+    end)
+  end
+
+  def perform(url, "leetx", "torrent_links") do
+    IO.puts "Crawling: #{url}"
+    torrent = Magnetissimo.Parsers.Leetx.scrape_torrent_information(download(url))
+    Torrent.save_torrent(torrent)
   end
 
   # ThePirateBay workers.

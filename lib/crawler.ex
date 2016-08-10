@@ -45,6 +45,12 @@ defmodule Magnetissimo.Crawler do
       Exq.enqueue(Exq, "torrentdownloads", "Magnetissimo.DownloadWorker", [url, "torrentdownloads", "root_url"])
     end)
 
+    Magnetissimo.Parsers.Leetx.root_urls
+    |> Enum.each(fn url -> 
+      Logger.info "Queued: 1337x root_urls"
+      Exq.enqueue(Exq, "leetx", "Magnetissimo.DownloadWorker", [url, "leetx", "root_url"])
+    end)
+
     schedule_work()
     {:noreply, state}
   end
