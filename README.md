@@ -26,7 +26,7 @@ Magnetissimo currently fetches torrents from the following sites:
 - [x] LimeTorrents
 - [x] ThePirateBay
 - [x] TorrentDownloads
-- [x] https://1337x.to/
+- [x] 1337x
 - [ ] https://torrentproject.se
 - [ ] https://rarbg.to/torrents.php
 - [ ] https://www.torlock.com/
