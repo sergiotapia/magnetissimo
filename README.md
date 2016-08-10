@@ -2,7 +2,7 @@
 
 Web application that indexes all popular torrent sites, and saves it to the local database.
 
-![alt tag](http://i.imgur.com/LzzWlk0.png)
+![alt tag](http://i.imgur.com/meqeZrc.png)
 
 Goals:
 
