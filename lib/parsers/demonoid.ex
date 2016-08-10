@@ -27,6 +27,7 @@ defmodule Magnetissimo.Parsers.Demonoid do
       |> String.replace("Details for ", "")
       |> String.replace("Download this torrentExtra informationCommentsDMCA", "")
       |> String.trim
+      |> HtmlEntities.decode
 
     description = html_body
       |> Floki.find("span.adbriteinline")

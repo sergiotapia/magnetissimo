@@ -24,11 +24,11 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
     """
     <html>
     <head>
-        <title>Arrow S01 1080p BluRay HEVC x265 FLAC 5.1 - Absinth *repack* - Demonoid</title>
+        <title>Ren &amp;amp;amp; Stimpy The Lost Episodes Disc.1 [MP4-AAC] 480p DVDrip - CaRNaGE - Demonoid</title>
 
         <Script type="text/javascript" src="/js/jq11.js"></script>
 
-
+        
     </script>
 
         <meta http-equiv=Content-Type content="text/html; charset=utf-8">
@@ -43,12 +43,12 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
 
                 <META NAME="ROBOTS" CONTENT="NOARCHIVE">
             <META NAME="GOOGLEBOT" CONTENT="NOARCHIVE">
-
-                <meta name="description" content="Arrow S01 1080p BluRay HEVC x265 FLAC 5.1 - Absinth *repack* - Demonoid">
-
+        
+                <meta name="description" content="Ren &amp;amp;amp; Stimpy The Lost Episodes Disc.1 [MP4-AAC] 480p DVDrip - CaRNaGE - Demonoid">
+        
         <link href="/favicon.png" rel="shortcut icon">
         <scrIpt language="JavaScript" type="text/javascript" src="/cached/se.js"></script>
-
+            
         <link href="/cached/x21.css" rel="stylesheet" type="text/css">
        <link rel="alternate" type="application/rss+xml" title="Demonoid - All torrents feed" href="/rss/0.xml">
 
@@ -73,7 +73,7 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
         </script>
 
     </head>
-    <body>
+    <body> 
 
     <style type="text/css">
 
@@ -116,7 +116,7 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
                     <tr>
                         <td class="demonoid">
                                                         <a href="/"><img src="/images/p.gif" alt="" width="756" height="63" border="0"></a>
-
+                            
                             <table width="100%" border="0" cellspacing="0" cellpadding="0">
                                 <tr>
                                                                     <td align="left">
@@ -131,7 +131,7 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
                                                             <td class="guest_box">
                                                                                                                                 Registrations are <font class="blue"><b>open</b></font><br>
                                                                     <a href="https://www.demonoid.pw/register.php">Click here to register</a>
-
+                                                                
 
                                                             </td>
                                                         </tr>
@@ -157,10 +157,10 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
                                                 </td>
                                                 <td  align="left" nowrap>&nbsp;</td>
                                             </tr>
-                                            <input type="hidden" name="returnpath" value="/files/details/3403378/0017045651472/">
+                                            <input type="hidden" name="returnpath" value="/files/details/2528012/004261412868/">
 
                                                                                         <input type="hidden" name="withq" value="0">
-
+                                            
                                             </form>
                                         </table>
 
@@ -238,10 +238,10 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
                                             <img src="/images/p.gif" width="9" height="1">
                                         </td>
 
-
-
+                                    
+                                    
                                 </tr></table></td></tr><tr>
-
+                        
                         <td class="bnnr_top" id="bnr_r_top" height="70" style="height:72px!important;">
 
     <script src="//dltags.com/vpn/243320"></script>
@@ -258,89 +258,89 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
 
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-
-    	<tr>
-    		<td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-    		<td class="ctable_header" width="100%">Details for Arrow S01 1080p BluRay HEVC x265 FLAC 5.1 - Absinth *repack*</td>
-    		<td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
-    	</tr>
-    </table>
-
-    <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td width="100%" class="ctable_content_no_pad">
-    			<table width="100%"  border="0" cellspacing="0" cellpadding="3">
+      
       <tr>
-        <td colspan="2" class="tone_1_bl"><b>Created by</b> <a href="/users/kayman18" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">kayman18</a> <b>7 days ago</b> </td>
+        <td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+        <td class="ctable_header" width="100%">Details for Ren &amp;amp; Stimpy The Lost Episodes Disc.1 [MP4-AAC] 480p DVD</td>
+        <td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
+      </tr>
+    </table>
+      
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td width="100%" class="ctable_content_no_pad">
+          <table width="100%"  border="0" cellspacing="0" cellpadding="3">
+      <tr>
+        <td colspan="2" class="tone_1_bl"><b>Created by</b> <a href="/users/xSyMbIoTex" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">xSyMbIoTex</a> <b>6 years ago</b> </td>
       </tr>
       <tr>
-        <td colspan="2" class="tone_3_bl"><b>TV</b> : <b>Action</b> : <b>HD</b> : <b>English</b><br><span class="adbriteinline"><span name="KonaBody"><!-- torrpedo 300x250 -->
+        <td colspan="2" class="tone_3_bl"><b>TV</b> : <b>Cartoons</b> : <b>DVD quality</b> : <b>English</b><br><span class="adbriteinline"><span name="KonaBody"><!-- torrpedo 300x250 -->
     <div id="bnr_r_sq" style="float: right;">
     <ins data-revive-zoneid="3" data-revive-id="437cad6fb03a954095f84700fa2cbc32"></ins>
     <script async src="//ads.torrpedo.net/www/delivery/asyncjs.php"></script>
     </div>
-    Messed up the last torrent i think lol<br /><br />10 BIT Hevc<br />--crf 22/23 --preset slower --limit-refs 3 --limit-modes --rc-lookahead 60 --lookahead-slices 0 --rdoq-level 2 --psy-rd 2 --psy-rdoq 10 --qgsize 16 --aq-mode 3/2 --aq-strength 1 --deblock -2 -2 <br />5.1 Flac lossless Audio<br /><br /><img class="limit_size" src="http://i.imgur.com/UksU8aT.jpg"> <br /><img class="limit_size" src="http://i.imgur.com/HaIq6sG.jpg"> <br /><img class="limit_size" src="http://i.imgur.com/4xPj89S.jpg"> <br /><img class="limit_size" src="http://i.imgur.com/Dzmz2Wt.jpg"> <br /><img class="limit_size" src="http://i.imgur.com/Yw7W8Yb.jpg"> <br /><br /><div style="color: #000080; border: 3px double #ffffff; background-color: #C0C0C0">Format                                   : Matroska<br />Format version                           : Version 4 / Version 2<br />File size                                : 1.93 GiB<br />Duration                                 : 42 min<br />Overall bit rate mode                    : Variable<br />Overall bit rate                         : 6 497 kb/s<br />Encoded date                             : UTC 2016-07-20 22:39:44<br />Writing application                      : mkvmerge v9.2.0 ('Photograph') 64bit<br />Writing library                          : libebml v1.3.3 + libmatroska v1.4.4<br />Cover                                    : Yes<br />Attachments                              : cover.jpeg / cover.jpeg<br /><br />Video<br />ID                                       : 1<br />Format                                   : HEVC<br />Format/Info                              : High Efficiency Video Coding<br />Format profile                           : Main <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="cffeff8f83fb">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script>@High<br />Codec ID                                 : V_MPEGH/ISO/HEVC<br />Duration                                 : 42 min<br />Bit rate                                 : 4 909 kb/s<br />Width                                    : 1 920 pixels<br />Height                                   : 1 080 pixels<br />Display aspect ratio                     : 16:9<br />Frame rate mode                          : Constant<br />Frame rate                               : 23.976 (24000/1001) FPS<br />Color space                              : YUV<br />Chroma subsampling                       : 4:2:0<br />Bit depth                                : 10 bits<br />Bits/(Pixel*Frame)                       : 0.099<br />Stream size                              : 1.46 GiB (76%)<br />Writing library                          : x265 2.0+5-98a948623fdc:[Windows][MSVC 1900][64 bit] 10bit<br />Encoding settings                        : wpp / ctu=64 / min-cu-size=8 / max-tu-size=32 / tu-intra-depth=2 / tu-inter-depth=2 / me=3 / subme=3 / merange=57 / rect / amp / max-merge=3 / temporal-mvp / early-skip / rskip / rdpenalty=0 / no-tskip / no-tskip-fast / strong-intra-smoothing / no-lossless / no-cu-lossless / no-constrained-intra / no-fast-intra / open-gop / no-temporal-layers / interlace=0 / keyint=250 / min-keyint=23 / scenecut=40 / rc-lookahead=80 / lookahead-slices=0 / bframes=8 / bframe-bias=0 / b-adapt=2 / ref=4 / limit-refs=3 / limit-modes / weightp / weightb / aq-mode=2 / qg-size=16 / aq-strength=1.00 / cbqpoffs=0 / crqpoffs=0 / rd=6 / psy-rd=2.00 / rdoq-level=2 / psy-rdoq=10.00 / no-rd-refine / signhide / deblock=-2:-2 / sao / no-sao-non-deblock / b-pyramid / cutree / no-intra-refresh / rc=crf / crf=22.0 / qcomp=0.65 / qpmin=0 / qpmax=69 / qpstep=4 / vbv-maxrate=30000 / vbv-bufsize=30000 / crf-max=0.0 / ipratio=1.10 / pbratio=1.20<br />Default                                  : Yes<br />Forced                                   : No<br /><br />Audio<br />ID                                       : 2<br />Format                                   : FLAC<br />Format/Info                              : Free Lossless Audio Codec<br />Codec ID                                 : A_FLAC<br />Duration                                 : 42 min<br />Bit rate mode                            : Variable<br />Bit rate                                 : 1 582 kb/s<br />Channel(s)                               : 6 channels<br />Channel positions                        : Front: L C R, Side: L R, LFE<br />Sampling rate                            : 48.0 kHz<br />Frame rate                               : 11.719 FPS (4096 spf)<br />Bit depth                                : 16 bits<br />Stream size                              : 481 MiB (24%)<br />Writing library                          : libFLAC 1.3.1 (UTC 2014-11-25)<br />Default                                  : Yes<br />Forced                                   : No<br /><br />Text<br />ID                                       : 3<br />Format                                   : UTF-8<br />Codec ID                                 : S_TEXT/UTF8<br />Codec ID/Info                            : UTF-8 Plain Text<br />Bit rate                                 : 0 b/s<br />Count of elements                        : 0<br />Stream size                              : 0.00 Byte (0%)<br />Default                                  : Yes<br />Forced                                   : No<br /><br />Menu #1<br />00:00:00.000                             : en:Chapter 01<br />00:00:25.734                             : en:Chapter 02<br />00:04:53.793                             : en:Chapter 03<br />00:07:43.463                             : en:Chapter 04<br />00:14:54.143                             : en:Chapter 05<br />00:25:41.748                             : en:Chapter 06<br />00:30:50.682                             : en:Chapter 07<br />00:37:41.676                             : en:Chapter 08<br />00:42:02.603                             : en:Chapter 09<br /></div><center><div id="share-buttons">
-
+    <font color="Blue"><b>Ren &amp; Stimpy The Lost Episodes Disc.1 [MP4-AAC] 480p DVDrip - CaRNaGE</b></font><br /><br />John Kricfalusi, the creator of the original Ren &amp; Stimpy Show, is back at the helm with new adventures <br />of Ren HÃ¶ek and Stimpson J. Cat (Stimpy) in Ren &amp; Stimpy Adult Party Cartoon, with the emphasis toward <br />adults instead of children. These half-hour long episodes feature the duo in new situations. The original <br />humor that made Ren &amp; Stimpy a success is back, like flatulence jokes and gross-out gags, combined now <br />with adult themes and situations.<br /> <br /><font color="Green">***** ENGLISH *****</font><br /><br /><img class="limit_size" src="http://img30.imageshack.us/img30/6979/renstimpythelostepisode.jpg"> <br /><img class="limit_size" src="http://img718.imageshack.us/img718/6979/renstimpythelostepisode.jpg"> <br /><br /><br /><b>DISC.01 Episode List:</b> <br /><br />01. Naked Beach Frenzy<br /><br />02. Stimpy's Pregnant<br /><br />03. Altruists<br /><br /><br /><font color="red">**** SPECIAL FEATURE - John.K INTRODUCTIONS TO EACH EPISODE ****</font><br /><br /><br /><font color="Yellow"><i><b>Encoding</b></i></font><br /><br /><font color="Red"><b>VIDEO</b></font><br /><br />Format                           : AVC<br />Format/Info                      : Advanced Video Codec<br />Format profile                   : <a class="__cf_email__" href="/cdn-cgi/l/email-protection" data-cfemail="3d7f5c4e58515453587d710e130d">[email&#160;protected]</a><script data-cfhash='f9e31' type="text/javascript">/* <![CDATA[ */!function(t,e,r,n,c,a,p){try{t=document.currentScript||function(){for(t=document.getElementsByTagName('script'),e=t.length;e--;)if(t[e].getAttribute('data-cfhash'))return t[e]}();if(t&&(c=t.previousSibling)){p=t.parentNode;if(a=c.getAttribute('data-cfemail')){for(e='',r='0x'+a.substr(0,2)|0,n=2;a.length-n;n+=2)e+='%'+('0'+('0x'+a.substr(n,2)^r).toString(16)).slice(-2);p.replaceChild(document.createTextNode(decodeURIComponent(e)),c)}p.removeChild(t)}}catch(u){}}()/* ]]> */</script><br />Format settings, CABAC           : No<br />Format settings, ReFrames        : 1 frame<br />Codec ID                         : avc1<br />Codec ID/Info                    : Advanced Video Coding<br />Bit rate mode                    : Variable<br />Bit rate                         : 1 202 Kbps<br />Maximum bit rate                 : 1 800 Kbps<br />Width                            : 640 pixels<br />Height                           : 480 pixels<br />Display aspect ratio             : 4:3<br />Frame rate mode                  : Constant<br />Frame rate                       : 23.976 fps<br />Original frame rate              : 24.000 fps<br />Color space                      : YUV<br />Chroma subsampling               : 4:2:0<br />Bit depth                        : 8 bits<br />Scan type                        : Progressive<br />Bits/(Pixel*Frame)               : 0.163<br />Encoded date                     : UTC 2011-01-22 04:22:48<br />Tagged date                      : UTC 2011-01-22 04:22:48<br /><br /><br /><font color="Red"><b>AUDIO</b></font><br /><br />Format                           : AAC<br />Format/Info                      : Advanced Audio Codec<br />Format version                   : Version 4<br />Format profile                   : LC<br />Format settings, SBR             : No<br />Codec ID                         : 40<br />Bit rate mode                    : Variable<br />Bit rate                         : 140 Kbps<br />Channel(s)                       : 6 channels<br />Channel positions                : Front: L C R, Side: L R, LFE<br />Sampling rate                    : 44.1 KHz<br />Encoded date                     : UTC 2011-01-22 04:22:48<br />Tagged date                      : UTC 2011-01-22 04:22:48<br /><br /><br /><br /><font color="green">**** SCREENS ****</font><br /><br /><img class="limit_size" src="http://img256.imageshack.us/img256/5531/screen01t.png"> <br /><img class="limit_size" src="http://img263.imageshack.us/img263/303/screen02nv.png"> <br /><img class="limit_size" src="http://img156.imageshack.us/img156/9790/screen03f.png"> <br /><img class="limit_size" src="http://img843.imageshack.us/img843/9992/screen04p.png"> <br /><img class="limit_size" src="http://img651.imageshack.us/img651/7735/screen05r.png"> <br /><img class="limit_size" src="http://img98.imageshack.us/img98/5301/screen06s.png"> <br /><br /><img class="limit_size" src="http://i866.photobucket.com/albums/ab223/stonedcartoons/renandstimpyweed.jpg"> <br /><br /><img class="limit_size" src="http://img829.imageshack.us/img829/8342/australia01june.gif"> <img class="limit_size" src="http://img835.imageshack.us/img835/1839/animatedmarijuanapics.gif"> <img class="limit_size" src="http://img546.imageshack.us/img546/2869/animatedmarijuanaspinni.gif"> <br /><br />Brought to you by<br /><br /><img class="limit_size" src="http://img440.imageshack.us/img440/5204/420carnagelogo.jpg"> <br /><br /><img class="limit_size" src="http://img43.imageshack.us/img43/9159/seeda.gif"> <br /><br /><center><div id="share-buttons">
+     
     <!-- Facebook -->
-    <a href="http://www.facebook.com/sharer.php?u=http://www.demonoid.ooo/files/details/3403378/" target="_blank"><img src="http://www.demonoid.pw/images/facebook.png" alt="Facebook" /></a>
-
+    <a href="http://www.facebook.com/sharer.php?u=http://www.demonoid.ooo/files/details/2528012/" target="_blank"><img src="http://www.demonoid.pw/images/facebook.png" alt="Facebook" /></a>
+     
     <!-- Twitter -->
-    <a href="http://twitter.com/share?url=http://www.demonoid.ooo/files/details/3403378/&text=Arrow+S01+1080p+BluRay+HEVC+x265+FLAC+5.1+-+Absinth+%2Arepack%2A&hashtags=demonoid" target="_blank"><img src="http://www.demonoid.ooo/images/twitter.png" alt="Twitter" /></a>
-
+    <a href="http://twitter.com/share?url=http://www.demonoid.ooo/files/details/2528012/&text=Ren+%26amp%3B+Stimpy+The+Lost+Episodes+Disc.1+%5BMP4-AAC%5D+480p+DVDrip+-+CaRNaGE&hashtags=demonoid" target="_blank"><img src="http://www.demonoid.ooo/images/twitter.png" alt="Twitter" /></a>
+     
     <!-- Google+ -->
-    <a href="https://plus.google.com/share?url=http://www.demonoid.ooo/files/details/3403378/" target="_blank"><img src="http://www.demonoid.ooo/images/google.png" alt="Google" /></a>
-
+    <a href="https://plus.google.com/share?url=http://www.demonoid.ooo/files/details/2528012/" target="_blank"><img src="http://www.demonoid.ooo/images/google.png" alt="Google" /></a>
+     
     <!-- Digg -->
-    <a href="http://www.digg.com/submit?url=http://www.demonoid.ooo/files/details/3403378/" target="_blank"><img src="http://www.demonoid.ooo/images/diggit.png" alt="Digg" /></a>
-
+    <a href="http://www.digg.com/submit?url=http://www.demonoid.ooo/files/details/2528012/" target="_blank"><img src="http://www.demonoid.ooo/images/diggit.png" alt="Digg" /></a>
+     
     <!-- Reddit -->
-    <a href="http://reddit.com/submit?url=http://www.demonoid.ooo/files/details/3403378/&title=Arrow+S01+1080p+BluRay+HEVC+x265+FLAC+5.1+-+Absinth+%2Arepack%2A" target="_blank"><img src="http://www.demonoid.ooo/images/reddit.png" alt="Reddit" /></a>
-
+    <a href="http://reddit.com/submit?url=http://www.demonoid.ooo/files/details/2528012/&title=Ren+%26amp%3B+Stimpy+The+Lost+Episodes+Disc.1+%5BMP4-AAC%5D+480p+DVDrip+-+CaRNaGE" target="_blank"><img src="http://www.demonoid.ooo/images/reddit.png" alt="Reddit" /></a>
+     
     <!-- LinkedIn -->
-    <a href="http://www.linkedin.com/shareArticle?mini=true&url=http://www.demonoid.ooo/files/details/3403378/" target="_blank"><img src="http://www.demonoid.ooo/images/linkedin.png" alt="LinkedIn" /></a>
-
+    <a href="http://www.linkedin.com/shareArticle?mini=true&url=http://www.demonoid.ooo/files/details/2528012/" target="_blank"><img src="http://www.demonoid.ooo/images/linkedin.png" alt="LinkedIn" /></a>
+     
     <!-- StumbleUpon-->
-    <a href="http://www.stumbleupon.com/submit?url=http://www.demonoid.ooo/files/details/3403378/&title=Arrow+S01+1080p+BluRay+HEVC+x265+FLAC+5.1+-+Absinth+%2Arepack%2A" target="_blank"><img src="http://www.demonoid.ooo/images/stumbleupon.png" alt="StumbleUpon" /></a>
-
+    <a href="http://www.stumbleupon.com/submit?url=http://www.demonoid.ooo/files/details/2528012/&title=Ren+%26amp%3B+Stimpy+The+Lost+Episodes+Disc.1+%5BMP4-AAC%5D+480p+DVDrip+-+CaRNaGE" target="_blank"><img src="http://www.demonoid.ooo/images/stumbleupon.png" alt="StumbleUpon" /></a>
+     
     <!-- Email -->
-    <a href="/cdn-cgi/l/email-protection#07387472656d6264733a43626a6869686e63272a2746757568702c5437362c36373f37772c456b7255667e2c4f4251442c7f3531322c414b46442c3229362c2a2c46Xbsinth+%2Arepack%2A&Body=http://www.demonoid.ooo/files/details/3403378/"><img src="http://www.demonoid.ooo/images/email.png" alt="Email" /></a>
-
+    <a href="/cdn-cgi/l/email-protection#b788c4c2d5ddd2d4c38af3d2dad8d9d8ded3979a97e5d2d99c928581d6dac79284f59ce4c3dedac7ce9ce3dfd29cfbd8c4c39cf2c7dec4d8d3d2c49cf3dec4d49986X+%5BMP4-AAC%5D+480p+DVDrip+-+CaRNaGE&Body=http://www.demonoid.ooo/files/details/2528012/"><img src="http://www.demonoid.ooo/images/email.png" alt="Email" /></a>
+     
     </div><center></span></span></td>
       </tr>
       <tr align="center">
-        <td colspan="2" class="tone_1_bl" ><iframe  src="/scrape_if.php?tid=3403378&cp=49" margin=0 width="580" height="16" frameborder=0 scrolling=no></iframe></td>
+        <td colspan="2" class="tone_1_bl" ><iframe  src="/scrape_if.php?tid=2528012&cp=1006" margin=0 width="580" height="16" frameborder=0 scrolling=no></iframe></td>
       </tr>
       <tr>
-        <td width="50%"><b>Size:</b> 37.77 GB </td>
+        <td width="50%"><b>Size:</b> 1.25 GB </td>
         <td width="50%" align="right">&nbsp;</td>
       </tr></table>
-    		</td>
-    	</tr>
+        </td>
+      </tr>
     </table>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        	<tr>
-        		<td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-        		<td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
-        		<td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
-
-        	</tr>
+          <tr>
+            <td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+            <td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
+            <td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
+            
+          </tr>
         </table>
-
+      
      <img src="/images/p.gif" width="1" height="7">
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-
-    	<tr>
-    		<td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-    		<td class="ctable_header" width="100%">Download this torrent</td>
-    		<td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
-    	</tr>
+      
+      <tr>
+        <td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+        <td class="ctable_header" width="100%">Download this torrent</td>
+        <td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
+      </tr>
     </table>
-
+      
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td width="100%" class="ctable_content">
-    			<br /><div style="float:left;width:400px;"><a href=https://dltags.com/?pubid=243320&search=Arrow+S01+1080p+BluRay+HEVC+x265+FLAC+5.1+-+Absinth+%2Arepack%2A&file="%3Fxt%3Durn%3Abtih%3AF6D5C41B0BF552D7CB5FC367F1586711A867C793" target="_blank"><img src="/images/arrows/green.png" alt="" width="19" height="19" border="0"> <strong style="font-size:17">Download now</strong></a><br /><a href="http://www.demonoid.ooo/files/download/3403378/"><img src="/images/arrows/blue.png" alt="" width="19" height="19" border="0"> Download torrent file</a><br /><a href="magnet:?xt=urn:btih:F6D5C41B0BF552D7CB5FC367F1586711A867C793&dn=Arrow+S01+1080p+BluRay+HEVC+x265+FLAC+5.1+-+Absinth+%2Arepack%2A&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce"><img src="/images/arrows/orange.png" alt="" width="19" height="19" border="0"> Download as magnet link</a><br /><a href="https://torrshield.com/#/plans" target="_blank"><img src="/images/arrows/grey.png" alt="" width="19" height="19" border="0"><b>Download torrent anonymously with Torrshield</b></a><br /></div><div style="float:right;width:285px;">
+      <tr>
+        <td width="100%" class="ctable_content">
+          <br /><div style="float:left;width:400px;"><a href=https://dltags.com/?pubid=243320&search=Ren+%26amp%3B+Stimpy+The+Lost+Episodes+Disc.1+%5BMP4-AAC%5D+480p+DVDrip+-+CaRNaGE&file=magnet%3A%3Fxt%3Durn%3Abtih%3AE9423E5C88949E51D3093CF77321EACCC8EFEEF4%26dn%3DRen%2B%2526amp%253B%2BStimpy%2BThe%2BLost%2BEpisodes%2BDisc.1%2B%255BMP4-AAC%255D%2B480p%2BDVDrip%2B-%2BCaRNaGE%26tr%3Dhttp%253A%252F%252Finferno.demonoid.me%253A3414%252Fannounce target="_blank"><img src="/images/arrows/green.png" alt="" width="19" height="19" border="0"> <strong style="font-size:17">Download now</strong></a><br /><a href="http://www.demonoid.ooo/files/download/2528012/"><img src="/images/arrows/blue.png" alt="" width="19" height="19" border="0"> Download torrent file</a><br /><a href="magnet:?xt=urn:btih:E9423E5C88949E51D3093CF77321EACCC8EFEEF4&dn=Ren+%26amp%3B+Stimpy+The+Lost+Episodes+Disc.1+%5BMP4-AAC%5D+480p+DVDrip+-+CaRNaGE&tr=http%3A%2F%2Finferno.demonoid.me%3A3414%2Fannounce"><img src="/images/arrows/orange.png" alt="" width="19" height="19" border="0"> Download as magnet link</a><br /><a href="https://torrshield.com/#/plans" target="_blank"><img src="/images/arrows/grey.png" alt="" width="19" height="19" border="0"><b>Download torrent anonymously with Torrshield</b></a><br /></div><div style="float:right;width:285px;">
     <!-- <script type="text/javascript">
     if (!window.OX_ads) { OX_ads = []; }
     OX_ads.push({ "auid" : "393459" });
@@ -351,182 +351,185 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
     <noscript><iframe id="517eaca238028" name="517eaca238028" src="http://torr-d.torrpedoads.net/w/1.0/afr?auid=393459&cb=INSERT_RANDOM_NUMBER_HERE" frameborder="0" scrolling="no" width="270" height="90"><a href="http://torr-d.torrpedoads.net/w/1.0/rc?cs=517eaca238028&cb=INSERT_RANDOM_NUMBER_HERE" ><img src="http://torr-d.torrpedoads.net/w/1.0/ai?auid=393459&cs=517eaca238028&cb=INSERT_RANDOM_NUMBER_HERE" border="0" alt=""></a></iframe></noscript> -->
 
     </div><div style="clear:both;"></div>
-    		</td>
-    	</tr>
+        </td>
+      </tr>
     </table>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        	<tr>
-        		<td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-        		<td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
-        		<td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
-
-        	</tr>
+          <tr>
+            <td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+            <td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
+            <td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
+            
+          </tr>
         </table>
-
+      
      <img src="/images/p.gif" width="1" height="7">
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-
-    	<tr>
-    		<td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-    		<td class="ctable_header" width="100%">Extra information</td>
-    		<td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
-    	</tr>
+      
+      <tr>
+        <td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+        <td class="ctable_header" width="100%">Extra information</td>
+        <td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
+      </tr>
     </table>
-
+      
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td width="100%" class="ctable_content_no_pad">
-    			<table width="100%" border="0" cellspacing="0" cellpadding="0">
-     		<tr>
-    			<td width="50%" valign="top" class="tone_3_pad">Tracker:</td>
-    			<td class="tone_3_pad" width="50%">udp://tracker.coppersurfer.tk:6969/announce</td>
-    		</tr> 		<tr>
-    			<td valign="top" class="tone_3_pad">Files described inside the torrent:</td>
-    			<td class="tone_3_pad">24 [ <a href="/files/details/3403378/0/?load_bal=0017045651472&show_files=1&page=1&ref=1469743730#file_list">Click here to show the full list</a> ]<a name="file_list"></a></td>
-    		</tr>
-     	</table>
-    		</td>
-    	</tr>
+      <tr>
+        <td width="100%" class="ctable_content_no_pad">
+          <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+          <td width="50%" valign="top" class="tone_3_pad">Tracker:</td>
+          <td class="tone_3_pad" width="50%">http://inferno.demonoid.me:3414/announce</td>
+        </tr>     <tr>
+          <td valign="top" class="tone_3_pad">Files described inside the torrent:</td>
+          <td class="tone_3_pad">19 [ <a href="/files/details/2528012/0/?load_bal=004261412868&show_files=1&page=1&ref=1470812827#file_list">Click here to show the full list</a> ]<a name="file_list"></a></td>
+        </tr>
+      </table>
+        </td>
+      </tr>
     </table>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        	<tr>
-        		<td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-        		<td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
-        		<td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
-
-        	</tr>
+          <tr>
+            <td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+            <td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
+            <td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
+            
+          </tr>
         </table>
-
+      
      <img src="/images/p.gif" width="1" height="7">
     <a name="report"></a><a name="comments"></a>
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-
-    	<tr>
-    		<td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-    		<td class="ctable_header" width="100%">Comments</td>
-    		<td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
-    	</tr>
+      
+      <tr>
+        <td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+        <td class="ctable_header" width="100%">Comments</td>
+        <td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
+      </tr>
     </table>
-
+      
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td width="100%" class="ctable_content_no_pad">
-    			<br><center><b>No comments posted yet</b></center>
-    		</td>
-    	</tr>
+      <tr>
+        <td width="100%" class="ctable_content_no_pad">
+          <table width="100%" border="0" cellspacing="0" cellpadding="3"><tr><td height="1" align="center" class="tone_3_bl" colspan="3">&lt;&lt; Prev&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next &gt;&gt;</td></tr><tr><td height="1" align="center" class="tone_1_bl" colspan="3">| <b><u>1 - 11</u></b> | </td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://img.photobucket.com/albums/v233/imarkay/AG-PhotoCollection-5431.jpg" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/imarkay" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">imarkay</a> 6 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=11847105&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=11847105&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=255725&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=255725','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">Thanks for the up....mp4 is fine with me.  Some people you just can't reach.</span></span></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://i304.photobucket.com/albums/nn166/shitcunt_666/ch-avatar.gif" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/hateualls" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">hateualls</a> 6 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=11851845&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=11851845&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=3417290&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=3417290','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">great torrent mp4 are cool for me to.<br />all we need now is the unreleased film that was made.</span></span></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://i47.tinypic.com/1235el1_th.gif" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/k4n4bu5" class="user"><img src="/images/ratio/n3p.gif" border="0" width="8" height="8" alt="Ratio: 3.13" title="Ratio: 3.13"><img src="/images/p.gif" alt="" width="2" height="1" border="0">k4n4bu5</a> 6 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=11861290&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=11861290&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=6527810&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=6527810','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">Thank you for this</span></span><br><br><hr align="left" width="30%" size="1" color="#bcbcbc" noshade><font class="font_10px">
+    â€œThe only way to deal with an unfree world is to become so absolutely free that your very existence is an act of rebellion.â€ - Albert Camus</font></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="/images/no_avatar.jpg" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/Igarashi" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.71" title="Ratio: 1.71"><img src="/images/p.gif" alt="" width="2" height="1" border="0">Igarashi</a> 5 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=11981990&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=11981990&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=512680&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=512680','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">thank you <img src='/images/smileys/grin.gif' alt='' width='15' border='0' hspace='1'> <img src='/images/smileys/grin.gif' alt='' width='15' border='0' hspace='1'> <img src='/images/smileys/grin.gif' alt='' width='15' border='0' hspace='1'> </span></span></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="/images/no_avatar.jpg" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/lunatickz21" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">lunatickz21</a> 5 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=12037201&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=12037201&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=3547759&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=3547759','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">Thanks very much</span></span></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://www.elmosplayground.com/friends/twiddleq.gif" width="74" height="74" border="0" alt="We got this man! We got this by the ass!" title="We got this man! We got this by the ass!"></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/twiddlebug" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">twiddlebug</a> 5 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=12535863&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=12535863&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=1484885&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=1484885','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">I was just finishing high school when the original cartoon was on Canadian TV. I loved it so much and I can't believe it's taken me this long to catch up with these newer episodes. Thanks a bunch.</span></span></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="/images/no_avatar.jpg" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/Hunters73" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">Hunters73</a> 5 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=12901039&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=12901039&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=6411151&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=6411151','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">thanks for the upload</span></span></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://i528.photobucket.com/albums/dd330/EddieMountainGoat/Mohawk.png" width="74" height="74" border="0" alt="What the F#$king F#$k!! (trailer park boys)" title="What the F#$king F#$k!! (trailer park boys)"></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/wheel696" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">wheel696</a> 5 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=13432455&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=13432455&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=8080627&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=8080627','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">mp4 rock <img src='/images/smileys/grin.gif' alt='' width='15' border='0' hspace='1'> s  . best on a ps3!! thanks much man.</span></span><br><br><hr align="left" width="30%" size="1" color="#bcbcbc" noshade><font class="font_10px">
+    Bringin back the classics.   ,, chud 2 anyone?</font></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://i528.photobucket.com/albums/dd330/EddieMountainGoat/Mohawk.png" width="74" height="74" border="0" alt="What the F#$king F#$k!! (trailer park boys)" title="What the F#$king F#$k!! (trailer park boys)"></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/wheel696" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">wheel696</a> 5 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=13432480&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=13432480&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=8080627&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=8080627','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">any chance on disc 2????  <img src='/images/smileys/huh.gif' alt='' width='15' border='0' hspace='1'> </span></span><br><br><hr align="left" width="30%" size="1" color="#bcbcbc" noshade><font class="font_10px">
+    Bringin back the classics.   ,, chud 2 anyone?</font></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://i257.photobucket.com/albums/hh236/lasezril/evil-smiley-face.png" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/Dakronick" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.00" title="Ratio: 1.00"><img src="/images/p.gif" alt="" width="2" height="1" border="0">Dakronick</a> 4 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=14166251&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=14166251&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=8502648&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=8502648','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">Thanx man i love this show, i seen another up from u of ren and stimpy but i couldnt tell if it was the lost episodes or regular epoisodes a disc 2 would be awesome, but this is still great </span></span></td></tr><tr><td width="74" height="74" rowspan="2" align="center" valign="top" class="tone_1_bl"><img src="http://www.phpbb.com/styles/screenshots/avatars_EdwardElric.jpg" width="74" height="74" border="0" alt="" title=""></td><td height="10" nowrap class="tone_1_bl">Posted by <a href="/users/Kwarl" class="user"><img src="/images/ratio/n01.gif" border="0" width="8" height="8" alt="Ratio: 1.11" title="Ratio: 1.11"><img src="/images/p.gif" alt="" width="2" height="1" border="0">Kwarl</a> 4 years ago</td><td align="right" nowrap class="tone_1_bl"><img src="/images/p.gif" alt="" width="1" height="1" border="0"> [ <a href="/files/details/2528012/0/?load_bal=004261412868&report_comment=14218507&show_files=&page=1&rel=1470812827#comments" onClick="var theresponse = prompt('This will submit a comment report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponse == false || theresponse == null || theresponse.length != 3) {return false}else{window.location = '/files/details/2528012/0/?report_comment=14218507&show_files=&page=1&rel=1470812827&tres=' + theresponse  +  '#comments';}">Complain</a> ] [ <A HREF="/private_message.php?to=3390701&go_back=%2Ffiles%2Fdetails%2F2528012%2F004261412868%2F" onClick="SWPop('/private_message.php?to=3390701','500', '600');return false;">Send PM</A> ]</td></tr><tr><td width="100%" height="64" colspan="2" align="left" valign="top" class="tone_3_bl"><span class="adbriteinline"><span name="KonaBody">I'm finding that episodes 1 and 3 are out of sync. Episode 2 is fine. Can anyone confirm this!<img src='/images/smileys/huh.gif' alt='' width='15' border='0' hspace='1'> </span></span></td></tr><tr><td height="1" align="center" class="tone_1_bl" colspan="3">| <b><u>1 - 11</u></b> | </td></tr><tr><td height="1" align="center" class="tone_3_bl" colspan="3">&lt;&lt; Prev&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Next &gt;&gt;</td></tr></table>
+        </td>
+      </tr>
     </table>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        	<tr>
-        		<td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-        		<td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
-        		<td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
-
-        	</tr>
+          <tr>
+            <td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+            <td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
+            <td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
+            
+          </tr>
         </table>
-
+      
      <img src="/images/p.gif" width="1" height="7">
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-
-    	<tr>
-    		<td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-    		<td class="ctable_header" width="100%">DMCA</td>
-    		<td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
-    	</tr>
+      
+      <tr>
+        <td class="ctable_top_left" height="30" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+        <td class="ctable_header" width="100%">DMCA</td>
+        <td class="ctable_top_right" height="30" width="1"0><img src="/images/p.gif" width=10 height=1></td>
+      </tr>
     </table>
-    	<form action='/files/details/3403378/0/?show_files=' method='post' OnSubmit="var theresponsetr = prompt('This will submit a DMCA report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponsetr == false || theresponsetr == null || theresponsetr.length != 3) {return false}">
+      <form action='/files/details/2528012/0/?show_files=' method='post' OnSubmit="var theresponsetr = prompt('This will submit a DMCA report to the site staff. Do you wish to continue? Please type yes to confirm',''); if(theresponsetr == false || theresponsetr == null || theresponsetr.length != 3) {return false}">
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td width="100%" class="ctable_content">
-    			In accordance with the Digital Millennium Copyright Act of 1998 (the text of which may be found on the U.S. Copyright Office website at http://lcweb.loc.gov/copyright/), Demonoid will respond expeditiously to claims of copyright infringement that are reported to Demonoid's designated copyright agent identified below. Please also note that under Section 512(F) any person who knowingly materially misrepresents that material or activity is infringing may be subject to liability. Please note, Demonoid hosts no files, movies, books, or any content at all.
+      <tr>
+        <td width="100%" class="ctable_content">
+          In accordance with the Digital Millennium Copyright Act of 1998 (the text of which may be found on the U.S. Copyright Office website at http://lcweb.loc.gov/copyright/), Demonoid will respond expeditiously to claims of copyright infringement that are reported to Demonoid's designated copyright agent identified below. Please also note that under Section 512(F) any person who knowingly materially misrepresents that material or activity is infringing may be subject to liability. Please note, Demonoid hosts no files, movies, books, or any content at all. 
 
     If you believe that your copywriten work has been copied in a way that constitutes copyright infringement, please notify Demonoid's copyright agent using the following form.
     <br>
     <center>Copyright owner and matter in question: <input type="text" name="reason" size="50" maxlength="100"> <input type="submit" value="Submit" style="submit_button"></center>
     <input type="hidden" name="reported" value="1">
-    		</td>
-    	</tr>
+        </td>
+      </tr>
     </table>
         <table width="100%" border="0" cellspacing="0" cellpadding="0">
-        	<tr>
-        		<td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
-        		<td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
-        		<td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
-
-        	</tr>
+          <tr>
+            <td class="ctable_bottom_left" height="11" width="22"><img src="/images/p.gif" width="22" height="1"></td>
+            <td  class="ctable_bottom" width="100%"><img src="/images/p.gif" width="1" height="10"></td>
+            <td class="ctable_bottom_right" height="11" width="10"><img src="/images/p.gif" width="10" height="1"></td>
+            
+          </tr>
         </table>
-     	</form>
+      </form>
      <img src="/images/p.gif" width="1" height="7">
     </tr>
     </table>
     </div>
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td class="banner_bottom" id="bnr_r_bottom" align="center" valign="middle" height="10">
-        		<img src="/images/p.gif" width="1" height="1">
-    									<!-- 728x90 bottom -->
-    					<ins data-revive-zoneid="2" data-revive-id="437cad6fb03a954095f84700fa2cbc32"></ins>
-    					<script async src="//ads.torrpedo.net/www/delivery/asyncjs.php"></script>
-    					<!-- 728x90 bottom -->
-    																			    	</td>
+      <tr>
+        <td class="banner_bottom" id="bnr_r_bottom" align="center" valign="middle" height="10">
+            <img src="/images/p.gif" width="1" height="1">
+                      <!-- 728x90 bottom -->
+              <ins data-revive-zoneid="2" data-revive-id="437cad6fb03a954095f84700fa2cbc32"></ins>
+              <script async src="//ads.torrpedo.net/www/delivery/asyncjs.php"></script>
+              <!-- 728x90 bottom -->
+                                                </td>
         </tr>
         <tr>
-        	<td class="bottom_bar">
-        		<img src="/images/p.gif" width="728" height="1">
-        	</td>
+          <td class="bottom_bar">
+            <img src="/images/p.gif" width="728" height="1">
+          </td>
         </tr>
     </table>
     </td>
 
     <td class="shadow_right">
-    	<img src="/images/p.gif" width="8" height="1">
+      <img src="/images/p.gif" width="8" height="1">
     </td>
     </tr>
     </table>
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td class="ending_top_left">
-    			<img src="/images/p.gif" width="43" height="1">
-    		</td>
-    		<td class="ending_tile_top">
-    			<img src="/images/p.gif" width="850" height="1">
-    		</td>
-    		<td class="ending_top_right">
-    			<img src="/images/p.gif" width="43" height="1">
-    		</td>
-    	</tr>
+      <tr>
+        <td class="ending_top_left">
+          <img src="/images/p.gif" width="43" height="1">
+        </td>
+        <td class="ending_tile_top">
+          <img src="/images/p.gif" width="850" height="1">
+        </td>
+        <td class="ending_top_right">
+          <img src="/images/p.gif" width="43" height="1">
+        </td>
+      </tr>
     </table>
 
     <table width="100%" border="0" cellspacing="0" cellpadding="0">
-    	<tr>
-    		<td class="ending_tile_left">
-    			<img src="/images/p.gif" width="52" height="1">
-    		</td>
-    		<td class="ending_disclaimer">
-    			<img src="/images/p.gif" width="832" height="1"><br>
-        		<span class="red">Disclaimer:</span>
-    			.None of the files shown here are actually hosted or transmitted by this server. The links are provided solely by this site&#039;s users. The site moderation is also a service provided by the site&#039;s users. The administrator of this site (demonoid.pw) cannot be held responsible for what its users post, or any other actions of its users. You may not use this site to distribute or download any material when you do not have the legal rights to do so. It is your own responsibility to adhere to these terms.<br>
-    			<br>
-    			<center>By using this site you indicate your agreement to our <a href="/terms_and_conditions.php" class="ending_disclaimer">terms and conditions</a></center>
-    		</td>
-    		<td class="ending_tile_right">
-    			<img src="/images/p.gif" width="52" height="1">
-    		</td>
-    	</tr>
-    	<tr>
-    		<td class="ending_bottom_left">&nbsp;</td>
-    		<td class="ending_tile_bottom"><img src="/images/p.gif" width="608" height="1"></td>
-    		<td class="ending_bottom_right">&nbsp;</td>
-    	</tr>
+      <tr>
+        <td class="ending_tile_left">
+          <img src="/images/p.gif" width="52" height="1">
+        </td>
+        <td class="ending_disclaimer">
+          <img src="/images/p.gif" width="832" height="1"><br>
+            <span class="red">Disclaimer:</span> 
+          .None of the files shown here are actually hosted or transmitted by this server. The links are provided solely by this site&#039;s users. The site moderation is also a service provided by the site&#039;s users. The administrator of this site (demonoid.pw) cannot be held responsible for what its users post, or any other actions of its users. You may not use this site to distribute or download any material when you do not have the legal rights to do so. It is your own responsibility to adhere to these terms.<br> 
+          <br>
+          <center>By using this site you indicate your agreement to our <a href="/terms_and_conditions.php" class="ending_disclaimer">terms and conditions</a></center>
+        </td>
+        <td class="ending_tile_right">
+          <img src="/images/p.gif" width="52" height="1">
+        </td>
+      </tr>
+      <tr>
+        <td class="ending_bottom_left">&nbsp;</td>
+        <td class="ending_tile_bottom"><img src="/images/p.gif" width="608" height="1"></td>
+        <td class="ending_bottom_right">&nbsp;</td>
+      </tr>
     </table>
 
 
     <font class="pfooter">
-    	<a href="/link_to_us.php" class="pfooter">Link to us</a>
-    	| <a href="/contact_us.php" class="pfooter">Contact us</a>
+      <a href="/link_to_us.php" class="pfooter">Link to us</a> 
+      | <a href="/contact_us.php" class="pfooter">Contact us</a>
     </font>
      | <a href="/api.php" class="pfooter">API</a> | <a href="https://twitter.com/DemonoidP2P" target="_blank" class="pfooter">Twitter: @DemonoidP2P</a> | <a href="/rss.php" class="pfooter">Feeds/RSS <img src="/images/rss_icon.gif" alt="" width="10" height="10" hspace="3" border="0"></a> | <a href="/dmca.php" class="pfooter">DMCA</a><br>
     <font class="pfooter">This site and the Demonoid logo are Copyright &copy; 2016 Demonoid. All rights reserved.<br /><br />
@@ -539,7 +542,7 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
     </div>
     <br>
 
-
+     
 
     <!-- start popunder -->
     <script type='text/javascript'><!--//<![CDATA[
@@ -582,6 +585,7 @@ defmodule Magnetissimo.Parsers.DemonoidTest do
 
     <script type="text/javascript">/* <![CDATA[ */(function(d,s,a,i,j,r,l,m,t){try{l=d.getElementsByTagName('a');t=d.createElement('textarea');for(i=0;l.length-i;i++){try{a=l[i].href;s=a.indexOf('/cdn-cgi/l/email-protection');m=a.length;if(a&&s>-1&&m>28){j=28+s;s='';if(j<m){r='0x'+a.substr(j,2)|0;for(j+=2;j<m&&a.charAt(j)!='X';j+=2)s+='%'+('0'+('0x'+a.substr(j,2)^r).toString(16)).slice(-2);j++;s=decodeURIComponent(s)+a.substr(j,m-j)}t.innerHTML=s.replace(/</g,'&lt;').replace(/>/g,'&gt;');l[i].href='mailto:'+t.value}}catch(e){}}}catch(e){}})(document);/* ]]> */</script></body>
     </html>
+
     """
   end
 
