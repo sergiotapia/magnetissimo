@@ -21,7 +21,7 @@ defmodule Magnetissimo.TorrentController do
       total_entries: page.total_entries
   end
 
-  def summary(conn, params) do
+  def summary(conn, _) do
     tallies = 
       from t in Torrent,
       group_by: t.source,

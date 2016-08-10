@@ -17,7 +17,6 @@ defmodule Magnetissimo.Parsers.ThePirateBayTest do
 
   test "scrapes torrent information from detail page" do
     torrent = Magnetissimo.Parsers.ThePirateBay.scrape_torrent_information(detail_sample)
-    IO.inspect torrent
     assert torrent != nil
   end
 

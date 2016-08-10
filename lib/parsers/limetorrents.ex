@@ -13,11 +13,6 @@ defmodule Magnetissimo.Parsers.Limetorrents do
     ]
   end
 
-  def download_url(url) do
-    response = HTTPoison.get(url)
-    response.body
-  end
-
   def paginated_links(html_body) do
     urls = html_body
       |> Floki.find(".search_stat a")

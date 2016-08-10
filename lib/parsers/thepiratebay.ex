@@ -7,7 +7,7 @@ defmodule Magnetissimo.Parsers.ThePirateBay do
     ]
   end
 
-  def paginated_links(html_body) do
+  def paginated_links(_) do
     for i <- 1..6, j <- 1..50, do: "https://thepiratebay.org/browse/#{i}00/#{j}/3"
   end
 

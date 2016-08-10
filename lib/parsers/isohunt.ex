@@ -15,11 +15,6 @@ defmodule Magnetissimo.Parsers.Isohunt do
     ]
   end
 
-  def download_url(url) do
-    response = HTTPoison.get(url)
-    response.body
-  end
-
   def paginated_links(html_body) do
     last_page_url = html_body
       |> Floki.find(".pagination .last a")

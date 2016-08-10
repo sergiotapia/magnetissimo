@@ -137,11 +137,6 @@ defmodule Magnetissimo.Parsers.TorrentDownloads do
     ]
   end
 
-  def download_url(url) do
-    response = HTTPoison.get(url)
-    response.body
-  end
-
   def paginated_links(html_body) do
     base_url = html_body
       |> Floki.find(".pagination_box a[title='2']")
