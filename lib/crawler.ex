@@ -21,8 +21,6 @@ defmodule Magnetissimo.Crawler do
     enqueued_jobs = Enum.sum(queue_sizes)
 
     if enqueued_jobs == 0 do
-      Logger.info "Enqueued jobs exist, still running."
-    else
       Logger.info "Initiating crawler run."
       Magnetissimo.Parsers.ThePirateBay.root_urls
       |> Enum.each(fn url -> 
@@ -59,6 +57,8 @@ defmodule Magnetissimo.Crawler do
         Logger.info "Queued: 1337x root_urls"
         Exq.enqueue(Exq, "leetx", "Magnetissimo.DownloadWorker", [url, "leetx", "root_url"])
       end)
+    else
+      Logger.info "Enqueued jobs exist, still running."
     end
 
     schedule_work()
