@@ -15,38 +15,43 @@ defmodule Magnetissimo.Parsers.EZTV do
     html_body
     |> Floki.find("td.forum_thread_post a")
     |> Floki.attribute("href")
-    |> Enum.map(fn(url) -> "https://thepiratebay.org" <> url end)
+    |> Enum.filter(fn(url) -> String.starts_with?(url, "/ep/") end)
+    |> Enum.map(fn(url) -> "https://eztv.ag" <> url end)
   end
 
   def scrape_torrent_information(html_body) do
     name = html_body
       |> Floki.find("td.section_post_header")
+      |> Enum.at(0)
       |> Floki.text
       |> String.trim
 
     magnet = html_body
-      |> Floki.find("td.episode_middle_column a")
+      |> Floki.find("a")
       |> Floki.attribute("href")
       |> Enum.filter(fn(url) -> String.starts_with?(url, "magnet:") end)
       |> Enum.at(0)
 
     size = html_body
-      |> Floki.find("#detailsframe #details .col1 dd")
-      |> Enum.at(2)
+      |> Floki.find("table")
+      |> Enum.at(8)
       |> Floki.text
-      |> String.split(<<194, 160>>)
-      |> Enum.at(2)
-      |> String.replace("(", "")
+      |> String.replace("\n", "")
+      |> String.replace("Released", "")
+      |> String.replace(":", "")
+      |> String.split(" ")
+
+    size_value = Enum.at(size, 6)
+    unit = Enum.at(size, 7)
+    size = Magnetissimo.SizeConverter.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     {seeders, _} = html_body
-      |> Floki.find("#detailsframe #details .col2 dd")
-      |> Enum.at(2)
+      |> Floki.find("span.stat_red")
       |> Floki.text
       |> Integer.parse
 
     {leechers, _} = html_body
-      |> Floki.find("#detailsframe #details .col2 dd")
-      |> Enum.at(3)
+      |> Floki.find("span.stat_green")
       |> Floki.text
       |> Integer.parse
 
