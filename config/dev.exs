@@ -11,8 +11,7 @@ config :magnetissimo, Magnetissimo.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  watchers: []
-
+  watchers: [npm: ["run", "watch"]]
 
 # Watch static and templates for browser reloading.
 config :magnetissimo, Magnetissimo.Endpoint,
@@ -35,8 +34,7 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :magnetissimo, Magnetissimo.Repo,
   adapter: Ecto.Adapters.Postgres,
-  username: "postgres",
-  password: "postgres",
   database: "magnetissimo_dev",
   hostname: "localhost",
-  pool_size: 10
+  port: 5432,
+  pool_size: 50

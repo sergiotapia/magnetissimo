@@ -7,7 +7,8 @@
     "test": "test"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch-stdin --progress --color"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,8 @@
   "bugs": {
     "url": "https://github.com/sergiotapia/magnetissimo/issues"
   },
-  "homepage": "https://github.com/sergiotapia/magnetissimo#readme"
+  "homepage": "https://github.com/sergiotapia/magnetissimo#readme",
+  "devDependencies": {
+    "webpack": "^1.14.0"
+  }
 }
