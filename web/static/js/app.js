@@ -1,4 +1,4 @@
-// Ensure that this import is commented out for now.
-// import "phoenix_html"
+import "phoenix_html";
+import { Socket } from "phoenix";
 
 alert('webpack compiled me.');
