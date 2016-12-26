@@ -13,6 +13,7 @@
 
   <body>
     <div class="container">
+      <div id="react-mount"></div>
       <header class="header">
         <nav role="navigation">
           <ul class="nav nav-pills pull-right">

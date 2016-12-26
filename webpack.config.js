@@ -17,6 +17,7 @@ module.exports = {
   },
 
   resolve: {
-    modulesDirectories: [ "node_modules", __dirname + "/web/static/js" ]
+    modulesDirectories: [ "node_modules", __dirname + "/web/static/js" ],
+    extensions: ['', '.js', '.jsx']
   }
 }
