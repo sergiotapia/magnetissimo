@@ -1,23 +1,23 @@
 module.exports = {
-  entry: "./web/static/js/app.js",
+  entry: './web/static/js/app.js',
   output: {
-    path: "./priv/static/js",
-    filename: "app.js"
+    path: './priv/static/js',
+    filename: 'app.js'
   },
 
   module: {
     loaders: [{
-      test: /\.js$/,
+      test: /\.(js|jsx)$/,
+      loader: 'babel',
       exclude: /node_modules/,
-      loader: "babel",
       query: {
-        presets: ["es2015"]
+        presets: ['es2015', 'react']
       }
     }]
   },
 
   resolve: {
-    modulesDirectories: [ "node_modules", __dirname + "/web/static/js" ],
+    modulesDirectories: [ 'node_modules', __dirname + '/web/static/js' ],
     extensions: ['', '.js', '.jsx']
   }
 }
