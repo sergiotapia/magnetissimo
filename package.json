@@ -1,0 +1,27 @@
+{
+  "name": "magnetissimo",
+  "version": "1.0.0",
+  "description": "Web application that indexes all popular torrent sites, and saves it to the local database.",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sergiotapia/magnetissimo.git"
+  },
+  "keywords": [
+    "torrent",
+    "search-engine",
+    "crawler"
+  ],
+  "author": "Sergio Tapia",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sergiotapia/magnetissimo/issues"
+  },
+  "homepage": "https://github.com/sergiotapia/magnetissimo#readme"
+}
