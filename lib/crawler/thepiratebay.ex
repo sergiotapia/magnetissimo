@@ -34,17 +34,23 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   def process({:page_link, url}, queue) do
     IO.puts "Downloading page: #{url}"
-    torrents = Helper.download(url) |> torrent_links
-    queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
-    end)
+    html_body = Helper.download(url)
+    if html_body != nil do
+      torrents = torrent_links(html_body)
+      queue = Enum.reduce(torrents, queue, fn torrent, queue ->
+        :queue.in({:torrent_link, torrent}, queue)
+      end)
+    end
     queue
   end
 
   def process({:torrent_link, url}, queue) do
     IO.puts "Downloading torrent: #{url}"
-    torrent_struct = Helper.download(url) |> torrent_information
-    Torrent.save_torrent(torrent_struct)
+    html_body = Helper.download(url)
+    if html_body != nil do
+      torrent_struct = torrent_information(html_body)
+      Torrent.save_torrent(torrent_struct)
+    end
     queue
   end
 

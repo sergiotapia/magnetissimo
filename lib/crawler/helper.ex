@@ -6,7 +6,7 @@ defmodule Magnetissimo.Crawler.Helper do
       {:ok, %HTTPoison.Response{status_code: 404}} ->
         IO.puts "Error: #{url} is 404."
         nil
-      {:error, %HTTPoison.Error{reason: _}} ->
+      _ ->
         IO.puts "Error: #{url} just ain't workin."
         nil
     end
