@@ -51,7 +51,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
   # Parser functions
 
   def initial_queue do
-    urls = for i <- 1..2 do
+    urls = for i <- 1..200 do
       {:page_link, "https://www.demonoid.pw/files/?to=0&uid=0&category=0&subcategory=0&language=0&seeded=2&quality=0&external=2&query=&sort=&page=#{i}"}
     end
     :queue.from_list(urls)
@@ -105,7 +105,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
       name: name,
       magnet: magnet,
       size: size,
-      website_source: "Demonoid",
+      website_source: "demonoid",
       seeders: 0,
       leechers: 0
     }
