@@ -3,7 +3,6 @@ defmodule Magnetissimo.Crawler.LimeTorrentsTest do
 
   test "scrapes torrent information from detail page" do
     torrent = Magnetissimo.Crawler.LimeTorrents.torrent_information(detail_sample)
-    IO.inspect torrent
     assert torrent != nil
   end
 
