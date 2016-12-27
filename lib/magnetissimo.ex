@@ -16,7 +16,8 @@ defmodule Magnetissimo do
       worker(Magnetissimo.Crawler.ThePirateBay, []),
       worker(Magnetissimo.Crawler.EZTV, []),
       worker(Magnetissimo.Crawler.LimeTorrents, []),
-      worker(Magnetissimo.Crawler.Leetx, [])
+      worker(Magnetissimo.Crawler.Leetx, []),
+      worker(Magnetissimo.Crawler.Demonoid, []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
