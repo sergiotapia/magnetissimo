@@ -3,10 +3,10 @@ defmodule Magnetissimo.Repo.Migrations.CreateTorrent do
 
   def change do
     create table(:torrents) do
-      add :magnet, :string
+      add :magnet, :text
       add :seeders, :integer
       add :leechers, :integer
-      add :name, :string
+      add :name, :text
       add :website_source, :string
       add :size, :string
 

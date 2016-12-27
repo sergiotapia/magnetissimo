@@ -13,7 +13,7 @@ defmodule Magnetissimo do
       # Start the endpoint when the application starts
       supervisor(Magnetissimo.Endpoint, []),
       # Start your own worker by calling: Magnetissimo.Worker.start_link(arg1, arg2, arg3)
-      # worker(Magnetissimo.Worker, [arg1, arg2, arg3]),
+      worker(Magnetissimo.Crawler.ThePirateBay, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
