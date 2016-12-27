@@ -1,4 +1,4 @@
-defmodule Magnetissimo.Crawler.ThePirateBay do
+defmodule Magnetissimo.Crawler.EZTV do
   use GenServer
   alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
@@ -51,57 +51,69 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
   # Parser functions
 
   def initial_queue do
-    urls = for i <- 1..6, j <- 1..50 do
-      {:page_link, "https://thepiratebay.org/browse/#{i}00/#{j}/3"}
+    urls = for i <- 1..300 do
+      {:page_link, "https://eztv.ag/page_#{i}"}
     end
     :queue.from_list(urls)
   end
 
   def torrent_links(html_body) do
     html_body
-    |> Floki.find(".detName a")
+    |> Floki.find("a.epinfo")
     |> Floki.attribute("href")
-    |> Enum.map(fn(url) -> "https://thepiratebay.org" <> url end)
+    |> Enum.filter(fn(a) -> String.contains?(a, "/ep/") end)
+    |> Enum.map(fn(url) -> "https://eztv.ag" <> url end)
   end
 
   def torrent_information(html_body) do
     name = html_body
-      |> Floki.find("#title")
+      |> Floki.find("td.section_post_header")
+      |> Enum.at(0)
       |> Floki.text
       |> String.trim
       |> HtmlEntities.decode
 
     magnet = html_body
-      |> Floki.find(".download a")
+      |> Floki.find("a")
       |> Floki.attribute("href")
       |> Enum.filter(fn(url) -> String.starts_with?(url, "magnet:") end)
       |> Enum.at(0)
 
-    size = html_body
-      |> Floki.find("#detailsframe #details .col1 dd")
-      |> Enum.at(2)
+    size_value = html_body
+      |> Floki.find("table")
+      |> Enum.at(8)
       |> Floki.text
-      |> String.split(<<194, 160>>)
-      |> Enum.at(2)
-      |> String.replace("(", "")
+      |> String.split(" ")
+      |> Enum.at(6)
 
-    {seeders, _} = html_body
-      |> Floki.find("#detailsframe #details .col2 dd")
-      |> Enum.at(2)
+    unit = html_body
+      |> Floki.find("table")
+      |> Enum.at(8)
       |> Floki.text
-      |> Integer.parse
+      |> String.split(" ")
+      |> Enum.at(7)
+      |> String.split("\n")
+      |> Enum.at(0)
 
-    {leechers, _} = html_body
-      |> Floki.find("#detailsframe #details .col2 dd")
-      |> Enum.at(3)
+    seeders = html_body
+      |> Floki.find(".stat_red")
+      |> Enum.at(0)
       |> Floki.text
-      |> Integer.parse
+      |> String.trim
+
+    leechers = html_body
+      |> Floki.find(".stat_green")
+      |> Enum.at(0)
+      |> Floki.text
+      |> String.trim
+
+    size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     %{
       name: name,
       magnet: magnet,
       size: size,
-      website_source: "thepiratebay",
+      website_source: "eztv",
       seeders: seeders,
       leechers: leechers
     }
