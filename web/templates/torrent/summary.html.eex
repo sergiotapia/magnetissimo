@@ -1,0 +1,37 @@
+<div class="box results">
+  <h1>Index Summary:</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <td>Source</td>
+        <td>Torrents</td>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for tally <- @tallies do %>
+        <tr>
+          <td><%= tally.name %></td>
+          <td><%= tally.totals %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="box results">
+  <h1>Totals:</h1>
+  <table class="table">
+    <thead>
+      <tr>
+        <td>Source</td>
+        <td>Torrents</td>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>All</td>
+        <td><%= Enum.map(@tallies, fn tally -> tally.totals end) |> Enum.sum %></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
