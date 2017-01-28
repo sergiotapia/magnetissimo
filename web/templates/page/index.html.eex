@@ -12,12 +12,12 @@
       <table class="table table-hover table-striped">
         <thead>
           <tr>
-            <td>Name</td>
-            <td class="size-header">Size</td>
-            <td>Seeders</td>
-            <td>Leechers</td>
-            <td>Magnet</td>
-            <td>Source</td>
+            <th>Name</th>
+            <th class="size-heaher">Size</th>
+            <th>Seehers</th>
+            <th>Leechers</th>
+            <th>Magnet</th>
+            <th>Source</th>
           </tr>
         </thead>
         <tbody>

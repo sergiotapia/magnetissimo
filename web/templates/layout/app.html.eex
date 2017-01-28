@@ -25,6 +25,7 @@
             <li><a href="/">Latest</a></li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
+            <li><a target="_blank" href="https://reddit.com/r/magnetissimo">/r/magnetissimo</a></li>
             <li><a href="/summary">Crawl Stats</a></li>
           </ul>
         </div>
