@@ -10,8 +10,7 @@ config :magnetissimo, Magnetissimo.Endpoint,
   http: [port: 4000],
   debug_errors: true,
   code_reloader: true,
-  check_origin: false,
-  watchers: [npm: ["run", "watch"]]
+  check_origin: false
 
 # Watch static and templates for browser reloading.
 config :magnetissimo, Magnetissimo.Endpoint,
