@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-12">
       <form action="/">
-        <input class="big-search" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
+        <input value="<%= @term %>" class="big-search" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
       </form>
     </div>
   </div>
