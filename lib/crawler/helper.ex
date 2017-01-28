@@ -31,11 +31,15 @@ defmodule Magnetissimo.Crawler.Helper do
 
   @spec check_content(String.t) :: {:ok, String.t} | {:error, term()}
   def check_content(url) do
-    result = with  {:ok, headers} <- (HTTPoison.head(url, @headers, @options) |> check_response),
+    response = HTTPoison.head(url, @headers, @options)
+               |> check_response
+
+    result = with  {:ok, headers} <- response
                    {{"Content-Type", types}, _rest} <- List.keytake(headers, "Content-Type", 0),
                    :ok <-  verify_mime(types) do
                     {:ok, url}
             else
+              {:moved, location} -> check_content(location)
               {:error, err}      -> {:error, err}
             end
     result
