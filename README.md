@@ -34,3 +34,32 @@ Please check the Wiki pages for instructions on how to run Magnetissimo.
 * [Running it locally](https://github.com/sergiotapia/magnetissimo/wiki/Usage:-Local)
 * [Running it on Heroku](https://github.com/sergiotapia/magnetissimo/wiki/Usage:-Heroku)
 * Running it on a VPS (to-do)
+
+# Building Docker Container
+
+Download postgres docker images `docker pull postgres` and create a database by logging into the postgresql container
+
+    docker pull postgresql
+    docker run -d --name postgresql -p 5432:5432 postgres
+
+    # ssh into postgresql container
+    docker exec -it postgresql bash
+
+    # login to psql shell
+    psql -U postgres
+
+    # Create a database
+    create database tracker;
+    \q
+
+    exit
+
+Now build the docker image
+
+    cd docker
+
+    docker build -t magnetissimo:latest .
+
+    docker run -p 4000:4000 --name magnetissimo magnetissimo
+
+
