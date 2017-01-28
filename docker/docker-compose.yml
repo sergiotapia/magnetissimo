@@ -2,6 +2,8 @@ version: '2'
 services:
   db:
     image: postgres:9.6 # https://hub.docker.com/_/postgres/
+    volumes:
+      - postgres-db-volume:/data/postgres
     environment:
       - POSTGRES_DB=magnetissimo_dev
       - POSTGRES_USER=torrent
@@ -15,3 +17,5 @@ services:
       - "4000:4000"
     depends_on:
         - db
+volumes:
+  postgres-db-volume:
