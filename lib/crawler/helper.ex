@@ -5,6 +5,12 @@ defmodule Magnetissimo.Crawler.Helper do
   @options [follow_redirect: true, max_redirect: 10]
 
   @spec download(String.t) :: String.t | nil
+  @doc """
+  This helper returns the HTML body associated with its argument.
+  It does not directly download the page. Instead, it first checks the MIME type
+  of the page with `check_content/1`. Then according to the result of this function,
+  either the HTML body is returned, or `nil`, with an error message printed on the console.
+  """
   def download(url) do
     with {:ok, url} <- check_content(url),
          {:ok, %HTTPoison.Response{status_code: 200, body: body, headers: _}} <- fetch(url) do
@@ -30,6 +36,11 @@ defmodule Magnetissimo.Crawler.Helper do
   end
 
   @spec check_content(String.t) :: {:ok, String.t} | {:error, term()}
+  @doc """
+  This helper checks the MIME type of the page. It first sends a `HEAD` request, and according to
+  the HTTP Code (301 or 302, for instance), decides to probe the new location of the page,
+  or just return the url in an :ok-tuple
+  """
   def check_content(url) do
     response = HTTPoison.head(url, @headers, @options)
                |> check_response
@@ -45,7 +56,7 @@ defmodule Magnetissimo.Crawler.Helper do
     result
   end
 
-  # @spec check_response({atom(), %HTTPoison.Response{}}) :: {:ok, String.t} | {:moved, [...]} | {:error, %HTTPoison.Response}
+  defp check_response({:error, err}), do: {:error, err}
   defp check_response({:ok, %HTTPoison.Response{status_code: code, body: _data, headers: headers}}) do
     case code do
       c when c in [301,302] ->
@@ -56,13 +67,12 @@ defmodule Magnetissimo.Crawler.Helper do
     end
   end
 
-  defp check_response({:error, err}), do: {:error, err}
-
   @spec fetch(String.t) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Response{}}
   defp fetch(url) do
     HTTPoison.get(url, @headers, [recv_timeout: :infinity] ++ @options)
   end
 
+  @spec verify_mime(String.t) :: :ok | {:error, :wrong_headers}
   defp verify_mime(types) do
     case Regex.run(~r/^text\/html.*/iu, types, capture: :all_but_first) do
       nil -> {:error, :wrong_headers}
