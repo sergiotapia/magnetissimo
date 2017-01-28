@@ -3,16 +3,7 @@ defmodule Magnetissimo.PageView do
   import Scrivener.HTML
 
   def readable_size(bytes) do
-    cond do
-      # bytes < 1024 ->
-      #   "#{bytes} B"
-      # bytes < 1048576 ->
-      #   "#{bytes/1024} KB"
-      # bytes < 1073741824 ->
-      #   "#{bytes/1048576} MB"
-      true ->
-        "#{bytes}"
-    end
+    Sizeable.filesize(bytes)
   end
 
   def seeders(seeders) do
