@@ -6,11 +6,10 @@ Web application that indexes all popular torrent sites, and saves it to the loca
 
 Goals:
 
+* **No javascript**
 * Crawl multiple index sites for torrents and magnet links.
 * Run without ceremony. No pointless configuration needed.
 * High performance, leveraging Elixir's GenServer and Erlang's BEAM VM.
-* Unit tested for correctness.
-* No weird dependencies, just Elixir and Postgres.
 
 # Community
 
