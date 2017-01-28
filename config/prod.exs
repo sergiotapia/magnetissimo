@@ -17,7 +17,14 @@ config :magnetissimo, Magnetissimo.Endpoint,
   cache_static_manifest: "priv/static/manifest.json",
   server: true,
   root: ".",
-  version: Mix.Project.config[:version]
+  version: Mix.Project.config[:version],
+  secret_key_base: System.get_env("SECRET_KEY_BASE")
+
+config :magnetissimo, Magnetissimo.Repo,
+    adapter: Ecto.Adapters.Postgres,
+    url: System.get_env("DATABASE_URL"),
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
+    ssl: true
 
 # Do not print debug messages in production
 config :logger, level: :info
@@ -61,4 +68,4 @@ config :logger, level: :info
 
 # Finally import the config/prod.secret.exs
 # which should be versioned separately.
-import_config "prod.secret.exs"
+# import_config "prod.secret.exs"
