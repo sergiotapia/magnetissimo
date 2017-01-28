@@ -5,3 +5,14 @@
   color: #5d47a4;
   width: 500px;
 }
+
+
+.big-search {
+  height: 56px;
+  width: 100%;
+  display: block;
+  margin-bottom: 20px;
+  padding: 10px 15px;
+  font-size: 25px;
+  font-weight: 600;
+}

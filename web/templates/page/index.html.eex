@@ -1,21 +1,22 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12">
-      <h1>Search</h1>
-      <input type="text" id="query" name="query" />
+      <form action="/">
+        <input class="big-search" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
+      </form>
     </div>
   </div>
 
   <div class="row">
-    <div class="box results">
+    <div class="col-md-12">
       <table class="table table-hover table-striped">
         <thead>
           <tr>
             <td>Name</td>
             <td class="size-header">Size</td>
-            <td>SE</td>
-            <td>LE</td>
-            <td>DL</td>
+            <td>Seeders</td>
+            <td>Leechers</td>
+            <td>Magnet</td>
             <td>Source</td>
           </tr>
         </thead>
@@ -23,12 +24,12 @@
           <%= for torrent <- @torrents do %>
             <tr>
               <td><%= torrent.name %></td>
-              <td class="meta size"><%= torrent.size %></td>
+              <td class="meta size"><%= readable_size(torrent.size) %></td>
               <td class="meta seeds"><%= seeders(torrent.seeders) %></td>
               <td class="meta leeches"><%= leechers(torrent.leechers) %></td>
               <td>
                 <%= link to: torrent.magnet do %>
-                  <img class="magnet" src="/images/icon-magnet.gif" />
+                  <img height="30" width="30" class="magnet" src="/images/icon-magnet.png" />
                 <% end %>
               </td>
               <td class="meta"><%= torrent.website_source %></td>
@@ -36,8 +37,8 @@
           <% end %>
         </tbody>
       </table>
-    </div>
 
-    <%= pagination_links @page, term: @term %>
+      <%= pagination_links @page, term: @term %>
+    </div>
   </div>
 </div>
