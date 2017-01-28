@@ -1,16 +1,69 @@
 defmodule Magnetissimo.Crawler.Helper do
+  require Logger
+
+  @headers [{"Accept", "text/html,application/xhtml+xml"}]
+  @options [follow_redirect: true, max_redirect: 10]
+
+  @spec download(String.t) :: String.t | nil
   def download(url) do
-    case HTTPoison.get(url) do
-      {:ok, %HTTPoison.Response{status_code: 200, body: body}} ->
-        body
-      {:ok, %HTTPoison.Response{status_code: 404}} ->
-        IO.puts "Error: #{url} is 404."
+    with {:ok, url} <- check_content(url),
+         {:ok, %HTTPoison.Response{status_code: 200, body: body, headers: _}} <- fetch(url) do
+          body
+    else
+      :error ->
+        {:error, :bad_url}
+
+      {:ok, %HTTPoison.Response{status_code: 502, body: _, headers: _}} ->
+        Logger.warn "502 Bad Gateway on #{url}"
         nil
-      _ ->
-        IO.puts "Error: #{url} just ain't workin."
+
+      {:ok, %HTTPoison.Response{status_code: 404, body: _, headers: _}} ->
+        Logger.warn "404 Page not Found on #{url}"
+        nil
+
+      {:error, error} ->
+        Logger.error inspect(error)
         nil
     end
   end
+
+  @spec check_content(String.t) :: {:ok, String.t} | {:error, term()}
+  def check_content(url) do
+    result = with  {:ok, headers} <- (HTTPoison.head(url, @headers, @options) |> check_response),
+                   {{"Content-Type", types}, _rest} <- List.keytake(headers, "Content-Type", 0),
+                   :ok <-  verify_mime(types) do
+                    {:ok, url}
+            else
+              {:error, err}      -> {:error, err}
+            end
+    result
+  end
+
+  # @spec check_response({atom(), %HTTPoison.Response{}}) :: {:ok, String.t} | {:moved, [...]} | {:error, %HTTPoison.Response}
+  defp check_response({:ok, %HTTPoison.Response{status_code: code, body: _data, headers: headers}}) do
+    case code do
+      c when c in [301,302] ->
+        {{"Location", location}, _rest} = List.keytake(headers, "Location", 0)
+        {:moved, location}
+      _                     ->
+        {:ok, headers}
+    end
+  end
+
+  defp check_response({:error, err}), do: {:error, err}
+
+  @spec fetch(String.t) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Response{}}
+  defp fetch(url) do
+    HTTPoison.get(url, @headers, [recv_timeout: :infinity] ++ @options)
+  end
+
+  defp verify_mime(types) do
+    case Regex.run(~r/^text\/html.*/iu, types, capture: :all_but_first) do
+      nil -> {:error, :wrong_headers}
+      _   -> :ok
+    end
+  end
+
 
   def size_to_bytes(size, unit) when is_binary(size) do
     {size_int, _} = Integer.parse(size)
