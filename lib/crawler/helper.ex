@@ -12,6 +12,8 @@ defmodule Magnetissimo.Crawler.Helper do
     else
       :error ->
         {:error, :bad_url}
+        Logger.warn "Bad URL!"
+        nil
 
       {:ok, %HTTPoison.Response{status_code: 502, body: _, headers: _}} ->
         Logger.warn "502 Bad Gateway on #{url}"
