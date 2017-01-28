@@ -10,6 +10,7 @@ services:
       - POSTGRES_PASSWORD=postgres-secret
   web:
     build: .
+    command: mix do compile, ecto.migrate, phoenix.server
     environment:
       - MIX_ENV=prod
       - PORT=4000

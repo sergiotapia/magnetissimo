@@ -24,5 +24,3 @@ RUN git clone https://github.com/sergiotapia/magnetissimo.git /app
 RUN mix deps.get --force
 
 ADD prod.secret.exs config/
-
-ENTRYPOINT ["mix", "do", "compile,", "ecto.migrate,", "phoenix.server"]
