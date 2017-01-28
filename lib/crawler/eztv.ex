@@ -14,7 +14,7 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 1 * 1 * 300) # 5 seconds
+    Process.send_after(self(), :work, 1 * 1 * 100) # 5 seconds
   end
 
   # Callbacks

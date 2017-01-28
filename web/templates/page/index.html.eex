@@ -1,36 +1,43 @@
-<div class="jumbotron">
-  <h2><%= gettext "Welcome to %{name}", name: "Phoenix!" %></h2>
-  <p class="lead">A productive web framework that<br />does not compromise speed and maintainability.</p>
-</div>
-
-<div class="row marketing">
-  <div class="col-lg-6">
-    <h4>Resources</h4>
-    <ul>
-      <li>
-        <a href="http://phoenixframework.org/docs/overview">Guides</a>
-      </li>
-      <li>
-        <a href="https://hexdocs.pm/phoenix">Docs</a>
-      </li>
-      <li>
-        <a href="https://github.com/phoenixframework/phoenix">Source</a>
-      </li>
-    </ul>
+<div class="container">
+  <div class="row">
+    <div class="col-md-12">
+      <h1>Search</h1>
+      <input type="text" id="query" name="query" />
+    </div>
   </div>
 
-  <div class="col-lg-6">
-    <h4>Help</h4>
-    <ul>
-      <li>
-        <a href="http://groups.google.com/group/phoenix-talk">Mailing list</a>
-      </li>
-      <li>
-        <a href="http://webchat.freenode.net/?channels=elixir-lang">#elixir-lang on freenode IRC</a>
-      </li>
-      <li>
-        <a href="https://twitter.com/elixirphoenix">@elixirphoenix</a>
-      </li>
-    </ul>
+  <div class="row">
+    <div class="box results">
+      <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <td>Name</td>
+            <td class="size-header">Size</td>
+            <td>SE</td>
+            <td>LE</td>
+            <td>DL</td>
+            <td>Source</td>
+          </tr>
+        </thead>
+        <tbody>
+          <%= for torrent <- @torrents do %>
+            <tr>
+              <td><%= torrent.name %></td>
+              <td class="meta size"><%= torrent.size %></td>
+              <td class="meta seeds"><%= seeders(torrent.seeders) %></td>
+              <td class="meta leeches"><%= leechers(torrent.leechers) %></td>
+              <td>
+                <%= link to: torrent.magnet do %>
+                  <img class="magnet" src="/images/icon-magnet.gif" />
+                <% end %>
+              </td>
+              <td class="meta"><%= torrent.website_source %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= pagination_links @page, term: @term %>
   </div>
 </div>

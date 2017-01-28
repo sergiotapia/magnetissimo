@@ -1,37 +1,36 @@
-<div class="box results">
-  <h1>Index Summary:</h1>
-  <table class="table">
-    <thead>
-      <tr>
-        <td>Source</td>
-        <td>Torrents</td>
-      </tr>
-    </thead>
-    <tbody>
-      <%= for tally <- @tallies do %>
-        <tr>
-          <td><%= tally.name %></td>
-          <td><%= tally.totals %></td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-</div>
+<div class="row">
+  <div class="col-md-12">
+    <h1>Magnetissimo Crawl Stats</h1>
+    <div class="alert alert-info small-alert">
+      <p>
+        We crawl information from a lot of different websites
+        and continue to add more sites all the time. If you want to see
+        a website here, please create a Github Issue and let us know.
+      </p>
+      <p>
+        You can create a Github Issue <a href="https://github.com/sergiotapia/magnetissimo/issues">here.</a>
+      </p>
+    </div>
 
-<div class="box results">
-  <h1>Totals:</h1>
-  <table class="table">
-    <thead>
-      <tr>
-        <td>Source</td>
-        <td>Torrents</td>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>All</td>
-        <td><%= Enum.map(@tallies, fn tally -> tally.totals end) |> Enum.sum %></td>
-      </tr>
-    </tbody>
-  </table>
+    <table class="table table-striped table-hover table-bordered">
+      <thead>
+        <tr>
+          <td>Website Source</td>
+          <td>Crawled</td>
+        </tr>
+      </thead>
+      <tbody>
+        <%= for tally <- @tallies do %>
+          <tr>
+            <td><%= tally.name %></td>
+            <td><%= tally.totals %></td>
+          </tr>
+        <% end %>
+        <tr>
+          <td><b>All</b></td>
+          <td><b><%= Enum.map(@tallies, fn tally -> tally.totals end) |> Enum.sum %></b></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 </div>

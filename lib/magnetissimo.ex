@@ -17,7 +17,7 @@ defmodule Magnetissimo do
       worker(Magnetissimo.Crawler.EZTV, []),
       worker(Magnetissimo.Crawler.LimeTorrents, []),
       worker(Magnetissimo.Crawler.Leetx, []),
-      worker(Magnetissimo.Crawler.Demonoid, []),
+      # worker(Magnetissimo.Crawler.Demonoid, []), # Down until Demonoid solve their hosting issues.
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
