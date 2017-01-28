@@ -1,8 +1,5 @@
 FROM mrrooijen/phoenix:latest
 
-RUN apk update
-RUN apk add vim
-
 RUN mix local.hex --force
 
 # Install rebar
