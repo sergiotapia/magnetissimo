@@ -17,26 +17,23 @@ defmodule Magnetissimo.Crawler.Monova do
   defp schedule_work do
     Process.send_after(self(), :work, 1 * 1 * 100)
   end
-
-  ##         ##
-  # Callbacks #
-  ##         ##
+  # Callbacks
 
   def handle_info(:work, queue) do
-    q = case :queue.out(queue) do
+    new_queue = case :queue.out(queue) do
       {{_value, item}, queue_2} ->
         process(item, queue_2)
-        queue_2
       _ ->
-        Logger.debug "[MVN] Queue is empty - restarting it"
+        Logger.debug "[Monova] Queue is empty - restarting queue."
         initial_queue()
     end
     schedule_work()
-    {:noreply, q}
+    {:noreply, new_queue}
   end
 
   def process({:page_link, url}, queue) do
     IO.puts "Downloading page: " <> url
+    # :timer.sleep 5000
     torrents = Helper.download(url) |> torrent_links
     queue = Enum.reduce(torrents, queue, fn torrent, queue ->
       :queue.in({:torrent_link, torrent}, queue)
@@ -45,7 +42,6 @@ defmodule Magnetissimo.Crawler.Monova do
   end
 
   def process({:torrent_link, url}, queue) do
-    Logger.info "[Monova] Downloading torrent: " <> url
     torrent_struct = Helper.download(url) |> torrent_information
     Torrent.save_torrent(torrent_struct)
     queue
@@ -56,25 +52,27 @@ defmodule Magnetissimo.Crawler.Monova do
   ##       ##
 
   def initial_queue do
-    categories = %{ 
-    "videos"   => 1,
-    "audio"    => 2,
-    "books"    => 3,
-    "games"    => 4,
-    "software" => 5,
+    # Not used at the moment of writing (29/01/2017)
+    # categories = %{ 
+    # "videos"   => 1,
+    # "audio"    => 2,
+    # "books"    => 3,
+    # "games"    => 4,
+    # "software" => 5,
     # "adult"    => 6, # Has to provide manual validation. Not suited for a bot.
-    "other"    => 7,
-    "photos"   => 8,
-    }
+    # "other"    => 7,
+    # "photos"   => 8,
+    # }
 
   urls =
-    for i <- 1..400, cat <- Map.keys(categories), id <- Map.values(categories) do
-      {:page_link, "https://monova.org/#{cat}?sort=1&verified=1&cat=#{id}&subcat=&page=#{i}"}
+    for i <- 1..50 do
+      {:page_link, "https://monova.org/latest?page=#{i}"}
     end
     :queue.from_list(urls)
   end
 
   def torrent_links(cat_body) do
+    Logger.debug "[Monova] Extracting Torrents"
     cat_body
     |> Floki.find("a")
     |> Floki.attribute("href")
