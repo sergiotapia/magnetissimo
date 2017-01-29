@@ -3,7 +3,6 @@ defmodule Magnetissimo.Crawler.WorldWideTorrentsTest do
 
   test "scrapes torrent information from page" do
     torrents = Magnetissimo.Crawler.WorldWideTorrents.torrent_information(list_sample)
-    IO.inspect torrents
     assert torrents != nil
   end
 

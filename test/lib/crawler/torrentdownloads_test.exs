@@ -8,7 +8,6 @@ defmodule Magnetissimo.Crawler.TorrentDownloadsTest do
 
   test "scrapes torrent information from a torrent detail page" do
     torrent = Magnetissimo.Crawler.TorrentDownloads.torrent_information(detail_sample)
-    IO.inspect torrent
     assert torrent != nil
   end
 
