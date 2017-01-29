@@ -45,7 +45,7 @@ defmodule Magnetissimo.Crawler.Helper do
     response = HTTPoison.head(url, @headers, @options)
                |> check_response
 
-    result = with  {:ok, headers} <- response
+    result = with  {:ok, headers} <- response,
                    {{"Content-Type", types}, _rest} <- List.keytake(headers, "Content-Type", 0),
                    :ok <-  verify_mime(types) do
                     {:ok, url}
