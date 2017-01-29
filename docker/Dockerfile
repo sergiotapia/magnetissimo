@@ -1,5 +1,8 @@
 FROM mrrooijen/phoenix:latest
 
+# Install certificates
+RUN apk add ca-certificates
+
 RUN mix local.hex --force
 
 # Install rebar
@@ -10,9 +13,6 @@ RUN mix archive.install --force https://github.com/phoenixframework/archives/raw
 
 # Set /app as workdir
 WORKDIR /app
-
-# disable ssl verify for git
-RUN git config --system http.sslVerify false
 
 # fetch magnetissimo
 RUN git clone https://github.com/sergiotapia/magnetissimo.git /app
