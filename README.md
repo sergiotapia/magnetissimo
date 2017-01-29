@@ -38,3 +38,4 @@ Magnetissimo currently fetches torrents from the following sites:
 - [x] EZTV (thanks to @agustif)
 - [x] ThePirateBay
 - [x] TorrentDownloads
+- [x] WorldWide Torrents
