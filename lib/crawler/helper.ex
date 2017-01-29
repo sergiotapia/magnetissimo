@@ -90,6 +90,10 @@ defmodule Magnetissimo.Crawler.Helper do
     size_int * 1024
   end
 
+  def size_to_bytes(size_int, "kB") do
+    size_int * 1024
+  end
+
   def size_to_bytes(size_int, "MB") do
     size_to_bytes(size_int, "KB") * 1024
   end
