@@ -4,7 +4,7 @@ defmodule Magnetissimo.Crawler.Leetx do
   alias Magnetissimo.Crawler.Helper
 
   def start_link do
-    queue = initial_queue
+    queue = initial_queue()
     GenServer.start_link(__MODULE__, queue)
   end
 
@@ -26,7 +26,7 @@ defmodule Magnetissimo.Crawler.Leetx do
         queue = process(item, queue)
       _ ->
         IO.puts "Queue is empty - restarting queue."
-        queue = initial_queue
+        queue = initial_queue()
     end
     schedule_work()
     {:noreply, queue}
