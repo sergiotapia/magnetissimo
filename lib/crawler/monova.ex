@@ -33,7 +33,6 @@ defmodule Magnetissimo.Crawler.Monova do
 
   def process({:page_link, url}, queue) do
     IO.puts "Downloading page: " <> url
-    # :timer.sleep 5000
     torrents = Helper.download(url) |> torrent_links
     queue = Enum.reduce(torrents, queue, fn torrent, queue ->
       :queue.in({:torrent_link, torrent}, queue)
@@ -52,18 +51,6 @@ defmodule Magnetissimo.Crawler.Monova do
   ##       ##
 
   def initial_queue do
-    # Not used at the moment of writing (29/01/2017)
-    # categories = %{ 
-    # "videos"   => 1,
-    # "audio"    => 2,
-    # "books"    => 3,
-    # "games"    => 4,
-    # "software" => 5,
-    # "adult"    => 6, # Has to provide manual validation. Not suited for a bot.
-    # "other"    => 7,
-    # "photos"   => 8,
-    # }
-
   urls =
     for i <- 1..50 do
       {:page_link, "https://monova.org/latest?page=#{i}"}
@@ -92,8 +79,11 @@ defmodule Magnetissimo.Crawler.Monova do
       |> Floki.attribute("href")
       |> Enum.at(0)
 
-    size = get_size(torrent_body)
-    
+    size_html = get_size(torrent_body) |> String.split(" ")
+    size_value = Enum.at(size_html, 0)
+    unit = Enum.at(size_html, 1)
+    size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
+
     ## Leechers and Seeders informations are not provided by Monova.
     %{
       name: name,
@@ -103,7 +93,7 @@ defmodule Magnetissimo.Crawler.Monova do
       seeders: 0,
       leechers: 0
     }
-    
+
   end
 
   @spec get_size(String.t) :: String.t
