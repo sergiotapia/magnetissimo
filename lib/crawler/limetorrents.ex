@@ -63,7 +63,7 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
       "Other",
       "Games"
     ]
-    urls = for i <- 1..300, category <- categories do
+    urls = for i <- 1..10, category <- categories do
       {:page_link, "https://www.limetorrents.cc/browse-torrents/#{category}/date/#{i}/"}
     end
     :queue.from_list(urls)
