@@ -37,3 +37,4 @@ Magnetissimo currently fetches torrents from the following sites:
 - [x] Demonoid (disabled until Demonoid comes back online)
 - [x] EZTV (thanks to @agustif)
 - [x] ThePirateBay
+- [x] TorrentDownloads
