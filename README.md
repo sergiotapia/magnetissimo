@@ -2,7 +2,7 @@
 
 Web application that indexes all popular torrent sites, and saves it to the local database.
 
-![alt tag](https://cloud.githubusercontent.com/assets/686715/22399059/7d02e772-e562-11e6-9c04-fb297bb9e109.png)
+![alt tag](https://cloud.githubusercontent.com/assets/686715/22401811/388e3b3e-e5b0-11e6-9429-aca85f3ce0b6.png)
 
 Goals:
 
