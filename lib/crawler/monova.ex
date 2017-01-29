@@ -42,7 +42,6 @@ defmodule Magnetissimo.Crawler.Monova do
   end
 
   def process({:torrent_link, url}, queue) do
-    Logger.debug "[Monova] Downloading torrent: " <> url
     torrent_struct = Helper.download(url) |> torrent_information
     Torrent.save_torrent(torrent_struct)
     queue
