@@ -13,7 +13,7 @@
         <thead>
           <tr>
             <th>Name</th>
-            <th class="size-heaher">Size</th>
+            <th class="size-th">Size</th>
             <th>Seeders</th>
             <th>Leechers</th>
             <th>Magnet</th>
