@@ -30,4 +30,5 @@
   "scrivener": {:hex, :scrivener, "2.2.1", "5a84cdfc042e3c318a03f965d8197b8294676a8fff7c4a29e482a90c467ebf19", [:mix], []},
   "scrivener_ecto": {:hex, :scrivener_ecto, "1.1.3", "f5615f67964e43e8c9958263939bc365c4783cac652dc282784bbd32bb14723f", [:mix], [{:ecto, "~> 2.0", [hex: :ecto, optional: false]}, {:postgrex, "~> 0.11.0 or ~> 0.12.0 or ~> 0.13.0", [hex: :postgrex, optional: true]}, {:scrivener, "~> 2.0", [hex: :scrivener, optional: false]}]},
   "scrivener_html": {:hex, :scrivener_html, "1.5.0", "0fa5671b751e91e03e913a8ae81997f8db4aac6ce91bcc453ef5570ff93b4dcc", [:mix], [{:phoenix, "~> 1.0 or ~> 1.2", [hex: :phoenix, optional: true]}, {:phoenix_html, "~> 2.2", [hex: :phoenix_html, optional: false]}, {:plug, "~> 1.1", [hex: :plug, optional: false]}, {:scrivener, "~> 1.2 or ~> 2.0", [hex: :scrivener, optional: false]}]},
+  "sizeable": {:hex, :sizeable, "0.1.5", "47fb6563efb1e11374b552b778808cf143496a003d1889c56a953ef57fd7856e", [:mix], []},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], []}}
