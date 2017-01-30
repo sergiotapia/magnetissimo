@@ -17,7 +17,7 @@ defmodule Magnetissimo do
       worker(Magnetissimo.Crawler.EZTV,              []),
       worker(Magnetissimo.Crawler.LimeTorrents,      []),
       worker(Magnetissimo.Crawler.Leetx,             []),
-      # worker(Magnetissimo.Crawler.Monova,            []),
+      worker(Magnetissimo.Crawler.Monova,            []),
       worker(Magnetissimo.Crawler.TorrentDownloads,  []),
       worker(Magnetissimo.Crawler.WorldWideTorrents, []),
       # worker(Magnetissimo.Crawler.Demonoid, []), # Down until Demonoid solve their hosting issues.
