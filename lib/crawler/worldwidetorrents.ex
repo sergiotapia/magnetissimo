@@ -2,6 +2,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
   use GenServer
   alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
+  require Logger
 
   def start_link do
     queue = initial_queue()
@@ -20,18 +21,18 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
   # Callbacks
 
   def handle_info(:work, queue) do
-    case :queue.out(queue) do
+    new_queue = case :queue.out(queue) do
       {{_value, item}, queue_2} ->
-        queue = queue_2
-        queue = process(item, queue)
+        process(item, queue_2)
       _ ->
-        IO.puts "Queue is empty - restarting queue."
-        queue = initial_queue()
+        Logger.debug "[World Wide Torrents] Queue is empty - restarting queue."
+        initial_queue()
     end
     schedule_work()
-    {:noreply, queue}
+    {:noreply, new_queue}
   end
 
+  # Custom process function.
   def process({:page_link, url}, queue) do
     IO.puts "Downloading page: #{url}"
     html_body = Helper.download(url)

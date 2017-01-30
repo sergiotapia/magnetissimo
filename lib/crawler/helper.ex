@@ -1,5 +1,6 @@
 defmodule Magnetissimo.Crawler.Helper do
   require Logger
+  alias Magnetissimo.Torrent
 
   @headers [{"Accept", "text/html,application/xhtml+xml"}]
   @options [follow_redirect: true, max_redirect: 10]
@@ -80,6 +81,29 @@ defmodule Magnetissimo.Crawler.Helper do
     end
   end
 
+  def process({:page_link, url}, queue, links) do
+    IO.puts "Downloading page: #{url}"
+    html_body = download(url)
+    new_queue = case html_body do
+      nil -> queue
+      _   ->
+        torrents = links.(html_body)
+        Enum.reduce(torrents, queue, fn torrent, queue ->
+          :queue.in({:torrent_link, torrent}, queue)
+        end)
+      end
+    new_queue
+  end
+
+  def process({:torrent_link, url}, queue, torrent_infos) do
+    IO.puts "Downloading torrent: #{url}"
+    html_body = download(url)
+    if html_body != nil do
+      torrent_struct = torrent_infos.(html_body)
+      Torrent.save_torrent(torrent_struct)
+    end
+    queue
+  end
 
   def size_to_bytes(size, unit) when is_binary(size) do
     {size_int, _} = Integer.parse(size)

@@ -1,7 +1,7 @@
 defmodule Magnetissimo.Crawler.Monova do
   use GenServer
-  alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
+  
   require Logger
 
   def start_link do
@@ -21,30 +21,16 @@ defmodule Magnetissimo.Crawler.Monova do
 
   def handle_info(:work, queue) do
     new_queue = case :queue.out(queue) do
-      {{_value, item}, queue_2} ->
-        process(item, queue_2)
+      {{_value, {:page_link, url}}, queue_2} ->
+        Helper.process({:page_link, url}, queue_2, fn x -> torrent_links(x) end)
+      {{_value, {:torrent_link, url}}, queue_2} ->
+        Helper.process({:torrent_link, url}, queue_2, fn x -> torrent_information(x) end)
       _ ->
         Logger.debug "[Monova] Queue is empty - restarting queue."
         initial_queue()
     end
     schedule_work()
     {:noreply, new_queue}
-  end
-
-  def process({:page_link, url}, queue) do
-    IO.puts "Downloading page: " <> url
-    # :timer.sleep 5000
-    torrents = Helper.download(url) |> torrent_links
-    queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
-    end)
-    queue
-  end
-
-  def process({:torrent_link, url}, queue) do
-    torrent_struct = Helper.download(url) |> torrent_information
-    Torrent.save_torrent(torrent_struct)
-    queue
   end
 
   ##       ##
