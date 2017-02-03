@@ -34,33 +34,6 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
     {:noreply, new_queue}
   end
 
-  def process({:page_link, url}, queue) do
-    IO.puts "Downloading page: #{url}"
-    torrents = Helper.download(url) |> torrent_links
-    cond do
-      is_nil(torrents) -> nil
-      true -> queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-                :queue.in({:torrent_link, torrent}, queue)
-              end)
-    end
-    queue
-  end
-
-  def process({:torrent_link, url}, queue) do
-    IO.puts "Downloading torrent: #{url}"
-    html_body = Helper.download(url)
-    cond do
-      is_nil(html_body)    -> nil
-
-      is_binary(html_body) ->
-        torrent_struct = torrent_information(html_body)
-        Torrent.save_torrent(torrent_struct)
-
-      true                 -> nil
-    end
-    queue
-  end
-
   # Parser functions
 
   def initial_queue do
