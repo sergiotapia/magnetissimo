@@ -34,25 +34,32 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
     {:noreply, new_queue}
   end
 
-  # Let just keep that here for the moment.
-  # def process({:page_link, url}, queue) do
-  #   IO.puts "Downloading page: #{url}"
-  #   torrents = Helper.download(url) |> torrent_links
-  #   queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-  #     :queue.in({:torrent_link, torrent}, queue)
-  #   end)
-  #   queue
-  # end
+  def process({:page_link, url}, queue) do
+    IO.puts "Downloading page: #{url}"
+    torrents = Helper.download(url) |> torrent_links
+    cond do
+      is_nil(torrents) -> nil
+      true -> queue = Enum.reduce(torrents, queue, fn torrent, queue ->
+                :queue.in({:torrent_link, torrent}, queue)
+              end)
+    end
+    queue
+  end
 
-  # def process({:torrent_link, url}, queue) do
-  #   IO.puts "Downloading torrent: #{url}"
-  #   html_body = Helper.download(url)
-  #   if String.length(html_body) > 300 do
-  #     torrent_struct = torrent_information(html_body)
-  #     Torrent.save_torrent(torrent_struct)
-  #   end
-  #   queue
-  # end
+  def process({:torrent_link, url}, queue) do
+    IO.puts "Downloading torrent: #{url}"
+    html_body = Helper.download(url)
+    cond do
+      is_nil(html_body)    -> nil
+
+      is_binary(html_body) ->
+        torrent_struct = torrent_information(html_body)
+        Torrent.save_torrent(torrent_struct)
+
+      true                 -> nil
+    end
+    queue
+  end
 
   # Parser functions
 
@@ -72,7 +79,11 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
     :queue.from_list(urls)
   end
 
-  def torrent_links(html_body) do
+  @spec torrent_links(nil) :: nil
+  @spec torrent_links(String.t) :: list(String.t)
+
+  def torrent_links(nil), do: nil
+  def torrent_links(html_body) when is_binary(html_body) do
     html_body
     |> Floki.find(".tt-name a")
     |> Enum.drop_every(2)
@@ -80,7 +91,7 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
     |> Enum.map(fn(url) -> "https://www.limetorrents.cc" <> url end)
   end
 
-  def torrent_information(html_body) do
+  def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("h1")
       |> Floki.text
