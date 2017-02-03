@@ -30,7 +30,7 @@ defmodule Magnetissimo.Crawler.Helper do
         nil
 
       {:error, error} ->
-        Logger.error inspect(error)
+        Logger.error inspect(error.reason)
         nil
     end
   end
