@@ -4,6 +4,23 @@ defmodule Magnetissimo.Torrent do
   alias Magnetissimo.Repo
   alias Magnetissimo.Torrent
 
+  @type t :: %Magnetissimo.T{magnet:         String.t,
+                             seeders:        non_neg_integer(),
+                             leechers:       non_neg_integer(),
+                             name:           String.t,
+                             website_source: String.t,
+                             size:           String.t
+                            }
+
+  @derive [String.Chars]
+  defstruct [ :magnet,
+              :seeders,
+              :leechers,
+              :name,
+              :website_source,
+              :size
+          ]
+
   schema "torrents" do
     field :magnet, :string
     field :seeders, :integer
@@ -15,6 +32,8 @@ defmodule Magnetissimo.Torrent do
     timestamps()
   end
 
+
+end
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
