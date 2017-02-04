@@ -105,6 +105,11 @@ defmodule Magnetissimo.Crawler.Helper do
     queue
   end
 
+  def size_to_bytes(:error) do
+    Logger.warn "Why would you try to convert `:error`?????"
+    0
+  end
+
   def size_to_bytes(size, unit) when is_binary(size) do
     {size_int, _} = Integer.parse(size)
     size_to_bytes(size_int, unit)
