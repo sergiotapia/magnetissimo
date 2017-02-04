@@ -61,7 +61,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
     torrents
   end
 
-  def parse_row(row) when is_binary(row) do
+  def parse_row(row) when is_tuple(row) do
     name = row
       |> Floki.find("td")
       |> Enum.at(0)
