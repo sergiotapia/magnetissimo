@@ -1,7 +1,7 @@
-defmodule Magnetissimo.Crawler.LimeTorrents do
+defmodule Magnetissimo.Crawler.LimeTorrent.Ts do
   use GenServer
   alias Magnetissimo.Crawler.Helper
-  
+  alias Magnetissimo.Torrent.T 
   require Logger
 
   def start_link do
@@ -27,7 +27,7 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
       {{_value, {:torrent_link, url}}, queue_2} ->
         Helper.process({:torrent_link, url}, queue_2, fn x -> torrent_information(x) end)
       _ ->
-        Logger.debug "[LimeTorrents] Queue is empty - restarting queue."
+        Logger.debug "[LimeTorrent.Ts] Queue is empty - restarting queue."
         initial_queue()
     end
     schedule_work()
@@ -64,6 +64,7 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
     |> Enum.map(fn(url) -> "https://www.limetorrents.cc" <> url end)
   end
 
+  @spec torrent_information(String.t) :: T.t
   def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("h1")
@@ -84,7 +85,7 @@ defmodule Magnetissimo.Crawler.LimeTorrents do
     unit = String.split(size_html) |> Enum.at(1)
     size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,

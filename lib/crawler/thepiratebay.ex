@@ -1,7 +1,9 @@
 defmodule Magnetissimo.Crawler.ThePirateBay do
   use GenServer
   alias Magnetissimo.Crawler.Helper
+  alias Magnetissimo.Torrent.T
   require Logger
+
 
   def start_link do
     queue = initial_queue()
@@ -14,7 +16,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 5000) # 5 seconds
+    Process.send_after(self(), :work, 1 * 1 * 100) # 5 seconds
   end
 
   # Callbacks
@@ -49,6 +51,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
     |> Enum.map(fn(url) -> "https://thepiratebay.org" <> url end)
   end
 
+  @spec torrent_information(String.t) :: T.t
   def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("#title")
@@ -82,7 +85,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
       |> Floki.text
       |> Integer.parse
 
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,

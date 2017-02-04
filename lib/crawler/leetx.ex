@@ -2,6 +2,7 @@ defmodule Magnetissimo.Crawler.Leetx do
   use GenServer
   alias Magnetissimo.Crawler.Helper
   require Logger
+  alias Magnetissimo.Torrent.T 
 
   def start_link do
     queue = initial_queue()
@@ -61,11 +62,12 @@ defmodule Magnetissimo.Crawler.Leetx do
     |> Enum.map(fn(url) -> "https://1337x.to" <> url end)
   end
 
+  @spec torrent_information(String.t) :: T.t
   def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("title")
       |> Floki.text
-      |> String.replace("Download Torrent ", "")
+      |> String.replace("Download Torrent.T ", "")
       |> String.replace("| 1337x", "")
       |> String.replace("Download ", "")
       |> String.trim
@@ -99,7 +101,7 @@ defmodule Magnetissimo.Crawler.Leetx do
       |> Floki.text
       |> Integer.parse
 
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,

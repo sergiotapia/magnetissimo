@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Crawler.EZTV do
   use GenServer
   alias Magnetissimo.Crawler.Helper
+  alias Magnetissimo.Torrent.T 
   
   require Logger
 
@@ -52,6 +53,7 @@ defmodule Magnetissimo.Crawler.EZTV do
     |> Enum.map(fn(url) -> "https://eztv.ag" <> url end)
   end
 
+  @spec torrent_information(String.t) :: T.t
   def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("td.section_post_header")
@@ -96,7 +98,7 @@ defmodule Magnetissimo.Crawler.EZTV do
 
     size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,

@@ -1,7 +1,7 @@
-defmodule Magnetissimo.Crawler.TorrentDownloads do
+defmodule Magnetissimo.Crawler.Torrent.TDownloads do
   use GenServer
   alias Magnetissimo.Crawler.Helper
-  
+  alias Magnetissimo.Torrent.T 
   require Logger
 
   def start_link do
@@ -27,7 +27,7 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
       {{_value, {:torrent_link, url}}, queue_2} ->
         Helper.process({:torrent_link, url}, queue_2, fn x -> torrent_information(x) end)
       _ ->
-        Logger.debug "[Torrent Downloads] Queue is empty - restarting queue."
+        Logger.debug "[Torrent.T Downloads] Queue is empty - restarting queue."
         initial_queue()
     end
     schedule_work()
@@ -61,6 +61,7 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
     |> Enum.map(fn(url) -> "https://www.torrentdownloads.me" <> url end)
   end
 
+  @spec torrent_information(String.t) :: T.t
   def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("h1.titl_1 span")
@@ -106,7 +107,7 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
       |> String.trim
       |> Integer.parse
 
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,

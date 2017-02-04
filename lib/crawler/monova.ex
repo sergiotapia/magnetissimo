@@ -1,7 +1,7 @@
 defmodule Magnetissimo.Crawler.Monova do
   use GenServer
   alias Magnetissimo.Crawler.Helper
-  
+  alias Magnetissimo.Torrent.T
   require Logger
 
   def start_link do
@@ -47,7 +47,7 @@ defmodule Magnetissimo.Crawler.Monova do
 
   @spec torrent_links(String.t) :: [String.t]
   def torrent_links(cat_body) when is_binary(cat_body) do
-    Logger.debug "[Monova] Extracting Torrents"
+    Logger.debug "[Monova] Extracting Torrent.Ts"
     cat_body
     |> Floki.find("a")
     |> Floki.attribute("href")
@@ -55,11 +55,12 @@ defmodule Magnetissimo.Crawler.Monova do
     |> Enum.map(fn(url) -> "https:" <> url end)
   end
 
+  @spec torrent_information(String.t) :: T.t
   def torrent_information(torrent_body) when is_binary(torrent_body) do
     name = torrent_body
       |> Floki.find("title")
       |> Floki.text
-      |> String.replace(" - Torrent", "")
+      |> String.replace(" - Torrent.T", "")
       |> String.trim
 
     magnet = torrent_body
@@ -73,7 +74,7 @@ defmodule Magnetissimo.Crawler.Monova do
     size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     ## Leechers and Seeders informations are not provided by Monova.
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,

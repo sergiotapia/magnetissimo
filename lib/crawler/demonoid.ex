@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Crawler.Demonoid do
   use GenServer
   alias Magnetissimo.Crawler.Helper
+  alias Magnetissimo.Torrent.T 
   
   require Logger
 
@@ -51,6 +52,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
     |> Enum.map(fn(url) -> "https://www.demonoid.pw" <> url end)
   end
 
+  @spec torrent_information(String.t) :: T.t
   def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("td.ctable_header")
@@ -88,7 +90,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
     unit = Enum.at(size, 1)
     size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,

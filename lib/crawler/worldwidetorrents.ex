@@ -1,5 +1,6 @@
-defmodule Magnetissimo.Crawler.WorldWideTorrents do
+defmodule Magnetissimo.Crawler.WorldWideTorrent.Ts do
   use GenServer
+  alias Magnetissimo.Torrent.T
   alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
   require Logger
@@ -25,7 +26,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
       {{_value, item}, queue_2} ->
         process(item, queue_2)
       _ ->
-        Logger.debug "[World Wide Torrents] Queue is empty - restarting queue."
+        Logger.debug "[World Wide Torrent.Ts] Queue is empty - restarting queue."
         initial_queue()
     end
     schedule_work()
@@ -45,7 +46,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
 
   # Parser functions
 
-  # WorldWideTorrents offers all of it's content on it's pagination page.
+  # WorldWideTorrent.Ts offers all of it's content on it's pagination page.
   # There's no need to go into a torrent detail page.
   def initial_queue do
     urls = for i <- 1..50 do
@@ -61,6 +62,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
     torrents
   end
 
+  @spec parse_row(tuple()) :: T.t
   def parse_row(row) when is_tuple(row) do
     name = row
       |> Floki.find("td")
@@ -97,7 +99,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
       |> Floki.text
       |> String.replace(",", "")
 
-    %{
+    %T{
       name: name,
       magnet: magnet,
       size: size,
