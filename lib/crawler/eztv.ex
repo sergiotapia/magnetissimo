@@ -44,7 +44,7 @@ defmodule Magnetissimo.Crawler.EZTV do
     :queue.from_list(urls)
   end
 
-  def torrent_links(html_body) do
+  def torrent_links(html_body) when is_binary(html_body) do
     html_body
     |> Floki.find("a.epinfo")
     |> Floki.attribute("href")
@@ -52,7 +52,7 @@ defmodule Magnetissimo.Crawler.EZTV do
     |> Enum.map(fn(url) -> "https://eztv.ag" <> url end)
   end
 
-  def torrent_information(html_body) do
+  def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("td.section_post_header")
       |> Enum.at(0)

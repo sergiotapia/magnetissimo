@@ -45,7 +45,8 @@ defmodule Magnetissimo.Crawler.Monova do
     :queue.from_list(urls)
   end
 
-  def torrent_links(cat_body) do
+  @spec torrent_links(String.t) :: [String.t]
+  def torrent_links(cat_body) when is_binary(cat_body) do
     Logger.debug "[Monova] Extracting Torrents"
     cat_body
     |> Floki.find("a")
@@ -54,7 +55,7 @@ defmodule Magnetissimo.Crawler.Monova do
     |> Enum.map(fn(url) -> "https:" <> url end)
   end
 
-  def torrent_information(torrent_body) do
+  def torrent_information(torrent_body) when is_binary(torrent_body) do
     name = torrent_body
       |> Floki.find("title")
       |> Floki.text

@@ -43,7 +43,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
     :queue.from_list(urls)
   end
 
-  def torrent_links(html_body) do
+  def torrent_links(html_body) when is_binary(html_body) do
     html_body
     |> Floki.find("td.tone_1_pad a")
     |> Floki.attribute("href")
@@ -51,7 +51,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
     |> Enum.map(fn(url) -> "https://www.demonoid.pw" <> url end)
   end
 
-  def torrent_information(html_body) do
+  def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("td.ctable_header")
       |> Floki.text

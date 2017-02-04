@@ -54,14 +54,14 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
     :queue.from_list(urls)
   end
 
-  def torrent_information(html_body) do
+  def torrent_information(html_body) when is_binary(html_body) do
     torrents = html_body
       |> Floki.find(".ttable_headinner .t-row")
       |> Enum.map(fn(row) -> parse_row(row) end)
     torrents
   end
 
-  def parse_row(row) do
+  def parse_row(row) when is_binary(row) do
     name = row
       |> Floki.find("td")
       |> Enum.at(0)
