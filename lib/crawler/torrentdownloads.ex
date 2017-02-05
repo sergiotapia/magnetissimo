@@ -1,7 +1,7 @@
-defmodule Magnetissimo.Crawler.Torrent.TDownloads do
+defmodule Magnetissimo.Crawler.TorrentDownloads do
   use GenServer
   alias Magnetissimo.Crawler.Helper
-  alias Magnetissimo.Torrent.T 
+  alias Magnetissimo.Torrent 
   require Logger
 
   def start_link do
@@ -107,7 +107,7 @@ defmodule Magnetissimo.Crawler.Torrent.TDownloads do
       |> String.trim
       |> Integer.parse
 
-    %T{
+    %{
       name: name,
       magnet: magnet,
       size: size,

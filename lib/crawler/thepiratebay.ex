@@ -1,9 +1,8 @@
 defmodule Magnetissimo.Crawler.ThePirateBay do
   use GenServer
   alias Magnetissimo.Crawler.Helper
-  alias Magnetissimo.Torrent.T
+  alias Magnetissimo.Torrent
   require Logger
-
 
   def start_link do
     queue = initial_queue()
@@ -85,7 +84,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
       |> Floki.text
       |> Integer.parse
 
-    %T{
+    %{
       name: name,
       magnet: magnet,
       size: size,

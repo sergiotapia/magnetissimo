@@ -1,7 +1,7 @@
-defmodule Magnetissimo.Crawler.LimeTorrent.Ts do
+defmodule Magnetissimo.Crawler.LimeTorrents do
   use GenServer
   alias Magnetissimo.Crawler.Helper
-  alias Magnetissimo.Torrent.T 
+  alias Magnetissimo.Torrent 
   require Logger
 
   def start_link do
@@ -85,7 +85,7 @@ defmodule Magnetissimo.Crawler.LimeTorrent.Ts do
     unit = String.split(size_html) |> Enum.at(1)
     size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
-    %T{
+    %{
       name: name,
       magnet: magnet,
       size: size,

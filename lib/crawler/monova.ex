@@ -1,7 +1,7 @@
 defmodule Magnetissimo.Crawler.Monova do
   use GenServer
   alias Magnetissimo.Crawler.Helper
-  alias Magnetissimo.Torrent.T
+  alias Magnetissimo.Torrent
   require Logger
 
   def start_link do
@@ -74,7 +74,7 @@ defmodule Magnetissimo.Crawler.Monova do
     size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     ## Leechers and Seeders informations are not provided by Monova.
-    %T{
+    %{
       name: name,
       magnet: magnet,
       size: size,

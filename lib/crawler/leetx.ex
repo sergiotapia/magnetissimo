@@ -1,8 +1,8 @@
 defmodule Magnetissimo.Crawler.Leetx do
   use GenServer
   alias Magnetissimo.Crawler.Helper
+  alias Magnetissimo.Torrent 
   require Logger
-  alias Magnetissimo.Torrent.T 
 
   def start_link do
     queue = initial_queue()
@@ -101,7 +101,7 @@ defmodule Magnetissimo.Crawler.Leetx do
       |> Floki.text
       |> Integer.parse
 
-    %T{
+    %{
       name: name,
       magnet: magnet,
       size: size,

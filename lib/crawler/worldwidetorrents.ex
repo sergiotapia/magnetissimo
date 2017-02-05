@@ -1,6 +1,5 @@
-defmodule Magnetissimo.Crawler.WorldWideTorrent.Ts do
+defmodule Magnetissimo.Crawler.WorldWideTorrents do
   use GenServer
-  alias Magnetissimo.Torrent.T
   alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
   require Logger
@@ -99,7 +98,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrent.Ts do
       |> Floki.text
       |> String.replace(",", "")
 
-    %T{
+    %{
       name: name,
       magnet: magnet,
       size: size,
