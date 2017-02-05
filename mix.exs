@@ -38,13 +38,13 @@ defmodule Magnetissimo.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:floki, "~> 0.11.0"},
+     {:floki, "~> 0.11.0", runtime: false},
      {:httpoison, "~> 0.10.0"},
-     {:html_entities, "~> 0.3"},
+     {:html_entities, "~> 0.3", runtime: false},
      {:distillery, "~> 1.0"},
      {:scrivener_ecto, "~> 1.0"},
      {:scrivener_html, "~> 1.1"},
-     {:sizeable, "~> 0.1.5"}]
+     {:sizeable, "~> 0.1.5", runtime: false}]
   end
 
   # Aliases are shortcuts or tasks specific to the current project.
