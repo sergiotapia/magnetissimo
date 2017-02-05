@@ -1,10 +1,11 @@
 defmodule Magnetissimo.Crawler.TorrentDownloads do
   use GenServer
-  alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
+  alias Magnetissimo.Torrent 
+  require Logger
 
   def start_link do
-    queue = initial_queue
+    queue = initial_queue()
     GenServer.start_link(__MODULE__, queue)
   end
 
@@ -20,39 +21,19 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
   # Callbacks
 
   def handle_info(:work, queue) do
-    case :queue.out(queue) do
-      {{_value, item}, queue_2} ->
-        queue = queue_2
-        queue = process(item, queue)
+    new_queue = case :queue.out(queue) do
+      {{_value, {:page_link, url}}, queue_2} ->
+        Helper.process({:page_link, url}, queue_2, fn x -> torrent_links(x) end)
+      {{_value, {:torrent_link, url}}, queue_2} ->
+        Helper.process({:torrent_link, url}, queue_2, fn x -> torrent_information(x) end)
       _ ->
-        IO.puts "Queue is empty - restarting queue."
-        queue = initial_queue
+        Logger.debug "[Torrent.T Downloads] Queue is empty - restarting queue."
+        initial_queue()
     end
     schedule_work()
-    {:noreply, queue}
+    {:noreply, new_queue}
   end
 
-  def process({:page_link, url}, queue) do
-    IO.puts "Downloading page: #{url}"
-    html_body = Helper.download(url)
-    if html_body != nil do
-      torrents = torrent_links(html_body)
-      queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-        :queue.in({:torrent_link, torrent}, queue)
-      end)
-    end
-    queue
-  end
-
-  def process({:torrent_link, url}, queue) do
-    IO.puts "Downloading torrent: #{url}"
-    html_body = Helper.download(url)
-    if html_body != nil do
-      torrent_struct = torrent_information(html_body)
-      Torrent.save_torrent(torrent_struct)
-    end
-    queue
-  end
 
   # Parser functions
 
@@ -73,14 +54,15 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
     :queue.from_list(urls)
   end
 
-  def torrent_links(html_body) do
+  def torrent_links(html_body) when is_binary(html_body) do
     html_body
     |> Floki.find(".grey_bar3 p a")
     |> Floki.attribute("href")
     |> Enum.map(fn(url) -> "https://www.torrentdownloads.me" <> url end)
   end
 
-  def torrent_information(html_body) do
+  @spec torrent_information(String.t) :: T.t
+  def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("h1.titl_1 span")
       |> Floki.text

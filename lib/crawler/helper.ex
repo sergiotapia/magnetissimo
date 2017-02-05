@@ -1,5 +1,6 @@
 defmodule Magnetissimo.Crawler.Helper do
   require Logger
+  alias Magnetissimo.Torrent
 
   @headers [{"Accept", "text/html,application/xhtml+xml"}]
   @options [follow_redirect: true, max_redirect: 10]
@@ -7,7 +8,7 @@ defmodule Magnetissimo.Crawler.Helper do
   @spec download(String.t) :: String.t | nil
   @doc """
   This helper returns the HTML body associated with its argument.
-  It does not directly download the page. Instead, it first checks the MIME type
+ It does not directly download the page. Instead, it first checks the MIME type
   of the page with `check_content/1`. Then according to the result of this function,
   either the HTML body is returned, or `nil`, with an error message printed on the console.
   """
@@ -80,6 +81,34 @@ defmodule Magnetissimo.Crawler.Helper do
     end
   end
 
+  def process({:page_link, url}, queue, links) do
+    IO.puts "Downloading page: #{url}"
+    html_body = download(url)
+    new_queue = case html_body do
+      nil -> queue
+      _   ->
+        torrents = links.(html_body)
+        Enum.reduce(torrents, queue, fn torrent, queue ->
+          :queue.in({:torrent_link, torrent}, queue)
+        end)
+      end
+    new_queue
+  end
+
+  def process({:torrent_link, url}, queue, torrent_infos) do
+    IO.puts "Downloading torrent: #{url}"
+    html_body = download(url)
+    if html_body != nil do
+      torrent_struct = torrent_infos.(html_body)
+      Torrent.save_torrent(torrent_struct)
+    end
+    queue
+  end
+
+  def size_to_bytes(:error) do
+    Logger.warn "Why would you try to convert `:error`?????"
+    0
+  end
 
   def size_to_bytes(size, unit) when is_binary(size) do
     {size_int, _} = Integer.parse(size)

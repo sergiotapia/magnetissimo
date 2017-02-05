@@ -1,10 +1,12 @@
 defmodule Magnetissimo.Crawler.Demonoid do
   use GenServer
-  alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
+  alias Magnetissimo.Torrent
+  
+  require Logger
 
   def start_link do
-    queue = initial_queue
+    queue = initial_queue()
     GenServer.start_link(__MODULE__, queue)
   end
 
@@ -20,32 +22,17 @@ defmodule Magnetissimo.Crawler.Demonoid do
   # Callbacks
 
   def handle_info(:work, queue) do
-    case :queue.out(queue) do
-      {{_value, item}, queue_2} ->
-        queue = queue_2
-        queue = process(item, queue)
+    new_queue = case :queue.out(queue) do
+      {{_value, {:page_link, url}}, queue_2} ->
+        Helper.process({:page_link, url}, queue_2, fn x -> torrent_links(x) end)
+      {{_value, {:torrent_link, url}}, queue_2} ->
+        Helper.process({:torrent_link, url}, queue_2, fn x -> torrent_information(x) end)
       _ ->
-        IO.puts "Queue is empty - restarting queue."
-        queue = initial_queue
+        Logger.debug "[Demonoid] Queue is empty - restarting queue."
+        initial_queue()
     end
     schedule_work()
-    {:noreply, queue}
-  end
-
-  def process({:page_link, url}, queue) do
-    IO.puts "Downloading page: #{url}"
-    torrents = Helper.download(url) |> torrent_links
-    queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
-    end)
-    queue
-  end
-
-  def process({:torrent_link, url}, queue) do
-    IO.puts "Downloading torrent: #{url}"
-    torrent_struct = Helper.download(url) |> torrent_information
-    Torrent.save_torrent(torrent_struct)
-    queue
+    {:noreply, new_queue}
   end
 
   # Parser functions
@@ -57,7 +44,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
     :queue.from_list(urls)
   end
 
-  def torrent_links(html_body) do
+  def torrent_links(html_body) when is_binary(html_body) do
     html_body
     |> Floki.find("td.tone_1_pad a")
     |> Floki.attribute("href")
@@ -65,7 +52,8 @@ defmodule Magnetissimo.Crawler.Demonoid do
     |> Enum.map(fn(url) -> "https://www.demonoid.pw" <> url end)
   end
 
-  def torrent_information(html_body) do
+  @spec torrent_information(String.t) :: T.t
+  def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("td.ctable_header")
       |> Floki.text
@@ -75,9 +63,10 @@ defmodule Magnetissimo.Crawler.Demonoid do
       |> String.trim
       |> HtmlEntities.decode
 
-    description = html_body
-      |> Floki.find("span.adbriteinline")
-      |> Floki.text
+    # Not used
+    # description = html_body
+    #   |> Floki.find("span.adbriteinline")
+    #   |> Floki.text
 
     magnet = html_body
       |> Floki.find("a")

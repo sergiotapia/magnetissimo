@@ -15,6 +15,15 @@ defmodule Magnetissimo.Torrent do
     timestamps()
   end
 
+
+@type t :: %{magnet:         String.t,
+             seeders:        non_neg_integer(),
+             leechers:       non_neg_integer(),
+             name:           String.t,
+             website_source: String.t,
+             size:           String.t
+            }
+
   @doc """
   Builds a changeset based on the `struct` and `params`.
   """
