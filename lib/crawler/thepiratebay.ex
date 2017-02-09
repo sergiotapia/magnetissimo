@@ -5,12 +5,12 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   def start_link do
     queue = initial_queue
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, {queue, %{}})
   end
 
-  def init(queue) do
+  def init({queue, cache}) do
     schedule_work()
-    {:ok, queue}
+    {:ok, {queue, cache}}
   end
 
   defp schedule_work do
@@ -19,42 +19,57 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   # Callbacks
 
-  def handle_info(:work, queue) do
+  def handle_info(:work, {queue, cache}) do
     case :queue.out(queue) do
       {{_value, item}, queue_2} ->
         queue = queue_2
-        queue = process(item, queue)
+        {queue, cache} = process(item, {queue, cache})
       _ ->
         IO.puts "Queue is empty - restarting queue."
         queue = initial_queue
     end
     schedule_work()
-    {:noreply, queue}
+    {:noreply, {queue, cache}}
   end
 
-  def process({:page_link, url}, queue) do
+  def process({:page_link, url}, {queue, cache}) do
     IO.puts "Downloading page: #{url}"
     html_body = Helper.download(url)
     if html_body != nil do
       torrents = torrent_links(html_body)
       queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-        :queue.in({:torrent_link, torrent}, queue)
+      :queue.in({:torrent_link, torrent}, queue)
       end)
     end
-    queue
+    {queue, cache}
   end
 
-  def process({:torrent_link, url}, queue) do
+  def process({:torrent_link, url}, {queue, cache}) do
     IO.puts "Downloading torrent: #{url}"
     html_body = Helper.download(url)
     if html_body != nil do
       torrent_struct = torrent_information(html_body)
-      Torrent.save_torrent(torrent_struct)
+      case Map.fetch(cache, torrent_struct.magnet) do
+        :error ->
+          cache = Map.put(cache, torrent_struct.magnet, DateTime.to_unix(DateTime.utc_now))
+          :queue.in({:torrent_link, torrent_struct}, queue)
+          Torrent.save_torrent(torrent_struct)
+        {:ok, timestamp} ->
+          if timestamp < DateTime.to_unix(DateTime.utc_now) - 1 * 24 * 60 * 60 do
+            cache = Map.put(cache, torrent_struct.magnet, DateTime.to_unix(DateTime.utc_now))
+            :queue.in({:torrent_link, torrent_struct}, queue)
+            Torrent.save_torrent(torrent_struct)
+          end
+
+          IO.puts "Torrent already cached: #{url}"
+          cache = cache
+      end
     end
-    queue
+    {queue, cache}
   end
 
   # Parser functions
+
 
   def initial_queue do
     urls = for i <- 1..6, j <- 1..50 do
