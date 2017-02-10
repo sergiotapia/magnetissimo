@@ -5,12 +5,12 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   def start_link do
     queue = initial_queue
-    GenServer.start_link(__MODULE__, {queue, %{}})
+    GenServer.start_link(__MODULE__, queue)
   end
 
-  def init({queue, cache}) do
+  def init(queue) do
     schedule_work()
-    {:ok, {queue, cache}}
+    {:ok, queue}
   end
 
   defp schedule_work do
@@ -19,20 +19,20 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   # Callbacks
 
-  def handle_info(:work, {queue, cache}) do
+  def handle_info(:work, queue) do
     case :queue.out(queue) do
       {{_value, item}, queue_2} ->
         queue = queue_2
-        {queue, cache} = process(item, {queue, cache})
+        queue = process(item, queue)
       _ ->
         IO.puts "Queue is empty - restarting queue."
         queue = initial_queue
     end
     schedule_work()
-    {:noreply, {queue, cache}}
+    {:noreply, queue}
   end
 
-  def process({:page_link, url}, {queue, cache}) do
+  def process({:page_link, url}, queue) do
     IO.puts "Downloading page: #{url}"
     html_body = Helper.download(url)
     if html_body != nil do
@@ -41,38 +41,24 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
       :queue.in({:torrent_link, torrent}, queue)
       end)
     end
-    {queue, cache}
+    queue
   end
 
-  def process({:torrent_link, url}, {queue, cache}) do
+  def process({:torrent_link, url}, queue) do
     IO.puts "Downloading torrent: #{url}"
     html_body = Helper.download(url)
     if html_body != nil do
       torrent_struct = torrent_information(html_body)
-      case Map.fetch(cache, torrent_struct.magnet) do
-        :error ->
-          cache = Map.put(cache, torrent_struct.magnet, DateTime.to_unix(DateTime.utc_now))
-          :queue.in({:torrent_link, torrent_struct}, queue)
-          Torrent.save_torrent(torrent_struct)
-        {:ok, timestamp} ->
-          if timestamp < DateTime.to_unix(DateTime.utc_now) - 1 * 24 * 60 * 60 do
-            cache = Map.put(cache, torrent_struct.magnet, DateTime.to_unix(DateTime.utc_now))
-            :queue.in({:torrent_link, torrent_struct}, queue)
-            Torrent.save_torrent(torrent_struct)
-          end
-
-          IO.puts "Torrent already cached: #{url}"
-          cache = cache
-      end
+      :queue.in({:torrent_link, torrent_struct}, queue)
     end
-    {queue, cache}
+    queue
   end
 
   # Parser functions
 
 
   def initial_queue do
-    urls = for i <- 1..6, j <- 1..50 do
+    urls = for i <- 1..1, j <- 1..1 do
       {:page_link, "https://thepiratebay.org/browse/#{i}00/#{j}/3"}
     end
     :queue.from_list(urls)
