@@ -1,4 +1,4 @@
-defmodule Magnetissimo.MagnetKV do
+defmodule Magnetissimo.KV do
   def start_link do
     Agent.start_link(fn -> %{} end, name: __MODULE__)
   end
