@@ -1,5 +1,6 @@
 defmodule Magnetissimo.Crawler.TorrentDownloads do
   use GenServer
+  use Magnetissimo.Crawler.Cachable
   alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
 
@@ -38,7 +39,7 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
     if html_body != nil do
       torrents = torrent_links(html_body)
       queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-        :queue.in({:torrent_link, torrent}, queue)
+        :queue.in({:torrent_link_cache, torrent}, queue)
       end)
     end
     queue

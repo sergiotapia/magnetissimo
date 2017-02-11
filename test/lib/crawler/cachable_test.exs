@@ -22,10 +22,6 @@ defmodule Magnetissimo.Crawler.CachableExample do
   def process({:page_link, url}, queue) do
   end
 
-  def process(_anything, queue) do
-    queue
-  end
-
   # Callbacks
 
   def handle_cast(:work, queue) do
@@ -45,10 +41,9 @@ defmodule Magnetissimo.Crawler.CachableTest do
   use ExUnit.Case, async: true
 
   test "keeps track of cached torrent_links" do
-    {:ok, _} = Magnetissimo.KV.start_link
     {:ok, _} = Magnetissimo.Crawler.CachableExample.start_link
 
-    assert [{:torrent_link, "some.url"}] == Magnetissimo.Crawler.CachableExample.process({:torrent_link_cache, "some.url"}, [])
+    assert [] == Magnetissimo.Crawler.CachableExample.process({:torrent_link_cache, "some.url"}, [])
     assert [] == Magnetissimo.Crawler.CachableExample.process({:torrent_link_cache, "some.url"}, [])
   end
 
