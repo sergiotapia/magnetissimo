@@ -1,5 +1,6 @@
 defmodule Magnetissimo.Crawler.Monova do
   use GenServer
+  use Magnetissimo.Crawler.Cachable
   alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
   require Logger
@@ -35,7 +36,7 @@ defmodule Magnetissimo.Crawler.Monova do
     IO.puts "Downloading page: " <> url
     torrents = Helper.download(url) |> torrent_links
     queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
+      :queue.in({:torrent_link_cache, torrent}, queue)
     end)
     queue
   end

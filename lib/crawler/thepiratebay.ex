@@ -1,5 +1,6 @@
 defmodule Magnetissimo.Crawler.ThePirateBay do
   use GenServer
+  use Magnetissimo.Crawler.Cachable
   alias Magnetissimo.Torrent
   alias Magnetissimo.Crawler.Helper
 
@@ -38,7 +39,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
     if html_body != nil do
       torrents = torrent_links(html_body)
       queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-        :queue.in({:torrent_link, torrent}, queue)
+        :queue.in({:torrent_link_cache, torrent}, queue)
       end)
     end
     queue
@@ -56,8 +57,9 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   # Parser functions
 
+
   def initial_queue do
-    urls = for i <- 1..6, j <- 1..50 do
+    urls = for i <- 1..1, j <- 1..1 do
       {:page_link, "https://thepiratebay.org/browse/#{i}00/#{j}/3"}
     end
     :queue.from_list(urls)
