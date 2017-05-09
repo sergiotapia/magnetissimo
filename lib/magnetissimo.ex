@@ -14,12 +14,12 @@ defmodule Magnetissimo do
       supervisor(Magnetissimo.Endpoint, []),
       # Start your own worker by calling: Magnetissimo.Worker.start_link(arg1, arg2, arg3)
       worker(Magnetissimo.Crawler.ThePirateBay,      []),
-      worker(Magnetissimo.Crawler.EZTV,              []),
-      worker(Magnetissimo.Crawler.LimeTorrents,      []),
-      worker(Magnetissimo.Crawler.Leetx,             []),
-      worker(Magnetissimo.Crawler.Monova,            []),
-      worker(Magnetissimo.Crawler.TorrentDownloads,  []),
-      worker(Magnetissimo.Crawler.WorldWideTorrents, []),
+      # worker(Magnetissimo.Crawler.EZTV,              []),
+      # worker(Magnetissimo.Crawler.LimeTorrents,      []),
+      # worker(Magnetissimo.Crawler.Leetx,             []),
+      # worker(Magnetissimo.Crawler.Monova,            []),
+      # worker(Magnetissimo.Crawler.TorrentDownloads,  []),
+      # worker(Magnetissimo.Crawler.WorldWideTorrents, []),
       # worker(Magnetissimo.Crawler.Demonoid, []), # Down until Demonoid solve their hosting issues.
     ]
 

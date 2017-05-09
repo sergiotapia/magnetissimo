@@ -36,6 +36,7 @@ defmodule Magnetissimo.Mixfile do
      {:postgrex, ">= 0.0.0"},
      {:phoenix_html, "~> 2.6"},
      {:phoenix_live_reload, "~> 1.0", only: :dev},
+     {:credo, "~> 0.7", only: [:dev, :test]},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
      {:floki, "~> 0.11.0"},

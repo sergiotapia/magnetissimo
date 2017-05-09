@@ -33,8 +33,7 @@ defmodule Magnetissimo.Torrent do
       {:ok, _torrent} ->
         Logger.info "Torrent saved to database: #{torrent.name}"
       {:error, changeset} ->
-        Logger.error "Couldn't save: #{torrent.name}"
-        IO.inspect changeset.errors
+        Logger.info "Torrent skipped: #{torrent.name}"
     end
   end
 end
