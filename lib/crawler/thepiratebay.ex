@@ -30,7 +30,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
   end
 
   def handle_info(:work, queue) do
-    queue =
+    new_queue =
       case :queue.out(queue) do
         {{_value, item}, queue_2} ->
           process(item, queue_2)
@@ -39,7 +39,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
         initial_queue()
     end
     schedule_work()
-    {:noreply, queue}
+    {:noreply, new_queue}
   end
 
   def process({:page_link, url}, queue) do
@@ -65,14 +65,14 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
     queue
   end
 
-  def torrent_links(html_body) do
+  def torrent_links(html_body) when is_binary(html_body) do
     html_body
     |> Floki.find(".detName a")
     |> Floki.attribute("href")
     |> Enum.map(fn(url) -> "https://thepiratebay.org" <> url end)
   end
 
-  def torrent_information(html_body) do
+  def torrent_information(html_body) when is_binary(html_body) do
     name = html_body
       |> Floki.find("#title")
       |> Floki.text
