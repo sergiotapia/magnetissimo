@@ -9,7 +9,7 @@ defmodule Magnetissimo.Crawler.EZTV do
   require Logger
 
   def initial_queue do
-    urls = for i <- 1..15 do
+    urls = for i <- 1..2 do
       {:page_link, "https://eztv.ag/page_#{i}"}
     end
     :queue.from_list(urls)
