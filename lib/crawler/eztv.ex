@@ -1,10 +1,22 @@
 defmodule Magnetissimo.Crawler.EZTV do
+  @moduledoc """
+  Torrent parser for EZTV in charge of scraping and saving
+  the latest torrents on the website.
+  """
+
+  @behaviour Magnetissimo.WebParser
   use GenServer
-  alias Magnetissimo.Torrent
-  alias Magnetissimo.Crawler.Helper
+  require Logger
+
+  def initial_queue do
+    urls = for i <- 1..15 do
+      {:page_link, "https://eztv.ag/page_#{i}"}
+    end
+    :queue.from_list(urls)
+  end
 
   def start_link do
-    queue = initial_queue
+    queue = initial_queue()
     GenServer.start_link(__MODULE__, queue)
   end
 
@@ -14,27 +26,26 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 1 * 1 * 100) # 5 seconds
+    wait = :rand.uniform(9)
+    Process.send_after(self(), :work, wait * 1000) # 5 seconds
   end
 
-  # Callbacks
-
   def handle_info(:work, queue) do
-    case :queue.out(queue) do
-      {{_value, item}, queue_2} ->
-        queue = queue_2
-        queue = process(item, queue)
-      _ ->
-        IO.puts "Queue is empty - restarting queue."
-        queue = initial_queue
+    new_queue =
+      case :queue.out(queue) do
+        {{_value, item}, queue_2} ->
+          process(item, queue_2)
+        _ ->
+          Logger.info "[EZTV] Queue is empty, restarting scraping procedure."
+          initial_queue()
     end
     schedule_work()
-    {:noreply, queue}
+    {:noreply, new_queue}
   end
 
   def process({:page_link, url}, queue) do
-    IO.puts "Downloading page: #{url}"
-    torrents = Helper.download(url) |> torrent_links
+    Logger.info "[EZTV] Finding torrents in listing page: #{url}"
+    torrents = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
     queue = Enum.reduce(torrents, queue, fn torrent, queue ->
       :queue.in({:torrent_link, torrent}, queue)
     end)
@@ -42,19 +53,10 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   def process({:torrent_link, url}, queue) do
-    IO.puts "Downloading torrent: #{url}"
-    torrent_struct = Helper.download(url) |> torrent_information
-    Torrent.save_torrent(torrent_struct)
+    Logger.info "[EZTV] Downloading torrent from page: #{url}"
+    torrent_struct = Magnetissimo.Crawler.Helper.download(url) |> torrent_information
+    Magnetissimo.Torrent.save_torrent(torrent_struct)
     queue
-  end
-
-  # Parser functions
-
-  def initial_queue do
-    urls = for i <- 1..300 do
-      {:page_link, "https://eztv.ag/page_#{i}"}
-    end
-    :queue.from_list(urls)
   end
 
   def torrent_links(html_body) do
@@ -107,7 +109,7 @@ defmodule Magnetissimo.Crawler.EZTV do
       |> Floki.text
       |> String.trim
 
-    size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
+    size = Magnetissimo.Crawler.Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
 
     %{
       name: name,

@@ -16,7 +16,7 @@ defmodule Magnetissimo do
       supervisor(Magnetissimo.Endpoint, [], @strategy),
       # Start your own worker by calling: Magnetissimo.Worker.start_link(arg1, arg2, arg3)
       worker(Magnetissimo.Crawler.ThePirateBay, [], @strategy),
-      # worker(Magnetissimo.Crawler.EZTV,              []),
+      worker(Magnetissimo.Crawler.EZTV, [], @strategy),
       # worker(Magnetissimo.Crawler.LimeTorrents,      []),
       # worker(Magnetissimo.Crawler.Leetx,             []),
       # worker(Magnetissimo.Crawler.Monova,            []),

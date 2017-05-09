@@ -26,7 +26,8 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 1 * 1 * 100) # 5 seconds
+    wait = :rand.uniform(9)
+    Process.send_after(self(), :work, wait * 1000) # 5 seconds
   end
 
   def handle_info(:work, queue) do
