@@ -27,7 +27,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
 
   defp schedule_work do
     wait = :rand.uniform(9)
-    Process.send_after(self(), :work, wait * 1000) # 5 seconds
+    Process.send_after(self(), :work, wait * 1000)
   end
 
   def handle_info(:work, queue) do

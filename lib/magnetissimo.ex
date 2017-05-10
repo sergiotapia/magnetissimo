@@ -20,7 +20,7 @@ defmodule Magnetissimo do
       worker(Magnetissimo.Crawler.Leetx, [], @strategy),
       worker(Magnetissimo.Crawler.ThePirateBay, [], @strategy),
 
-      # worker(Magnetissimo.Crawler.LimeTorrents,      []),
+
       # worker(Magnetissimo.Crawler.Leetx,             []),
       # worker(Magnetissimo.Crawler.Monova,            []),
       # worker(Magnetissimo.Crawler.TorrentDownloads,  []),
