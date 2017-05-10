@@ -38,7 +38,7 @@ defmodule Magnetissimo.Crawler.EZTV do
         _ ->
           Logger.info "[EZTV] Queue is empty, restarting scraping procedure."
           initial_queue()
-    end
+      end
     schedule_work()
     {:noreply, new_queue}
   end
