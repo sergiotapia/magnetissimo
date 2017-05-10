@@ -19,6 +19,7 @@ defmodule Magnetissimo do
       worker(Magnetissimo.Crawler.EZTV, [], @strategy),
       worker(Magnetissimo.Crawler.Leetx, [], @strategy),
       worker(Magnetissimo.Crawler.ThePirateBay, [], @strategy),
+      worker(Magnetissimo.Crawler.Zooqle, [], @strategy),
 
 
       # worker(Magnetissimo.Crawler.Leetx,             []),
