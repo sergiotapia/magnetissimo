@@ -36,7 +36,7 @@ defmodule Magnetissimo.Torrent do
       {:error, changeset} ->
         errors = Enum.reduce(changeset.errors, [], fn (field_error, errors) ->
           {field, {error_message, _}} = field_error
-          errors = ["#{Atom.to_string(field)} #{error_message}" | errors]
+          errors = ["#{field} #{error_message}" | errors]
         end)
         Logger.error "Torrent skipped: #{torrent.name} - Errors: #{Enum.join(errors, ", ")}"
     end
