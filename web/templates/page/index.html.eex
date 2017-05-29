@@ -1,14 +1,17 @@
 <div class="container">
-  <div class="row">
-    <div class="col-md-12">
+  <div class="columns">
+    <div class="column col-11">
       <form action="/">
         <input value="<%= @term %>" class="form-input input-lg" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
       </form>
     </div>
+    <div class="column col-1">
+      <%= render "_rss_button.html", conn: @conn, term: @term %>
+    </div>
   </div>
 
-  <div class="row">
-    <div class="col-md-12">
+  <div class="columns">
+    <div class="column col-12">
       <table class="table table-hover table-striped">
         <thead>
           <tr>
