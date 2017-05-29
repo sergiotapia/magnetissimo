@@ -42,6 +42,12 @@ defmodule Magnetissimo.Torrent do
     end
   end
 
+  def total_by_website_source(website_source) when website_source == "" do
+    query = from t in Torrent,
+            select: count("*")
+    Repo.one(query)
+  end
+
   def total_by_website_source(website_source) do
     query = from t in Torrent,
             where: t.website_source == ^website_source,

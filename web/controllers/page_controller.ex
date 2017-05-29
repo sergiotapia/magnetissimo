@@ -3,22 +3,20 @@ defmodule Magnetissimo.PageController do
   alias Magnetissimo.Torrent
 
   def index(conn, params) do
-    # http://localhost:4000/?term=&page=1&field=seeders&sort=desc
-    if params["sort"] && params["field"] do
-      sort = params["sort"]
-      field = params["field"]
-      order_by = [{:"#{sort}", :"#{field}"}]
-
-      results =
-        from t in Torrent,
-        where: ilike(t.name, ^"%#{params["term"]}%"),
-        order_by: ^order_by
-    else
-      results =
-        from t in Torrent,
-        where: ilike(t.name, ^"%#{params["term"]}%"),
-        order_by: [desc: :inserted_at]
+    case params do
+      %{"term" => term, "website_source" => website_source} ->
+        results =
+          from t in Torrent,
+          where: ilike(t.name, ^"%#{params["term"]}%"),
+          where: t.website_source == ^website_source,
+          order_by: [desc: :inserted_at]
+      _ ->
+        results =
+          from t in Torrent,
+          where: ilike(t.name, ^"%#{params["term"]}%"),
+          order_by: [desc: :inserted_at]
     end
+    
 
     page = results |> Magnetissimo.Repo.paginate(params)
 

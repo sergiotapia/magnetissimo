@@ -38,9 +38,18 @@
             <li class="divider"></li>
             <li class="menu-item">
               <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("") %></label>
+              </div>
+              <a href="/?term=<%= @term %>">
+                Show All
+              </a>
+            </li>
+            <li class="divider"></li>
+            <li class="menu-item">
+              <div class="menu-badge">
                 <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("demonoid") %></label>
               </div>
-              <a href="#">
+              <a href="/?term=<%= @term %>&website_source=demonoid">
                 Demonoid
               </a>
             </li>
@@ -48,7 +57,7 @@
               <div class="menu-badge">
                 <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("eztv") %></label>
               </div>
-              <a href="#">
+              <a href="/?term=<%= @term %>&website_source=eztv">
                 EZTV
               </a>
             </li>
