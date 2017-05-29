@@ -29,14 +29,6 @@
         <div class="column col-xl-2">
           <ul class="menu">
             <li class="menu-item">
-              <div class="tile tile-centered">
-                <div class="tile-content">
-                  Sources
-                </div>
-              </div>
-            </li>
-            <li class="divider"></li>
-            <li class="menu-item">
               <div class="menu-badge">
                 <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("") %></label>
               </div>
