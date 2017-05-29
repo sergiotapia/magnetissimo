@@ -17,7 +17,11 @@
   <body>
     <div class="container">
       <div class="columns">
-        <h1 id="logo">Magnetissimo</h1>
+        <h1 id="logo">
+          <a href="/">
+           Magnetissimo
+          </a>
+        </h1>
       </div>
 
       <div class="columns">
