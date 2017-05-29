@@ -15,10 +15,11 @@ defmodule Magnetissimo do
       # Start the endpoint when the application starts
       supervisor(Magnetissimo.Endpoint, [], @strategy),
       # Start your own worker by calling: Magnetissimo.Worker.start_link(arg1, arg2, arg3)
-      # worker(Magnetissimo.Crawler.Demonoid, [], @strategy),
-      # worker(Magnetissimo.Crawler.EZTV, [], @strategy),
+      worker(Magnetissimo.Crawler.Demonoid, [], @strategy),
+      worker(Magnetissimo.Crawler.EZTV, [], @strategy),
       # worker(Magnetissimo.Crawler.Leetx, [], @strategy),
       # worker(Magnetissimo.Crawler.ThePirateBay, [], @strategy),
+      # Broken temporarily.
       # worker(Magnetissimo.Crawler.Zooqle, [], @strategy),
 
 

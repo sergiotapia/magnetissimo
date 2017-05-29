@@ -9,7 +9,7 @@ defmodule Magnetissimo.Crawler.EZTV do
   require Logger
 
   def initial_queue do
-    urls = for i <- 1..2 do
+    urls = for i <- 0..4 do
       {:page_link, "https://eztv.ag/page_#{i}"}
     end
     :queue.from_list(urls)
@@ -26,8 +26,8 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   defp schedule_work do
-    wait = :rand.uniform(9)
-    Process.send_after(self(), :work, wait * 1000) # 5 seconds
+    wait_seconds = :rand.uniform(8) * 1000
+    Process.send_after(self(), :work, wait_seconds)
   end
 
   def handle_info(:work, queue) do
@@ -45,21 +45,32 @@ defmodule Magnetissimo.Crawler.EZTV do
 
   def process({:page_link, url}, queue) do
     Logger.info "[EZTV] Finding torrents in listing page: #{url}"
-    torrents = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
-    queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
-    end)
-    queue
+    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
+    case result do
+      {:error, message} ->
+        Logger.error message
+        queue
+      torrents ->
+        Enum.reduce(torrents, queue, fn torrent, queue ->
+          :queue.in({:torrent_link, torrent}, queue)
+        end)
+    end
   end
 
   def process({:torrent_link, url}, queue) do
     Logger.info "[EZTV] Downloading torrent from page: #{url}"
-    torrent_struct = Magnetissimo.Crawler.Helper.download(url) |> torrent_information
-    Magnetissimo.Torrent.save_torrent(torrent_struct)
+    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_information 
+    case result do
+      {:error, message} -> 
+        Logger.error message
+      torrent_struct -> 
+        torrent_struct = Map.put(torrent_struct, :outbound_url, url)
+        Magnetissimo.Torrent.save_torrent(torrent_struct)
+    end
     queue
   end
 
-  def torrent_links(html_body) do
+  def torrent_links(html_body) when is_binary(html_body) and byte_size(html_body) > 50 do
     html_body
     |> Floki.find("a.epinfo")
     |> Floki.attribute("href")
@@ -67,7 +78,11 @@ defmodule Magnetissimo.Crawler.EZTV do
     |> Enum.map(fn(url) -> "https://eztv.ag" <> url end)
   end
 
-  def torrent_information(html_body) do
+  def torrent_links(_html_body) do
+    {:error, "Couldn't parse torrents links."}
+  end
+
+  def torrent_information(html_body) when is_binary(html_body) and byte_size(html_body) > 50 do
     name = html_body
       |> Floki.find("td.section_post_header")
       |> Enum.at(0)
@@ -81,21 +96,23 @@ defmodule Magnetissimo.Crawler.EZTV do
       |> Enum.filter(fn(url) -> String.starts_with?(url, "magnet:") end)
       |> Enum.at(0)
 
-    size_value = html_body
+    size_table = html_body
       |> Floki.find("table")
       |> Enum.at(8)
       |> Floki.text
       |> String.split(" ")
+    
+    size_value = 0
+    unit = "MB"
+    if Enum.count(size_table) == 18 do
+      size_value = size_table
       |> Enum.at(6)
 
-    unit = html_body
-      |> Floki.find("table")
-      |> Enum.at(8)
-      |> Floki.text
-      |> String.split(" ")
-      |> Enum.at(7)
-      |> String.split("\n")
-      |> Enum.at(0)
+      unit = size_table
+        |> Enum.at(7)
+        |> String.split("\n")
+        |> Enum.at(0)  
+    end
 
     seeders = html_body
       |> Floki.find(".stat_red")
@@ -119,5 +136,9 @@ defmodule Magnetissimo.Crawler.EZTV do
       seeders: seeders,
       leechers: leechers
     }
+  end
+
+  def torrent_information(_html_body) do
+    {:error, "Couldn't parse torrent information"}
   end
 end

@@ -2,7 +2,7 @@
   <div class="row">
     <div class="col-md-12">
       <form action="/">
-        <input value="<%= @term %>" class="big-search" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
+        <input value="<%= @term %>" class="form-input input-lg" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
       </form>
     </div>
   </div>
@@ -23,13 +23,15 @@
         <tbody>
           <%= for torrent <- @torrents do %>
             <tr>
-              <td><%= torrent.name %></td>
+              <td>
+                <%= link torrent.name, to: torrent.outbound_url, target: "_blank" %>
+              </td>
               <td class="meta size"><%= readable_size(torrent.size) %></td>
               <td class="meta seeds"><%= seeders(torrent.seeders) %></td>
               <td class="meta leeches"><%= leechers(torrent.leechers) %></td>
               <td>
                 <%= link to: torrent.magnet do %>
-                  <img height="30" width="30" class="magnet" src="/images/icon-magnet.png" />
+                  <i class="icon icon-download"></i>
                 <% end %>
               </td>
               <td class="meta"><%= torrent.website_source %></td>

@@ -42,7 +42,7 @@ defmodule Magnetissimo.Mixfile do
      {:floki, "~> 0.11.0"},
      {:httpoison, "~> 0.10.0"},
      {:html_entities, "~> 0.3"},
-     {:distillery, "~> 1.0"},
+     {:distillery, "~> 1.4"},
      {:scrivener_ecto, "~> 1.0"},
      {:scrivener_html, "~> 1.1"},
      {:sizeable, "~> 0.1.5"}]

@@ -7,33 +7,81 @@
     <meta name="description" content="Magnetissimo - Web application that indexes all popular torrent sites, and saves it to the local database.">
     <meta name="author" content="Sergio Tapia">
 
-    <title>Magnetissimo - Torrent Web Crawler</title>
+    <title>Magnetissimo</title>
 
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/spectre.css") %>">
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/spectre-icons.css") %>">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 
   <body>
-    <nav class="navbar navbar-default navbar-static-top">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">Magnetissimo</a>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-          <ul class="nav navbar-nav">
-            <li><a href="/">Latest</a></li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            <li><a target="_blank" href="https://reddit.com/r/magnetissimo">/r/magnetissimo</a></li>
-            <li><a href="/summary">Crawl Stats</a></li>
-          </ul>
-        </div>
-      </div>
-    </nav>
-
     <div class="container">
-      <%= render @view_module, @view_template, assigns %>
+      <div class="columns">
+        <h1 id="logo">Magnetissimo</h1>
+      </div>
+
+      <div class="columns">
+
+        <div class="column col-xl-2">
+          <ul class="menu">
+            <li class="menu-item">
+              <div class="tile tile-centered">
+                <div class="tile-content">
+                  Sources
+                </div>
+              </div>
+            </li>
+            <li class="divider"></li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("demonoid") %></label>
+              </div>
+              <a href="#">
+                Demonoid
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("eztv") %></label>
+              </div>
+              <a href="#">
+                EZTV
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("1337x") %></label>
+              </div>
+              <a href="#">
+                L337x
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("thepiratebay") %></label>
+              </div>
+              <a href="#">
+                ThePirateBay
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("zooqle") %></label>
+              </div>
+              <a href="#">
+                Zooqle
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="column col-xl-10">
+          <div class="container">
+            <%= render @view_module, @view_template, assigns %>
+          </div>
+        </div>
+
+      </div>
     </div>
   </body>
 </html>
