@@ -20,6 +20,11 @@ defmodule Magnetissimo.Router do
     get "/summary", TorrentController, :summary
   end
 
+  scope "/rss", Magnetissimo do
+    get "/", RssController, :index
+    get "/:term", RssController, :index
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", Magnetissimo do
   #   pipe_through :api

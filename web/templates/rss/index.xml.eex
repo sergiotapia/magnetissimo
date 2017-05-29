@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<rss version="2.0">  
+  <channel>
+    <title>Magnetissimo</title>
+    <link>https://github.com/sergiotapia/magnetissimo</link>
+    <description>Web application that indexes all popular torrent sites, and saves it to the local database.</description>
+    <language>en</language>
+    <%= for torrent <- @torrents do %>
+      <item>
+        <title><%= torrent.name %></title>
+        <link>
+          <![CDATA[
+            <%= torrent.magnet %>
+          ]]>
+        </link>
+        <pubDate><%= torrent.inserted_at %></pubDate>
+        <guid isPermalink="true">
+          <![CDATA[
+            <%= torrent.outbound_url %>
+          ]]>
+        </guid>
+      </item>
+    <% end %>
+  </channel>
+</rss>  
