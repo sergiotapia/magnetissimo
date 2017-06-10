@@ -57,7 +57,7 @@
               <div class="menu-badge">
                 <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("1337x") %></label>
               </div>
-              <a href="#">
+              <a href="/?term=<%= @term %>&website_source=1337x">
                 L337x
               </a>
             </li>

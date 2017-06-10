@@ -20,8 +20,8 @@ defmodule Magnetissimo.Crawler.Leetx do
       "TV",
       "XXX"
     ]
-    urls = for i <- 1..3, category <- categories do
-      {:page_link, "https://1337x.to/cat/#{category}/#{i}/"}
+    urls = for category <- categories do
+      {:page_link, "https://1337x.to/cat/#{category}/1/"}
     end
     :queue.from_list(urls)
   end
@@ -37,8 +37,8 @@ defmodule Magnetissimo.Crawler.Leetx do
   end
 
   defp schedule_work do
-    wait = :rand.uniform(9)
-    Process.send_after(self(), :work, wait * 1000) # 5 seconds
+    wait_seconds = :rand.uniform(8) * 1000
+    Process.send_after(self(), :work, wait_seconds)
   end
 
   def handle_info(:work, queue) do
@@ -56,20 +56,32 @@ defmodule Magnetissimo.Crawler.Leetx do
 
   def process({:page_link, url}, queue) do
     Logger.info "[Leetx] Finding torrents in listing page: #{url}"
-    torrents = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
-    Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
-    end)
+    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
+    case result do
+      {:error, message} ->
+        Logger.error message
+        queue
+      torrents ->
+        Enum.reduce(torrents, queue, fn torrent, queue ->
+          :queue.in({:torrent_link, torrent}, queue)
+        end)
+    end
   end
 
   def process({:torrent_link, url}, queue) do
     Logger.info "[Leetx] Downloading torrent from page: #{url}"
-    torrent_struct = Magnetissimo.Crawler.Helper.download(url) |> torrent_information
-    Magnetissimo.Torrent.save_torrent(torrent_struct)
+    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_information
+    case result do
+      {:error, message} -> 
+        Logger.error message
+      torrent_struct -> 
+        torrent_struct = Map.put(torrent_struct, :outbound_url, url)
+        Magnetissimo.Torrent.save_torrent(torrent_struct)
+    end
     queue
   end
 
-  def torrent_links(html_body) when is_binary(html_body) do
+  def torrent_links(html_body) when is_binary(html_body) and byte_size(html_body) > 50 do
     html_body
     |> Floki.find("a")
     |> Floki.attribute("href")
@@ -77,7 +89,11 @@ defmodule Magnetissimo.Crawler.Leetx do
     |> Enum.map(fn(url) -> "https://1337x.to" <> url end)
   end
 
-  def torrent_information(html_body) when is_binary(html_body) do
+  def torrent_links(_html_body) do
+    {:error, "Couldn't parse torrents links."}
+  end
+
+  def torrent_information(html_body) when is_binary(html_body) and byte_size(html_body) > 50 do
     name = html_body
       |> Floki.find("title")
       |> Floki.text
@@ -128,5 +144,9 @@ defmodule Magnetissimo.Crawler.Leetx do
       seeders: seeders,
       leechers: leechers
     }
+  end
+
+  def torrent_information(_html_body) do
+    {:error, "Couldn't parse torrent information"}
   end
 end
