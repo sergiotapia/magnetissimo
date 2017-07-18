@@ -39,3 +39,4 @@ Magnetissimo currently fetches torrents from the following sites:
 - [x] ThePirateBay
 - [x] TorrentDownloads
 - [x] WorldWide Torrents
+- [x] Nyaa.si

@@ -38,7 +38,7 @@ defmodule Magnetissimo.Mixfile do
      {:phoenix_live_reload, "~> 1.0", only: :dev},
      {:gettext, "~> 0.11"},
      {:cowboy, "~> 1.0"},
-     {:floki, "~> 0.11.0"},
+     {:floki, "~> 0.17.2"},
      {:httpoison, "~> 0.10.0"},
      {:html_entities, "~> 0.3"},
      {:distillery, "~> 1.0"},
