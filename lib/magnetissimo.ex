@@ -21,6 +21,7 @@ defmodule Magnetissimo do
       worker(Magnetissimo.Crawler.TorrentDownloads,  []),
       worker(Magnetissimo.Crawler.WorldWideTorrents, []),
       # worker(Magnetissimo.Crawler.Demonoid, []), # Down until Demonoid solve their hosting issues.
+      worker(Magnetissimo.Crawler.NyaaSi,            []),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
