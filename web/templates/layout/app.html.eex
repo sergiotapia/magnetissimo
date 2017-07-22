@@ -63,6 +63,14 @@
             </li>
             <li class="menu-item">
               <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("nyaa") %></label>
+              </div>
+              <a href="/?term=<%= @term %>&website_source=nyaa">
+                Nyaa.si
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
                 <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("thepiratebay") %></label>
               </div>
               <a href="#">
