@@ -2,7 +2,7 @@ defmodule Magnetissimo.Crawler.LeetxTest do
   use ExUnit.Case, async: true
 
   test "scrapes torrent information from detail page" do
-    torrent = Magnetissimo.Crawler.Leetx.torrent_information(detail_sample)
+    torrent = Magnetissimo.Crawler.Leetx.torrent_information(detail_sample())
     assert torrent != nil
   end
 

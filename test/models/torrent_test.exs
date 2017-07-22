@@ -3,7 +3,7 @@ defmodule Magnetissimo.TorrentTest do
 
   alias Magnetissimo.Torrent
 
-  @valid_attrs %{leechers: 42, magnet: "some content", name: "some content", seeders: 42, size: "some content", website_source: "some content"}
+  @valid_attrs %{leechers: 42, magnet: "some content", name: "some content", seeders: 42, size: "some content", website_source: "some content", outbound_url: "some content"}
   @invalid_attrs %{}
 
   test "changeset with valid attributes" do
