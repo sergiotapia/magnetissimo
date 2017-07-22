@@ -1,7 +1,7 @@
 defmodule Magnetissimo.Crawler.Helper do
   require Logger
 
-  @headers [{"Accept", "text/html,application/xhtml+xml"}]
+  @headers [{"Accept", "text/html,application/xhtml+xml,application/xml"}]
   @options [follow_redirect: true, max_redirect: 10]
 
   @spec download(String.t) :: String.t | nil
@@ -74,7 +74,7 @@ defmodule Magnetissimo.Crawler.Helper do
 
   @spec verify_mime(String.t) :: :ok | {:error, :wrong_headers}
   defp verify_mime(types) do
-    case Regex.run(~r/^text\/html.*/iu, types, capture: :all_but_first) do
+    case Regex.run(~r/^(?:text\/html.*|application\/xml)/iu, types, capture: :all_but_first) do
       nil -> {:error, :wrong_headers}
       _   -> :ok
     end
