@@ -5,7 +5,7 @@ defmodule Magnetissimo.PageController do
   def index(conn, params) do
     results =
       from t in Torrent,
-      where: ilike(t.name, ^"%#{params["term"]}%"),
+      where: like(t.name, ^"%#{params["term"]}%"),
       order_by: [desc: :inserted_at]
 
     page = results |> Magnetissimo.Repo.paginate(params)

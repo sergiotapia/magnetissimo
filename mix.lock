@@ -13,6 +13,7 @@
   "html_entities": {:hex, :html_entities, "0.3.0", "2f278ffc69c3f0cbd5996628fef37cf922fa715f3e04b9f38924c8adced3f25a", [:mix], []},
   "httpoison": {:hex, :httpoison, "0.10.0", "4727b3a5e57e9a4ff168a3c2883e20f1208103a41bccc4754f15a9366f49b676", [:mix], [{:hackney, "~> 1.6.3", [hex: :hackney, optional: false]}]},
   "idna": {:hex, :idna, "1.2.0", "ac62ee99da068f43c50dc69acf700e03a62a348360126260e87f2b54eced86b2", [:rebar3], []},
+  "mariaex": {:hex, :mariaex, "0.8.2", "a9ee64a02fd72579f844934b4cbecca9566593e499125edf6032c58f9d50b5f9", [], [{:db_connection, "~> 1.1", [hex: :db_connection, repo: "hexpm", optional: false]}, {:decimal, "~> 1.0", [hex: :decimal, repo: "hexpm", optional: false]}], "hexpm"},
   "metrics": {:hex, :metrics, "1.0.1", "25f094dea2cda98213cecc3aeff09e940299d950904393b2a29d191c346a8486", [:rebar3], []},
   "mime": {:hex, :mime, "1.0.1", "05c393850524767d13a53627df71beeebb016205eb43bfbd92d14d24ec7a1b51", [:mix], []},
   "mimerl": {:hex, :mimerl, "1.0.2", "993f9b0e084083405ed8252b99460c4f0563e41729ab42d9074fd5e52439be88", [:rebar3], []},

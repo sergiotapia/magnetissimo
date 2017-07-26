@@ -32,8 +32,10 @@ config :phoenix, :stacktrace_depth, 20
 
 # Configure your database
 config :magnetissimo, Magnetissimo.Repo,
-  adapter: Ecto.Adapters.Postgres,
-  database: "magnetissimo_dev",
-  hostname: "localhost",
-  port: 5432,
+  adapter: Ecto.Adapters.MySQL,
+  username: "v2821993_root",
+  password: "abcd.1234",
+  database: "v2821993_torrent",
+  hostname: "64.62.211.131",
+  port: 3306,
   pool_size: 50
