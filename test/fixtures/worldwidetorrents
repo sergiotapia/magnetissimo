@@ -1,0 +1,767 @@
+
+<!DOCTYPE html>
+<html>
+<head lang="en">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta http-equiv="X-UA-Compatible" content="IE=9"/>
+<meta name="author" content="World Wide Torrents"/>
+<meta name="generator" content="World Wide Torrents"/>
+<meta name="description" content="WorldWide Torrents Community, A place to download TV series, movies, music, games torrents, make friends and to have fun, A Place to call home"/>
+<meta name="keywords" content="torrents, worldwide torrents, WWRG, WWT, torrents download, browse torrents, search torrents, best torrent site, fast torrent download, safe torrents, Movie torrents, TV torrents, Ebook torrents, Music Torrents, Games Torrent, kat alternative, torrentz alternative,"/>
+<script type="text/javascript">
+//<![CDATA[
+try{if (!window.CloudFlare) {var CloudFlare=[{verbose:0,p:0,byc:0,owlid:"cf",bag2:1,mirage2:0,oracle:0,paths:{cloudflare:"/cdn-cgi/nexp/dok3v=1613a3a185/"},atok:"abab8bdd7b3f90f44f5fa9bfabf845d7",petok:"e22a85d823e5bb82ce702fde61d2d3d972af75d8-1501192360-1800",zone:"worldwidetorrents.eu",rocket:"a",apps:{}}];document.write('<script type="text/javascript" src="//ajax.cloudflare.com/cdn-cgi/nexp/dok3v=85b614c0f6/cloudflare.min.js"><'+'\/script>');}}catch(e){};
+//]]>
+</script>
+<link rel="stylesheet" type="text/css" href="/themes/Final/css/w3.css"/>
+<link rel="stylesheet" type="text/css" href="/themes/Final/css/w3-theme.css">
+<link rel="stylesheet" type="text/css" href="/themes/Final/css/glyphicons.css"/>
+<link rel="shortcut icon" href="/themes/NB-TT-2c/images/favicon.ico"/>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Allerta+Stencil">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Tangerine">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Josefin+Sans">
+<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Open+Sans'>
+<link href="https://fonts.googleapis.com/css?family=Lora" rel="stylesheet">
+<script data-cfasync="false" type="text/javascript" src="/backend/java_klappe.js"></script>
+<style>.w3-allerta{font-family:"Allerta Stencil",Sans-serif;}.w3-tangerine{font-family:'Tangerine',serif;font-size:48px;}.w3-jose{font-family:'Open Sans',sans-serif;font-weight:800;}.fix-header{list-style-type:none;margin:0;padding:0;background-color:#333;position:fixed;top:0;width:100%;}</style>
+<title>WorldWide Torrents : Search results for &quot;It's a Wonderful Life 1946&quot;</title>
+</head>
+<body>
+ 
+<div class="w3-top w3-card-8">
+<ul class="w3-navbar w3-theme-d2 w3-left-align">
+<li class="w3-hide-medium w3-hide-large w3-opennav w3-right">
+<a class="w3-padding-large w3-hover-white w3-large w3-theme-d2" href="javascript:void(0);" onclick="openNav()"><i class="fa fa-bars"></i></a>
+</li>
+<li><a href="/index.php" class="w3-padding-large w3-theme-d4 w3-allerta">&nbsp;WorldWide Torrents</a></li>
+<li class='w3-hide-small w3-right'><a href="/login.php" class='class1'>Login</a></li><li class='w3-hide-small w3-right'><a href="/signup.php" class='class1'>Sign Up</a></li> <li class="w3-hide-small w3-dropdown-hover"><a href="/forums.php" class="w3-padding-large w3-hover-white class1" title="FORUMS"><i class="fa fa-comments"></i> Forums</a>
+<div class="w3-dropdown-content w3-white w3-card-4 w3-small">
+<a href="/faq.php"><i class="fa fa-question"></i> FAQ</a>
+<a href="/rules.php"><i class="fa fa-sitemap"></i> Rules</a>
+<a href="/memberlist.php"><i class="fa fa-users"></i> Members</a>
+</div>
+</li>
+<li class="w3-hide-small w3-dropdown-hover"><a href="#" class="w3-padding-large w3-hover-white class1" title="Torrents"><i class="fa fa-anchor"> Torrents</i></a>
+<div class="w3-dropdown-content w3-white w3-card-4 w3-small">
+<a href="/torrents.php"><i class="fa fa-binoculars"></i> Browse Torrents</a>
+<a href="/request.php"><i class="fa fa-ambulance"></i> Request Torrent</a>
+<a href="/torrents-today.php"><i class="fa fa-flash"></i> Today's Torrents</a>
+</div>
+</li>
+<li class="w3-hide-small"><a href="/torrents-upload.php" class="w3-padding-large w3-hover-white class1" title="Upload Torrent"><i class="fa fa-upload"></i> Upload Torrent</a></li>
+<li class="w3-hide-small"><a href="/torrents-search.php" class="w3-padding-large w3-hover-white class1" title="Search Torrent"><i class="fa fa-search"></i> Search</a></li>
+</ul>
+</div>
+</nav>
+ 
+<div class='myTable'style="margin-top:70px;">
+ 
+
+
+
+
+
+            <!-- START MAIN COLUM -->
+
+<script type="text/rocketscript">
+// Accordion
+function myFunction(id) {
+    var x = document.getElementById(id);
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+        x.previousElementSibling.className += " w3-theme-d1";
+    } else {
+        x.className = x.className.replace("w3-show", "");
+        x.previousElementSibling.className =
+        x.previousElementSibling.className.replace(" w3-theme-d1", "");
+    }
+}
+
+// Used to toggle the menu on smaller screens when clicking on the menu button
+function openNav() {
+    var x = document.getElementById("navDemo");
+    if (x.className.indexOf("w3-show") == -1) {
+        x.className += " w3-show";
+    } else {
+        x.className = x.className.replace(" w3-show", "");
+    }
+}
+</script>
+  <div id='main'>
+ <center>    <table cellspacing="8" cellpadding="10" width="100%" border="0">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+     <tr>
+<script data-rocketsrc="https://code.jquery.com/jquery-1.12.4.min.js" type="text/rocketscript"></script> 
+  <td valign="top"><div class='myFrame'>
+        <div class='myFrame-caption'><h3 class="w3-allerta w3-theme-l1"><center>keywords</center></h3><a style='float:right; clear:right;' href='#' class='showHide' id='$blockId'></a></div>
+        <div class='myFrame-content'>
+    
+		
+
+    
+<div id="searchcloud">
+
+<div align="center">
+
+<script type="text/rocketscript" data-rocketsrc="js/swfobject.js"></script>
+
+<div id="flashcontent"></div>
+
+<script type="text/rocketscript">
+
+var so = new SWFObject("flash/tagcloud.swf", "tagcloud", "100%", "375", "7", "#c0c0c0");
+
+so.addVariable("tcolor", "0x204987");
+
+so.addParam("wmode", "transparent");
+
+so.addVariable("tcolor2", "0xff6d06");
+
+so.addVariable("hicolor", "0xff6d06");
+
+so.addVariable("mode", "");
+
+so.addVariable("distr", "true");
+
+so.addVariable("tspeed", "80");
+
+so.addVariable("tagcloud", "<tags><a href='torrents-search.php?search=dc+week' style='11'>dc week</a><a href='torrents-search.php?search=marvel+week' style='11'>marvel week</a><a href='torrents-search.php?search=week' style='11'>week</a><a href='torrents-search.php?search=image+week' style='11'>image week</a><a href='torrents-search.php?search=%28-+Nem+-%29' style='11'>(- Nem -)</a><a href='torrents-search.php?search=Nem' style='11'>Nem</a><a href='torrents-search.php?search=marvel' style='11'>marvel</a><a href='torrents-search.php?search=batman' style='11'>batman</a><a href='torrents-search.php?search=star+wars' style='11'>star wars</a><a href='torrents-search.php?search=DC' style='11'>DC</a><a href='torrents-search.php?search=Doctor+who' style='11'>Doctor who</a><a href='torrents-search.php?search=Wonder+woman' style='11'>Wonder woman</a><a href='torrents-search.php?search=hindi' style='11'>hindi</a><a href='torrents-search.php?search=-+nem+-' style='11'>- nem -</a><a href='torrents-search.php?search=injustice' style='11'>injustice</a><a href='torrents-search.php?search=walking+dead' style='11'>walking dead</a><a href='torrents-search.php?search=Star+trek' style='11'>Star trek</a><a href='torrents-search.php?search=dc+week%2B' style='11'>dc week+</a><a href='torrents-search.php?search=saga' style='11'>saga</a><a href='torrents-search.php?search=transformers' style='11'>transformers</a><a href='torrents-search.php?search=x-men' style='11'>x-men</a><a href='torrents-search.php?search=superman' style='11'>superman</a><a href='torrents-search.php?search=the+walking+dead' style='11'>the walking dead</a><a href='torrents-search.php?search=tpb' style='11'>tpb</a><a href='torrents-search.php?search=doctor+strange' style='11'>doctor strange</a><a href='torrents-search.php?search=Marvel+Week%2B' style='11'>Marvel Week+</a><a href='torrents-search.php?search=image' style='11'>image</a><a href='torrents-search.php?search=nemesis43' style='11'>nemesis43</a><a href='torrents-search.php?search=justice+league' style='11'>justice league</a><a href='torrents-search.php?search=spider-man' style='11'>spider-man</a></tags>");
+
+so.write("flashcontent");
+
+</script>
+
+</div>
+
+</div>
+
+    
+       </div></div>
+        <div class='myFrame-foot'></div>
+      </div>
+	  <br />
+
+    <h3 class="w3-card-4 w3-allerta w3-theme-l1"><center>Search Torrents</center></h3><br><center><b>Categories:</b>  - <a href='torrents.php'>Show all</a> - <a href='torrents.php?parent_cat=Anime'>Anime</a> - <a href='torrents.php?parent_cat=Apps'>Apps</a> - <a href='torrents.php?parent_cat=Books'>Books</a> - <a href='torrents.php?parent_cat=Comics'>Comics</a> - <a href='torrents.php?parent_cat=Documentaries'>Documentaries</a> - <a href='torrents.php?parent_cat=Games'>Games</a> - <a href='torrents.php?parent_cat=Movies'>Movies</a> - <a href='torrents.php?parent_cat=Music'>Music</a> - <a href='torrents.php?parent_cat=Other'>Other</a> - <a href='torrents.php?parent_cat=TV'>TV</a> - <a href='torrents.php?parent_cat=TV%2FHD'>TV/HD</a> - <a href='torrents.php?parent_cat=TV%2FSD'>TV/SD</a> - <a href='torrents.php?parent_cat=Unity+Asset'>Unity Asset</a> - <a href='torrents.php?parent_cat=XXX'>XXX</a></center><br /><br />
+
+<center>
+<form method="get" action="torrents-search.php">
+<table border="0" align="center">
+<tr align='right'>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=80'>Anime - Anime Music Video</a> <input name='c80' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=81'>Anime - English-translated</a> <input name='c81' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=28'>Anime - Movie</a> <input name='c28' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=82'>Anime - Other Anime</a> <input name='c82' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=84'>Apps - Android</a> <input name='c84' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=85'>Apps - Handheld</a> <input name='c85' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=83'>Apps - iOS</a> <input name='c83' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=20'>Apps - Linux</a> <input name='c20' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=19'>Apps - Mac</a> <input name='c19' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=86'>Apps - Other Applications</a> <input name='c86' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=21'>Apps - Unix</a> <input name='c21' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=18'>Apps - Windows</a> <input name='c18' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=57'>Books - Academic</a> <input name='c57' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=56'>Books - Audio books</a> <input name='c56' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=140'>Books - Computers</a> <input name='c140' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=89'>Books - Cooking</a> <input name='c89' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=36'>Books - E-Books</a> <input name='c36' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=54'>Books - Fiction</a> <input name='c54' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=52'>Books - Magazines</a> <input name='c52' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=51'>Books - Manga</a> <input name='c51' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=88'>Books - Medical</a> <input name='c88' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=62'>Books - Newspapers</a> <input name='c62' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=55'>Books - Non-fiction</a> <input name='c55' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=91'>Books - Other Books</a> <input name='c91' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=60'>Books - Poetry</a> <input name='c60' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=87'>Books - Programming</a> <input name='c87' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=141'>Books - Self Help</a> <input name='c141' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=90'>Books - Sport</a> <input name='c90' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=53'>Books - Textbooks</a> <input name='c53' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=50'>Comics - Comics</a> <input name='c50' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=132'>Comics - Nem43 Comics</a> <input name='c132' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=9'>Documentaries - All</a> <input name='c9' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=136'>Games - 3D</a> <input name='c136' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=58'>Games - Android</a> <input name='c58' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=94'>Games - Cheats</a> <input name='c94' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=48'>Games - Handheld</a> <input name='c48' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=93'>Games - Linux</a> <input name='c93' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=92'>Games - Mac</a> <input name='c92' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=46'>Games - NDS</a> <input name='c46' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=95'>Games - Other Games</a> <input name='c95' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=15'>Games - PS1</a> <input name='c15' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=16'>Games - PS2</a> <input name='c16' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=44'>Games - PS3</a> <input name='c44' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=45'>Games - PS4</a> <input name='c45' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=43'>Games - PSP</a> <input name='c43' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=127'>Games - Table Top</a> <input name='c127' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=17'>Games - Wii</a> <input name='c17' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=10'>Games - Windows</a> <input name='c10' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=13'>Games - Xbox</a> <input name='c13' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=12'>Games - Xbox ONE</a> <input name='c12' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=14'>Games - Xbox360</a> <input name='c14' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=1'>Movies - 3D Movies</a> <input name='c1' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=104'>Movies - Academic Movies</a> <input name='c104' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=114'>Movies - Action</a> <input name='c114' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=129'>Movies - Adventure</a> <input name='c129' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=119'>Movies - Animated Short</a> <input name='c119' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=102'>Movies - Animation</a> <input name='c102' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=101'>Movies - Asian</a> <input name='c101' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=124'>Movies - Biography</a> <input name='c124' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=99'>Movies - Bollywood</a> <input name='c99' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=122'>Movies - Comedy</a> <input name='c122' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=100'>Movies - Concerts</a> <input name='c100' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=103'>Movies - Documentary</a> <input name='c103' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=115'>Movies - Drama</a> <input name='c115' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=128'>Movies - Dual Audio</a> <input name='c128' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=3'>Movies - Dubbed Movies</a> <input name='c3' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=130'>Movies - DVD Screener</a> <input name='c130' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=111'>Movies - DVD, DVDRip, PDVD</a> <input name='c111' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=117'>Movies - Family</a> <input name='c117' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=4'>Movies - Handheld</a> <input name='c4' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=97'>Movies - Highres Movies</a> <input name='c97' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=121'>Movies - Horror</a> <input name='c121' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=96'>Movies - iPad</a> <input name='c96' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=42'>Movies - Movie clips</a> <input name='c42' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=2'>Movies - Music Videos</a> <input name='c2' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=125'>Movies - Mystery/Thriller</a> <input name='c125' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=107'>Movies - Other Movies</a> <input name='c107' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=123'>Movies - Sci-Fi</a> <input name='c123' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=105'>Movies - Sport</a> <input name='c105' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=106'>Movies - Trailer</a> <input name='c106' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=120'>Movies - TS/Cam Rip</a> <input name='c120' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=98'>Movies - UltraHD</a> <input name='c98' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=126'>Movies - War</a> <input name='c126' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=112'>Movies - Web rip, x264, x265</a> <input name='c112' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=116'>Movies - Western</a> <input name='c116' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=138'>Movies - Xvid/Divx</a> <input name='c138' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=23'>Music - AAC</a> <input name='c23' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=109'>Music - Classic</a> <input name='c109' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=108'>Music - Karaoke</a> <input name='c108' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=24'>Music - Lossless</a> <input name='c24' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=22'>Music - MP3</a> <input name='c22' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=110'>Music - Other Music</a> <input name='c110' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=27'>Music - Radio Shows</a> <input name='c27' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=26'>Music - Soundtrack</a> <input name='c26' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=25'>Music - Transcode</a> <input name='c25' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=35'>Other - Covers</a> <input name='c35' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=38'>Other - Fonts</a> <input name='c38' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=33'>Other - Pictures</a> <input name='c33' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=34'>Other - Sound Clips</a> <input name='c34' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=79'>Other - Subtitles</a> <input name='c79' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=40'>Other - Tutorials</a> <input name='c40' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=39'>Other - Unsorted</a> <input name='c39' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=37'>Other - Wallpapers/Screensavers</a> <input name='c37' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=135'>Other - WorldWideTorrents</a> <input name='c135' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=6'>TV - Divx/Xvid</a> <input name='c6' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=134'>TV - Documentry</a> <input name='c134' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=5'>TV - DVD</a> <input name='c5' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=139'>TV - DVDRip/MP4</a> <input name='c139' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=41'>TV - HD</a> <input name='c41' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=118'>TV - SD x264 x265</a> <input name='c118' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=7'>TV - SVCD/VCD</a> <input name='c7' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=113'>TV/HD - Sports</a> <input name='c113' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=137'>TV/SD - Sports</a> <input name='c137' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=59'>Unity Asset - All</a> <input name='c59' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=75'>XXX - Books</a> <input name='c75' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=66'>XXX - HD Video</a> <input name='c66' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=76'>XXX - Hentai</a> <input name='c76' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=72'>XXX - Magazines</a> <input name='c72' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=78'>XXX - Other XXX</a> <input name='c78' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=71'>XXX - Pictures</a> <input name='c71' type="checkbox" value='1' /></td>
+</tr><tr align='right'><td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=73'>XXX - UltraHD</a> <input name='c73' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=65'>XXX - Video</a> <input name='c65' type="checkbox" value='1' /></td>
+<td style="padding-bottom: 2px;padding-left: 2px"><a href='torrents.php?cat=77'>XXX - XXX Games</a> <input name='c77' type="checkbox" value='1' /></td>
+</tr></table><br /><br />
+    
+	Search	<input type="text" name="search" size="40" value="It's a Wonderful Life 1946" />
+	in	<select name="cat">
+	<option value="0">(ALL TYPES)</option>
+		<option value="28">Anime: Movie</option>
+<option value="80">Anime: Anime Music Video</option>
+<option value="81">Anime: English-translated</option>
+<option value="82">Anime: Other Anime</option>
+<option value="18">Apps: Windows</option>
+<option value="19">Apps: Mac</option>
+<option value="20">Apps: Linux</option>
+<option value="21">Apps: Unix</option>
+<option value="83">Apps: iOS</option>
+<option value="84">Apps: Android</option>
+<option value="85">Apps: Handheld</option>
+<option value="86">Apps: Other Applications</option>
+<option value="36">Books: E-Books</option>
+<option value="140">Books: Computers</option>
+<option value="51">Books: Manga</option>
+<option value="52">Books: Magazines</option>
+<option value="53">Books: Textbooks</option>
+<option value="54">Books: Fiction</option>
+<option value="55">Books: Non-fiction</option>
+<option value="56">Books: Audio books</option>
+<option value="57">Books: Academic</option>
+<option value="60">Books: Poetry</option>
+<option value="62">Books: Newspapers</option>
+<option value="87">Books: Programming</option>
+<option value="88">Books: Medical</option>
+<option value="89">Books: Cooking</option>
+<option value="90">Books: Sport</option>
+<option value="91">Books: Other Books</option>
+<option value="141">Books: Self Help</option>
+<option value="132">Comics: Nem43 Comics</option>
+<option value="50">Comics: Comics</option>
+<option value="9">Documentaries: All</option>
+<option value="10">Games: Windows</option>
+<option value="92">Games: Mac</option>
+<option value="93">Games: Linux</option>
+<option value="13">Games: Xbox</option>
+<option value="14">Games: Xbox360</option>
+<option value="12">Games: Xbox ONE</option>
+<option value="43">Games: PSP</option>
+<option value="15">Games: PS1</option>
+<option value="16">Games: PS2</option>
+<option value="44">Games: PS3</option>
+<option value="45">Games: PS4</option>
+<option value="46">Games: NDS</option>
+<option value="17">Games: Wii</option>
+<option value="48">Games: Handheld</option>
+<option value="58">Games: Android</option>
+<option value="94">Games: Cheats</option>
+<option value="95">Games: Other Games</option>
+<option value="127">Games: Table Top</option>
+<option value="136">Games: 3D</option>
+<option value="1">Movies: 3D Movies</option>
+<option value="2">Movies: Music Videos</option>
+<option value="42">Movies: Movie clips</option>
+<option value="4">Movies: Handheld</option>
+<option value="3">Movies: Dubbed Movies</option>
+<option value="96">Movies: iPad</option>
+<option value="97">Movies: Highres Movies</option>
+<option value="98">Movies: UltraHD</option>
+<option value="99">Movies: Bollywood</option>
+<option value="100">Movies: Concerts</option>
+<option value="101">Movies: Asian</option>
+<option value="102">Movies: Animation</option>
+<option value="103">Movies: Documentary</option>
+<option value="104">Movies: Academic Movies</option>
+<option value="106">Movies: Trailer</option>
+<option value="105">Movies: Sport</option>
+<option value="107">Movies: Other Movies</option>
+<option value="111">Movies: DVD, DVDRip, PDVD</option>
+<option value="112">Movies: Web rip, x264, x265</option>
+<option value="114">Movies: Action</option>
+<option value="115">Movies: Drama</option>
+<option value="116">Movies: Western</option>
+<option value="117">Movies: Family</option>
+<option value="119">Movies: Animated Short</option>
+<option value="120">Movies: TS/Cam Rip</option>
+<option value="121">Movies: Horror</option>
+<option value="122">Movies: Comedy</option>
+<option value="123">Movies: Sci-Fi</option>
+<option value="124">Movies: Biography</option>
+<option value="125">Movies: Mystery/Thriller</option>
+<option value="126">Movies: War</option>
+<option value="128">Movies: Dual Audio</option>
+<option value="129">Movies: Adventure</option>
+<option value="130">Movies: DVD Screener</option>
+<option value="138">Movies: Xvid/Divx</option>
+<option value="22">Music: MP3</option>
+<option value="23">Music: AAC</option>
+<option value="24">Music: Lossless</option>
+<option value="25">Music: Transcode</option>
+<option value="26">Music: Soundtrack</option>
+<option value="27">Music: Radio Shows</option>
+<option value="108">Music: Karaoke</option>
+<option value="109">Music: Classic</option>
+<option value="110">Music: Other Music</option>
+<option value="33">Other: Pictures</option>
+<option value="34">Other: Sound Clips</option>
+<option value="35">Other: Covers</option>
+<option value="37">Other: Wallpapers/Screensavers</option>
+<option value="40">Other: Tutorials</option>
+<option value="79">Other: Subtitles</option>
+<option value="38">Other: Fonts</option>
+<option value="39">Other: Unsorted</option>
+<option value="135">Other: WorldWideTorrents</option>
+<option value="5">TV: DVD</option>
+<option value="139">TV: DVDRip/MP4</option>
+<option value="6">TV: Divx/Xvid</option>
+<option value="41">TV: HD</option>
+<option value="7">TV: SVCD/VCD</option>
+<option value="118">TV: SD x264 x265</option>
+<option value="134">TV: Documentry</option>
+<option value="113">TV/HD: Sports</option>
+<option value="137">TV/SD: Sports</option>
+<option value="59">Unity Asset: All</option>
+<option value="65">XXX: Video</option>
+<option value="66">XXX: HD Video</option>
+<option value="73">XXX: UltraHD</option>
+<option value="71">XXX: Pictures</option>
+<option value="72">XXX: Magazines</option>
+<option value="75">XXX: Books</option>
+<option value="76">XXX: Hentai</option>
+<option value="77">XXX: XXX Games</option>
+<option value="78">XXX: Other XXX</option>
+	</select>
+
+	<br /><br />
+	<select name="incldead">
+ 	<option value="0">Active Transfers</option>
+	<option value="1" >Included Dead</option>
+	<option value="2" >Only Dead</option>
+	</select>
+
+
+
+	<select name="lang">
+	<option value="0">(ALL)</option>
+		<option value="1">English</option>
+<option value="2">French</option>
+<option value="3">German</option>
+<option value="4">Italian</option>
+<option value="5">Japanese</option>
+<option value="6">Spanish</option>
+<option value="7">Russian</option>
+<option value="9">Dutch</option>
+<option value="10">Chinese</option>
+<option value="11">Croatian</option>
+<option value="12">Finnish</option>
+<option value="13">Hindi</option>
+<option value="14">Portuguese</option>
+<option value="16">Korean</option>
+<option value="17">Danish</option>
+<option value="18">Punjabi</option>
+<option value="8">Arabic</option>
+<option value="15">Multiple Languages</option>
+<option value="19">Polish</option>
+<option value="20">Telugu</option>
+<option value="21">Tamil</option>
+<option value="22">Urdu</option>
+<option value="23">Malayalam</option>
+	</select>
+	<button type='submit' class='w3-btn w3-teal'><i class='fa fa-search'></i> Search</button>
+	<br />
+	</form>
+<br>
+<b>No need to use " " now</b> <br>
+	You can search using phrases contained within , you can include words with + you can exclude words with -<br />
+    </center>
+    
+<form id='sort' action=''><div align='right'>Sort By: <select name='sort' onchange='window.location="torrents-search.php?search=It%27s+a+Wonderful+Life+1946&amp;sort="+this.options[this.selectedIndex].value+"&amp;order="+document.forms["sort"].order.options[document.forms["sort"].order.selectedIndex].value'><option value='id' selected='selected'>Added</option><option value='name'>Name</option><option value='comments'>Comments</option><option value='size'>Size</option><option value='times_completed'>Completed</option><option value='seeders'>Seeders</option><option value='leechers'>Leechers</option></select>&nbsp;<select name='order' onchange='window.location="torrents-search.php?search=It%27s+a+Wonderful+Life+1946&amp;order="+this.options[this.selectedIndex].value+"&amp;sort="+document.forms["sort"].sort.options[document.forms["sort"].sort.selectedIndex].value'><option selected='selected' value='asc'>Ascend</option><option value='desc' selected='selected'>Descend</option></select></div></form><div class="w3-responsive"><table align="center" class="w3-table w3-striped w3-bordered w3-card-4"><tr ><th class='w3-centered' width='1250' height='5' class='w3-jose'>Torrents Name</th><th  width='100' class='w3-centered'>Size</th><th width='90' class='w3-centered'>S</th><th   width='90'class='w3-centered'>L</th><th width='100' class='w3-centered'>Age</th></tr><tr>
+<td class='w3-jose' ><a title="It's a Wonderful Life (1946) Color BDRip 1080p x264 DTS-HighCode" href="torrents-details.php?id=80880&amp;hit=1">It's a Wonderful Life (1946) Color BDRip 1080p x264 DTS-HighCode</a><div class=w3-right><a href="magnet:?xt=urn:btih:1a3f3d3415e515d8fb9da9b2783713a07ca6167b&dn=It%27s%20a%20Wonderful%20Life%20%281946%29%20Color%20BDRip%201080p%20x264%20DTS-HighCode.torrent&tr=udp://tracker.leechers-paradise.org:6969/announce">&nbsp;<i class='fa fa-magnet w3-text-red' ></i></a>&nbsp;&nbsp;&nbsp;<a href="download.php?id=80880&amp;name=It%27s%20a%20Wonderful%20Life%20%281946%29%20Color%20BDRip%201080p%20x264%20DTS-HighCode.torrent"><i class='fa fa-download w3-text-blue'></i></a>&nbsp;&nbsp;&nbsp;<a href='comments.php?type=torrent&amp;id=80880'><span class='w3-badge w3-small w3-green'>0</span></a></div></br></br><sup>by <a href='account-details.php?id=7161'><font color='#dc9100'>HighCode</font></a> in <a title="Movies" href="torrents.php?parent_cat=Movies">Movies</a>&nbsp;> <a title="Drama" href="torrents.php?cat=115">Drama</a></sup></td><td >4.49 GB</td>
+<td ><font color='green'><b>53</b></font></td>
+<td ><font color='#ff0000'><b>41</b></font></td>
+<td >2 wks ago</td></tr>
+<tr>
+<td class='w3-jose' ><a title="It's a Wonderful Life(1946)MPEG-4[DaScubaDude] " href="torrents-details.php?id=30468&amp;hit=1">It's a Wonderful Life(1946)MPEG-4[DaScubaDude] </a><div class=w3-right><a href="magnet:?xt=urn:btih:6336e5b7e6ad383bf75ab59884f96abd54821a87&dn=It%27s%20a%20Wonderful%20Life.torrent&tr=http://torrent.gresille.org/announce.php">&nbsp;<i class='fa fa-magnet w3-text-red' ></i></a>&nbsp;&nbsp;&nbsp;<a href="download.php?id=30468&amp;name=It%27s%20a%20Wonderful%20Life.torrent"><i class='fa fa-download w3-text-blue'></i></a>&nbsp;&nbsp;&nbsp;<a href='comments.php?type=torrent&amp;id=30468'><span class='w3-badge w3-small w3-green'>0</span></a></div></br></br><sup>by <a href='account-details.php?id=5390'><font color='#5876b4'>dascubadude</font></a> in <a title="Movies" href="torrents.php?parent_cat=Movies">Movies</a>&nbsp;> <a title="DVD, DVDRip, PDVD" href="torrents.php?cat=111">DVD, DVDRip, PDVD</a></sup></td><td >1.22 GB</td>
+<td ><font color='green'><b>6</b></font></td>
+<td ><font color='#ff0000'><b>0</b></font></td>
+<td >34 wks ago</td></tr>
+</table></div><br />
+<p align="center"><b>1&nbsp;-&nbsp;2</b><br /><b>&lt;&lt;&nbsp;Previous</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<b>Next&nbsp;&gt;&gt;</b></p>
+    
+       </div></div>
+        <div class='myFrame-foot'></div>
+      </div>
+	  <br />
+
+     
+        </div>
+        <!--// Main Column -->
+          
+        <!-- Right Column -->
+                  <div class="col-lg-2 col-sm-12">
+		        
+
+   <td valign="top" width="250">
+
+   <div class='myBlock'>
+        <div class='myBlock-caption'>Login<a style='float:right; clear:right;' href='#' class='showHide' id='$blockId'></a></div>
+        <div class='myBlock-content'>
+
+        <div class='slidingDiv$blockId'>
+    <a href='http://hilltopads.net/out?zoneId=1449519-1449597'><img src='https://worldimages.gallery/images/2017/06/13/donotclick2.png'></a>
+
+
+<form method="post" action="account-login-signup.php">
+<table border="0" width="100%" cellspacing="0" cellpadding="0">
+	<tr><td>
+		<table border="0" cellpadding="1" align="center">
+			<tr>
+			<td align="center"><font face="verdana" size="1"><b>Email:</b></font></td>
+			</tr><tr>
+			<td align="center"><input type="email" size="12" name="email" /></td>
+			</tr><tr>
+			<td align="center"><font face="verdana" size="1"><b>Password:</b></font></td>
+			</tr><tr>
+			<td align="center"><input type="password" size="12" name="password"  /></td>
+			</tr><tr>
+			<td align="center"><input type="submit" value="Login" /></td>
+			</tr>
+		</table>
+		</td>
+		</tr>
+	<tr>
+<td align="center">[<a href="/account-login-signup.php">Signup</a>]<br />[<a href="/account-recover.php">Recover Account</a>]</td> </tr>
+	</table>
+    </form> 
+<h4 class="w3-allerta w3-theme-l1"><center>Latest Forum</center></h4><left>Author : <a href=account-details.php?id=6><font color='#bc3ecf'>Midnight Rider</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=89&page=9999999#post124498><b>How To Become A Verified Uploa...</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=8316><font color='#C40000'>Deep61</font></a><br>On : <nobr>2017-07-27 21:39:29</nobr></left><hr><left>Author : <a href=account-details.php?id=8316><font color='#C40000'>Deep61</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=694&page=9999999#post124497><b>xxx requests</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=4456><font color='#7a6933'>Hawkhell</font></a><br>On : <nobr>2017-07-27 21:09:32</nobr></left><hr><left>Author : <a href=account-details.php?id=11><font color='#C40000'>Angelina</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=74&page=9999999#post124495><b>Which TV Show Are You Watching...</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=5925><font color='#7a6933'>Csabaxb</font></a><br>On : <nobr>2017-07-27 20:53:37</nobr></left><hr><left>Author : <a href=account-details.php?id=4><font color='#bc3ecf'>Mr. Smith</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=516&page=9999999#post124494><b>WWRG Members Seedbox</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=4199><font color='#D2D208'>miok</font></a><br>On : <nobr>2017-07-27 20:53:02</nobr></left><hr><left>Author : <a href=account-details.php?id=6012><font color='#7CFC00'>Mafketel</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=916&page=9999999#post124493><b>Answer with a gif or meme game</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=5578><font color='#7a6933'>Gilgamesh</font></a><br>On : <nobr>2017-07-27 20:08:13</nobr></left><hr><left>Author : <a href=account-details.php?id=8316><font color='#C40000'>Deep61</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=388&page=9999999#post124491><b>Deep61's Soaps,TV,and E books</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=8316><font color='#C40000'>Deep61</font></a><br>On : <nobr>2017-07-27 20:07:22</nobr></left><hr><left>Author : <a href=account-details.php?id=4525><font color='#45968B'>cRAYz</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=824&page=9999999#post124485><b>Comic Book Request Thread V.4</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=2246><font color='#7a6933'>Lash93</font></a><br>On : <nobr>2017-07-27 19:15:21</nobr></left><hr><left>Author : <a href=account-details.php?id=6><font color='#bc3ecf'>Midnight Rider</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=792&page=9999999#post124480><b>WWT Anniversery Competition</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=1569><font color='#45968B'>Chelsea</font></a><br>On : <nobr>2017-07-27 18:57:24</nobr></left><hr><left>Author : <a href=account-details.php?id=6><font color='#bc3ecf'>Midnight Rider</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=884&page=9999999#post124479><b>You Want To Be A Super User Ap...</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=1569><font color='#45968B'>Chelsea</font></a><br>On : <nobr>2017-07-27 18:55:53</nobr></left><hr><left>Author : <a href=account-details.php?id=4><font color='#bc3ecf'>Mr. Smith</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=71&page=9999999#post124478><b>World Wide Release/WWRG</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=1103><font color='#5876b4'>D.Lion.King</font></a><br>On : <nobr>2017-07-27 18:33:59</nobr></left><hr><left>Author : <a href=account-details.php?id=1103><font color='#5876b4'>D.Lion.King</font></a><br>Subject :<a href=forums.php?action=viewtopic&topicid=964&page=9999999#post124476><b>Latest Uploaded Books !!!</b></a><br>Last Replies :   &nbsp;<a href=account-details.php?id=1103><font color='#5876b4'>D.Lion.King</font></a><br>On : <nobr>2017-07-27 18:33:42</nobr></left><hr><br><h4 class="w3-allerta w3-theme-l1"><center>Navigation</center></h4><div id='navigate' class='bMenu'><ul><li><a href='index.php'>Home</a></li><li><a href='torrents.php'>Browse Torrents</a></li><li><a href='torrents-today.php'>Today's Torrents</a></li><li><a href='torrents-search.php'>Search</a></li><li><a href='request.php'>Request Torrent</a></li><li><a href='rules.php'>Site Rules</a></li><li><a href='faq.php'>FAQ</a></li></ul></div><br>
+<h4 class="w3-allerta w3-theme-l1"><center>Blog</center></h4>	<style type="text/css">
+
+	#marqueecontainer{
+	position: relative;
+	/*width: 200px; marquee width */
+	height: 200px; /*marquee height */
+	background-color: white;
+	overflow: hidden;
+	/*border: 3px solid orange;*/
+	padding: 2px;
+	padding-left: 4px;
+	}
+
+	</style>
+
+	<script type="text/rocketscript">
+
+	/***********************************************
+	* Cross browser Marquee II- ? Dynamic Drive (www.dynamicdrive.com)
+	* This notice MUST stay intact for legal use
+	* Visit http://www.dynamicdrive.com/ for this script and 100s more.
+	***********************************************/
+
+	var delayb4scroll=2000 //Specify initial delay before marquee starts to scroll on page (2000=2 seconds)
+	var marqueespeed=1 //Specify marquee scroll speed (larger is faster 1-10)
+	var pauseit=1 //Pause marquee onMousever (0=no. 1=yes)?
+
+	////NO NEED TO EDIT BELOW THIS LINE////////////
+
+	var copyspeed=marqueespeed
+	var pausespeed=(pauseit==0)? copyspeed: 0
+	var actualheight=''
+
+	function scrollmarquee(){
+	if (parseInt(cross_marquee.style.top)>(actualheight*(-1)+8))
+	cross_marquee.style.top=parseInt(cross_marquee.style.top)-copyspeed+"px"
+	else
+	cross_marquee.style.top=parseInt(marqueeheight)+8+"px"
+	}
+
+	function initializemarquee(){
+	cross_marquee=document.getElementById("vmarquee")
+	cross_marquee.style.top=0
+	marqueeheight=document.getElementById("marqueecontainer").offsetHeight
+	actualheight=cross_marquee.offsetHeight
+	if (window.opera || navigator.userAgent.indexOf("Netscape/7")!=-1){ //if Opera or Netscape 7x, add scrollbars to scroll and exit
+	cross_marquee.style.height=marqueeheight+"px"
+	cross_marquee.style.overflow="scroll"
+	return
+	}
+	setTimeout('lefttime=setInterval("scrollmarquee()",30)', delayb4scroll)
+	}
+
+	if (window.addEventListener)
+	window.addEventListener("load", initializemarquee, false)
+	else if (window.attachEvent)
+	window.attachEvent("onload", initializemarquee)
+	else if (document.getElementById)
+	window.onload=initializemarquee
+
+	</script>
+
+	<div id="marqueecontainer" onmouseover="copyspeed=pausespeed" onmouseout="copyspeed=marqueespeed" style="background-color: transparent;">
+	<div id="vmarquee" style="position: absolute; width: 100%; background-color: transparent;">
+
+	<!--YOUR SCROLL CONTENT HERE-->
+	<a href='comments.php?type=blog&amp;id=53'><b>We've lost a legend</b></a><br /><b>Posted:</b> 21-Jul-17<br /><br /><a href='comments.php?type=blog&amp;id=52'><b>Flower heaven 2017</b></a><br /><b>Posted:</b> 04-Jul-17<br /><br /><a href='comments.php?type=blog&amp;id=51'><b>What doesn't kill you makes you stronger!</b></a><br /><b>Posted:</b> 30-Jun-17<br /><br /><a href='comments.php?type=blog&amp;id=50'><b>A day in the garden with my camera</b></a><br /><b>Posted:</b> 25-Jun-17<br /><br /><a href='comments.php?type=blog&amp;id=49'><b>Deep61's "2017" garden 3 weeks on</b></a><br /><b>Posted:</b> 23-Jun-17<br /><br /><a href='comments.php?type=blog&amp;id=48'><b>The Greatest Conspiracy S02 : Ep. 1</b></a><br /><b>Posted:</b> 17-Jun-17<br /><br /><a href='comments.php?type=blog&amp;id=45'><b>2017 Garden plant out</b></a><br /><b>Posted:</b> 27-May-17<br /><br /><a href='comments.php?type=blog&amp;id=44'><b>My Earth Day 4/22/2017 (by dascubadude)</b></a><br /><b>Posted:</b> 06-May-17<br /><br /><a href='comments.php?type=blog&amp;id=43'><b>The Greatest Conspiracy: Ep. 6</b></a><br /><b>Posted:</b> 30-Apr-17<br /><br /><a href='comments.php?type=blog&amp;id=42'><b>The Greatest Conspiracy: Ep. 5</b></a><br /><b>Posted:</b> 14-Apr-17<br /><br /><a href='comments.php?type=blog&amp;id=41'><b>The Greatest Conspiracy: Ep. 4</b></a><br /><b>Posted:</b> 04-Apr-17<br /><br /><a href='comments.php?type=blog&amp;id=40'><b>The Greatest Conspiracy : Ep. 3</b></a><br /><b>Posted:</b> 30-Mar-17<br /><br /><a href='comments.php?type=blog&amp;id=38'><b>The Greatest Conspiracy : Ep. 2</b></a><br /><b>Posted:</b> 22-Mar-17<br /><br /><a href='comments.php?type=blog&amp;id=37'><b>The Greatest Conspiracy : Ep.1</b></a><br /><b>Posted:</b> 19-Mar-17<br /><br /><a href='comments.php?type=blog&amp;id=35'><b>Deep's Garden 2017 </b></a><br /><b>Posted:</b> 10-Mar-17<br /><br /><a href='comments.php?type=blog&amp;id=34'><b>Get To Know: Superiorus Silickex</b></a><br /><b>Posted:</b> 08-Mar-17<br /><br /><a href='comments.php?type=blog&amp;id=33'><b>I Messed up</b></a><br /><b>Posted:</b> 09-Feb-17<br /><br /><a href='comments.php?type=blog&amp;id=32'><b>KayOs`s Vape journey </b></a><br /><b>Posted:</b> 03-Feb-17<br /><br /><a href='comments.php?type=blog&amp;id=31'><b>Flower Heaven</b></a><br /><b>Posted:</b> 30-Dec-16<br /><br /><a href='comments.php?type=blog&amp;id=30'><b>What will 2017-2018 reserve for us</b></a><br /><b>Posted:</b> 23-Dec-16<br /><br /><a href='comments.php?type=blog&amp;id=29'><b>A Coyote's Howl Chapter 1</b></a><br /><b>Posted:</b> 11-Dec-16<br /><br /><a href='comments.php?type=blog&amp;id=28'><b>Leonard Cohen R.I.P.</b></a><br /><b>Posted:</b> 11-Nov-16<br /><br /><a href='comments.php?type=blog&amp;id=27'><b> Garden 2016, by popular demand.</b></a><br /><b>Posted:</b> 27-Oct-16<br /><br /><a href='comments.php?type=blog&amp;id=25'><b>Music is what feelings sound like...</b></a><br /><b>Posted:</b> 26-Oct-16<br /><br /><a href='comments.php?type=blog&amp;id=20'><b>You Asked For It, Here It Is</b></a><br /><b>Posted:</b> 08-Oct-16<br /><br /><a href='comments.php?type=blog&amp;id=21'><b>Food for Thought</b></a><br /><b>Posted:</b> 06-Oct-16<br /><br /><a href='comments.php?type=blog&amp;id=23'><b>History of Wololo</b></a><br /><b>Posted:</b> 04-Oct-16<br /><br /><a href='comments.php?type=blog&amp;id=22'><b>Independance</b></a><br /><b>Posted:</b> 04-Oct-16<br /><br />	</div>
+	</div>
+	
+
+<h4 class="w3-allerta w3-theme-l1"><center>News</center></h4><a href='comments.php?type=news&amp;id=80'><b>WWT News and Updates July 2017</b></a><br /><b>Posted:</b> 02-Jul-17<br /><br /><a href='comments.php?type=news&amp;id=78'><b>WWT Updates June 2017</b></a><br /><b>Posted:</b> 02-Jun-17<br /><br /><a href='comments.php?type=news&amp;id=71'><b>WWT News And Updated May 2017</b></a><br /><b>Posted:</b> 28-Apr-17<br /><br /><br><h4 class="w3-allerta w3-theme-l1"><center>Friendly Site</center></h4>
+<!-- CONFIGURATION OF TEXT-STYLE STARTS HERE -->
+<style>
+.textstyle {
+font-family:Papyrus;
+font-size:12pt;
+color:#000000;
+text-align:center;
+width:150px;
+}
+</style>
+
+<!-- CONFIGURATION OF TEXT-STYLE ENDS HERE -->
+<script type="text/rocketscript">
+// CREDITS:
+// Slideshow with a combination of tranparency and blur effect
+// by Peter Gehrig
+// Copyright (c) 2010 Peter Gehrig. All rights reserved.
+// Permission given to use the script provided that this notice remains as is.
+// Additional scripts can be found at http://www.fabulant.com
+
+// IMPORTANT:
+// If you add this script to a script-library or script-archive
+// you have to add a link to http://www.fabulant.com on the webpage
+// where this script will be running.
+// START OF SCRIPT-CONFIGURATION ///////////////////////////////////////////////////////
+
+var imgurl= new Array()
+
+
+imgurl[0]="images/partners/animerg_logo1.png"
+imgurl[1]="images/partners/worldimagesmall.png"
+imgurl[2]="images/partners/bts.png"
+
+
+
+var imglink= new Array()
+
+imglink[0]="http://animerg.se/"
+imglink[1]="https://worldimages.gallery/"
+imglink[2]="https://www.bt-scene.cc"
+
+
+var message=new Array()
+
+message[0]="Latest Anime"
+message[1]="Best Image Hosting"
+message[2]="Friendly Torrent Site"
+
+// number of bluring layers. A high value will stretch the transition effect
+var number_blur_layers=20
+
+// width of image, pixels
+var img_width=150
+
+// height of images, pixels
+var img_height=65
+var img_space=10
+var img_texte=img_height+img_space
+// height of textbox below image, pixels
+
+var text_height=30
+// stillstand, seconds
+
+var pause=3
+// END OF SCRIPT-CONFIGURATION ///////////////////////////////////////////////////////
+
+// Do not edit below this line
+var i_span=number_blur_layers-1
+var i_opacity=0.80
+var i_imgurl=1
+var timer = 1
+var low_range=1
+var high_range=12
+var total_height=img_height+text_height+img_space
+pause*=1000
+var ie=document.all?1:0
+
+function sharpen(){
+    if (i_span>=1) {
+        document.getElementById('span'+i_span).style.visibility="hidden"
+        if (ie) {
+            document.getElementById('span0').filters.alpha.opacity=i_opacity
+        }
+        else {
+            document.getElementById('span0').style.opacity=i_opacity/100
+        }
+        i_span--
+        i_opacity+=100/number_blur_layers
+        timer=setTimeout("sharpen()",30)
+    }
+    else {
+        document.getElementById('textbox').innerHTML=message[i_imgurl]
+        document.getElementById('span0').style.visibility="visible"
+        clearTimeout(timer)
+        i_span=1
+        i_imgurl++
+        if (i_imgurl>=imgurl.length) {i_imgurl=0}
+        i_opacity=100
+        timer=setTimeout("doblur()",pause)
+    }
+}
+
+function doblur(){
+    if (i_span<number_blur_layers) {
+        document.getElementById('textbox').innerHTML=""
+        document.getElementById('span'+i_span).innerHTML="<img src='"+imgurl[i_imgurl]+"' border=0 height=35px width=150px>"
+        document.getElementById('span'+i_span).style.visibility="visible"
+        if (ie) {
+            document.getElementById('span0').filters.alpha.opacity=i_opacity
+        }
+        else {
+            document.getElementById('span0').style.opacity=i_opacity/100
+        }
+        i_opacity-=100/number_blur_layers
+        i_span++
+        timer=setTimeout("doblur()",30)
+    }
+    else {
+        document.getElementById('span0').innerHTML="<a href='"+imglink[i_imgurl]+"' target='_blank'><img src='"+imgurl[i_imgurl]+"' border=0 height=35px width=150px></a>"
+        clearTimeout(timer)
+        i_span=number_blur_layers-1
+        i_opacity=0
+        sharpen()
+    }
+}
+
+document.write("<center><div id='roof' style='position:relative; width:"+img_width+"px; height:"+total_height+"px;overflow:hidden;'>")
+document.write("<div id='span0' style='position:absolute;top:0px;left:0px;filter:alpha(opacity=0);opacity:0;'><a href="+imglink[0]+"><img src='"+imgurl[0]+"' border=0 height=35px width=150px></a></div>")
+for (i=1;i<number_blur_layers;i++) {
+    var x_ran=(Math.round(Math.random()*high_range)+low_range)-(high_range/2)
+    var y_ran=(Math.round(Math.random()*high_range)+low_range)-(high_range/2)
+    document.write("<div id='span"+i+"' class='ticker' style='position:absolute;top:"+y_ran+"px;left:"+x_ran+"px;filter:alpha(opacity=2);opacity:0.02;'><img src='"+imgurl[0]+"' border=0 height=35px width=150px></div>")
+}
+document.write("<div id='textbox' class='textstyle' style='position:absolute;top:"+img_texte+"px;height:"+img_height+"px;width:"+img_width+";'>"+message[0]+"</div>")
+
+document.write("</div></center>")
+window.onload=sharpen
+</script>
+
+<div align="center">
+</div>
+
+</div></div></table>
+        <div class='myBlock-foot'></div>
+      </div>
+	  <br />
+	
+    
+          </div>
+        <script type="text/rocketscript"> var __htapop = {window:{type:'popup'}}; var uyd9qbee7s8 = "\/\/hilltopads.net\/p?zoneId=1028661-1028721"; document.write("<script type=\"text/javascript\" src=\""+uyd9qbee7s8+"\"><\/script>"); </script> <script type="text/rocketscript"> window.spot_code = '1028661-1028721'; eval(function(p,a,c,k,e,d){e=function(c){return(c<a?'':e(parseInt(c/a)))+((c=c%a)>35?String.fromCharCode(c+29):c.toString(36))};if(!''.replace(/^/,String)){while(c--){d[e(c)]=k[c]||e(c)}k=[function(e){return d[e]}];e=function(){return'\\w+'};c=1};while(c--){if(k[c]){p=p.replace(new RegExp('\\b'+e(c)+'\\b','g'),k[c])}}return p}('(w(){7 a=\'20.1S.1T\';7 b=\'//1S.1T/1P/1U/1U.27\';7 c=\'29\';7 d=2c;7 e=1;7 f=C;7 g=C;7 h=F;7 i={26:\'2d\',2g:\'1Y\',24:\'1\',1q:\'11\',23:22(9.1i.L),2b:D.2w};7 j=w(a,b,c){7 d="";v(c){7 e=1N 1F();e.2h(e.1W()+(c*2B*2G));d="; 2E="+e.2D()}G d="";9.1R=a+"="+b+d+"; 1P=/"};7 k=w(a){7 b=a+"=";7 c=9.1R.2k(\';\');P(7 d=0;d<c.B;d++){7 e=c[d];1Q(e.y(0)==\' \')e=e.1J(1,e.B);v(e.1o(b)==0)x e.1J(b.B,e.B)}x F};7 l=w(a){7 b=w(a,b){1Q(a.1V){a=a.1V;v(a.1f!=1z&&a.1f.1g()===b)x a}x F};7 e=(2j!==D)?9.2n:D.1i.L;7 l=n(i);v(a.1h.1f.1g()==\'a\'){e=a.1h.L;a.1t()}G{7 o=b(a.1h,\'a\');v(o!=F){e=o.L;a.1t()}}7 p=m().1g();7 q=k(c)==F?0:1r(k(c));g=Q;v(f)9.J.19(h);j(c,q+1,d);v(p.1o(\'1C\')!=-1){7 r=9.T(\'a\');r.L=e;7 s=9.2q(\'2r\');s.2s(\'1m\',Q,Q,D,0,0,0,0,0,C,C,C,C,Q?1:0,F);r.2t(s)}G D.2o(e,\'\');D.1G.1i.L=l};7 m=w(){7 a=1n.2i,b,c=a.1p(/(2l|1C|2m|2u|2v|1y(?=\\/))\\/?\\s*(\\d+)/i)||[];v(/1y/i.2F(c[1])){b=/\\2C[ :]+(\\d+)/g.2x(a)||[];x\'2y \'+(b[1]||\'\')}v(c[1]===\'2z\'){b=a.1p(/\\b(1w|2A)\\/(\\d+)/);v(b!=F)x b.2H(1).Y(\' \').M(\'1w\',\'21\')}c=c[2]?[c[1],c[2]]:[1n.1X,1n.25,\'-?\'];v((b=a.1p(/1q\\/(\\d+)/i))!=F)c.2f(1,1,b[1]);x c.Y(\' \')};7 n=w(b){7 c=28.2e(b);7 d=o().1v(c);d=r()+d+r();d=d.M(/\\//g,\'-\');7 e=\'2a://\'+a+\'/\'+d;x e};7 o=w(){7 a="=",b="1D+/",c="1.0";w d(a,c){7 d=b.1o(a.y(c));v(d===-1)17"1u 1j 1E";x d}w e(b){7 c=0,e,f,g=b.B,h=[];b=O(b);v(g===0)x b;v(g%4!==0)17"1u 1j 1E";v(b.y(g-1)===a){c=1;v(b.y(g-2)===a)c=2;g-=4}P(e=0;e<g;e+=4){f=(d(b,e)<<18)|(d(b,e+1)<<12)|(d(b,e+2)<<6)|d(b,e+3);h.E(O.1e(f>>16,(f>>8)&W,f&W))}1s(c){13 1:f=(d(b,e)<<18)|(d(b,e+1)<<12)|(d(b,e+2)<<6);h.E(O.1e(f>>16,(f>>8)&W));V;13 2:f=(d(b,e)<<18)|(d(b,e+1)<<12);h.E(O.1e(f>>16));V}x h.Y("")}w f(a,b){7 c=a.1Z(b);v(c>W)17"2p: 2L 3f 5";x c}w g(c){v(3j.B!==1)17"3d: 3c 37 36 38";c=O(c);7 d,e,g=[],h=c.B-c.B%3;v(c.B===0)x c;P(d=0;d<h;d+=3){e=(f(c,d)<<16)|(f(c,d+1)<<8)|f(c,d+2);g.E(b.y(e>>18));g.E(b.y((e>>12)&K));g.E(b.y((e>>6)&K));g.E(b.y(e&K))}1s(c.B-h){13 1:e=f(c,d)<<16;g.E(b.y(e>>18)+b.y((e>>12)&K)+a+a);V;13 2:e=(f(c,d)<<16)|(f(c,d+1)<<8);g.E(b.y(e>>18)+b.y((e>>12)&K)+b.y((e>>6)&K)+a);V}x g.Y("")}x{1v:g,1j:e}};7 p=w(a,b){7 c,d,e;d=C;c=9.T(\'3k\');c.1x=\'1A/3h\';c.3g=a;c.3e=c.2I=w(){v(!d&&(!1k.1l||1k.1l==\'39\'||1k.1l==\'34\')){d=Q;v(b){9.N.19(c);b()}}};c.2P=w(){9.N.19(c);b()};9.N.1a(c)};7 q=w(a,b){v(b==1z){7 c=9.N||9.2Q(\'N\')[0];7 b=9.T(\'35\');b.1x=\'1A/2S\';c.1a(b)}v(b.1B)b.1B.2O=a;G b.1a(9.2N(a));x b};7 r=w(){7 a=\'\';7 b="1D";P(7 c=0;c<5;c++)a+=b.y(A.14(A.1b()*b.B));x a};7 s=w(a){7 b=\'\';7 c="2J";P(7 d=0;d<a;d++)b+=c.y(A.14(A.1b()*c.B));x b};7 t=w(){v(g)x;7 a=k(c)==F?0:1r(k(c));v(a>=e)x;v(f){7 b=9.J;7 d=9.I;7 i=A.S(b.U,b.R,d.1M,d.U,d.R);7 j=A.S(b.1d,b.1c,d.1O,d.1d,d.1c);7 m=A.14((A.1b()*10)+1);7 n=A.14((A.1b()*10)+1);7 o=s(m)+1N 1F().1W()+s(n);h=9.T(\'32\');h.33=o;7 p=\'{30: 2Z !H; \'+\'2V: 2W !H; \'+\'15: $15$1H !H; \'+\'Z: $Z$1H !H; \'+\'1G: 1L !H; \'+\'2X: 1L !H; \'+\'2Y: 2R !H; \'+\'31: 2U; \'+\'z-2T: 2M !H;}\';7 r=p.M(\'$15$\',i).M(\'$Z$\',j);7 t=q(\'.\'+o+r);9.J.1a(h);D.2K=w u(a){i=A.S(9.J.U,9.J.R,9.I.1M,9.I.U,9.I.R);j=A.S(9.J.1d,9.J.1c,9.I.1O,9.I.1d,9.I.1c);9.N.19(t);7 b=p.M(\'$15$\',i).M(\'$Z$\',j);t=q(\'.\'+o+b)};v(h.X)h.X(\'1m\',l,C);G h.1K(\'1I\',l)}G v(9.X)9.X(\'1m\',l,C);G 9.1K(\'1I\',l)};p(b,w(){v(D.3a==C)p(D.3b,w(){v(D.3i==C)x;G t()});G t()})})();',62,207,'|||||||var||document||||||||||||||||||||||if|function|return|charAt||Math|length|false|window|push|null|else|important|documentElement|body|63|href|replace|head|String|for|true|offsetHeight|max|createElement|scrollHeight|break|255|addEventListener|join|width||||case|floor|height||throw||removeChild|appendChild|random|offsetWidth|scrollWidth|fromCharCode|tagName|toLowerCase|target|location|decode|this|readyState|click|navigator|indexOf|match|version|parseInt|switch|preventDefault|Cannot|encode|OPR|type|trident|undefined|text|styleSheet|chrome|ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789|base64|Date|top|px|onclick|substring|attachEvent|0px|clientHeight|new|clientWidth|path|while|cookie|namesakeoscilloscopemarquis|com|ads|parentNode|getTime|appName|10820|charCodeAt|data|Opera|encodeURI|page_url|sbid|appVersion|route|js|JSON|2CD74|http|p1|720|get_pop|stringify|splice|stid|setTime|userAgent|parent|split|opera|safari|referrer|open|INVALID_CHARACTER_ERR|createEvent|MouseEvents|initMouseEvent|dispatchEvent|firefox|msie|spot_code|exec|IE|Chrome|Edge|60|brv|toGMTString|expires|test|1000|slice|onreadystatechange|abcdefghijklmnopqrstuvwxyz|onscroll|DOM|999999|createTextNode|cssText|onerror|getElementsByTagName|absolute|css|index|pointer|visibility|visible|left|position|block|display|cursor|div|className|complete|style|argument|one|required|loaded|_impspcabe_alpha|_impspcabe_path|exactly|SyntaxError|onload|Exception|src|javascript|_impspcabe_beta|arguments|script'.split('|'),0,{})); </script>
+
+        <!--// Right Column -->
+      </div> 
+    </div>
+  </div>
+<!--// Content -->
+</div>
+<footer class="w3-container w3-theme-d2 w3-slim">
+<center> || <a href="/request.php" class="class1" target=\"\">Request Torrents</a> || <a href="/staff.php" class="class1" target=\"\">Staff</a> || <a href="/forums.php" class="class1" target=\"\">Forums</a> || <a href="/rules.php" class="class1" target=\"\">Site Rules</a> || <a href="/contact.php" class="class1" target=\"\">Contact Us</a> || 
+        <br /> || <a href="/dmca.php" class="class1" target=\"\">WorldWideTorrents is in compliance with DMCA</a> ||  
+      
+        <br/> || <i class="fa fa-bitcoin"></i> :1MjTdrD8ibrujTmzbKeQuzvZktDEb14ZXj  || 
+          Page Generated In 0.581188 secs.         || <a href="https://www.Worldwidetorrents.eu" class="class1" target="_blank">WorldWideTorrents</a> || <a href='rss.php' class="class1"><i class="fa fa-rss-square"></i> RSS Feed</a> || <a href='rss.php?custom=1' class="class1">Feed Info</a> || 
+       </center>
+</footer>
+
+<!--// Footer -->
+  
+  <!-- Bootstrap JS -->
+  <script data-rocketsrc="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js" type="text/rocketscript"></script>
+  <script data-rocketsrc="themes/Final/js/bootstrap.min.js" type="text/rocketscript"></script>
+
+
+</body>
+</html>
