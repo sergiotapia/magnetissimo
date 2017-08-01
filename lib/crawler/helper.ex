@@ -74,7 +74,7 @@ defmodule Magnetissimo.Crawler.Helper do
 
   @spec verify_mime(String.t) :: :ok | {:error, :wrong_headers}
   defp verify_mime(types) do
-    case Regex.run(~r/^(?:(?:text|application)\/(?:html|xml|xhtml).*)/iu, types, capture: :all_but_first) do
+    case Regex.run(~r/^(?:text|application)\/(?:html|xml|xhtml).*/iu, types, capture: :all_but_first) do
       nil -> {:error, :wrong_headers}
       _   -> :ok
     end
