@@ -110,7 +110,7 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
     }
   end
 
-  def torrent_information(rss_body) do
+  def torrent_information(rss_body) when is_binary(rss_body) and byte_size(rss_body) > 50 do
     items = rss_body
       |> Floki.find("channel > item")
 
@@ -118,6 +118,10 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
       item_to_map(item)
     end
     maps
+  end
+
+  def torrent_information(_rss_body) do
+    {:error, "Couldn't read rss feed"}
   end
 
 end

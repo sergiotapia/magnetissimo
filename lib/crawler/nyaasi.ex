@@ -70,7 +70,12 @@ defmodule Magnetissimo.Crawler.NyaaSi do
 
   def process({:page_link, url}, queue) do
     Logger.info "[NyaaSi] Downloading torrents from page: #{url}"
-    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_information
+    case Magnetissimo.Crawler.Helper.download(url) do
+      {:error, message} ->
+        Logger.error message
+      page ->
+        result = page |> torrent_information
+    end
     case result do
       {:error, message} ->
         Logger.error message
@@ -144,7 +149,7 @@ defmodule Magnetissimo.Crawler.NyaaSi do
     }
   end
 
-  def torrent_information(rss_body) do
+  def torrent_information(rss_body) when is_binary(rss_body) and byte_size(rss_body) > 50 do
     items = rss_body
       |> Floki.find("channel > item")
 
@@ -152,6 +157,10 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       item_to_map(item)
     end
     maps
+  end
+
+  def torrent_information(_rss_body) do
+    {:error, "Couldn't read rss feed"}
   end
 
 end
