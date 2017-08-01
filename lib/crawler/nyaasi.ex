@@ -59,6 +59,8 @@ defmodule Magnetissimo.Crawler.NyaaSi do
         {{_value, item}, queue_2} ->
           process(item, queue_2)
       _ ->
+        wait_seconds = 10 * 1000 # 10 second wait so we don't hammer the site too hard
+        :timer.sleep(wait_seconds)
         Logger.info "[NyaaSi] Queue is empty, restarting scraping procedure."
         initial_queue()
     end
