@@ -21,19 +21,19 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       {:page_link, "https://nyaa.si/rss?c=#{category}&m"}
     end
 
-    # Uncomment this section to scrape NSFW content
-    nsfw_categories = [
-      '1_1', # Art/Anime
-      '1_2', # Art/Doujinshi
-      '1_3', # Art/Games
-      '1_4', # Art/Manga
-      '1_5', # Art/Picture
-      '2_0', # Real Life
-    ]
-    nsfw_urls = for category <- nsfw_categories do
-      {:page_link, "https://sukebei.nyaa.si/rss?c=#{category}&m"}
-    end
-    urls = Enum.concat(urls, nsfw_urls)
+    # # Uncomment this section to scrape NSFW content
+    # nsfw_categories = [
+    #   '1_1', # Art/Anime
+    #   '1_2', # Art/Doujinshi
+    #   '1_3', # Art/Games
+    #   '1_4', # Art/Manga
+    #   '1_5', # Art/Picture
+    #   '2_0', # Real Life
+    # ]
+    # nsfw_urls = for category <- nsfw_categories do
+    #   {:page_link, "https://sukebei.nyaa.si/rss?c=#{category}&m"}
+    # end
+    # urls = Enum.concat(urls, nsfw_urls)
 
     :queue.from_list(urls)
   end
