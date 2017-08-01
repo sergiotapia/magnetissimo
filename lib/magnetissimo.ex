@@ -18,6 +18,8 @@ defmodule Magnetissimo do
       worker(Magnetissimo.Crawler.Demonoid, [], @strategy),
       worker(Magnetissimo.Crawler.EZTV, [], @strategy),
       worker(Magnetissimo.Crawler.Leetx, [], @strategy),
+      worker(Magnetissimo.Crawler.NyaaSi, [], @strategy),
+      worker(Magnetissimo.Crawler.NyaaPantsu, [], @strategy),
       # worker(Magnetissimo.Crawler.ThePirateBay, [], @strategy),
       # Broken temporarily.
       # worker(Magnetissimo.Crawler.Zooqle, [], @strategy),
