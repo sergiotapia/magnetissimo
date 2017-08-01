@@ -63,10 +63,18 @@
             </li>
             <li class="menu-item">
               <div class="menu-badge">
-                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("nyaa") %></label>
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("nyaasi") %></label>
               </div>
-              <a href="/?term=<%= @term %>&website_source=nyaa">
+              <a href="/?term=<%= @term %>&website_source=nyaasi">
                 Nyaa.si
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("nyaapantsu") %></label>
+              </div>
+              <a href="/?term=<%= @term %>&website_source=nyaapantsu">
+                NyaaPantsu
               </a>
             </li>
             <li class="menu-item">
