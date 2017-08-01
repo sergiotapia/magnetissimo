@@ -31,7 +31,7 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
       '2_', # Real Life
     ]
     nsfw_urls = for category <- nsfw_categories do
-      {:page_link, "https://sukebei.nyaa.si/feed/eztv?c=#{category}"}
+      {:page_link, "https://sukebei.pantsu.cat/feed/eztv?c=#{category}"}
     end
     urls = Enum.concat(urls, nsfw_urls)
 
