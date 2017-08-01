@@ -80,7 +80,7 @@ defmodule Magnetissimo.Crawler.NyaaSi do
     queue
   end
 
-  def item_to_map(item) do
+  defp item_to_map(item) do
     name = item
       |> Floki.find("title")
       |> Floki.text
