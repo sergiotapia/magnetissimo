@@ -81,11 +81,9 @@ defmodule Magnetissimo.Crawler.NyaaSi do
   end
 
   defp fix_size(size) do
-    parts = String.split(size, " ")
-    number_part = parts[0] |> Float.parse
-    unit_part = parts[1]
+    {number_part, unit_part} = Float.parse size
     # Largest file on nyaa as of 07/2017 is 4.6 TiB, so we go 1 order of magnitude higher for future-proofing
-    case unit_part do
+    case unit_part |> String.trim do
       "PiB" ->
         fixed_size = number_part * :math.pow(1024, 5)
       "TiB" ->
@@ -100,7 +98,9 @@ defmodule Magnetissimo.Crawler.NyaaSi do
         fixed_size = number_part
     end
 
-    round(fixed_size)
+    fixed_size
+      |> round
+      |> Integer.to_string
   end
 
   defp item_to_map(item) do
