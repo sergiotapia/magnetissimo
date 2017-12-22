@@ -2,7 +2,7 @@ use Mix.Config
 
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
-config :magnetissimo, Magnetissimo.Endpoint,
+config :magnetissimo, MagnetissimoWeb.Endpoint,
   http: [port: 4001],
   server: false
 
@@ -14,5 +14,7 @@ config :magnetissimo, Magnetissimo.Repo,
   adapter: Ecto.Adapters.Postgres,
   database: "magnetissimo_test",
   hostname: "localhost",
-  port: 5432,
   pool: Ecto.Adapters.SQL.Sandbox
+
+# Configure mock adapter for Tesla.
+config :tesla, adapter: :mock
