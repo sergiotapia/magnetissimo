@@ -1,10 +1,10 @@
 defmodule Magnetissimo.Crawler.TorrentDownloads do
   use GenServer
   alias Magnetissimo.Torrent
-  alias Magnetissimo.Crawler.Helper
+  import Magnetissimo.Crawler.Helper
   require Logger
 
-  def start_link do
+  def start_link(_) do
     queue = initial_queue()
     GenServer.start_link(__MODULE__, queue)
   end
@@ -36,18 +36,19 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
 
   def process({:page_link, url}, queue) do
     Logger.info "[TorrentDownloads] Finding torrents in listing page: #{url}"
-    html_body = Helper.download(url)
-    if html_body != nil do
-      torrents = torrent_links(html_body)
-      Enum.reduce(torrents, queue, fn torrent, queue ->
-        :queue.in({:torrent_link, torrent}, queue)
-      end)
+    case download(url) do
+      {:error, :empty} -> Logger.warn "[TorrentDownloads] Empty page! for URL " <> url
+      html_body ->
+        torrents = torrent_links(html_body.body)
+        Enum.reduce(torrents, queue, fn torrent, queue ->
+          :queue.in({:torrent_link, torrent}, queue)
+        end)
     end
   end
 
   def process({:torrent_link, url}, queue) do
     Logger.info "[TorrentDownloads] Downloading torrent from page: #{url}"
-    html_body = Helper.download(url)
+    html_body = download(url)
     if html_body do
       torrent_struct = torrent_information(html_body)
       Torrent.save_torrent(torrent_struct)
@@ -102,7 +103,7 @@ defmodule Magnetissimo.Crawler.TorrentDownloads do
       |> String.split(<<194, 160>>)
     size_value = Enum.at(size_html, 0)
     unit = Enum.at(size_html, 1)
-    size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
+    size = size_to_bytes(size_value, unit) |> Kernel.to_string
 
     {seeders, _} = html_body
       |> Floki.find(".grey_bar1 p")

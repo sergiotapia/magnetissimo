@@ -5,9 +5,11 @@ defmodule Magnetissimo.Crawler.Zooqle do
   """
 
   @behaviour Magnetissimo.WebParser
+
   use GenServer
   require Logger
   alias Magnetissimo.Torrent
+  import Magnetissimo.Crawler.Helper
 
   def initial_queue do
     urls = [
@@ -22,9 +24,9 @@ defmodule Magnetissimo.Crawler.Zooqle do
     :queue.from_list(urls)
   end
 
-  def start_link do
+  def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
@@ -52,7 +54,7 @@ defmodule Magnetissimo.Crawler.Zooqle do
 
   def process({:page_link, url}, queue) do
     Logger.info "[Zooqle] Finding torrents in listing page: #{url}"
-    torrents = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
+    torrents = download(url) |> torrent_links
     Enum.reduce(torrents, queue, fn torrent, queue ->
       :queue.in({:torrent_link, torrent}, queue)
     end)
@@ -60,7 +62,7 @@ defmodule Magnetissimo.Crawler.Zooqle do
 
   def process({:torrent_link, url}, queue) do
     Logger.info "[Zooqle] Downloading torrent from page: #{url}"
-    torrent_struct = Magnetissimo.Crawler.Helper.download(url) |> torrent_information
+    torrent_struct = download(url) |> torrent_information
     Torrent.save_torrent(torrent_struct)
     queue
   end

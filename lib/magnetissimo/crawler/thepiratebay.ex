@@ -7,6 +7,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
   @behaviour Magnetissimo.WebParser
   use GenServer
   require Logger
+  import Magnetissimo.Crawler.Helper
 
   def initial_queue do
     urls = for i <- 1..6, j <- 1..50 do
@@ -15,9 +16,9 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
     :queue.from_list(urls)
   end
 
-  def start_link do
+  def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
@@ -45,7 +46,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   def process({:page_link, url}, queue) do
     Logger.info "[ThePirateBay] Finding torrents in listing page: #{url}"
-    html_body = Magnetissimo.Crawler.Helper.download(url)
+    html_body = download(url)
     queue =
       if html_body != nil do
         torrents = torrent_links(html_body)
@@ -58,7 +59,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
 
   def process({:torrent_link, url}, queue) do
     Logger.info "[ThePirateBay] Downloading torrent from page: #{url}"
-    html_body = Magnetissimo.Crawler.Helper.download(url)
+    html_body = download(url)
     if html_body != nil do
       torrent_struct = torrent_information(html_body)
       Magnetissimo.Torrent.save_torrent(torrent_struct)

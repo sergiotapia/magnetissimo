@@ -7,6 +7,7 @@ defmodule Magnetissimo.Crawler.Leetx do
   @behaviour Magnetissimo.WebParser
   use GenServer
   require Logger
+  import Magnetissimo.Crawler.Helper
 
   def initial_queue do
     categories = [
@@ -26,9 +27,9 @@ defmodule Magnetissimo.Crawler.Leetx do
     :queue.from_list(urls)
   end
 
-  def start_link do
+  def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
@@ -56,7 +57,7 @@ defmodule Magnetissimo.Crawler.Leetx do
 
   def process({:page_link, url}, queue) do
     Logger.info "[Leetx] Finding torrents in listing page: #{url}"
-    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
+    result = download(url) |> torrent_links
     case result do
       {:error, message} ->
         Logger.error message
@@ -70,7 +71,7 @@ defmodule Magnetissimo.Crawler.Leetx do
 
   def process({:torrent_link, url}, queue) do
     Logger.info "[Leetx] Downloading torrent from page: #{url}"
-    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_information
+    result = download(url) |> torrent_information
     case result do
       {:error, message} -> 
         Logger.error message
@@ -122,7 +123,7 @@ defmodule Magnetissimo.Crawler.Leetx do
       |> String.split
     size_value = Enum.at(size, 0)
     unit = Enum.at(size, 1)
-    size = Magnetissimo.Crawler.Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
+    size = size_to_bytes(size_value, unit) |> Kernel.to_string
 
     {leechers, _} = html_body
       |> Floki.find(".leeches")

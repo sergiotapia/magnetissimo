@@ -13,16 +13,16 @@ defmodule MagnetissimoWeb.Router do
     plug :accepts, ["json"]
   end
 
-  scope "/", Magnetissimo do
+  scope "/", MagnetissimoWeb do
     pipe_through :browser # Use the default browser stack
 
-    get "/", PageController, :index
+    get "/",        PageController,    :index
     get "/summary", TorrentController, :summary
   end
 
-  scope "/rss", Magnetissimo do
+  scope "/rss", MagnetissimoWeb do
     get "/",      RSSController, :index
-    get "/:term", RssController, :index
+    get "/:term", RSSController, :index
   end
 
   # Other scopes may use custom stacks.

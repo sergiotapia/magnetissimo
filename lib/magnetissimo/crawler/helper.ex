@@ -1,37 +1,22 @@
 defmodule Magnetissimo.Crawler.Helper do
   require Logger
+  use Tesla
 
-  @headers [{"Accept", "text/html,application/xhtml+xml"}]
-  @options [follow_redirect: true, max_redirect: 10]
+  plug Tesla.Middleware.Headers, %{"Accept" => "text/html,application/xhtml+xml"}
+  plug Tesla.Middleware.Opts, [recv_timeout: :infinity]
+  plug Tesla.Middleware.FollowRedirects, max_redirects: 10
 
-  @spec download(String.t) :: String.t | nil
-  @doc """
-  This helper returns the HTML body associated with its argument.
-  It does not directly download the page. Instead, it first checks the MIME type
-  of the page with `check_content/1`. Then according to the result of this function,
-  either the HTML body is returned, or `nil`, with an error message printed on the console.
-  """
+  @type url :: String.t
+
+  @spec download(url()) :: {:ok, String.t} | {:error, atom()}
   def download(url) do
     with {:ok, url} <- check_content(url),
-         {:ok, %HTTPoison.Response{status_code: 200, body: body, headers: _}} <- fetch(url) do
-          body
-    else
-      :error ->
-        {:error, :bad_url}
-        Logger.warn "Bad URL!"
-        nil
-
-      {:ok, %HTTPoison.Response{status_code: 502, body: _, headers: _}} ->
-        Logger.warn "502 Bad Gateway on #{url}"
-        nil
-
-      {:ok, %HTTPoison.Response{status_code: 404, body: _, headers: _}} ->
-        Logger.warn "404 Page not Found on #{url}"
-        nil
-
-      {:error, error} ->
-        Logger.error inspect(error.reason)
-        nil
+         {:ok, %Tesla.Env{status: 200, body: body}} <- fetch(url) do
+          if body do
+            {:ok, body}
+          else
+            {:error, :empty}
+          end
     end
   end
 
@@ -42,12 +27,12 @@ defmodule Magnetissimo.Crawler.Helper do
   or just return the url in an :ok-tuple
   """
   def check_content(url) do
-    response = HTTPoison.head(url, @headers, @options)
+    response = head(url)
                |> check_response
 
     result = with  {:ok, headers} <- response,
-                   {{"Content-Type", types}, _rest} <- List.keytake(headers, "Content-Type", 0),
-                   :ok <-  verify_mime(types) do
+                   types          <- Map.get(headers, "content-type"),
+                   :ok            <-  verify_mime(types) do
                     {:ok, url}
             else
               {:moved, location} -> check_content(location)
@@ -56,20 +41,19 @@ defmodule Magnetissimo.Crawler.Helper do
     result
   end
 
-  defp check_response({:error, err}), do: {:error, err}
-  defp check_response({:ok, %HTTPoison.Response{status_code: code, body: _data, headers: headers}}) do
+  defp check_response(%Tesla.Env{status: code, body: _data, headers: headers}) do
     case code do
-      c when c in [301,302] ->
-        {{"Location", location}, _rest} = List.keytake(headers, "Location", 0)
+      code when code in [301,302] ->
+        location = Map.get(headers, "location")
         {:moved, location}
-      _                     ->
+      _  ->
         {:ok, headers}
     end
   end
 
-  @spec fetch(String.t) :: {:ok, %HTTPoison.Response{}} | {:error, %HTTPoison.Response{}}
+  @spec fetch(String.t) :: {:ok, %Tesla.Env{}} | {:error, %Tesla.Env{}}
   defp fetch(url) do
-    HTTPoison.get(url, @headers, [recv_timeout: :infinity] ++ @options)
+    get(url)
   end
 
   @spec verify_mime(String.t) :: :ok | {:error, :wrong_headers}
@@ -79,7 +63,6 @@ defmodule Magnetissimo.Crawler.Helper do
       _   -> :ok
     end
   end
-
 
   def size_to_bytes(size, unit) when is_binary(size) do
     {size_int, _} = Integer.parse(size)

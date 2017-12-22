@@ -7,6 +7,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
   @behaviour Magnetissimo.WebParser
   use GenServer
   require Logger
+  import Magnetissimo.Crawler.Helper
 
   def initial_queue do
     urls = for i <- 1..5 do
@@ -15,9 +16,9 @@ defmodule Magnetissimo.Crawler.Demonoid do
     :queue.from_list(urls)
   end
 
-  def start_link do
+  def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
@@ -45,7 +46,9 @@ defmodule Magnetissimo.Crawler.Demonoid do
 
   def process({:page_link, url}, queue) do
     Logger.info "[Demonoid] Finding torrents in listing page: #{url}"
-    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_links
+
+    result = download(url) |> torrent_links
+
     case result do
       {:error, message} ->
         Logger.error message
@@ -58,8 +61,8 @@ defmodule Magnetissimo.Crawler.Demonoid do
   end
 
   def process({:torrent_link, url}, queue) do
-    Logger.info "[Demonoid] Downloading torrent from page: #{url}"
-    result = Magnetissimo.Crawler.Helper.download(url) |> torrent_information 
+    result = download(url) |> torrent_information 
+
     case result do
       {:error, message} -> 
         Logger.error message
@@ -83,6 +86,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
   end
   
   def torrent_information(html_body) when is_binary(html_body) and byte_size(html_body) > 50 do
+
     name = html_body
       |> Floki.find("td.ctable_header")
       |> Floki.text
@@ -101,9 +105,9 @@ defmodule Magnetissimo.Crawler.Demonoid do
     size = html_body
       |> Floki.find("td")
       |> Enum.filter(fn(a) ->
-        size_container = Floki.attribute(a, "width") |> Enum.at(0)
-        size_container == "50%"
-      end)
+          size_container = Floki.attribute(a, "width") |> Enum.at(0)
+          size_container == "50%"
+        end)
       |> Enum.at(0)
       |> Floki.text
       |> String.replace("Size: ", "")
@@ -112,7 +116,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
 
     size_value = Enum.at(size, 0)
     unit = Enum.at(size, 1)
-    size = Magnetissimo.Crawler.Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
+    size = size_to_bytes(size_value, unit) |> Kernel.to_string
 
     %{
       name: name,
@@ -127,4 +131,5 @@ defmodule Magnetissimo.Crawler.Demonoid do
   def torrent_information(_html_body) do
     {:error, "Couldn't parse torrent information"}
   end
+
 end

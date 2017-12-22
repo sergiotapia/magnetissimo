@@ -1,12 +1,12 @@
 defmodule Magnetissimo.Crawler.Monova do
   use GenServer
   alias Magnetissimo.Torrent
-  alias Magnetissimo.Crawler.Helper
+  import Magnetissimo.Crawler.Helper
   require Logger
 
-  def start_link do
+  def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
@@ -33,7 +33,7 @@ defmodule Magnetissimo.Crawler.Monova do
 
   def process({:page_link, url}, queue) do
     IO.puts "Downloading page: " <> url
-    torrents = Helper.download(url) |> torrent_links
+    torrents = download(url) |> torrent_links
     queue = Enum.reduce(torrents, queue, fn torrent, queue ->
       :queue.in({:torrent_link, torrent}, queue)
     end)
@@ -41,7 +41,7 @@ defmodule Magnetissimo.Crawler.Monova do
   end
 
   def process({:torrent_link, url}, queue) do
-    torrent_struct = Helper.download(url) |> torrent_information
+    torrent_struct = url |> download |> torrent_information
     Torrent.save_torrent(torrent_struct)
     queue
   end
@@ -82,7 +82,7 @@ defmodule Magnetissimo.Crawler.Monova do
     size_html = get_size(torrent_body) |> String.split(" ")
     size_value = Enum.at(size_html, 0)
     unit = Enum.at(size_html, 1)
-    size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
+    size = size_to_bytes(size_value, unit) |> Kernel.to_string
 
     ## Leechers and Seeders informations are not provided by Monova.
     %{

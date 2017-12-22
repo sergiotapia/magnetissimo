@@ -5,6 +5,9 @@
 # is restricted to this project.
 use Mix.Config
 
+config :tesla,
+  :adapter, :hackney
+
 # General application configuration
 config :magnetissimo,
   ecto_repos: [Magnetissimo.Repo]

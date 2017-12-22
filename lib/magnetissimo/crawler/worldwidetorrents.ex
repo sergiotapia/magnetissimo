@@ -1,12 +1,12 @@
 defmodule Magnetissimo.Crawler.WorldWideTorrents do
   use GenServer
   alias Magnetissimo.Torrent
-  alias Magnetissimo.Crawler.Helper
+  import Magnetissimo.Crawler.Helper
   require Logger
 
-  def start_link do
+  def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
@@ -35,7 +35,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
 
   def process({:page_link, url}, queue) do
     Logger.info "[WorldWideTorrents] Finding torrents in listing page: #{url}"
-    html_body = Helper.download(url)
+    html_body = download(url)
     if html_body != nil do
       torrent_information(html_body)
       |> Enum.each(fn(torrent) -> Torrent.save_torrent(torrent) end)
@@ -83,7 +83,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
       |> String.split
     size_value = Enum.at(size_html, 0)
     unit = Enum.at(size_html, 1)
-    size = Helper.size_to_bytes(size_value, unit) |> Kernel.to_string
+    size = size_to_bytes(size_value, unit) |> Kernel.to_string
 
     seeders = row
       |> Floki.find("td")

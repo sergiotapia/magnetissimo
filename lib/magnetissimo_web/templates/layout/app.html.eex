@@ -9,8 +9,6 @@
 
     <title>Magnetissimo</title>
 
-    <link rel="stylesheet" href="<%= static_path(@conn, "/css/spectre.css") %>">
-    <link rel="stylesheet" href="<%= static_path(@conn, "/css/spectre-icons.css") %>">
     <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
   </head>
 

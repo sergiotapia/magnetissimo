@@ -7,7 +7,7 @@ defmodule MagnetissimoWeb.PageController do
     results = case params do
       %{"term" => term, "website_source" => website_source} ->
           from t in Torrent,
-          where: ilike(t.name, ^"%#{params["term"]}%"),
+          where: ilike(t.name, ^"%#{term}%"),
           where: t.website_source == ^website_source,
           order_by: [desc: :inserted_at]
       _ ->

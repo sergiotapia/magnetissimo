@@ -16,4 +16,5 @@ defmodule Magnetissimo.Repo.Migrations.Createtorrents do
 
     create index(:torrents, [:name])
     create index(:torrents, [:website_source])
+  end
 end

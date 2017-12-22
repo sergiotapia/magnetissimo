@@ -4,16 +4,10 @@ defmodule Magnetissimo.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec
-
-    # Define workers and child supervisors to be supervised
     children = [
-      # Start the Ecto repository
-      supervisor(Magnetissimo.Repo, []),
-      # Start the endpoint when the application starts
-      supervisor(MagnetissimoWeb.Endpoint, []),
-      # Start your own worker by calling: Magnetissimo.Worker.start_link(arg1, arg2, arg3)
-      # worker(Magnetissimo.Worker, [arg1, arg2, arg3]),
+      {Magnetissimo.Repo, []},
+      {MagnetissimoWeb.Endpoint, []},
+      {Magnetissimo.Crawler.Supervisor, []}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

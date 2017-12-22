@@ -37,6 +37,7 @@ defmodule Magnetissimo.Mixfile do
       {:distillery, "~> 1.5.2"},
       {:floki, "~> 0.19.1"},
       {:gettext, "~> 0.11"},
+      {:hackney, "~> 1.10.1"},
       {:html_entities, "~> 0.4.0"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_ecto, "~> 3.2"},

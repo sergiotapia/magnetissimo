@@ -33,6 +33,8 @@ config :phoenix, :stacktrace_depth, 20
 # Configure your database
 config :magnetissimo, Magnetissimo.Repo,
   adapter: Ecto.Adapters.Postgres,
+  username: "postgres",
+  password: "postgres",
   database: "magnetissimo_dev",
   hostname: "localhost",
   port: 5432,
