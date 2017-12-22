@@ -10,11 +10,11 @@ config :magnetissimo,
   ecto_repos: [Magnetissimo.Repo]
 
 # Configures the endpoint
-config :magnetissimo, Magnetissimo.Endpoint,
+config :magnetissimo, MagnetissimoWeb.Endpoint,
   url: [host: "localhost"],
   secret_key_base: "t85GdIgrN4ZN3VmkXzAedQzP2C98VsL3vaSR1ZZWo6jG9UUNDsHR6v4eVbxqejCn",
-  render_errors: [view: Magnetissimo.ErrorView, accepts: ~w(html json)],
-  pubsub: [name: Magnetissimo.PubSub,
+  render_errors: [view: MagnetissimoWeb.ErrorView, accepts: ~w(html json)],
+  pubsub: [name: MagnetissimoWeb.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger

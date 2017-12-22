@@ -1,0 +1,13 @@
+#logo {
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+#rss {
+  display: block; 
+}
+
+#rss img {
+  width: 25px;
+  margin-top: 7px;
+}

@@ -1,4 +1,3 @@
-/* This file is for your main application css. */
 /* Includes Bootstrap as well as some default style for the starter
  * application. This can be safely deleted to start fresh.
  */
@@ -76,5 +75,3 @@ body, form, ul, table {
     border-bottom: 0;
   }
 }
-
-/*# sourceMappingURL=app.css.map*/
