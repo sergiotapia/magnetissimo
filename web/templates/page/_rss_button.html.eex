@@ -1,0 +1,3 @@
+<a id="rss" href="/rss/<%= @term %>" class="tooltip tooltip-left" data-tooltip="RSS Feed for your current search">
+  <img src="<%= static_path(@conn, "/images/rss-icon.png") %>" />
+</a>

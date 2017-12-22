@@ -10,10 +10,10 @@ config :magnetissimo,
   ecto_repos: [Magnetissimo.Repo]
 
 # Configures the endpoint
-config :magnetissimo, MagnetissimoWeb.Endpoint,
+config :magnetissimo, Magnetissimo.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: "Djok4TJL7QT3rMVlG7RZixZPsiU1dN9BogAq8bQdf01N6gMeBnh9KB6ah9go1QqI",
-  render_errors: [view: MagnetissimoWeb.ErrorView, accepts: ~w(html json)],
+  secret_key_base: "t85GdIgrN4ZN3VmkXzAedQzP2C98VsL3vaSR1ZZWo6jG9UUNDsHR6v4eVbxqejCn",
+  render_errors: [view: Magnetissimo.ErrorView, accepts: ~w(html json)],
   pubsub: [name: Magnetissimo.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
@@ -21,6 +21,9 @@ config :magnetissimo, MagnetissimoWeb.Endpoint,
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
   metadata: [:request_id]
+
+config :scrivener_html,
+  routes_helper: Magnetissimo.Router.Helpers 
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
