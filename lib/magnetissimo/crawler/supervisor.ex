@@ -6,7 +6,7 @@ defmodule Magnetissimo.Crawler.Supervisor do
                               WorldWideTorrents, Zooqle}
 
   def start_link(arg) do
-    Logger.info "Starting Crawler Supervisor"
+    Logger.info IO.ANSI.magenta <> "Starting Crawler Supervisor" <> IO.ANSI.reset
     Supervisor.start_link(__MODULE__, arg, name: __MODULE__)
   end
 
