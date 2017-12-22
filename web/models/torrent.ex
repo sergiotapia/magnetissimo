@@ -11,6 +11,7 @@ defmodule Magnetissimo.Torrent do
     field :name, :string
     field :website_source, :string
     field :size, :string
+    field :outbound_url, :string
 
     timestamps()
   end
@@ -20,8 +21,8 @@ defmodule Magnetissimo.Torrent do
   """
   def changeset(struct, params \\ %{}) do
     struct
-    |> cast(params, [:magnet, :seeders, :leechers, :name, :website_source, :size])
-    |> validate_required([:magnet, :seeders, :leechers, :name, :website_source, :size])
+    |> cast(params, [:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url])
+    |> validate_required([:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url])
     |> validate_number(:seeders, greater_than_or_equal_to: 0)
     |> validate_number(:leechers, greater_than_or_equal_to: 0)
     |> unique_constraint(:magnet)
@@ -33,8 +34,23 @@ defmodule Magnetissimo.Torrent do
       {:ok, _torrent} ->
         Logger.info "Torrent saved to database: #{torrent.name}"
       {:error, changeset} ->
-        Logger.error "Couldn't save: #{torrent.name}"
-        IO.inspect changeset.errors
+        errors = for {key, {message, _}} <- changeset.errors do
+          "#{key} #{message}"
+        end
+        Logger.error "Torrent skipped: #{torrent.name} - Errors: #{Enum.join(errors, ", ")}"
     end
+  end
+
+  def total_by_website_source(website_source) when website_source == "" do
+    query = from t in Torrent,
+            select: count("*")
+    Repo.one(query)
+  end
+
+  def total_by_website_source(website_source) do
+    query = from t in Torrent,
+            where: t.website_source == ^website_source,
+            select: count("*")
+    Repo.one(query)
   end
 end

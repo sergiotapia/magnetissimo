@@ -1,21 +1,13 @@
-.small-alert {
-  background-image: none;
-  background-color: #dbd7ff;
-  border: 1px solid #d7d2ff;
-  color: #5d47a4;
-  width: 500px;
+#logo {
+  margin-top: 10px;
+  margin-left: 10px;
 }
 
-.big-search {
-  height: 56px;
-  width: 100%;
-  display: block;
-  margin-bottom: 20px;
-  padding: 10px 15px;
-  font-size: 25px;
-  font-weight: 600;
+#rss {
+  display: block; 
 }
 
-.size-th {
-  min-width: 90px;
+#rss img {
+  width: 25px;
+  margin-top: 7px;
 }
