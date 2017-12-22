@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Magnetissimo - Web application that indexes all popular torrent sites, and saves it to the local database.">
+    <meta name="author" content="Sergio Tapia">
+
+    <title>Magnetissimo</title>
+
+    <link rel="stylesheet" href="<%= static_path(@conn, "/css/app.css") %>">
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="columns">
+        <h1 id="logo">
+          <a href="/">
+           Magnetissimo
+          </a>
+        </h1>
+      </div>
+
+      <div class="columns">
+
+        <div class="column col-xl-2">
+          <ul class="menu">
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("") %></label>
+              </div>
+              <a href="/?term=<%= @term %>">
+                Show All
+              </a>
+            </li>
+            <li class="divider"></li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("demonoid") %></label>
+              </div>
+              <a href="/?term=<%= @term %>&website_source=demonoid">
+                Demonoid
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("eztv") %></label>
+              </div>
+              <a href="/?term=<%= @term %>&website_source=eztv">
+                EZTV
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("1337x") %></label>
+              </div>
+              <a href="/?term=<%= @term %>&website_source=1337x">
+                L337x
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("thepiratebay") %></label>
+              </div>
+              <a href="#">
+                ThePirateBay
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("zooqle") %></label>
+              </div>
+              <a href="#">
+                Zooqle
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="column col-xl-10">
+          <div class="container">
+            <%= render @view_module, @view_template, assigns %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
