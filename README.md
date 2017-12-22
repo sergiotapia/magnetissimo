@@ -27,7 +27,7 @@ You can also run the project on Heroku.
 
 Want to talk about Magnetissimo or suggest features? We have an official subreddit!
 
-[http://reddit.com/r/magnetissimo](http://reddit.com/r/magnetissimo)
+[/r/magnetissimo](http://reddit.com/r/magnetissimo)
 
 # Parser List
 
