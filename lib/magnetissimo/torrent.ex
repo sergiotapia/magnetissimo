@@ -5,13 +5,13 @@ defmodule Magnetissimo.Torrent do
   alias Magnetissimo.{Contents,Torrent}
 
   schema "torrents" do
-    field :magnet,         :string
-    field :seeders,        :integer
     field :leechers,       :integer
+    field :magnet,         :string
     field :name,           :string
-    field :website_source, :string
-    field :size,           :string
     field :outbound_url,   :string
+    field :seeders,        :integer
+    field :size,           :string
+    field :website_source, :string
 
     timestamps()
   end
@@ -25,7 +25,7 @@ defmodule Magnetissimo.Torrent do
     |> validate_required([:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url])
     |> validate_number(:seeders, greater_than_or_equal_to: 0)
     |> validate_number(:leechers, greater_than_or_equal_to: 0)
-    |> unique_constraint(:magnet)
+    |> unique_constraint(:magnet, name: :unique_magnet_name)
   end
 
   defdelegate save_torrent(torrent),                   to: Contents

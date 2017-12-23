@@ -13,11 +13,11 @@ defmodule Magnetissimo.Crawler.Supervisor do
   def init(_arg) do
     children = [
       # {Demonoid, []},
-      # {EZTV, []},
+      {EZTV, []},
       # {Leetx, []},
       # {Monova, []},
       # {ThePirateBay, []},
-      {TorrentDownloads, []},
+      # {TorrentDownloads, []},
       # {WorldWideTorrents, []},
       # {Zooqle, []},
     ]

@@ -11,7 +11,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
 
   def initial_queue do
     urls = for i <- 1..5 do
-      {:page_link, "https://www.demonoid.pw/files/?to=0&uid=0&category=0&subcategory=0&language=0&seeded=2&quality=0&external=2&query=&sort=&page=#{i}"}
+      {:page_link, "https://www.demonoid.pw/rss/0.xml"}
     end
     :queue.from_list(urls)
   end

@@ -4,16 +4,16 @@ defmodule Magnetissimo.Contents do
   require Logger
   import Ecto.Query
 
-  def save_torrent(torrent) do
-    changeset = Torrent.changeset(%Torrent{}, torrent)
+  def save_torrent(attrs) do
+    changeset = Torrent.changeset(%Torrent{}, attrs)
     case Repo.insert(changeset) do
-      {:ok, _torrent} ->
+      {:ok, torrent} ->
         Logger.info "Torrent saved to database: #{torrent.name}"
       {:error, changeset} ->
         errors = for {key, {message, _}} <- changeset.errors do
           "#{key} #{message}"
         end
-        Logger.error "Torrent skipped: #{torrent.name} - Errors: #{Enum.join(errors, ", ")}"
+        Logger.error "Torrent skipped: #{attrs.name} - Errors: #{Enum.join(errors, ", ")}"
     end
   end
 
