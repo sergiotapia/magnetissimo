@@ -57,7 +57,7 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   def torrent_information(item) do
-    attributes = [["title"], ["torrent:magneturi"], ["torrent:seeds"], ["torrent:peers"], ["link"]]
+    attributes = [["title"], ["torrent:magneturi"], ["torrent:seeds"], ["torrent:peers"], ["link"], ["torrent:contentlength"]]
     data = item
            |> Enum.map(fn f -> %{elem(f,0) => elem(f, 2)} end)
            |> Enum.filter(fn f -> Enum.member?(attributes, Map.keys(f)) end)
@@ -66,7 +66,7 @@ defmodule Magnetissimo.Crawler.EZTV do
     %{
       name: hd(data["title"]),
       magnet: hd(data["torrent:magneturi"]),
-      size: "0MB",
+      size: (data["torrent:contentlength"] |> hd |> Sizeable.filesize()),
       website_source: "eztv",
       seeders:  String.to_integer(hd(data["torrent:seeds"])),
       leechers: String.to_integer(hd(data["torrent:peers"])),
