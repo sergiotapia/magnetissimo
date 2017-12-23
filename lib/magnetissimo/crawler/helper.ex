@@ -2,7 +2,7 @@ defmodule Magnetissimo.Crawler.Helper do
   require Logger
   use Tesla
 
-  plug Tesla.Middleware.Headers, %{"Accept" => "text/html,application/xhtml+xml"}
+  plug Tesla.Middleware.Headers, %{"Accept" => "text/html,application/xhtml+xml,text/xml"}
   plug Tesla.Middleware.Opts, [recv_timeout: :infinity]
   plug Tesla.Middleware.FollowRedirects, max_redirects: 10
 
@@ -11,12 +11,8 @@ defmodule Magnetissimo.Crawler.Helper do
   @spec download(url()) :: {:ok, String.t} | {:error, atom()}
   def download(url) do
     with {:ok, url} <- check_content(url),
-         {:ok, %Tesla.Env{status: 200, body: body}} <- fetch(url) do
-          if body do
+         %Tesla.Env{status: 200, body: body} <- fetch(url) do
             {:ok, body}
-          else
-            {:error, :empty}
-          end
     end
   end
 
@@ -27,7 +23,8 @@ defmodule Magnetissimo.Crawler.Helper do
   or just return the url in an :ok-tuple
   """
   def check_content(url) do
-    response = head(url)
+    response = url
+               |> head
                |> check_response
 
     result = with  {:ok, headers} <- response,
@@ -52,13 +49,13 @@ defmodule Magnetissimo.Crawler.Helper do
   end
 
   @spec fetch(String.t) :: {:ok, %Tesla.Env{}} | {:error, %Tesla.Env{}}
-  defp fetch(url) do
+  def fetch(url) do
     get(url)
   end
 
   @spec verify_mime(String.t) :: :ok | {:error, :wrong_headers}
   defp verify_mime(types) do
-    case Regex.run(~r/^text\/html.*/iu, types, capture: :all_but_first) do
+    case Regex.run(~r/^text\/.+ml.*/iu, types, capture: :all_but_first) do
       nil -> {:error, :wrong_headers}
       _   -> :ok
     end
