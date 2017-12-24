@@ -8,6 +8,7 @@ defmodule Magnetissimo.Crawler.EZTV do
   import Magnetissimo.Crawler.Helper
   alias Magnetissimo.Torrent
 
+  # Since there's only one RSS endpoint, we fetch everything from the start.
   def initial_queue do
     url = "https://eztv.ag/ezrss.xml"
     case download(url) do
@@ -28,6 +29,7 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "[EZTV] Starting the crawler" <> IO.ANSI.reset
     schedule_start()
     {:ok, queue}
   end
