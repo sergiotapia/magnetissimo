@@ -1,0 +1,27 @@
+version: '3.2'
+services:
+  db:
+    image: postgres:10 # https://hub.docker.com/_/postgres/
+    volumes:
+      - postgres-db-volume:/data/postgres
+    environment:
+      - POSTGRES_DB=magnetissimo_dev
+      - POSTGRES_USER=torrent
+      - POSTGRES_PASSWORD=postgres-secret
+  web:
+    build:
+      context: ../
+      dockerfile: .docker/Dockerfile
+    command: mix do ecto.migrate, phoenix.server
+    environment:
+      - MIX_ENV=prod
+      - PORT=4000
+      - DBUSER=torrent
+      - DBPASSWORD=postgres-secret
+      - DBNAME=magnetissimo_dev
+    ports:
+      - "4000:4000"
+    depends_on:
+        - db
+volumes:
+  postgres-db-volume:
