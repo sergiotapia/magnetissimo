@@ -1,0 +1,5 @@
+.git
+test/
+config/test.exs
+config/prod.exs
+config/dev.exs
