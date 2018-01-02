@@ -44,13 +44,14 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting NyaaPantsu crawler" <> IO.ANSI.reset
     schedule_work()
     {:ok, queue}
   end
 
   defp schedule_work do
-    wait_seconds = :rand.uniform(8) * 1000
-    Process.send_after(self(), :work, wait_seconds)
+    wait = 1800000 # 30mn wait so we don't hammer the site too hard
+    Process.send_after(self(), :work, wait)
   end
 
   def handle_info(:work, queue) do
@@ -70,14 +71,14 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
 
   def process({:page_link, url}, queue) do
     Logger.info "[NyaaPanstu] Downloading torrents from page: #{url}"
-    result = Magnetissimo.Crawler.Helper.download(url).body |> torrent_information
-    case result do
+    with {:ok, body} <- Magnetissimo.Crawler.Helper.download(url),
+         torrent_list when is_list(torrent_list )<- torrent_information(body) do
+          for torrent <- torrent_list do
+            Magnetissimo.Torrent.save_torrent(torrent)
+          end
+    else
       {:error, message} ->
         Logger.error message
-      torrent_list ->
-        for torrent <- torrent_list do
-          Magnetissimo.Torrent.save_torrent(torrent)
-        end
     end
     queue
   end

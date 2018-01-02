@@ -44,6 +44,7 @@ defmodule Magnetissimo.Crawler.NyaaSi do
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting NyaaSi crawler" <> IO.ANSI.reset
     schedule_work()
     {:ok, queue}
   end
@@ -59,8 +60,8 @@ defmodule Magnetissimo.Crawler.NyaaSi do
         {{_value, item}, queue_2} ->
           process(item, queue_2)
       _ ->
-        wait_seconds = 10 * 1000 # 10 second wait so we don't hammer the site too hard
-        :timer.sleep(wait_seconds)
+        wait = 1800000 # 30mn wait so we don't hammer the site too hard
+        :timer.sleep(wait)
         Logger.info "[NyaaSi] Queue is empty, restarting scraping procedure."
         initial_queue()
     end
@@ -70,19 +71,14 @@ defmodule Magnetissimo.Crawler.NyaaSi do
 
   def process({:page_link, url}, queue) do
     Logger.info "[NyaaSi] Downloading torrents from page: #{url}"
-    case Magnetissimo.Crawler.Helper.download(url) do
+    with {:ok, body} <- Magnetissimo.Crawler.Helper.download(url),
+         torrent_list when is_list(torrent_list) <- torrent_information(body) do
+          for torrent <- torrent_list do
+            Magnetissimo.Torrent.save_torrent(torrent)
+          end
+    else
       {:error, message} ->
         Logger.error message
-      page ->
-        result = page.body |> torrent_information
-    end
-    case result do
-      {:error, message} ->
-        Logger.error message
-      torrent_list ->
-        for torrent <- torrent_list do
-          Magnetissimo.Torrent.save_torrent(torrent)
-        end
     end
     queue
   end
@@ -90,19 +86,19 @@ defmodule Magnetissimo.Crawler.NyaaSi do
   defp fix_size(size) do
     {number_part, unit_part} = Float.parse size
     # Largest file on nyaa as of 07/2017 is 4.6 TiB, so we go 1 order of magnitude higher for future-proofing
-    case unit_part |> String.trim do
+    fixed_size = case String.trim(unit_part) do
       "PiB" ->
-        fixed_size = number_part * :math.pow(1024, 5)
+        number_part * :math.pow(1024, 5)
       "TiB" ->
-        fixed_size = number_part * :math.pow(1024, 4)
+        number_part * :math.pow(1024, 4)
       "GiB" ->
-        fixed_size = number_part * :math.pow(1024, 3)
+        number_part * :math.pow(1024, 3)
       "MiB" ->
-        fixed_size = number_part * :math.pow(1024, 2)
+        number_part * :math.pow(1024, 2)
       "KiB" ->
-        fixed_size = number_part * :math.pow(1024, 1)
+        number_part * :math.pow(1024, 1)
       "Bytes" ->
-        fixed_size = number_part
+        number_part
     end
 
     fixed_size
@@ -150,13 +146,11 @@ defmodule Magnetissimo.Crawler.NyaaSi do
   end
 
   def torrent_information(rss_body) when is_binary(rss_body) and byte_size(rss_body) > 50 do
-    items = rss_body
-      |> Floki.find("channel > item")
+    items = Floki.find(rss_body, "channel > item")
 
-    maps = for item <- items do
+    for item <- items do
       item_to_map(item)
     end
-    maps
   end
 
   def torrent_information(_rss_body) do
