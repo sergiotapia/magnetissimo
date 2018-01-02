@@ -2,6 +2,7 @@ defmodule Magnetissimo.Crawler.Supervisor do
   use Supervisor
   require Logger
   alias Magnetissimo.Crawler.{Demonoid, EZTV, Leetx, Monova,
+                              NyaaPantsu, NyaaSi,
                               ThePirateBay, TorrentDownloads,
                               WorldWideTorrents, Zooqle}
 
@@ -16,6 +17,8 @@ defmodule Magnetissimo.Crawler.Supervisor do
       # {EZTV, []},
       # {Leetx, []},
       # {Monova, []},
+      {NyaaPantsu, []},
+      {NyaaSi, []},
       # {ThePirateBay, []},
       # {TorrentDownloads, []},
       # {WorldWideTorrents, []},

@@ -46,7 +46,7 @@ defmodule Magnetissimo.Mixfile do
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:phoenix_pubsub, "~> 1.0"},
-      {:postgrex, ">= 0.0.0"},
+      {:postgrex, ">= 0.13.2"},
       {:scrivener_ecto, "~> 1.3.0"},
       {:scrivener_html, "~> 1.7.1"},
       {:sizeable, "~> 1.0.2"},

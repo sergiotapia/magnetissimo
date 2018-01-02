@@ -27,7 +27,11 @@
           <%= for torrent <- @torrents do %>
             <tr>
               <td>
-                <%= link torrent.name, to: torrent.outbound_url, target: "_blank" %>
+                <%= if torrent.outbound_url do %>
+                  <%= link torrent.name, to: torrent.outbound_url, target: "_blank" %>
+                <% else %>
+                  <%= torrent.name %>
+                <% end %>
               </td>
               <td class="meta size"><%= readable_size(torrent.size) %></td>
               <td class="meta seeds"><%= seeders(torrent.seeders) %></td>
