@@ -25,6 +25,7 @@ defmodule Magnetissimo.Crawler.Zooqle do
   end
 
   def start_link(_) do
+    Logger.info IO.ANSI.magenta <> "Starting Zooqle crawler" <> IO.ANSI.reset
     queue = initial_queue()
     GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end

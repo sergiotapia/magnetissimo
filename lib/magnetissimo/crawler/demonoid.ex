@@ -17,6 +17,7 @@ defmodule Magnetissimo.Crawler.Demonoid do
   end
 
   def start_link(_) do
+    Logger.info IO.ANSI.magenta <> "Starting Demonoid crawler" <> IO.ANSI.reset
     queue = initial_queue()
     GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
