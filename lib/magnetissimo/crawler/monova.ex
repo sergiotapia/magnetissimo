@@ -10,6 +10,7 @@ defmodule Magnetissimo.Crawler.Monova do
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting Monova crawler" <> IO.ANSI.reset
     schedule_work()
     {:ok, queue}
   end

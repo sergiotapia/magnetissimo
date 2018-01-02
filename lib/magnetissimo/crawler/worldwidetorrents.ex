@@ -10,6 +10,7 @@ defmodule Magnetissimo.Crawler.WorldWideTorrents do
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting WorldWideTorrents crawler" <> IO.ANSI.reset
     schedule_work()
     {:ok, queue}
   end

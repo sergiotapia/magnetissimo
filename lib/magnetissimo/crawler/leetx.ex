@@ -33,6 +33,7 @@ defmodule Magnetissimo.Crawler.Leetx do
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting Leetx crawler" <> IO.ANSI.reset
     schedule_work()
     {:ok, queue}
   end

@@ -22,6 +22,7 @@ defmodule Magnetissimo.Crawler.ThePirateBay do
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting ThePirateBay crawler" <> IO.ANSI.reset
     schedule_work()
     {:ok, queue}
   end
