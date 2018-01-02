@@ -33,6 +33,8 @@ defmodule Magnetissimo.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
+      {:bento, "~> 0.9.2"},
+      {:poison, "~> 2.0", overried: true},
       {:cowboy, "~> 1.0"},
       {:distillery, "~> 1.5.2"},
       {:floki, "~> 0.19.1"},
