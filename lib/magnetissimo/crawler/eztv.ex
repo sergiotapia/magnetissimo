@@ -23,12 +23,12 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   def start_link(_) do
-    Logger.info IO.ANSI.magenta <> "Starting EZTV crawler" <> IO.ANSI.reset
     queue = initial_queue()
     GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting EZTV crawler" <> IO.ANSI.reset
     schedule_start()
     {:ok, queue}
   end
