@@ -8,12 +8,12 @@ defmodule Magnetissimo.Contents do
     changeset = Torrent.changeset(%Torrent{}, attrs)
     case Repo.insert(changeset) do
       {:ok, torrent} ->
-        Logger.info "Torrent saved to database: #{torrent.name}"
+        Logger.info "[#{torrent.website_source}] Torrent saved to database: #{torrent.name}"
       {:error, changeset} ->
         errors = for {key, {message, _}} <- changeset.errors do
           "#{key} #{message}"
         end
-        Logger.error "Torrent skipped: #{attrs.name} - Errors: #{Enum.join(errors, ", ")}"
+        Logger.error "[#{attrs.website_source}] Torrent skipped: #{attrs.name} - Errors: #{Enum.join(errors, ", ")}"
     end
   end
 
