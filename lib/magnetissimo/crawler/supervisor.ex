@@ -15,14 +15,14 @@ defmodule Magnetissimo.Crawler.Supervisor do
     children = [
       # {Demonoid, []},
       {EZTV, []},
-      # {Leetx, []},
-      # {Monova, []},
+      {Leetx, []},
+      {Monova, []},
       {NyaaPantsu, []},
       {NyaaSi, []},
       # {ThePirateBay, []},
       # {TorrentDownloads, []},
       # {WorldWideTorrents, []},
-      # {Zooqle, []},
+      {Zooqle, []},
     ]
 
     Supervisor.init(children, strategy: :one_for_one)
