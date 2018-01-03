@@ -3,6 +3,14 @@
 This document is a Work in Progress, please [open an issue](https://github.com/sergiotapia/magnetissimo/issues/new) and tell us what you would expect to
 see here.
 
+## HOWTO
+
+Basically, a sane rule to avoid bureaucracy **and** losing touch about what happens is:
+
+* Is it a feature? If yes, then make a pull request
+* IS it a quickfix? If yes, then post a patch / diff on an issue 
+* Neither a feature or an issue? Open an issue and we'll see what's best
+
 ## Crawlers
 
 The crawlers live in `lib/magnetissimo/crawler/`. They all belong to a special supervisor that is located in the `crawler` directory as well. If you want
