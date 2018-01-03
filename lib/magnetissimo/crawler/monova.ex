@@ -26,6 +26,7 @@ defmodule Magnetissimo.Crawler.Monova do
         process(item, queue_2)
       _ ->
         Logger.debug "[Monova] Queue is empty - restarting queue."
+        wait = 1800000 # 30mn wait so we don't hammer the site too hard
         initial_queue()
     end
     schedule_work()
@@ -33,12 +34,17 @@ defmodule Magnetissimo.Crawler.Monova do
   end
 
   def process({:page_link, url}, queue) do
-    IO.puts "Downloading page: " <> url
-    torrents = download(url) |> torrent_links
-    queue = Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
-    end)
-    queue
+    # Logger.debug "[Monova] Downloading page: " <> url
+    case download(url) do
+      {:ok, body} -> 
+        torrents = torrent_links(body)
+        Enum.reduce(torrents, queue, fn torrent, queue ->
+          :queue.in({:torrent_link, torrent}, queue)
+        end)
+      {:error, msg} ->
+        Logger.error "[Monova] #{inspect msg}"
+        queue
+    end
   end
 
   def process({:torrent_link, url}, queue) do
@@ -60,7 +66,6 @@ defmodule Magnetissimo.Crawler.Monova do
   end
 
   def torrent_links(cat_body) do
-    Logger.debug "[Monova] Extracting Torrents"
     cat_body
     |> Floki.find("a")
     |> Floki.attribute("href")
@@ -109,7 +114,7 @@ defmodule Magnetissimo.Crawler.Monova do
 
     case size do
         {:error, :bad_tree} ->
-          Logger.error "Couldn't properly parse this page!"
+          Logger.error "[Monova] Couldn't properly parse this page!"
           "0"
         {:ok, torrent_size} ->
           torrent_size

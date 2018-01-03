@@ -47,7 +47,8 @@ defmodule Magnetissimo.Crawler.Zooqle do
           process(item, queue_2)
         _ ->
           Logger.info "[Zooqle] Queue is empty, restarting scraping procedure."
-          initial_queue()
+          wait = 1800000 # 30mn
+          :timer.sleep(wait)
       end
     schedule_work()
     {:noreply, new_queue}
@@ -55,10 +56,16 @@ defmodule Magnetissimo.Crawler.Zooqle do
 
   def process({:page_link, url}, queue) do
     Logger.info "[Zooqle] Finding torrents in listing page: #{url}"
-    torrents = download(url) |> torrent_links
-    Enum.reduce(torrents, queue, fn torrent, queue ->
-      :queue.in({:torrent_link, torrent}, queue)
-    end)
+    case download(url) do
+      {:ok, body} -> 
+        torrents = torrent_links(body)
+        Enum.reduce(torrents, queue, fn torrent, queue ->
+          :queue.in({:torrent_link, torrent}, queue)
+        end)
+      {:error, msg} ->
+        Logger.error "[Zooqle] #{inspect msg}"
+        queue
+    end
   end
 
   def process({:torrent_link, url}, queue) do

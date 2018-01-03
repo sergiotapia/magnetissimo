@@ -50,6 +50,8 @@ defmodule Magnetissimo.Crawler.Leetx do
           process(item, queue_2)
         _ ->
           Logger.info "[Leetx] Queue is empty, restarting scraping procedure."
+          wait = 1800000 # 30mn
+          :timer.sleep(wait)
           initial_queue()
       end
     schedule_work()
@@ -58,27 +60,30 @@ defmodule Magnetissimo.Crawler.Leetx do
 
   def process({:page_link, url}, queue) do
     Logger.info "[Leetx] Finding torrents in listing page: #{url}"
-    result = download(url) |> torrent_links
-    case result do
-      {:error, message} ->
-        Logger.error message
-        queue
-      torrents ->
-        Enum.reduce(torrents, queue, fn torrent, queue ->
-          :queue.in({:torrent_link, torrent}, queue)
-        end)
+      with {:ok, body} <- download(url),
+            torrents when is_list(torrents) <- torrent_links(body) do
+              Enum.reduce(torrents, queue, fn torrent, queue ->
+                :queue.in({:torrent_link, torrent}, queue)
+              end)
+      else
+        {:error, message} ->
+          Logger.error "[Leetx] "<>  message
+          queue
+        _ -> 
+          Logger.error "[Leetx] Something happened when parsing a page looking for torrent URLs…"
     end
   end
 
   def process({:torrent_link, url}, queue) do
     Logger.info "[Leetx] Downloading torrent from page: #{url}"
-    result = download(url) |> torrent_information
-    case result do
+    with {:ok, body} <- download(url),
+         torrent when is_map(torrent) <- torrent_information(body) do
+            torrent
+            |> Map.put(:outbound_url, url)
+            |> Magnetissimo.Torrent.save_torrent
+    else
       {:error, message} -> 
-        Logger.error message
-      torrent_struct -> 
-        torrent_struct = Map.put(torrent_struct, :outbound_url, url)
-        Magnetissimo.Torrent.save_torrent(torrent_struct)
+        Logger.error "[Leetx] "<> message
     end
     queue
   end
@@ -110,9 +115,9 @@ defmodule Magnetissimo.Crawler.Leetx do
       end
 
     magnet = html_body
-      |> Floki.find("a.btn-magnet")
-      |> Floki.attribute("href")
-      |> Enum.at(0)
+             |> Floki.attribute("a", "href")
+             |> Enum.filter(fn x -> String.starts_with?(x, "magnet") end)
+             |> get_it
 
     size = html_body
       |> Floki.find(".torrent-category-detail ul.list")
@@ -151,4 +156,7 @@ defmodule Magnetissimo.Crawler.Leetx do
   def torrent_information(_html_body) do
     {:error, "Couldn't parse torrent information"}
   end
+
+  defp get_it([h|t]), do: h
+  defp get_it(h),     do: h
 end

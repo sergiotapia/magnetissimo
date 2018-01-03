@@ -40,7 +40,7 @@ defmodule Magnetissimo.Crawler.NyaaSi do
 
   def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
@@ -59,11 +59,11 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       case :queue.out(queue) do
         {{_value, item}, queue_2} ->
           process(item, queue_2)
-      _ ->
-        wait = 1800000 # 30mn wait so we don't hammer the site too hard
-        :timer.sleep(wait)
-        Logger.info "[NyaaSi] Queue is empty, restarting scraping procedure."
-        initial_queue()
+        _ ->
+          wait = 1800000 # 30mn wait so we don't hammer the site too hard
+          :timer.sleep(wait)
+          Logger.info "[NyaaSi] Queue is empty, restarting scraping procedure."
+          initial_queue()
     end
     schedule_work()
     {:noreply, new_queue}

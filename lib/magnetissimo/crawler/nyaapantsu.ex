@@ -40,7 +40,7 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
 
   def start_link(_) do
     queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue)
+    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
