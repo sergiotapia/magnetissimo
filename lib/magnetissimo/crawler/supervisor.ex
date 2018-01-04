@@ -4,7 +4,7 @@ defmodule Magnetissimo.Crawler.Supervisor do
   alias Magnetissimo.Crawler.{Demonoid, EZTV, Leetx, Monova,
                               NyaaPantsu, NyaaSi,
                               ThePirateBay, TorrentDownloads,
-                              WorldWideTorrents, Zooqle}
+                              WorldWideTorrents, XBit, Zooqle}
 
   def start_link(arg) do
     Logger.info IO.ANSI.magenta <> "Starting Crawler Supervisor" <> IO.ANSI.reset
@@ -22,6 +22,7 @@ defmodule Magnetissimo.Crawler.Supervisor do
       # {ThePirateBay, []},
       # {TorrentDownloads, []},
       # {WorldWideTorrents, []},
+      {XBit, []},
       {Zooqle, []},
     ]
 

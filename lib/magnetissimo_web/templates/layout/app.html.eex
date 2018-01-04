@@ -85,6 +85,14 @@
             </li>
             <li class="menu-item">
               <div class="menu-badge">
+                <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("xbit") %></label>
+              </div>
+              <a href="#">
+                xBit
+              </a>
+            </li>
+            <li class="menu-item">
+              <div class="menu-badge">
                 <label class="label label-primary"><%= Magnetissimo.Torrent.total_by_website_source("zooqle") %></label>
               </div>
               <a href="#">

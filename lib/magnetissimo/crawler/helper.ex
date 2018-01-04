@@ -2,7 +2,7 @@ defmodule Magnetissimo.Crawler.Helper do
   require Logger
   use Tesla
 
-  plug Tesla.Middleware.Headers, %{"Accept" => "text/html,text/xml,application/xhtml+xml,application/xml"}
+  plug Tesla.Middleware.Headers, %{"Accept" => "text/html,text/xml,application/xhtml+xml,application/xml,application/json"}
   plug Tesla.Middleware.Opts, [recv_timeout: :infinity]
   plug Tesla.Middleware.FollowRedirects, max_redirects: 10
 
@@ -55,7 +55,7 @@ defmodule Magnetissimo.Crawler.Helper do
 
   @spec verify_mime(String.t) :: :ok | {:error, :wrong_headers}
   defp verify_mime(types) do
-    case Regex.run(~r/^(?:text|application)\/(?:html|xml|xhtml).*/iu, types, capture: :all_but_first) do
+    case Regex.run(~r/^(?:text|application)\/(?:html|json|xml|xhtml).*/iu, types, capture: :all_but_first) do
       nil -> {:error, :wrong_headers}
       _   -> :ok
     end
