@@ -9,7 +9,7 @@ release](https://github.com/sergiotapia/magnetissimo/releases).
 
 ### Look
 
-![alt tag](https://cloud.githubusercontent.com/assets/686715/22401811/388e3b3e-e5b0-11e6-9429-aca85f3ce0b6.png)
+![A screenshot of Magnetissimo](https://i.imgur.com/VvHLn5H.png)
 
 ### Goals
 
