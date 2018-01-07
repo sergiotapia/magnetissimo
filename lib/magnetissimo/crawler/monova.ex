@@ -16,7 +16,8 @@ defmodule Magnetissimo.Crawler.Monova do
   end
 
   defp schedule_work do
-    Process.send_after(self(), :work, 1 * 1 * 100)
+    wait = 1800000 # 30mn wait so we don't hammer the site too hard
+    Process.send_after(self(), :work, wait)
   end
   # Callbacks
 
@@ -26,7 +27,7 @@ defmodule Magnetissimo.Crawler.Monova do
         process(item, queue_2)
       _ ->
         Logger.debug "[Monova] Queue is empty - restarting queue."
-        wait = 1800000 # 30mn wait so we don't hammer the site too hard
+        schedule_work
         initial_queue()
     end
     schedule_work()
