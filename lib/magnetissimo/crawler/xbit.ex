@@ -12,7 +12,7 @@ defmodule Magnetissimo.Crawler.XBit do
   def initial_queue do
     url = "https://xbit.pw/api"
     with {:ok, body} <- download(url),
-         {:ok, data} <- Poison.decode(body)
+         {:ok, data} <- Poison.decode(escape(body))
     do
       data["dht_results"]
     else
@@ -88,6 +88,7 @@ defmodule Magnetissimo.Crawler.XBit do
   end
 
   def escape(blob) do
+    # xBit's api sometimes returns invalid JSON, so we make a feeble attempt to fix it
     blob
       |> String.replace("\\", "\\\\")
   end
