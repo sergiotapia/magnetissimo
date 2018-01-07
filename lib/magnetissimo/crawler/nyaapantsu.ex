@@ -50,8 +50,8 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
   end
 
   defp schedule_work do
-    wait = 1800000 # 30mn wait so we don't hammer the site too hard
-    Process.send_after(self(), :work, wait)
+    wait_seconds = :rand.uniform(8) * 1000
+    Process.send_after(self(), :work, wait_seconds)
   end
 
   def handle_info(:work, queue) do
@@ -60,8 +60,8 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
         {{_value, item}, queue_2} ->
           process(item, queue_2)
       _ ->
-        wait_seconds = 10 * 1000 # 10 second wait so we don't hammer the site too hard
-        :timer.sleep(wait_seconds)
+        wait = 1800000 # 30mn wait so we don't hammer the site too hard
+        :timer.sleep(wait)
         Logger.info "[NyaaPantsu] Queue is empty, restarting scraping procedure."
         initial_queue()
     end
