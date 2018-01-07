@@ -1,5 +1,5 @@
-<?xml version="1.0" encoding="UTF-8"?>  
-<rss version="2.0">  
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
   <channel>
     <title>Magnetissimo</title>
     <link>https://github.com/sergiotapia/magnetissimo</link>
@@ -7,7 +7,7 @@
     <language>en</language>
     <%= for torrent <- @torrents do %>
       <item>
-        <title><%= torrent.name %></title>
+        <title><%= Phoenix.HTML.html_escape(torrent.name) |> elem(1) %></title>
         <link>
           <![CDATA[
             <%= torrent.magnet %>
@@ -22,4 +22,4 @@
       </item>
     <% end %>
   </channel>
-</rss>  
+</rss>
