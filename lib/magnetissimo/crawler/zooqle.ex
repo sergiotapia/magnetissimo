@@ -4,40 +4,43 @@ defmodule Magnetissimo.Crawler.Zooqle do
   the latest torrents on the website.
   """
 
-  @behaviour Magnetissimo.WebParser
-
+  @behaviour Magnetissimo.RSSParser
   use GenServer
   require Logger
-  alias Magnetissimo.Torrent
   import Magnetissimo.Crawler.Helper
+  alias Magnetissimo.Torrent
 
   def initial_queue do
-    urls = [
-      {:page_link, "https://zooqle.com/browse/movies/?s=dt&v=t&sd=d"},
-      {:page_link, "https://zooqle.com/browse/music/?s=dt&v=t&sd=d"},
-      {:page_link, "https://zooqle.com/browse/games/?s=dt&v=t&sd=d"},
-      {:page_link, "https://zooqle.com/browse/apps/?s=dt&v=t&sd=d"},
-      {:page_link, "https://zooqle.com/browse/books/?s=dt&v=t&sd=d"},
-      {:page_link, "https://zooqle.com/browse/anime/?s=dt&v=t&sd=d"},
-      {:page_link, "https://zooqle.com/browse/misc/?s=dt&v=t&sd=d"}
+    categories = [
+      "movies",
+      "music",
+      "games",
+      "apps",
+      "books",
+      "anime",
+      "misc",
     ]
+    urls = for category <- categories do
+      {:page_link, "https://zooqle.com/search?q=#{category}&fmt=rss&s=dt&v=t&sd=d"}
+    end
+
     :queue.from_list(urls)
   end
 
   def start_link(_) do
-    Logger.info IO.ANSI.magenta <> "Starting Zooqle crawler" <> IO.ANSI.reset
     queue = initial_queue()
     GenServer.start_link(__MODULE__, queue, name: __MODULE__)
   end
 
   def init(queue) do
+    Logger.info IO.ANSI.magenta <> "Starting Zooqle crawler" <> IO.ANSI.reset
     schedule_work()
     {:ok, queue}
   end
 
   defp schedule_work do
-    wait = :rand.uniform(9)
-    Process.send_after(self(), :work, wait * 1000) # 5 seconds
+    wait_seconds = :rand.uniform(8) * 1000
+    Process.send_after(self(), :work, wait_seconds)
   end
 
   def handle_info(:work, queue) do
@@ -46,80 +49,77 @@ defmodule Magnetissimo.Crawler.Zooqle do
         {{_value, item}, queue_2} ->
           process(item, queue_2)
         _ ->
-          Logger.info "[Zooqle] Queue is empty, restarting scraping procedure."
-          wait = 1800000 # 30mn
+          Logger.info "[Zooqle] Finished crawling the RSS feed, waiting 30 minutes…"
+          wait = 1800000 # 30mn wait so we don't hammer the site too hard
           :timer.sleep(wait)
-      end
+          initial_queue()
+    end
     schedule_work()
     {:noreply, new_queue}
   end
 
   def process({:page_link, url}, queue) do
-    Logger.info "[Zooqle] Finding torrents in listing page: #{url}"
-    case download(url) do
-      {:ok, body} -> 
-        torrents = torrent_links(body)
-        Enum.reduce(torrents, queue, fn torrent, queue ->
-          :queue.in({:torrent_link, torrent}, queue)
-        end)
-      {:error, msg} ->
-        Logger.error "[Zooqle] #{inspect msg}"
-        queue
+    Logger.info "[Zooqle] Downloading torrents from page: #{url}"
+    with {:ok, body} <- download(url),
+         torrent_list when is_list(torrent_list) <- torrent_information(body) do
+          for torrent <- torrent_list do
+            Torrent.save_torrent(torrent)
+          end
+    else
+      {:error, message} ->
+        Logger.error message
     end
-  end
-
-  def process({:torrent_link, url}, queue) do
-    Logger.info "[Zooqle] Downloading torrent from page: #{url}"
-    torrent_struct = download(url) |> torrent_information
-    Torrent.save_torrent(torrent_struct)
     queue
   end
 
-  def torrent_links(html_body) do
-    html_body
-    |> Floki.find("table.table-torrents tr td td.text-trunc a.small")
-    |> Floki.attribute("href")
-    |> Enum.map(fn(url) -> "https://zooqle.com" <> url end)
-  end
-
-  def torrent_information(html_body) do
-    name = html_body
-      |> Floki.find("h4#torname")
-      |> Enum.at(0)
+  defp item_to_map(item) do
+    name = item
+      |> Floki.find("title")
       |> Floki.text
-      |> String.trim
-      |> HtmlEntities.decode
 
-    name =
-      if String.ends_with?(name, ".torrent") do
-        String.replace(name, ".torrent", "")
-      end
-
-    magnet = html_body
-      |> Floki.find("a")
-      |> Floki.attribute("href")
-      |> Enum.filter(fn(url) -> String.starts_with?(url, "magnet:") end)
-      |> Enum.at(0)
-
-    seeders = html_body
-      |> Floki.find(".progress .prog-green")
-      |> Enum.at(0)
+    magnet = item
+      |> Floki.find("torrent|magneturi")
       |> Floki.text
-      |> String.trim
 
-    leechers = html_body
-      |> Floki.find(".progress .prog-yellow")
-      |> Enum.at(0)
+    size = item
+      |> Floki.find("torrent|contentlength")
       |> Floki.text
-      |> String.trim
+
+    {seeders, _} = item
+      |> Floki.find("torrent|seeds")
+      |> Floki.text
+      |> Integer.parse
+
+    {leechers, _} = item
+      |> Floki.find("torrent|peers")
+      |> Floki.text
+      |> Integer.parse
+
+    outbound_url = item
+      |> Floki.find("guid")
+      |> Floki.text
 
     %{
       name: name,
       magnet: magnet,
-      size: "0",
+      size: size,
       website_source: "zooqle",
       seeders: seeders,
-      leechers: leechers
+      leechers: leechers,
+      outbound_url: outbound_url,
     }
   end
+
+  def torrent_information(rss_body) when is_binary(rss_body) and byte_size(rss_body) > 50 do
+    items = Floki.find(rss_body, "channel > item")
+
+    for item <- items do
+      item_to_map(item)
+    end
+  end
+
+  def torrent_information(_rss_body) do
+    {:error, "Couldn't read rss feed"}
+  end
+
 end
