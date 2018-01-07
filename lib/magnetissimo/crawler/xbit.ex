@@ -11,19 +11,16 @@ defmodule Magnetissimo.Crawler.XBit do
 
   def initial_queue do
     url = "https://xbit.pw/api"
-    case download(url) do
-      {:ok, body} ->
-        body
-        |> Poison.decode
-        |> case do
-          {:ok, data} ->
-            data["dht_results"]
-          {:error, msg} ->
-            Logger.error "[xBit] #{inspect msg}"
-            []
-          end
+    with {:ok, body} <- download(url),
+         {:ok, data} <- Poison.decode(body)
+    do
+      data["dht_results"]
+    else
       {:error, :wrong_headers} ->
         Logger.error "[xBit] Wrong headers in the HTTP Response!"
+        []
+      {:error, msg} ->
+        Logger.error "[xBit] #{inspect msg}"
         []
     end
   end
@@ -45,8 +42,9 @@ defmodule Magnetissimo.Crawler.XBit do
   end
 
   def schedule_work() do
-    wait = 1800000 # 30mn
-    Logger.info("[xBit] Finished crawling the RSS feed, waiting 30 minutes…")
+    # xBit indexes torrents at a high rate, so we need to crawl them more often
+    wait = 900000 # 15mn
+    Logger.info("[xBit] Finished crawling the RSS feed, waiting 15 minutes…")
     Process.send_after(self(), :work, wait)
   end
 
@@ -87,6 +85,11 @@ defmodule Magnetissimo.Crawler.XBit do
     fixed_size
       |> round
       |> Integer.to_string
+  end
+
+  def escape(blob) do
+    blob
+      |> String.replace("\\", "\\\\")
   end
 
   def torrent_information(item) do
