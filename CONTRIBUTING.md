@@ -11,6 +11,8 @@ Basically, a sane rule to avoid bureaucracy **and** losing touch about what happ
 * IS it a quickfix? If yes, then post a patch / diff on an issue 
 * Neither a feature or an issue? Open an issue and we'll see what's best
 
+You can also contact us on Slack! See the README for more information.
+
 ## Crawlers
 
 The crawlers live in `lib/magnetissimo/crawler/`. They all belong to a special supervisor that is located in the `crawler` directory as well. If you want
