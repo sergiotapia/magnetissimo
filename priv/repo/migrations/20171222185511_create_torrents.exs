@@ -6,10 +6,10 @@ defmodule Magnetissimo.Repo.Migrations.Createtorrents do
       add :leechers, :integer, null: false
       add :magnet, :text, null: false
       add :name, :text, null: false
-      add :outbound_url, :string, null: false
+      add :outbound_url, :text, null: false
       add :seeders, :integer, null: false
-      add :size, :string, null: false
-      add :website_source, :string, null: false
+      add :size, :text, null: false
+      add :website_source, :text, null: false
 
       timestamps()
     end
