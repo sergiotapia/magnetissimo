@@ -157,6 +157,6 @@ defmodule Magnetissimo.Crawler.Leetx do
     {:error, "Couldn't parse torrent information"}
   end
 
-  defp get_it([h|t]), do: h
+  defp get_it([h|_]), do: h
   defp get_it(h),     do: h
 end
