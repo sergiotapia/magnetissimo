@@ -34,7 +34,6 @@ defmodule Magnetissimo.Mixfile do
   defp deps do
     [
       {:bento, "~> 0.9.2"},
-      {:poison, "~> 2.0", overried: true},
       {:cowboy, "~> 1.0"},
       {:distillery, "~> 1.5.2"},
       {:floki, "~> 0.19.1"},
@@ -46,9 +45,11 @@ defmodule Magnetissimo.Mixfile do
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:phoenix_pubsub, "~> 1.0"},
+      {:poison, "~> 2.0", overried: true},
       {:postgrex, ">= 0.13.2"},
       {:scrivener_ecto, "~> 1.3.0"},
       {:scrivener_html, "~> 1.7.1"},
+      {:sentry, "~> 6.0.5", only: :dev},
       {:sizeable, "~> 1.0.2"},
       {:tesla, "~> 0.10.0"}
     ]
