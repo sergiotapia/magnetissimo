@@ -1,5 +1,7 @@
 # Magnetissimo [![StackShare](https://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](https://stackshare.io/sergiotapia/magnetissimo) 
 
+>Magnetissimo is a self-hosted web application that indexes all popular torrent sites.
+
 Table of Contents
 
 * [Look](#look)
@@ -9,7 +11,6 @@ Table of Contents
 * [Supported websites](#supported-websites)
 
 
-Web application that indexes all popular torrent sites, and saves it to the local database.
 
 ⚠️ War Zone ⚠️
 
