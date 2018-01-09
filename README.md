@@ -1,4 +1,13 @@
-# Magnetissimo [![StackShare](https://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](https://stackshare.io/sergiotapia/magnetissimo)
+# Magnetissimo [![StackShare](https://img.shields.io/badge/tech-stack-0690fa.svg?style=flat)](https://stackshare.io/sergiotapia/magnetissimo) 
+
+Table of Contents
+
+* [Look](#look)
+* [Goals](#goals)
+* [Usage Guide](#usage-guide)
+* [Community](#community)
+* [Supported websites](#supported-websites)
+
 
 Web application that indexes all popular torrent sites, and saves it to the local database.
 
@@ -32,6 +41,12 @@ Want to talk about Magnetissimo or suggest features? We have an official subredd
 
 [/r/magnetissimo](http://reddit.com/r/magnetissimo)
 
+Want to get in touch with the development team? We also have a Slack chatroom in the Elixir Slack server:
+
+1. Make yourself an account [here](http://elixir-slackin.herokuapp.com/)
+2. Join [#Magnetissimo](https://elixir-lang.slack.com/messages/C8R0V8S94)
+3. Don't ask to ask.
+
 ### Supported websites
 
 The following websites are fully supported or we are actively working on their crawler.
@@ -44,3 +59,4 @@ The following websites are fully supported or we are actively working on their c
 * TorrentDownloads
 * WorldWideTorrents
 * Zooqle
+* Nyaa.si / NyaaPantsu
