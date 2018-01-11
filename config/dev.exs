@@ -42,4 +42,4 @@ config :magnetissimo, Magnetissimo.Repo,
   port: 5432,
   pool_size: 50
 
-import_config "dev.secret.exs"
+# import_config "dev.secret.exs"
