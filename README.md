@@ -28,6 +28,7 @@ release](https://github.com/sergiotapia/magnetissimo/releases).
 * Run without ceremony. No pointless configuration needed.
 * Easy to understand source code. Special care is taken to keep code lean and understandable.
 * High performance, leveraging Elixir's GenServer and Erlang's BEAM VM.
+* Close work with magnet providers. Don't hesitate to reach us so we can spare your resources
 
 ### Usage Guide
 
