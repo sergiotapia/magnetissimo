@@ -5,14 +5,20 @@ defmodule Magnetissimo.Crawler.Monova do
   require Logger
 
   def start_link(_) do
-    queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
+    GenServer.start_link(__MODULE__, name: __MODULE__)
   end
 
-  def init(queue) do
+  def init(_) do
     Logger.info IO.ANSI.magenta <> "Starting Monova crawler" <> IO.ANSI.reset
-    schedule_work()
-    {:ok, queue}
+    try do
+      queue = initial_queue()
+      schedule_work()
+      {:ok, queue}
+    rescue
+      exception ->
+         Logger.error inspect exception
+         :ignore
+    end
   end
 
   defp schedule_work do
@@ -27,7 +33,7 @@ defmodule Magnetissimo.Crawler.Monova do
         process(item, queue_2)
       _ ->
         Logger.debug "[Monova] Queue is empty - restarting queue."
-        schedule_work
+        schedule_work()
         initial_queue()
     end
     schedule_work()
@@ -37,7 +43,7 @@ defmodule Magnetissimo.Crawler.Monova do
   def process({:page_link, url}, queue) do
     # Logger.debug "[Monova] Downloading page: " <> url
     case download(url) do
-      {:ok, body} -> 
+      {:ok, body} ->
         torrents = torrent_links(body)
         Enum.reduce(torrents, queue, fn torrent, queue ->
           :queue.in({:torrent_link, torrent}, queue)

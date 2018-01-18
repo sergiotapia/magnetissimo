@@ -26,14 +26,20 @@ defmodule Magnetissimo.Crawler.XBit do
   end
 
   def start_link(_) do
-    queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
+    GenServer.start_link(__MODULE__, name: __MODULE__)
   end
 
-  def init(queue) do
+  def init(_) do
     Logger.info IO.ANSI.magenta <> "Starting xBit crawler" <> IO.ANSI.reset
-    schedule_start()
-    {:ok, queue}
+    try do
+      queue = initial_queue()
+      schedule_work()
+      {:ok, queue}
+    rescue
+      exception ->
+         Logger.error inspect exception
+         :ignore
+    end
   end
 
   def schedule_start() do
