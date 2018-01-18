@@ -39,14 +39,20 @@ defmodule Magnetissimo.Crawler.NyaaSi do
   end
 
   def start_link(_) do
-    queue = initial_queue()
-    GenServer.start_link(__MODULE__, queue, name: __MODULE__)
+    GenServer.start_link(__MODULE__, name: __MODULE__)
   end
 
-  def init(queue) do
+  def init(_) do
     Logger.info IO.ANSI.magenta <> "Starting NyaaSi crawler" <> IO.ANSI.reset
-    schedule_work()
-    {:ok, queue}
+    try do
+      queue = initial_queue()
+      schedule_work()
+      {:ok, queue}
+    rescue
+      exception ->
+         Logger.error inspect exception
+         :ignore
+    end
   end
 
   defp schedule_work do
