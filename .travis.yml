@@ -1,0 +1,16 @@
+language: elixir
+
+matrix:
+  include:
+    - elixir: '1.5'
+      erlang_otp: '19'
+    - elixir: '1.6'
+      erlang_otp: '20'
+
+env:
+  - MIX_ENV=test
+
+script:
+  - mix ecto.create
+  - mix ecto.migrate
+  - mix test
