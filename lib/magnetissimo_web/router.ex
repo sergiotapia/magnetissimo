@@ -2,7 +2,7 @@ defmodule MagnetissimoWeb.Router do
   use MagnetissimoWeb, :router
 
   use Plug.ErrorHandler
-  use Sentry.Plug
+  if Code.ensure_loaded?(Sentry.Plug), do: quote do: use Sentry.Plug
 
   pipeline :browser do
     plug :accepts, ["html"]
