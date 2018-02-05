@@ -140,6 +140,10 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       |> Floki.find("guid")
       |> Floki.text
 
+    category = item
+      |> Floki.find("nyaa|category")
+      |> Floki.text
+
     %{
       name: name,
       magnet: magnet,
@@ -148,6 +152,7 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       seeders: seeders,
       leechers: leechers,
       outbound_url: outbound_url,
+      category: category,
     }
   end
 

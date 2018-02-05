@@ -89,6 +89,36 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
     queue
   end
 
+  defp category_from_url(url) do
+    # nyaapantsu provides a url instead of a human-readable category name
+    case url do
+      "https://nyaa.pantsu.cat/search?c=1_1"  -> "Software - Applications"
+      "https://nyaa.pantsu.cat/search?c=1_2"  -> "Software - Games"
+      "https://nyaa.pantsu.cat/search?c=2_3"  -> "Audio - Lossless"
+      "https://nyaa.pantsu.cat/search?c=2_4"  -> "Audio - Lossy"
+      "https://nyaa.pantsu.cat/search?c=3_5"  -> "Anime - English-translated"
+      "https://nyaa.pantsu.cat/search?c=3_6"  -> "Anime - Raw"
+      "https://nyaa.pantsu.cat/search?c=3_12" -> "Anime - Anime Music Video"
+      "https://nyaa.pantsu.cat/search?c=3_13" -> "Anime - Non-English-translated"
+      "https://nyaa.pantsu.cat/search?c=4_7"  -> "Literature - English-translated"
+      "https://nyaa.pantsu.cat/search?c=4_8"  -> "Literature - Raw"
+      "https://nyaa.pantsu.cat/search?c=4_14" -> "Literature - Non-English-translated"
+      "https://nyaa.pantsu.cat/search?c=5_9"  -> "Live Action - English-translated"
+      "https://nyaa.pantsu.cat/search?c=5_10" -> "Live Action - Idol/Promotional Video"
+      "https://nyaa.pantsu.cat/search?c=5_11" -> "Live Action - Raw"
+      "https://nyaa.pantsu.cat/search?c=5_18" -> "Live Action - Non-English-translated"
+      "https://nyaa.pantsu.cat/search?c=6_15" -> "Pictures - Graphics"
+      "https://nyaa.pantsu.cat/search?c=6_16" -> "Pictures - Photos"
+      "https://sukebei.pantsu.cat/search?c=1_1" -> "Art - Anime"
+      "https://sukebei.pantsu.cat/search?c=1_2" -> "Art - Doujinshi"
+      "https://sukebei.pantsu.cat/search?c=1_3" -> "Art - Games"
+      "https://sukebei.pantsu.cat/search?c=1_4" -> "Art - Manga"
+      "https://sukebei.pantsu.cat/search?c=1_5" -> "Art - Pictures"
+      "https://sukebei.pantsu.cat/search?c=2_1" -> "Real Life - Photobooks and Pictures"
+      "https://sukebei.pantsu.cat/search?c=2_2" -> "Real Life - Videos"
+    end
+  end
+
   defp item_to_map(item) do
     name = item
       |> Floki.find("title")
@@ -106,6 +136,12 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
       |> Floki.find("guid")
       |> Floki.text
 
+    category = item
+      |> Floki.find("category")
+      |> Floki.find("domain")
+      |> Floki.text
+      |> category_from_url
+
     %{
       name: name,
       magnet: magnet,
@@ -114,6 +150,7 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
       seeders: 0,
       leechers: 0,
       outbound_url: outbound_url,
+      category: category,
     }
   end
 

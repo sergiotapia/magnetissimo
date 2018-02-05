@@ -12,6 +12,7 @@ defmodule Magnetissimo.Torrent do
     field :seeders,        :integer
     field :size,           :string
     field :website_source, :string
+    field :category,       :string
 
     timestamps()
   end
