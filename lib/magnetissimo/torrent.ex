@@ -22,7 +22,7 @@ defmodule Magnetissimo.Torrent do
   """
   def changeset(%Torrent{}=torrent, attrs \\ %{}) do
     torrent
-    |> cast(attrs, [:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url])
+    |> cast(attrs, [:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url, :category])
     |> validate_required([:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url])
     |> validate_number(:seeders, greater_than_or_equal_to: 0)
     |> validate_number(:leechers, greater_than_or_equal_to: 0)
