@@ -2,7 +2,22 @@
   <div class="columns">
     <div class="column col-11">
       <form action="/">
-        <input value="<%= @term %>" class="form-input input-lg" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
+        <table class="input-group">
+          <tr>
+            <td width="60%">
+              <input value="<%= @term %>" class="form-input input-lg" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
+            </td>
+            <td class="checkbox checkbox-inline">
+              <label>
+                <%= if @nsfw == "on" do %>
+                  <input value="on" type="checkbox" id="nsfw" name="nsfw" checked />
+                <% else %>
+                  <input value="on" type="checkbox" id="nsfw" name="nsfw" />
+                <% end %>
+                Show NSFW results</label>
+            </td>
+          </tr>
+        </table>
       </form>
     </div>
     <div class="column col-1">
@@ -53,7 +68,7 @@
         </tbody>
       </table>
 
-      <%= pagination_links @page, term: @term, website_source: @website_source %> <div>v<%= Magnetissimo.version %></div>
+      <%= pagination_links @page, term: @term, nsfw: @nsfw, website_source: @website_source %> <div>v<%= Magnetissimo.version %></div>
     </div>
   </div>
 </div>

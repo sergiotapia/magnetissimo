@@ -22,6 +22,7 @@ defmodule MagnetissimoWeb.PageController do
     render conn, :index,
       page: page,
       term: params["term"],
+      nsfw: params["nsfw"],
       website_source: params["website_source"],
       torrents: page.entries,
       page_number: page.page_number,
