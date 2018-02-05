@@ -10,12 +10,12 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
 
   def initial_queue do
     categories = [
-      '1_', # Software
-      '2_', # Audio
-      '3_', # Anime
-      '4_', # Literature
-      '5_', # Live Action
-      '6_', # Pictures
+      "1_", # Software
+      "2_", # Audio
+      "3_", # Anime
+      "4_", # Literature
+      "5_", # Live Action
+      "6_", # Pictures
     ]
     urls = for category <- categories do
       {:page_link, "https://nyaa.pantsu.cat/feed/eztv?c=#{category}"}

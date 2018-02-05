@@ -10,12 +10,12 @@ defmodule Magnetissimo.Crawler.NyaaSi do
 
   def initial_queue do
     categories = [
-      '1_0', # Anime
-      '2_0', # Audio
-      '3_0', # Literature
-      '4_0', # Live Action
-      '5_0', # Pictures
-      '6_0', # Software
+      "1_0", # Anime
+      "2_0", # Audio
+      "3_0", # Literature
+      "4_0", # Live Action
+      "5_0", # Pictures
+      "6_0", # Software
     ]
     urls = for category <- categories do
       {:page_link, "https://nyaa.si/rss?c=#{category}&m"}
