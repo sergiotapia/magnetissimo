@@ -21,19 +21,18 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
       {:page_link, "https://nyaa.pantsu.cat/feed/eztv?c=#{category}"}
     end
 
-    # # Uncomment this section to scrape NSFW content
-    # nsfw_categories = [
-    #   '1_1', # Art/Anime
-    #   '1_2', # Art/Doujinshi
-    #   '1_3', # Art/Games
-    #   '1_4', # Art/Manga
-    #   '1_5', # Art/Picture
-    #   '2_', # Real Life
-    # ]
-    # nsfw_urls = for category <- nsfw_categories do
-    #   {:page_link, "https://sukebei.pantsu.cat/feed/eztv?c=#{category}"}
-    # end
-    # urls = Enum.concat(urls, nsfw_urls)
+    nsfw_categories = [
+      "1_1", # Art/Anime
+      "1_2", # Art/Doujinshi
+      "1_3", # Art/Games
+      "1_4", # Art/Manga
+      "1_5", # Art/Picture
+      "2_", # Real Life
+    ]
+    nsfw_urls = for category <- nsfw_categories do
+      {:page_link, "https://sukebei.pantsu.cat/feed/eztv?c=#{category}"}
+    end
+    urls = Enum.concat(urls, nsfw_urls)
 
     :queue.from_list(urls)
   end
