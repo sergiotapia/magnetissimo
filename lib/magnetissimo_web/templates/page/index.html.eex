@@ -2,11 +2,13 @@
   <div class="columns">
     <div class="column col-11">
       <form action="/">
-        <table class="input-group">
+        <table width="100%">
           <tr>
-            <td width="60%">
+            <td>
               <input value="<%= @term %>" class="form-input input-lg" type="text" id="term" name="term" placeholder="Type your search here, hit enter." />
             </td>
+          </tr>
+          <tr>
             <td class="checkbox checkbox-inline">
               <label>
                 <%= if @nsfw == "on" do %>
