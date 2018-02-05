@@ -5,7 +5,8 @@ defmodule MagnetissimoWeb.PageController do
 
   def index(conn, params) do
     results = case params do
-      %{"term" => term, "website_source" => website_source} ->
+      %{"term" => term, "website_source" => website_source}
+        when website_source != "" ->
           from t in Torrent,
           where: ilike(t.name, ^"%#{term}%"),
           where: t.website_source == ^website_source,
@@ -21,6 +22,7 @@ defmodule MagnetissimoWeb.PageController do
     render conn, :index,
       page: page,
       term: params["term"],
+      website_source: params["website_source"],
       torrents: page.entries,
       page_number: page.page_number,
       page_size: page.page_size,
