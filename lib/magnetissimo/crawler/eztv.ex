@@ -64,9 +64,9 @@ defmodule Magnetissimo.Crawler.EZTV do
   end
 
   def torrent_information(item) do
-    attributes = [["title"], ["torrent:magneturi"], ["torrent:seeds"], ["torrent:peers"], ["link"], ["torrent:contentlength"]]
+    attributes = [["title"], ["torrent:magneturi"], ["torrent:seeds"], ["torrent:peers"], ["link"], ["torrent:contentlength"], ["category"]]
     data = item
-           |> Enum.map(fn f -> %{elem(f,0) => elem(f, 2)} end)
+           |> Enum.map(fn f -> %{elem(f, 0) => elem(f, 2)} end)
            |> Enum.filter(fn f -> Enum.member?(attributes, Map.keys(f)) end)
            |> Enum.reduce(fn(map, acc) -> Map.merge(map, acc) end)
 
@@ -77,7 +77,19 @@ defmodule Magnetissimo.Crawler.EZTV do
       website_source: "eztv",
       seeders:  String.to_integer(hd(data["torrent:seeds"])),
       leechers: String.to_integer(hd(data["torrent:peers"])),
-      outbound_url: hd(data["link"])
+      outbound_url: hd(data["link"]),
+      category: hd(data["category"]),
+      nsfw: is_nsfw?(hd(data["category"]))
     }
+  end
+
+  defp is_nsfw?(category) do
+    case category do
+      # NOTE
+      # currently, eztv seems to only have one category, but all of their
+      # content appears to be sfw
+      # This function is only here in case new categories are added later
+      "TV" -> false
+    end
   end
 end

@@ -135,7 +135,7 @@ defmodule Magnetissimo.Crawler.Leetx do
       |> String.split
     size_value = Enum.at(size, 0)
     unit = Enum.at(size, 1)
-    size = size_to_bytes(size_value, unit) |> Kernel.to_string
+    size = size_value |> size_to_bytes(unit) |> Kernel.to_string
 
     {leechers, _} = html_body
       |> Floki.find(".leeches")
@@ -149,18 +149,44 @@ defmodule Magnetissimo.Crawler.Leetx do
       |> Floki.text
       |> Integer.parse
 
+    category = html_body
+      |> Floki.find(".torrent-category-detail ul.list")
+      |> Enum.at(0)
+      |> Floki.find("li")
+      |> Enum.at(0)
+      |> Floki.find("span")
+      |> Floki.text
+
+    nsfw = is_nsfw?(category)
+
     %{
       name: name,
       magnet: magnet,
       size: size,
       website_source: "1337x",
       seeders: seeders,
-      leechers: leechers
+      leechers: leechers,
+      category: category,
+      nsfw: nsfw
     }
   end
 
   def torrent_information(_html_body) do
     {:error, "Couldn't parse torrent information"}
+  end
+
+  defp is_nsfw?(category) do
+    case category do
+      "Anime" -> false
+      "Apps" -> false
+      "Documentaries" -> false
+      "Games" -> false
+      "Movies" -> false
+      "Music" -> false
+      "Other" -> false
+      "TV" -> false
+      "XXX" -> true
+    end
   end
 
   defp get_it([h|_]), do: h

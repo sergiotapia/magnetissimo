@@ -107,7 +107,12 @@ defmodule Magnetissimo.Crawler.XBit do
       website_source: "xbit",
       seeders:  0,
       leechers: 0,
-      outbound_url: "https://xbit.pw/?id=#{item["ID"]}"
+      outbound_url: "https://xbit.pw/?id=#{item["ID"]}",
+
+      # xBit is a DHT scraper, so they cannot obtain category information
+      # Because of this, we don't supply a category, and assume
+      # that all torrents are nsfw
+      nsfw: true
     }
   end
 end
