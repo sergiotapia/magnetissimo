@@ -144,6 +144,8 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       |> Floki.find("nyaa|category")
       |> Floki.text
 
+    nsfw = is_nsfw?(category)
+
     %{
       name: name,
       magnet: magnet,
@@ -153,6 +155,7 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       leechers: leechers,
       outbound_url: outbound_url,
       category: category,
+      nsfw: nsfw,
     }
   end
 
@@ -166,6 +169,35 @@ defmodule Magnetissimo.Crawler.NyaaSi do
 
   def torrent_information(_rss_body) do
     {:error, "Couldn't read rss feed"}
+  end
+
+  defp is_nsfw?(category) do
+    case category do
+      "Software - Applications" -> false
+      "Software - Games" -> false
+      "Audio - Lossless" -> false
+      "Audio - Lossy" -> false
+      "Anime - English-translated" -> false
+      "Anime - Raw" -> false
+      "Anime - Anime Music Video" -> false
+      "Anime - Non-English-translated" -> false
+      "Literature - English-translated" -> false
+      "Literature - Raw" -> false
+      "Literature - Non-English-translated" -> false
+      "Live Action - English-translated" -> false
+      "Live Action - Idol/Promotional Video" -> false
+      "Live Action - Raw" -> false
+      "Live Action - Non-English-translated" -> false
+      "Pictures - Graphics" -> false
+      "Pictures - Photos" -> false
+      "Art - Anime" -> true
+      "Art - Doujinshi" -> true
+      "Art - Games" -> true
+      "Art - Manga" -> true
+      "Art - Pictures" -> true
+      "Real Life - Photobooks and Pictures" -> true
+      "Real Life - Videos" -> true
+    end
   end
 
 end
