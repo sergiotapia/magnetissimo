@@ -10,30 +10,29 @@ defmodule Magnetissimo.Crawler.NyaaSi do
 
   def initial_queue do
     categories = [
-      '1_0', # Anime
-      '2_0', # Audio
-      '3_0', # Literature
-      '4_0', # Live Action
-      '5_0', # Pictures
-      '6_0', # Software
+      "1_0", # Anime
+      "2_0", # Audio
+      "3_0", # Literature
+      "4_0", # Live Action
+      "5_0", # Pictures
+      "6_0", # Software
     ]
     urls = for category <- categories do
       {:page_link, "https://nyaa.si/rss?c=#{category}&m"}
     end
 
-    # # Uncomment this section to scrape NSFW content
-    # nsfw_categories = [
-    #   '1_1', # Art/Anime
-    #   '1_2', # Art/Doujinshi
-    #   '1_3', # Art/Games
-    #   '1_4', # Art/Manga
-    #   '1_5', # Art/Picture
-    #   '2_0', # Real Life
-    # ]
-    # nsfw_urls = for category <- nsfw_categories do
-    #   {:page_link, "https://sukebei.nyaa.si/rss?c=#{category}&m"}
-    # end
-    # urls = Enum.concat(urls, nsfw_urls)
+    nsfw_categories = [
+      "1_1", # Art/Anime
+      "1_2", # Art/Doujinshi
+      "1_3", # Art/Games
+      "1_4", # Art/Manga
+      "1_5", # Art/Picture
+      "2_0", # Real Life
+    ]
+    nsfw_urls = for category <- nsfw_categories do
+      {:page_link, "https://sukebei.nyaa.si/rss?c=#{category}&m"}
+    end
+    urls = Enum.concat(urls, nsfw_urls)
 
     :queue.from_list(urls)
   end
@@ -140,6 +139,12 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       |> Floki.find("guid")
       |> Floki.text
 
+    category = item
+      |> Floki.find("nyaa|category")
+      |> Floki.text
+
+    nsfw = is_nsfw?(category)
+
     %{
       name: name,
       magnet: magnet,
@@ -148,6 +153,8 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       seeders: seeders,
       leechers: leechers,
       outbound_url: outbound_url,
+      category: category,
+      nsfw: nsfw,
     }
   end
 
@@ -161,6 +168,35 @@ defmodule Magnetissimo.Crawler.NyaaSi do
 
   def torrent_information(_rss_body) do
     {:error, "Couldn't read rss feed"}
+  end
+
+  defp is_nsfw?(category) do
+    case category do
+      "Software - Applications" -> false
+      "Software - Games" -> false
+      "Audio - Lossless" -> false
+      "Audio - Lossy" -> false
+      "Anime - English-translated" -> false
+      "Anime - Raw" -> false
+      "Anime - Anime Music Video" -> false
+      "Anime - Non-English-translated" -> false
+      "Literature - English-translated" -> false
+      "Literature - Raw" -> false
+      "Literature - Non-English-translated" -> false
+      "Live Action - English-translated" -> false
+      "Live Action - Idol/Promotional Video" -> false
+      "Live Action - Raw" -> false
+      "Live Action - Non-English-translated" -> false
+      "Pictures - Graphics" -> false
+      "Pictures - Photos" -> false
+      "Art - Anime" -> true
+      "Art - Doujinshi" -> true
+      "Art - Games" -> true
+      "Art - Manga" -> true
+      "Art - Pictures" -> true
+      "Real Life - Photobooks and Pictures" -> true
+      "Real Life - Videos" -> true
+    end
   end
 
 end

@@ -113,6 +113,12 @@ defmodule Magnetissimo.Crawler.Zooqle do
       seeders: seeders,
       leechers: leechers,
       outbound_url: outbound_url,
+
+      # FIXME: HACK
+      # Zooqle OpenSearch results don't have category info, so until we
+      # switch to using their API, we'll just assume that all torrents are
+      # NSFW, and not provide any category info.
+      nsfw: true
     }
   end
 

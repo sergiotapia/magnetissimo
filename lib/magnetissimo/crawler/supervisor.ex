@@ -16,7 +16,7 @@ defmodule Magnetissimo.Crawler.Supervisor do
       # {Demonoid, []},
       {EZTV, []},
       {Leetx, []},
-      {Monova, []},
+      # {Monova, []},
       {NyaaPantsu, []},
       {NyaaSi, []},
       # {ThePirateBay, []},

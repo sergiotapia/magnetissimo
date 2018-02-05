@@ -12,6 +12,8 @@ defmodule Magnetissimo.Torrent do
     field :seeders,        :integer
     field :size,           :string
     field :website_source, :string
+    field :category,       :string
+    field :nsfw,           :boolean
 
     timestamps()
   end
@@ -19,10 +21,10 @@ defmodule Magnetissimo.Torrent do
   @doc """
   Builds a changeset based on the `torrent` and `params`.
   """
-  def changeset(%Torrent{}=torrent, attrs \\ %{}) do
+  def changeset(%Torrent{} = torrent, attrs \\ %{}) do
     torrent
-    |> cast(attrs, [:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url])
-    |> validate_required([:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url])
+    |> cast(attrs, [:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url, :category, :nsfw])
+    |> validate_required([:magnet, :seeders, :leechers, :name, :website_source, :size, :outbound_url, :nsfw])
     |> validate_number(:seeders, greater_than_or_equal_to: 0)
     |> validate_number(:leechers, greater_than_or_equal_to: 0)
     |> unique_constraint(:magnet, name: :unique_magnet_name)

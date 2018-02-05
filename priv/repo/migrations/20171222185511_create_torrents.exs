@@ -10,6 +10,8 @@ defmodule Magnetissimo.Repo.Migrations.Createtorrents do
       add :seeders, :integer, null: false
       add :size, :text, null: false
       add :website_source, :text, null: false
+      add :category, :text, null: true
+      add :nsfw, :boolean, null: false
 
       timestamps()
     end
