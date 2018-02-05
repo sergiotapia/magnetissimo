@@ -2,6 +2,7 @@ defmodule MagnetissimoWeb.PageController do
   use MagnetissimoWeb, :controller
   import Ecto.Query
   alias Magnetissimo.Torrent
+  alias Magnetissimo.Repo
 
   def index(conn, params) do
     results = case params do
@@ -17,7 +18,7 @@ defmodule MagnetissimoWeb.PageController do
           order_by: [desc: :inserted_at]
     end
 
-    page = results |> Magnetissimo.Repo.paginate(params)
+    page = results |> Repo.paginate(params)
 
     render conn, :index,
       page: page,

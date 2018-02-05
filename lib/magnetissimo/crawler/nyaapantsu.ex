@@ -65,11 +65,11 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
       case :queue.out(queue) do
         {{_value, item}, queue_2} ->
           process(item, queue_2)
-      _ ->
-        wait = 1800000 # 30mn wait so we don't hammer the site too hard
-        :timer.sleep(wait)
-        Logger.info "[NyaaPantsu] Queue is empty, restarting scraping procedure."
-        initial_queue()
+        _ ->
+          wait = 1800000 # 30mn wait so we don't hammer the site too hard
+          :timer.sleep(wait)
+          Logger.info "[NyaaPantsu] Queue is empty, restarting scraping procedure."
+          initial_queue()
     end
     schedule_work()
     {:noreply, new_queue}
@@ -78,7 +78,7 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
   def process({:page_link, url}, queue) do
     Logger.info "[NyaaPanstu] Downloading torrents from page: #{url}"
     with {:ok, body} <- Magnetissimo.Crawler.Helper.download(url),
-         torrent_list when is_list(torrent_list )<- torrent_information(body) do
+         torrent_list when is_list(torrent_list) <- torrent_information(body) do
           for torrent <- torrent_list do
             Magnetissimo.Torrent.save_torrent(torrent)
           end
