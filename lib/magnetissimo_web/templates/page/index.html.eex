@@ -19,6 +19,7 @@
             <th class="size-th">Size</th>
             <th>Seeders</th>
             <th>Leechers</th>
+            <th>Category</th>
             <th>Magnet</th>
             <th>Source</th>
           </tr>
@@ -36,6 +37,11 @@
               <td class="meta size"><%= readable_size(torrent.size) %></td>
               <td class="meta seeds"><%= seeders(torrent.seeders) %></td>
               <td class="meta leeches"><%= leechers(torrent.leechers) %></td>
+              <td class="meta category">
+                <%= if torrent.category do %>
+                  <%= torrent.category %>
+                <%= end %>
+              </td>
               <td>
                 <%= link to: torrent.magnet do %>
                   <i class="icon icon-download"></i>
