@@ -194,7 +194,7 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       "Art - Games" -> true
       "Art - Manga" -> true
       "Art - Pictures" -> true
-      "Real Life - Photobooks and Pictures" -> true
+      "Real Life - Photobooks / Pictures" -> true
       "Real Life - Videos" -> true
     end
   end
