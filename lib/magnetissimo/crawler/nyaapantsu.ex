@@ -181,6 +181,9 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
       ~r/Pictures - .*/ -> false
       ~r/Art - .*/ -> true
       ~r/Real Life - .*/ -> true
+      _ ->
+        Logger.warn("[NyaaPantsu] Unknown category '#{category}'. Please report this to the developers.")
+        true
     end
   end
 

@@ -186,6 +186,9 @@ defmodule Magnetissimo.Crawler.Leetx do
       "Other" -> false
       "TV" -> false
       "XXX" -> true
+      _ ->
+        Logger.warn("[Leetx] Unknown category '#{category}'. Please report this to the developers.")
+        true
     end
   end
 

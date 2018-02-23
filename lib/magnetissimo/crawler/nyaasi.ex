@@ -181,6 +181,9 @@ defmodule Magnetissimo.Crawler.NyaaSi do
       ~r/Pictures - .*/ -> false
       ~r/Art - .*/ -> true
       ~r/Real Life - .*/ -> true
+      _ ->
+        Logger.warn("[NyaaSi] Unknown category '#{category}'. Please report this to the developers.")
+        true
     end
   end
 
