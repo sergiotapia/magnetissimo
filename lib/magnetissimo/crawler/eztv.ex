@@ -90,6 +90,9 @@ defmodule Magnetissimo.Crawler.EZTV do
       # content appears to be sfw
       # This function is only here in case new categories are added later
       "TV" -> false
+      _ ->
+        Logger.warn("[EZTV] Unknown category '#{category}'. Please report this to the developers.")
+        true
     end
   end
 end

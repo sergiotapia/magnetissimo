@@ -7,6 +7,7 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
   @behaviour Magnetissimo.RSSParser
   use GenServer
   require Logger
+  import Magnetissimo.RegexCase
 
   def initial_queue do
     categories = [
@@ -171,31 +172,18 @@ defmodule Magnetissimo.Crawler.NyaaPantsu do
   end
 
   defp is_nsfw?(category) do
-    case category do
-      "Software - Applications" -> false
-      "Software - Games" -> false
-      "Audio - Lossless" -> false
-      "Audio - Lossy" -> false
-      "Anime - English-translated" -> false
-      "Anime - Raw" -> false
-      "Anime - Anime Music Video" -> false
-      "Anime - Non-English-translated" -> false
-      "Literature - English-translated" -> false
-      "Literature - Raw" -> false
-      "Literature - Non-English-translated" -> false
-      "Live Action - English-translated" -> false
-      "Live Action - Idol/Promotional Video" -> false
-      "Live Action - Raw" -> false
-      "Live Action - Non-English-translated" -> false
-      "Pictures - Graphics" -> false
-      "Pictures - Photos" -> false
-      "Art - Anime" -> true
-      "Art - Doujinshi" -> true
-      "Art - Games" -> true
-      "Art - Manga" -> true
-      "Art - Pictures" -> true
-      "Real Life - Photobooks and Pictures" -> true
-      "Real Life - Videos" -> true
+    regex_case category do
+      ~r/Software - .*/ -> false
+      ~r/Audio - .*/ -> false
+      ~r/Anime - .*/ -> false
+      ~r/Literature - .*/ -> false
+      ~r/Live Action - .*/ -> false
+      ~r/Pictures - .*/ -> false
+      ~r/Art - .*/ -> true
+      ~r/Real Life - .*/ -> true
+      ~r/.*/ ->
+        Logger.warn("[NyaaPantsu] Unknown category '#{category}'. Please report this to the developers.")
+        true
     end
   end
 
