@@ -33,25 +33,25 @@ defmodule Magnetissimo.Mixfile do
   # Type `mix help deps` for examples and options.
   defp deps do
     [
-      {:bento, "~> 0.9.2"},
+      {:bento, "~> 0.9"},
       {:cowboy, "~> 1.0"},
-      {:distillery, "~> 1.5.2"},
-      {:floki, "~> 0.19.1"},
+      {:distillery, "~> 1.5"},
+      {:floki, "~> 0.19"},
       {:gettext, "~> 0.11"},
-      {:hackney, "~> 1.10.1"},
-      {:html_entities, "~> 0.4.0"},
-      {:phoenix, "~> 1.3.0"},
+      {:hackney, "~> 1.10"},
+      {:html_entities, "~> 0.4"},
+      {:phoenix, "~> 1.3"},
       {:phoenix_ecto, "~> 3.2"},
       {:phoenix_html, "~> 2.10"},
       {:phoenix_live_reload, "~> 1.0", only: :dev},
       {:phoenix_pubsub, "~> 1.0"},
       {:poison, "~> 2.0", overried: true},
-      {:postgrex, ">= 0.13.2"},
-      {:scrivener_ecto, "~> 1.3.0"},
-      {:scrivener_html, "~> 1.7.1"},
-      {:sentry, "~> 6.0.5", only: :dev},
-      {:sizeable, "~> 1.0.2"},
-      {:tesla, "~> 0.10.0"}
+      {:postgrex, ">= 0.0.0"},
+      {:scrivener_ecto, "~> 1.3"},
+      {:scrivener_html, "~> 1.7"},
+      {:sentry, "~> 6.0", only: :dev},
+      {:sizeable, "~> 1.0"},
+      {:tesla, "~> 0.10"}
     ]
   end
 
