@@ -60,9 +60,9 @@
                 <%= end %>
               </td>
               <td>
-                <%= link to: torrent.magnet do %>
+                <a href="<%= torrent.magnet %>">
                   <i class="icon icon-download"></i>
-                <% end %>
+                </a>
               </td>
               <td class="meta"><%= torrent.website_source %></td>
             </tr>
