@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Crawlers.YTS do
   use GenServer
   import SweetXml
+  require Logger
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -34,6 +35,8 @@ defmodule Magnetissimo.Crawlers.YTS do
   end
 
   defp rss do
+    Logger.info("[YTS.am] Downloading url: https://yts.am/rss")
+
     "https://yts.am/rss"
     |> HTTPoison.get!()
     |> Map.get(:body)

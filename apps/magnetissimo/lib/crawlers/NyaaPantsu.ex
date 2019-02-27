@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Crawlers.NyaaPantsu do
   use GenServer
   import SweetXml
+  require Logger
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -33,6 +34,8 @@ defmodule Magnetissimo.Crawlers.NyaaPantsu do
   end
 
   defp rss do
+    Logger.info("[NyaaPantsu] Downloading url: https://nyaa.pantsu.cat/feed")
+
     "https://nyaa.pantsu.cat/feed"
     |> HTTPoison.get!()
     |> Map.get(:body)

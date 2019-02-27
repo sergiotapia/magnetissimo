@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Crawlers.ThePirateBay do
   use GenServer
   import SweetXml
+  require Logger
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -33,6 +34,8 @@ defmodule Magnetissimo.Crawlers.ThePirateBay do
   end
 
   defp rss do
+    Logger.info("[ThePirateBay] Downloading url: https://thepiratebay.org/rss//top100/0")
+
     "https://thepiratebay.org/rss//top100/0"
     |> HTTPoison.get!()
     |> Map.get(:body)

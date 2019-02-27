@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Crawlers.TorrentDownloads do
   use GenServer
   import SweetXml
+  require Logger
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -35,6 +36,10 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   end
 
   defp rss do
+    Logger.info(
+      "[TorrentDownloads] Downloading url: https://www.torrentdownloads.me/rss.xml?type=today"
+    )
+
     "https://www.torrentdownloads.me/rss.xml?type=today"
     |> HTTPoison.get!()
     |> Map.get(:body)

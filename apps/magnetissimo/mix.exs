@@ -40,7 +40,8 @@ defmodule Magnetissimo.MixProject do
       {:postgrex, ">= 0.0.0"},
       {:jason, "~> 1.0"},
       {:httpoison, "~> 1.5"},
-      {:sweet_xml, "~> 0.6.6"}
+      {:sweet_xml, "~> 0.6.6"},
+      {:floki, "~> 0.20.4"}
     ]
   end
 

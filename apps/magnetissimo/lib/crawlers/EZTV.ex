@@ -1,12 +1,14 @@
 defmodule Magnetissimo.Crawlers.EZTV do
   use GenServer
   import SweetXml
+  require Logger
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   def init(state) do
+    Logger.info("[leetx] Performing crawl for latest")
     schedule_rss_fetch()
     {:ok, state}
   end
@@ -35,6 +37,8 @@ defmodule Magnetissimo.Crawlers.EZTV do
   end
 
   defp rss do
+    Logger.info("[EZTV] Downloading url: https://eztv.io/ezrss.xml")
+
     "https://eztv.io/ezrss.xml"
     |> HTTPoison.get!()
     |> Map.get(:body)
