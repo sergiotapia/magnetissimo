@@ -1,0 +1,46 @@
+<nav class="panel">
+  <p class="panel-heading">
+    Torrents
+  </p>
+  <a class="panel-block is-active">
+  <span class="tag is-dark is-pulled-right">159</span>
+    &nbsp;
+    EZTV
+  </a>
+  <a class="panel-block is-active">
+    <span class="tag is-dark is-pulled-right">4159</span>
+    &nbsp;
+    1337x.to
+  </a>
+  <a class="panel-block is-active">
+    <span class="tag is-dark is-pulled-right">332</span>
+    &nbsp;
+    Nyaa
+  </a>
+  <a class="panel-block is-active">
+    <span class="tag is-dark is-pulled-right">554</span>
+    &nbsp;
+    Nyaa Pantsu
+  </a>
+  <a class="panel-block is-active">
+    <span class="tag is-dark is-pulled-right">7159</span>
+    &nbsp;
+    ThePirateBay
+  </a>
+  <a class="panel-block is-active">
+    <span class="tag is-dark is-pulled-right">9583</span>
+    &nbsp;
+    TorrentDownloads
+  </a>
+  <a class="panel-block is-active">
+    <span class="tag is-dark is-pulled-right">322</span>
+    &nbsp;
+    YTS.am
+  </a>
+
+  <div class="panel-block">
+    <a href="/" class="button is-link is-outlined is-fullwidth">
+      See All
+    </a>
+  </div>
+</nav>
