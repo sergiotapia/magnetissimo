@@ -7,7 +7,8 @@ defmodule Magnetissimo.Application do
 
   def start(_type, _args) do
     children = [
-      Magnetissimo.Repo
+      Magnetissimo.Repo,
+      Magnetissimo.Crawlers.EZTV
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Magnetissimo.Supervisor)

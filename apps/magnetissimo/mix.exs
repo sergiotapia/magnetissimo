@@ -38,7 +38,9 @@ defmodule Magnetissimo.MixProject do
     [
       {:ecto_sql, "~> 3.0"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:httpoison, "~> 1.5"},
+      {:sweet_xml, "~> 0.6.6"}
     ]
   end
 
