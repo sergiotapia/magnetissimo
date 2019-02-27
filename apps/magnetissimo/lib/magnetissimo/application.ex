@@ -10,7 +10,8 @@ defmodule Magnetissimo.Application do
       Magnetissimo.Repo,
       Magnetissimo.Crawlers.EZTV,
       Magnetissimo.Crawlers.ThePirateBay,
-      Magnetissimo.Crawlers.TorrentDownloads
+      Magnetissimo.Crawlers.TorrentDownloads,
+      Magnetissimo.Crawlers.Nyaa
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Magnetissimo.Supervisor)
