@@ -27,22 +27,12 @@ TODO
 
 ### Supported websites
 
-The following websites are fully supported or we are actively working on their crawler.
+The following websites are fully supported.
 
-- EZTV
+- 1337x.to
+- The Pirate Bay
+- YTS.am
 - Nyaa
 - Nyaa Pantsu
-- The Pirate Bay
-- TorrentDownloads
-
----
-
-- Demonoid
 - EZTV
-- Leetx
-- Monova
-- ThePirateBay
 - TorrentDownloads
-- WorldWideTorrents
-- Zooqle
-- Nyaa.si / NyaaPantsu
