@@ -9,7 +9,8 @@ defmodule Magnetissimo.Application do
     children = [
       Magnetissimo.Repo,
       Magnetissimo.Crawlers.EZTV,
-      Magnetissimo.Crawlers.ThePirateBay
+      Magnetissimo.Crawlers.ThePirateBay,
+      Magnetissimo.Crawlers.TorrentDownloads
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Magnetissimo.Supervisor)

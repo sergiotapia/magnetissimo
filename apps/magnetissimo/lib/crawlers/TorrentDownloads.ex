@@ -1,4 +1,4 @@
-defmodule Magnetissimo.Crawlers.ThePirateBay do
+defmodule Magnetissimo.Crawlers.TorrentDownloads do
   use GenServer
   import SweetXml
 
@@ -20,9 +20,11 @@ defmodule Magnetissimo.Crawlers.ThePirateBay do
         torrents: [
           ~x"//channel/item"l,
           name: ~x"./title/text()",
-          canonical_url: ~x"./comments/text()",
+          canonical_url: ~x"./link/text()",
           published_at: ~x"./pubDate/text()",
-          magnet_url: ~x"./link/text()"
+          magnet_url: ~x"./info_hash/text()",
+          seeders: ~x"./seeders/text()",
+          leechers: ~x"./leechers/text()"
         ]
       )
 
@@ -33,7 +35,7 @@ defmodule Magnetissimo.Crawlers.ThePirateBay do
   end
 
   defp rss do
-    "https://thepiratebay.org/rss//top100/0"
+    "https://www.torrentdownloads.me/rss.xml?type=today"
     |> HTTPoison.get!()
     |> Map.get(:body)
   end
