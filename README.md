@@ -6,12 +6,12 @@ Magnetissimo is a self-hosted web application that indexes all popular torrent s
 
 ### Goals
 
-* **No javascript**
-* Crawl multiple index sites for torrents and magnet links.
-* Easily integrates with both [Sonarr](https://github.com/Sonarr/Sonarr) and [Radarr](https://github.com/Radarr/Radarr).
-* Run without ceremony. No need for configurations.
-* Easy to understand source code. Special care is taken to keep code lean and understandable.
-* High performance, leveraging Elixir's GenServer and Erlang's BEAM VM.
+- **No javascript**
+- Crawl multiple index sites for torrents and magnet links.
+- Easily integrates with both [Sonarr](https://github.com/Sonarr/Sonarr) and [Radarr](https://github.com/Radarr/Radarr).
+- Run without ceremony. No need for configurations.
+- Easy to understand source code. Special care is taken to keep code lean and understandable.
+- High performance, leveraging Elixir's GenServer and Erlang's BEAM VM.
 
 We work closely with other providers and search engines to be respectful of their hardware and minimize our impact to their systems.
 
@@ -29,12 +29,20 @@ TODO
 
 The following websites are fully supported or we are actively working on their crawler.
 
-* Demonoid
-* EZTV
-* Leetx
-* Monova
-* ThePirateBay
-* TorrentDownloads
-* WorldWideTorrents
-* Zooqle
-* Nyaa.si / NyaaPantsu
+- EZTV
+- Nyaa
+- Nyaa Pantsu
+- The Pirate Bay
+- TorrentDownloads
+
+---
+
+- Demonoid
+- EZTV
+- Leetx
+- Monova
+- ThePirateBay
+- TorrentDownloads
+- WorldWideTorrents
+- Zooqle
+- Nyaa.si / NyaaPantsu
