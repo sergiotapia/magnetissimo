@@ -33,7 +33,7 @@ It's been tested on:
 We have guide written for you:
 
 - [Running it locally](https://github.com/sergiotapia/magnetissimo/wiki/Usage:-Local)
-- Running it on a VPS (to-do)
+- [Running it on Ubuntu](https://github.com/sergiotapia/magnetissimo/wiki/Usage:-Ubuntu-18.04)
 - Running it on Heroku (to-do)
 
 ### Community
