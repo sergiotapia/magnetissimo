@@ -38,11 +38,11 @@
           <%= link torrent.name, to: torrent.canonical_url, target: "_blank" %>
         </td>
         <td><%= torrent.size %></td>
-        <td><%= torrent.seeds %></td>
-        <td><%= torrent.leechers %></td>
+        <td class="seeds"><%= torrent.seeds %></td>
+        <td class="leechers"><%= torrent.leechers %></td>
         <td>
           <a href="<%= torrent.magnet_url %>">
-            <img class="magnet-icon" src="<%= Routes.static_path(@conn, "/images/magnet-icon.jpg") %>" />
+            <img class="magnet-icon" src="<%= Routes.static_path(@conn, "/images/magnet-icon.png") %>" />
           </a>
         </td>
         <td><%= torrent.website_source %></td>
