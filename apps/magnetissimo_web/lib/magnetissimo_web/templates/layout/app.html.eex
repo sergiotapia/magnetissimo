@@ -27,13 +27,6 @@
             Home
           </a>
 
-          <a href="/search" class="navbar-item">
-            Search
-          </a>
-
-          <a href="/stats" class="navbar-item">
-            Stats
-          </a>
 
           <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">
