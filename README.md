@@ -40,7 +40,7 @@ We have guide written for you:
 
 Want to talk about Magnetissimo or suggest features? We have an official Discord server.
 
-[Click to join](https://discord.gg/CFtGUaW)
+[Click to join our official Discord server](https://discord.gg/CFtGUaW)
 
 ### Supported websites
 
