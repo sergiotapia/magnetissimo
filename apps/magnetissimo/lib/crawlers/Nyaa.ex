@@ -69,6 +69,6 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   end
 
   defp schedule_rss_fetch do
-    Process.send_after(self(), :rss_fetch, 5_000)
+    Process.send_after(self(), :rss_fetch, 15_000)
   end
 end

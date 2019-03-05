@@ -140,7 +140,7 @@ defmodule Magnetissimo.Crawlers.Leetx do
   end
 
   defp schedule_latest_crawl do
-    Process.send_after(self(), :latest_crawl, 5_000)
+    Process.send_after(self(), :latest_crawl, 15_000)
   end
 
   defp get_it([h | _]), do: h
