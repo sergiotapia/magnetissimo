@@ -2,7 +2,7 @@
 
 Magnetissimo is a self-hosted web application that indexes all popular torrent sites.
 
-![A screenshot of Magnetissimo](https://i.imgur.com/DoZG7S9.png)
+![A screenshot of Magnetissimo](https://i.imgur.com/ecI45aE.png)
 
 ### Goals
 
@@ -19,11 +19,24 @@ If you'd like us to add you to our supported vendors list, please drop us a Gith
 
 ### Usage Guide
 
-TODO
+Magnetissimo was designed to be easy to run.
+
+It's been tested on:
+
+- Erlang/OTP 21
+- Elixir 1.8.0
+
+We have guide written for you:
+
+- [Running it locally](https://github.com/sergiotapia/magnetissimo/wiki/Usage:-Local)
+- Running it on a VPS (to-do)
+- Running it on Heroku (to-do)
 
 ### Community
 
-TODO
+Want to talk about Magnetissimo or suggest features? We have an official Discord server.
+
+[Click to join](https://discord.gg/CFtGUaW)
 
 ### Supported websites
 
