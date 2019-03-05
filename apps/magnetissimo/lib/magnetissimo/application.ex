@@ -9,8 +9,8 @@ defmodule Magnetissimo.Application do
     children = [
       Magnetissimo.Repo,
       Magnetissimo.Crawlers.EZTV,
-      Magnetissimo.Crawlers.ThePirateBay
-      # Magnetissimo.Crawlers.TorrentDownloads,
+      Magnetissimo.Crawlers.ThePirateBay,
+      Magnetissimo.Crawlers.TorrentDownloads
       # Magnetissimo.Crawlers.Nyaa,
       # Magnetissimo.Crawlers.NyaaPantsu,
       # Magnetissimo.Crawlers.YTS,
