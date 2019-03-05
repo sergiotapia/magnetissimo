@@ -69,7 +69,7 @@
     <div class="section">
       <div class="columns">
         <div class="column is-one-fifth">
-          <%= render "_sidebar.html" %>
+          <%= render "_sidebar.html", term: @term, website_source: @website_source %>
         </div>
         <div class="column">
           <%= render @view_module, @view_template, assigns %>

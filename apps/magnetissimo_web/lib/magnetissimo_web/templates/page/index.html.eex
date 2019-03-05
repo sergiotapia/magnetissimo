@@ -1,8 +1,11 @@
 <div class="field">
-  <label class="label">Search:</label>
-  <div class="control">
-    <input value="Scary Movie" class="input is-medium" type="text" placeholder="Medium input">
-  </div>
+  <form action="/">
+    <label class="label">Search:</label>
+    <div class="control">
+      <input type="hidden" id="website_source" name="website_source" value="<%= @website_source %>" />
+      <input value="<%= @term %>" id="term" name="term" class="input is-medium" type="text" placeholder="Medium input">
+    </div>
+  </form>
 </div>
 
 <table class="table is-striped is-fullwidth is-hoverable">
