@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Crawlers.Leetx do
   use GenServer
   require Logger
+  alias Magnetissimo.{Repo, Torrent}
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -31,19 +32,38 @@ defmodule Magnetissimo.Crawlers.Leetx do
   end
 
   def handle_info(:latest_crawl, pages) do
-    Enum.map(pages, fn page_url ->
-      torrent_urls = parse_page(page_url)
+    torrents =
+      Enum.map(pages, fn page_url ->
+        torrent_urls = parse_page(page_url)
 
-      Enum.map(torrent_urls, fn torrent_url ->
-        torrent_information(torrent_url)
+        Enum.map(torrent_urls, fn torrent_url ->
+          torrent_information(torrent_url)
+          |> Map.put(:canonical_url, torrent_url)
+        end)
       end)
-    end)
-    |> List.flatten()
+      |> List.flatten()
 
-    # TODO - Persist torrents into database.
+    Enum.each(torrents, fn torrent_data ->
+      save_torrent(torrent_data)
+    end)
 
     schedule_latest_crawl()
     {:noreply, pages}
+  end
+
+  defp save_torrent(data) do
+    torrent =
+      Torrent.changeset(%Torrent{}, %{
+        name: data.name,
+        canonical_url: data.canonical_url,
+        magnet_url: data.magnet_url,
+        leechers: data.leechers,
+        seeds: data.seeds,
+        website_source: "1337x.to",
+        size: 0
+      })
+
+    Repo.insert(torrent)
   end
 
   defp parse_page(page_url) do
@@ -71,7 +91,7 @@ defmodule Magnetissimo.Crawlers.Leetx do
         String.replace(name, " Torrent", "")
       end
 
-    magnet =
+    magnet_url =
       html_body
       |> Floki.attribute("a", "href")
       |> Enum.filter(fn x -> String.starts_with?(x, "magnet") end)
@@ -93,7 +113,7 @@ defmodule Magnetissimo.Crawlers.Leetx do
       |> Floki.text()
       |> Integer.parse()
 
-    {seeders, _} =
+    {seeds, _} =
       html_body
       |> Floki.find(".seeds")
       |> Enum.at(0)
@@ -102,14 +122,16 @@ defmodule Magnetissimo.Crawlers.Leetx do
 
     %{
       name: name,
-      magnet: magnet,
+      magnet_url: magnet_url,
       size: size,
-      seeders: seeders,
+      seeds: seeds,
       leechers: leechers
     }
   end
 
   defp html(url) do
+    # Don't hammer 1337x's servers.
+    Process.sleep(2_000)
     Logger.info("[leetx] Downloading url: #{url}")
 
     url

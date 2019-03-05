@@ -12,9 +12,9 @@ defmodule Magnetissimo.Application do
       Magnetissimo.Crawlers.ThePirateBay,
       Magnetissimo.Crawlers.TorrentDownloads,
       Magnetissimo.Crawlers.Nyaa,
-      Magnetissimo.Crawlers.NyaaPantsu
-      # Magnetissimo.Crawlers.YTS,
-      # Magnetissimo.Crawlers.Leetx
+      Magnetissimo.Crawlers.NyaaPantsu,
+      Magnetissimo.Crawlers.YTS,
+      Magnetissimo.Crawlers.Leetx
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Magnetissimo.Supervisor)
