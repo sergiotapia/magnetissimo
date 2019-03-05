@@ -1,3 +1,8 @@
 /* This file is for your main application css. */
 
 @import "./bulma.css";
+
+.magnet-icon {
+  width: 20px;
+  display: block;
+}
