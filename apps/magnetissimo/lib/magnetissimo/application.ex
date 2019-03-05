@@ -7,8 +7,8 @@ defmodule Magnetissimo.Application do
 
   def start(_type, _args) do
     children = [
-      Magnetissimo.Repo
-      # Magnetissimo.Crawlers.EZTV
+      Magnetissimo.Repo,
+      Magnetissimo.Crawlers.EZTV
       # Magnetissimo.Crawlers.ThePirateBay,
       # Magnetissimo.Crawlers.TorrentDownloads,
       # Magnetissimo.Crawlers.Nyaa,

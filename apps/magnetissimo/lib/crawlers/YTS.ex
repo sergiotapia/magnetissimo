@@ -26,7 +26,6 @@ defmodule Magnetissimo.Crawlers.YTS do
           magnet_url: ~x"./enclosure/@url"
         ]
       )
-      |> IO.inspect()
 
     # TODO - Persist torrents into database.
 

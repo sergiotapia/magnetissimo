@@ -2,6 +2,7 @@ defmodule MagnetissimoWeb.PageController do
   use MagnetissimoWeb, :controller
 
   def index(conn, params) do
+    torrents = Magnetissimo.Torrents.all()
     # results =
     #   case params do
     #     %{"term" => term, "nsfw" => "on", "website_source" => website_source}
@@ -38,6 +39,7 @@ defmodule MagnetissimoWeb.PageController do
     # page = results |> Repo.paginate(params)
 
     render(conn, :index,
+      torrents: torrents,
       term: params["term"],
       website_source: params["website_source"]
     )

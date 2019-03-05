@@ -39,7 +39,6 @@ defmodule Magnetissimo.Crawlers.Leetx do
       end)
     end)
     |> List.flatten()
-    |> IO.inspect()
 
     # TODO - Persist torrents into database.
 

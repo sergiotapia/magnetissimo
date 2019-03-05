@@ -30,42 +30,22 @@
     </tr>
   </tfoot>
   <tbody>
-    <tr>
-      <td>Scary.Movie.2015.1080p.x246</td>
-      <td>1.56GB</td>
-      <td>12</td>
-      <td>42</td>
-      <td>
-        <a href="#">
-          <img class="magnet-icon" src="<%= Routes.static_path(@conn, "/images/magnet-icon.jpg") %>" />
-        </a>
-      </td>
-      <td>1337x</td>
-    </tr>
-    <tr>
-      <td>Scary.Movie.2015.1080p.x246</td>
-      <td>1.56GB</td>
-      <td>12</td>
-      <td>42</td>
-      <td>
-        <a href="#">
-          <img class="magnet-icon" src="<%= Routes.static_path(@conn, "/images/magnet-icon.jpg") %>" />
-        </a>
-      </td>
-      <td>1337x</td>
-    </tr>
-    <tr>
-      <td>Scary.Movie.2015.1080p.x246</td>
-      <td>1.56GB</td>
-      <td>12</td>
-      <td>42</td>
-      <td>
-        <a href="#">
-          <img class="magnet-icon" src="<%= Routes.static_path(@conn, "/images/magnet-icon.jpg") %>" />
-        </a>
-      </td>
-      <td>1337x</td>
-    </tr>
+    <%= for torrent <- @torrents do %>
+      <tr>
+        <td>
+          <%= link torrent.name, to: torrent.canonical_url, target: "_blank" %>
+        </td>
+        <td><%= torrent.size %></td>
+        <td><%= torrent.seeds %></td>
+        <td><%= torrent.leechers %></td>
+        <td>
+          <a href="<%= torrent.magnet_url %>">
+            <img class="magnet-icon" src="<%= Routes.static_path(@conn, "/images/magnet-icon.jpg") %>" />
+          </a>
+        </td>
+        <td><%= torrent.website_source %></td>
+      </tr>
+    <% end %>
   </tbody>
 </table>
 
