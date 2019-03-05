@@ -2,7 +2,7 @@
 
 Magnetissimo is a self-hosted web application that indexes all popular torrent sites.
 
-![A screenshot of Magnetissimo](https://i.imgur.com/SDZeZvg.png)
+![A screenshot of Magnetissimo](https://i.imgur.com/PKRO71s.png)
 
 ### Goals
 
