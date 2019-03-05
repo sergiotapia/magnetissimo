@@ -13,6 +13,10 @@ Magnetissimo is a self-hosted web application that indexes all popular torrent s
 - Easy to understand source code. Special care is taken to keep code lean and understandable.
 - High performance, leveraging Elixir's GenServer and Erlang's BEAM VM.
 
+On average the application uses about 120MB of RAM:
+
+![https://i.imgur.com/3QfChzk.png](https://i.imgur.com/3QfChzk.png)
+
 We work closely with other providers and search engines to be respectful of their hardware and minimize our impact to their systems.
 
 If you'd like us to add you to our supported vendors list, please drop us a Github Issue.
