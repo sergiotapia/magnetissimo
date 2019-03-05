@@ -7,6 +7,23 @@ defmodule Magnetissimo.Torrents do
     Torrent |> order_by(desc: :inserted_at) |> Repo.all()
   end
 
+  def tallies() do
+    tallies =
+      from t in Torrent,
+        group_by: t.website_source,
+        order_by: t.website_source,
+        select: %{
+          name: t.website_source,
+          totals: count(t.id)
+        }
+
+    Repo.all(tallies)
+  end
+
+  def total_torrent_count() do
+    Repo.one(from t in Torrent, select: count(t.id))
+  end
+
   def search(params) do
     torrents =
       case params do

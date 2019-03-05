@@ -1,53 +1,19 @@
 <nav class="panel">
   <p class="panel-heading">
-    Torrents
+    Total Indexed Torrents
   </p>
 
-  <a href="/?website_source=EZTV&term=<%= @term %>" class="<%= active_menu_class("EZTV", @website_source) %>">
-  <span class="tag is-dark is-pulled-right">159</span>
-    &nbsp;
-    EZTV
-  </a>
-
-  <a href="/?website_source=1337x.to&term=<%= @term %>" class="<%= active_menu_class("1337x.to", @website_source) %>">
-    <span class="tag is-dark is-pulled-right">4159</span>
-    &nbsp;
-    1337x.to
-  </a>
-
-  <a href="/?website_source=Nyaa&term=<%= @term %>" class="<%= active_menu_class("Nyaa", @website_source) %>">
-    <span class="tag is-dark is-pulled-right">332</span>
-    &nbsp;
-    Nyaa
-  </a>
-
-  <a href="/?website_source=Nyaa Pantsu&term=<%= @term %>" class="<%= active_menu_class("Nyaa Pantsu", @website_source) %>">
-    <span class="tag is-dark is-pulled-right">554</span>
-    &nbsp;
-    Nyaa Pantsu
-  </a>
-
-  <a href="/?website_source=ThePirateBay&term=<%= @term %>" class="<%= active_menu_class("ThePirateBay", @website_source) %>">
-    <span class="tag is-dark is-pulled-right">7159</span>
-    &nbsp;
-    ThePirateBay
-  </a>
-
-  <a href="/?website_source=TorrentDownloads&term=<%= @term %>" class="<%= active_menu_class("TorrentDownloads", @website_source) %>">
-    <span class="tag is-dark is-pulled-right">9583</span>
-    &nbsp;
-    TorrentDownloads
-  </a>
-
-  <a href="/?website_source=YTS.am&term=<%= @term %>" class="<%= active_menu_class("YTS.am", @website_source) %>">
-    <span class="tag is-dark is-pulled-right">322</span>
-    &nbsp;
-    YTS.am
-  </a>
+  <%= for tally <- @tallies do %>
+    <a href="/?website_source=<%= tally.name %>&term=<%= @term %>" class="<%= active_menu_class(tally.name, @website_source) %>">
+      <span class="tag is-dark is-pulled-right"><%= tally.totals %></span>
+      &nbsp;
+      <%= tally.name %>
+    </a>
+  <% end %>
 
   <div class="panel-block">
     <a href="?term=<%= @term %>" class="button is-link is-outlined is-fullwidth">
-      See All
+      See All <%= @total_torrent_count %>
     </a>
   </div>
 </nav>
