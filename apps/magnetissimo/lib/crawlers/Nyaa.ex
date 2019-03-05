@@ -2,6 +2,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   use GenServer
   import SweetXml
   require Logger
+  alias Magnetissimo.{Repo, Torrent}
 
   def start_link(args) do
     GenServer.start_link(__MODULE__, args, name: __MODULE__)
@@ -15,7 +16,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   def handle_info(:rss_fetch, state) do
     rss_body = rss()
 
-    result =
+    %{torrents: torrents} =
       rss_body
       |> xmap(
         torrents: [
@@ -23,17 +24,40 @@ defmodule Magnetissimo.Crawlers.Nyaa do
           name: ~x"./title/text()",
           canonical_url: ~x"./guid/text()",
           published_at: ~x"./pubDate/text()",
-          seeders: ~x"./nyaa:seeders/text()",
+          seeds: ~x"./nyaa:seeders/text()",
           leechers: ~x"./nyaa:leechers/text()",
           magnet_url: ~x"./nyaa:infoHash/text()",
           size: ~x"./nyaa:size/text()"
         ]
       )
 
-    # TODO - Persist torrents into database.
+    Enum.each(torrents, fn torrent_data ->
+      save_torrent(torrent_data)
+    end)
 
     schedule_rss_fetch()
     {:noreply, state}
+  end
+
+  defp save_torrent(data) do
+    {seeds, _} = List.to_string(data.seeds) |> Integer.parse()
+    {leechers, _} = List.to_string(data.leechers) |> Integer.parse()
+    name = List.to_string(data.name)
+    canonical_url = List.to_string(data.canonical_url)
+    magnet_url = List.to_string(data.magnet_url)
+
+    torrent =
+      Torrent.changeset(%Torrent{}, %{
+        name: name,
+        canonical_url: canonical_url,
+        magnet_url: magnet_url,
+        leechers: leechers,
+        seeds: seeds,
+        website_source: "Nyaa",
+        size: 0
+      })
+
+    Repo.insert(torrent)
   end
 
   defp rss do
