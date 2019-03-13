@@ -4,4 +4,8 @@
 # the umbrella root.
 use Mix.Config
 
-import_config "prod.secret.exs"
+# Configure your database
+config :magnetissimo, Magnetissimo.Repo,
+  database: "magnetissimo_dev",
+  hostname: "localhost",
+  pool_size: 20

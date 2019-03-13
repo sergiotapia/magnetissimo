@@ -132,7 +132,7 @@ defmodule Magnetissimo.Crawlers.Leetx do
   defp html(url) do
     # Don't hammer 1337x's servers.
     Process.sleep(2_000)
-    Logger.info("[leetx] Downloading url: #{url}")
+    Logger.debug("[leetx] Downloading url: #{url}")
 
     url
     |> HTTPoison.get!()

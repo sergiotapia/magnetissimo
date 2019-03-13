@@ -64,7 +64,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   end
 
   defp rss do
-    Logger.info(
+    Logger.debug(
       "[TorrentDownloads] Downloading url: https://www.torrentdownloads.me/rss.xml?type=today"
     )
 

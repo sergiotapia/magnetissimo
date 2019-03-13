@@ -60,7 +60,7 @@ defmodule Magnetissimo.Crawlers.EZTV do
   end
 
   defp rss do
-    Logger.info("[EZTV] Downloading url: https://eztv.io/ezrss.xml")
+    Logger.debug("[EZTV] Downloading url: https://eztv.io/ezrss.xml")
 
     "https://eztv.io/ezrss.xml"
     |> HTTPoison.get!()

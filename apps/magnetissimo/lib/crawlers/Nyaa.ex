@@ -61,7 +61,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   end
 
   defp rss do
-    Logger.info("[Nyaa] Downloading url: https://nyaa.si/?page=rss")
+    Logger.debug("[Nyaa] Downloading url: https://nyaa.si/?page=rss")
 
     "https://nyaa.si/?page=rss"
     |> HTTPoison.get!()

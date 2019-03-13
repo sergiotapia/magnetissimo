@@ -56,7 +56,7 @@ defmodule Magnetissimo.Crawlers.ThePirateBay do
   end
 
   defp rss do
-    Logger.info("[ThePirateBay] Downloading url: https://thepiratebay.org/rss//top100/0")
+    Logger.debug("[ThePirateBay] Downloading url: https://thepiratebay.org/rss//top100/0")
 
     "https://thepiratebay.org/rss//top100/0"
     |> HTTPoison.get!()

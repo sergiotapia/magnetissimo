@@ -56,7 +56,7 @@ defmodule Magnetissimo.Crawlers.YTS do
   end
 
   defp rss do
-    Logger.info("[YTS.am] Downloading url: https://yts.am/rss")
+    Logger.debug("[YTS.am] Downloading url: https://yts.am/rss")
 
     "https://yts.am/rss"
     |> HTTPoison.get!()
