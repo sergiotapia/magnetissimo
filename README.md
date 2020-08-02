@@ -1,3 +1,9 @@
+# I've paused development of Magnetissimo to focus on Torrentinim.
+
+https://github.com/sergiotapia/torrentinim
+
+It's smaller, easier to get running on any platform with native support for Mac, Linux and Windows. Check it out!
+
 ![https://i.imgur.com/J6eB3mp.png](https://i.imgur.com/J6eB3mp.png)
 
 Magnetissimo is a self-hosted web application that indexes all popular torrent sites.
