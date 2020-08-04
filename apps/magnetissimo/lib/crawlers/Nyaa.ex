@@ -44,7 +44,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     {leechers, _} = List.to_string(data.leechers) |> Integer.parse()
     name = List.to_string(data.name)
     canonical_url = List.to_string(data.canonical_url)
-    magnet_url = List.to_string(data.magnet_url)
+    magnet_url = "magnet:?xt=urn:btih:#{List.to_string(data.magnet_url)}&dn=#{List.to_string(data.name)}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce"
 
     torrent =
       Torrent.changeset(%Torrent{}, %{
