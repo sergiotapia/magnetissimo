@@ -19,6 +19,8 @@ defmodule MagnetissimoWeb.Router do
     get "/", PageController, :index
   end
 
+  forward "/healthcheck", HealthCheckup, resp_body: "Up!"
+
   # Other scopes may use custom stacks.
   # scope "/api", MagnetissimoWeb do
   #   pipe_through :api

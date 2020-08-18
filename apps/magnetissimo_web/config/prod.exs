@@ -15,7 +15,7 @@ use Mix.Config
 # before starting your production server.
 config :magnetissimo_web, MagnetissimoWeb.Endpoint,
   http: [:inet6, port: System.get_env("PORT") || 4000],
-  url: [host: "example.com", port: 80],
+  url: [host: System.get_env("MAG_HOSTNAME", "localhost"), port: 80],
   cache_static_manifest: "priv/static/cache_manifest.json"
 
 # ## SSL Support

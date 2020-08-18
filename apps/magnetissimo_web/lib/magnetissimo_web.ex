@@ -38,6 +38,8 @@ defmodule MagnetissimoWeb do
       # Use all HTML functionality (forms, tags, etc)
       use Phoenix.HTML
 
+      import Size, only: :macros
+
       import MagnetissimoWeb.ErrorHelpers
       import MagnetissimoWeb.Gettext
       alias MagnetissimoWeb.Router.Helpers, as: Routes

@@ -24,7 +24,7 @@ defmodule MagnetissimoWeb.Endpoint do
   end
 
   plug Plug.RequestId
-  plug Plug.Logger
+  plug Magnetissimo.Logger
 
   plug Plug.Parsers,
     parsers: [:urlencoded, :multipart, :json],
