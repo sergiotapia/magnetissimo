@@ -1,21 +1,22 @@
-defmodule Magnetissimo.Crawlers.NyaaPantsu do
+defmodule Magnetissimo.Crawlers.LimeTorrents do
   use GenServer
   import SweetXml
   require Logger
   alias Magnetissimo.{Torrent, Crawler, Parser}
 
-  @site_name "NyaaPantsu"
+  @site_name "LimeTorrents"
   @site_display_name @site_name
-  @site_url "https://nyaa.net/feed"
+  @site_url "https://www.limetorrents.info/rss/"
   @period 15 * 60 * 1000
 
   @xml_map [
     ~x"//channel/item"l,
     name: ~x"./title/text()",
-    canonical_url: ~x"./guid/text()",
+    canonical_url: ~x"./link/text()",
     published_at: ~x"./pubDate/text()",
-    torrent_url: ~x"./link/text()",
-    size: ~x"./enclosure/@length"
+    torrent_url: ~x"./enclosure/@url",
+    description: ~x"./description/text()",
+    size: ~x"./size/text()"
   ]
 
   def start_link(args) do
@@ -47,15 +48,17 @@ defmodule Magnetissimo.Crawlers.NyaaPantsu do
     magnet_hash = Parser.magnet_hash(data.torrent_url)
     magnet_url = "magnet:?xt=urn:btih:#{magnet_hash}&dn=#{String.replace(name, " ", "+")}&tr=udp%3A%2F%2Ftracker.open-internet.nl%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.pirateparty.gr%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.internetwarriors.net%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.si%3A1337%2Fannounce&tr=udp%3A%2F%2Fdenis.stalker.upeer.me%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.port443.xyz%3A6969%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2770%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2740%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2730%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2720%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2710%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2770%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2740%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2730%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2710%2Fannounce&tr=udp%3A%2F%2Ftracker.tiny-vps.com%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.cyberia.is%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Feddie4.nl%3A6969%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337%2Fannounce"
 
+    [seeds, leechers] = Regex.run(~r/Seeds:\s*(\d+).*Leechers:\s*(\d+)/, List.to_string(data.description), capture: :all_but_first)
+
     Torrent.changeset(%Torrent{}, %{
       name: name,
       canonical_url: List.to_string(data.canonical_url),
       magnet_url: magnet_url,
-      leechers: 0,
-      seeds: 0,
+      leechers: Parser.integer(leechers),
+      seeds: Parser.integer(seeds),
       website_source: @site_display_name,
       size: Parser.bytes(data.size),
-      published_at: Parser.pubdate(data.published_at, "{RFC1123}"),
+      published_at: Parser.pubdate(data.published_at, "%d %b %Y %T %z", :strftime),
       magnet_hash: magnet_hash
     }) |> Torrent.save
   end

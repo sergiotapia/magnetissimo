@@ -1,23 +1,19 @@
-defmodule Magnetissimo.Crawlers.EZTV do
+defmodule Magnetissimo.Crawlers.RARBG do
   use GenServer
   import SweetXml
   require Logger
   alias Magnetissimo.{Torrent, Crawler, Parser}
 
-  @site_name "EZTV"
+  @site_name "RARBG"
   @site_display_name @site_name
-  @site_url "https://eztv.io/ezrss.xml"
+  @site_url "https://rarbg.to/rssdd_magnet.php"
   @period 15 * 60 * 1000
 
   @xml_map [
     ~x"//channel/item"l,
     name: ~x"./title/text()",
-    canonical_url: ~x"./link/text()",
     published_at: ~x"./pubDate/text()",
-    magnet_url: ~x"./torrent:magnetURI/text()",
-    seeds: ~x"./torrent:seeds/text()",
-    leechers: ~x"./torrent:peers/text()",
-    size: ~x"./torrent:contentLength/text()"
+    magnet_url: ~x"./link/text()"
   ]
 
   def start_link(args) do
@@ -46,14 +42,11 @@ defmodule Magnetissimo.Crawlers.EZTV do
   defp save_torrents(data) when is_map(data) do
     Torrent.changeset(%Torrent{}, %{
       name: List.to_string(data.name),
-      canonical_url: List.to_string(data.canonical_url),
       magnet_url: List.to_string(data.magnet_url),
-      leechers: Parser.bytes(data.leechers),
-      seeds: Parser.bytes(data.seeds),
       website_source: @site_display_name,
-      size: Parser.bytes(data.size),
       published_at: Parser.pubdate(data.published_at, "{RFC1123}"),
-      magnet_hash: Parser.magnet_hash(data.magnet_url)
+      magnet_hash: Parser.magnet_hash(data.magnet_url),
+      canonical_url: "https://rarbg.to/torrents.php"
     }) |> Torrent.save
   end
   defp save_torrents(_data) do :ok end

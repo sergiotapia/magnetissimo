@@ -37,7 +37,7 @@
         <td>
           <%= link torrent.name, to: torrent.canonical_url, target: "_blank" %>
         </td>
-        <td><%= torrent.size %></td>
+        <td><%= Size.humanize!(torrent.size) %></td>
         <td class="seeds"><%= torrent.seeds %></td>
         <td class="leechers"><%= torrent.leechers %></td>
         <td>

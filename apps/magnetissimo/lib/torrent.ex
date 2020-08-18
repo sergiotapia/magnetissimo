@@ -2,19 +2,20 @@ defmodule Magnetissimo.Torrent do
   use Ecto.Schema
   import Ecto.Changeset
   require Logger
-  alias Magnetissimo.Torrent
+  alias Magnetissimo.{Repo, Torrent}
 
   schema "torrents" do
     field(:magnet_url, :string)
     field(:name, :string)
     field(:canonical_url, :string)
     field(:website_source, :string)
-    field(:leechers, :integer)
-    field(:seeds, :integer)
-    field(:size, :integer)
-    field(:published_at, :naive_datetime)
+    field(:leechers, :integer, default: 0)
+    field(:seeds, :integer, default: 0)
+    field(:size, :integer, default: 0)
+    field(:published_at, :utc_datetime)
+    field(:magnet_hash, :string, default: "")
 
-    timestamps()
+    timestamps([type: :utc_datetime])
   end
 
   def changeset(%Torrent{} = torrent, attrs \\ %{}) do
@@ -27,7 +28,8 @@ defmodule Magnetissimo.Torrent do
       :leechers,
       :seeds,
       :size,
-      :published_at
+      :published_at,
+      :magnet_hash
     ])
     |> validate_required([
       :magnet_url,
@@ -42,4 +44,14 @@ defmodule Magnetissimo.Torrent do
     |> validate_number(:leechers, greater_than_or_equal_to: 0)
     |> unique_constraint(:magnet_url, name: :unique_magnet_url)
   end
+
+  def save(torrent) do
+    with {:error, changeset} <- Repo.insert(torrent, on_conflict: :nothing) do
+      Logger.error("[#{__MODULE__}] Error inserting: #{get_field(torrent, :name)} (#{get_field(torrent, :canonical_url)})")
+      Logger.error("[#{__MODULE__}] #{get_field(torrent, :errors)}")
+      Logger.debug("#{IO.inspect(changeset)}")
+      {:error, changeset}
+    end
+  end
+
 end

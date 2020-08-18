@@ -1,21 +1,24 @@
-defmodule Magnetissimo.Crawlers.NyaaPantsu do
+defmodule Magnetissimo.Crawlers.Torrentz2 do
   use GenServer
   import SweetXml
   require Logger
   alias Magnetissimo.{Torrent, Crawler, Parser}
 
-  @site_name "NyaaPantsu"
+  @site_name "Torrentz2"
   @site_display_name @site_name
-  @site_url "https://nyaa.net/feed"
+  @site_urls [
+      "https://torrentz2.is/feed?f=x265",
+      "https://torrentz2.is/feed?f=1080p",
+      "https://torrentz2.is/feed?f=720p"
+    ]
   @period 15 * 60 * 1000
 
   @xml_map [
     ~x"//channel/item"l,
     name: ~x"./title/text()",
-    canonical_url: ~x"./guid/text()",
+    canonical_url: ~x"./link/text()",
     published_at: ~x"./pubDate/text()",
-    torrent_url: ~x"./link/text()",
-    size: ~x"./enclosure/@length"
+    description: ~x"./description/text()"
   ]
 
   def start_link(args) do
@@ -28,10 +31,13 @@ defmodule Magnetissimo.Crawlers.NyaaPantsu do
   end
 
   def handle_info(:rss_fetch, state) do
-    case Crawler.get_torrents_from_feed(@site_url, @xml_map) do
-      {:ok, torrents} -> save_torrents(torrents)
-      _ -> Logger.warn("[#{@site_name}] There was a problem getting the feed: #{@site_url}")
-    end
+    Enum.each(@site_urls, fn url ->
+      Logger.debug("[#{@site_name}] Getting torrents from feed: #{url}")      
+      case Crawler.get_torrents_from_feed(url, @xml_map) do
+        {:ok, torrents} -> save_torrents(torrents)
+        _ -> Logger.warn("[#{@site_name}] There was a problem getting the feed: #{url}")
+      end
+    end)
 
     schedule_rss_fetch()
     {:noreply, state}
@@ -43,18 +49,21 @@ defmodule Magnetissimo.Crawlers.NyaaPantsu do
   end
   defp save_torrents(data) when is_map(data) do
     name = List.to_string(data.name)
+    desc = List.to_string(data.description)
 
-    magnet_hash = Parser.magnet_hash(data.torrent_url)
+    regex = ~r/Size:\s+(\d+\.?\d*)\s+([a-zA-Z]+)\s+Seeds:\s*(\d+).+Peers:\s+(\d+)\s*Hash:\s*([a-fA-F\d]{40})/
+    [size, units, seeds, leechers, magnet_hash] = Regex.run(regex, desc, capture: :all_but_first)
+
     magnet_url = "magnet:?xt=urn:btih:#{magnet_hash}&dn=#{String.replace(name, " ", "+")}&tr=udp%3A%2F%2Ftracker.open-internet.nl%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.pirateparty.gr%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.coppersurfer.tk%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.internetwarriors.net%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.si%3A1337%2Fannounce&tr=udp%3A%2F%2Fdenis.stalker.upeer.me%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.port443.xyz%3A6969%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2770%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2740%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2730%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2720%2Fannounce&tr=udp%3A%2F%2F9.rarbg.to%3A2710%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2770%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2740%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2730%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2710%2Fannounce&tr=udp%3A%2F%2Ftracker.tiny-vps.com%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.cyberia.is%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451&tr=udp%3A%2F%2Ftracker.leechers-paradise.org%3A6969%2Fannounce&tr=udp%3A%2F%2Feddie4.nl%3A6969%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.ch%3A1337%2Fannounce"
 
     Torrent.changeset(%Torrent{}, %{
       name: name,
       canonical_url: List.to_string(data.canonical_url),
       magnet_url: magnet_url,
-      leechers: 0,
-      seeds: 0,
+      leechers: Parser.integer(leechers),
+      seeds: Parser.integer(seeds),
       website_source: @site_display_name,
-      size: Parser.bytes(data.size),
+      size: Parser.bytes(size, units),
       published_at: Parser.pubdate(data.published_at, "{RFC1123}"),
       magnet_hash: magnet_hash
     }) |> Torrent.save
