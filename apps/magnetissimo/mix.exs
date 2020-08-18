@@ -37,12 +37,14 @@ defmodule Magnetissimo.MixProject do
   defp deps do
     [
       {:ecto_sql, "~> 3.0"},
-      {:postgrex, ">= 0.0.0"},
+      {:floki, "~> 0.20.4"},
       {:jason, "~> 1.0"},
       {:httpoison, "~> 1.5"},
+      {:postgrex, ">= 0.0.0"},
+      {:scrivener_ecto, "~> 2.1"},
       {:sweet_xml, "~> 0.6.6"},
-      {:floki, "~> 0.20.4"},
-      {:scrivener_ecto, "~> 2.1"}
+      {:timex, "~> 3.5"},
+      {:wormhole, "~> 2.3"}
     ]
   end
 
