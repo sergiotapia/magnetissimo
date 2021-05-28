@@ -39,7 +39,11 @@ defmodule Magnetissimo.MixProject do
       {:phoenix_pubsub, "~> 2.0"},
       {:ecto_sql, "~> 3.4"},
       {:postgrex, ">= 0.0.0"},
-      {:jason, "~> 1.0"}
+      {:jason, "~> 1.0"},
+      {:httpoison, "~> 1.8.0"},
+      {:sweet_xml, "~> 0.6.6"},
+      {:floki, "~> 0.30.1"},
+      {:timex, "~> 3.7"}
     ]
   end
 
