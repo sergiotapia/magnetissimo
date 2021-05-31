@@ -6,11 +6,11 @@ defmodule Magnetissimo.Torrents.Torrent do
   @foreign_key_type :binary_id
   schema "torrents" do
     field :canonical_url, :string
-    field :leechers, :string
+    field :seeders, :string, default: "0"
+    field :leechers, :string, default: "0"
     field :magnet_url, :string
     field :name, :string
     field :published_at, :naive_datetime
-    field :seeders, :string
     field :size_in_bytes, :string
 
     timestamps()
@@ -37,5 +37,6 @@ defmodule Magnetissimo.Torrents.Torrent do
       :size_in_bytes,
       :published_at
     ])
+    |> unique_constraint(:magnet_url, name: :unique_magnet_url)
   end
 end
