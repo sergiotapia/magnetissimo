@@ -7,14 +7,12 @@ defmodule Magnetissimo.Application do
 
   def start(_type, _args) do
     children = [
+      # Start the Ecto repository
       Magnetissimo.Repo,
-      Magnetissimo.Crawlers.EZTV,
-      Magnetissimo.Crawlers.ThePirateBay,
-      Magnetissimo.Crawlers.TorrentDownloads,
-      Magnetissimo.Crawlers.Nyaa,
-      Magnetissimo.Crawlers.NyaaPantsu,
-      Magnetissimo.Crawlers.YTS,
-      Magnetissimo.Crawlers.Leetx
+      # Start the PubSub system
+      {Phoenix.PubSub, name: Magnetissimo.PubSub}
+      # Start a worker by calling: Magnetissimo.Worker.start_link(arg)
+      # {Magnetissimo.Worker, arg}
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one, name: Magnetissimo.Supervisor)
