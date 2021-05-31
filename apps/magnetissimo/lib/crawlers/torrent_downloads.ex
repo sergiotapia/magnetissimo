@@ -1,4 +1,4 @@
-defmodule Magnetissimo.Crawlers.Nyaa do
+defmodule Magnetissimo.Crawlers.TorrentDownloads do
   import SweetXml
   require Logger
   use Timex
@@ -17,9 +17,11 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   end
 
   def download_rss do
-    Logger.debug("[Nyaa] Downloading url: https://nyaa.si/?page=rss")
+    Logger.debug(
+      "[TorrentDownloads.me] Downloading url: https://www.torrentdownloads.me/rss.xml?type=today"
+    )
 
-    "https://nyaa.si/?page=rss"
+    "https://www.torrentdownloads.me/rss.xml?type=today"
     |> HTTPoison.get!()
     |> Map.get(:body)
   end
@@ -31,12 +33,12 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         torrents: [
           ~x"//channel/item"l,
           name: ~x"./title/text()",
-          canonical_url: ~x"./guid/text()",
+          canonical_url: ~x"./link/text()",
           published_at: ~x"./pubDate/text()",
-          seeders: ~x"./nyaa:seeders/text()",
-          leechers: ~x"./nyaa:leechers/text()",
-          magnet_url: ~x"./nyaa:infoHash/text()",
-          size_in_bytes: ~x"./nyaa:size/text()"
+          magnet_url: ~x"./info_hash/text()",
+          seeders: ~x"./seeders/text()",
+          leechers: ~x"./leechers/text()",
+          size_in_bytes: ~x"./size/text()"
         ]
       )
 
@@ -47,7 +49,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     seeders = List.to_string(torrent_params.seeders)
     leechers = List.to_string(torrent_params.leechers)
     name = List.to_string(torrent_params.name)
-    canonical_url = List.to_string(torrent_params.canonical_url)
+    canonical_url = "https://torrentdownloads.me" <> List.to_string(torrent_params.canonical_url)
 
     infohash = List.to_string(torrent_params.magnet_url)
     magnet_url = Helpers.format_infohash(infohash)
@@ -57,12 +59,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
       |> List.to_string()
       |> Timex.parse!("%a, %d %B %Y %H:%M:%S %z", :strftime)
 
-    size_in_bytes =
-      torrent_params.size_in_bytes
-      |> List.to_string()
-      |> Helpers.convert_filesize!("b")
-      |> String.split(".")
-      |> List.first()
+    size_in_bytes = List.to_string(torrent_params.size_in_bytes)
 
     torrent_params =
       torrent_params
@@ -73,7 +70,8 @@ defmodule Magnetissimo.Crawlers.Nyaa do
       |> Map.put(:magnet_url, magnet_url)
       |> Map.put(:published_at, published_at)
       |> Map.put(:size_in_bytes, size_in_bytes)
+      |> IO.inspect()
 
-    Torrents.create_torrent(torrent_params)
+    # Torrents.create_torrent(torrent_params)
   end
 end
