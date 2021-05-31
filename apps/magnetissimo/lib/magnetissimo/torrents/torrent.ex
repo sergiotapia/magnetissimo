@@ -12,6 +12,7 @@ defmodule Magnetissimo.Torrents.Torrent do
     field :name, :string
     field :published_at, :naive_datetime
     field :size_in_bytes, :string
+    field :source, :string
 
     timestamps()
   end
@@ -26,7 +27,8 @@ defmodule Magnetissimo.Torrents.Torrent do
       :leechers,
       :seeders,
       :size_in_bytes,
-      :published_at
+      :published_at,
+      :source
     ])
     |> validate_required([
       :name,
@@ -35,7 +37,8 @@ defmodule Magnetissimo.Torrents.Torrent do
       :leechers,
       :seeders,
       :size_in_bytes,
-      :published_at
+      :published_at,
+      :source
     ])
     |> unique_constraint(:magnet_url, name: :unique_magnet_url)
   end

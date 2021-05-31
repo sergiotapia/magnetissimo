@@ -11,6 +11,7 @@ defmodule Magnetissimo.Repo.Migrations.CreateTorrents do
       add :seeders, :text, default: "0"
       add :size_in_bytes, :text
       add :published_at, :naive_datetime
+      add :source, :text, nil: false
 
       timestamps()
     end
