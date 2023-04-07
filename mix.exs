@@ -53,7 +53,9 @@ defmodule Magnetissimo.MixProject do
       {:ecto_identifier, "~> 0.2.0"},
       {:dialyxir, "~> 1.2", runtime: false, only: [:dev]},
       {:typed_ecto_schema, "~> 0.4.1", runtime: false},
-      {:slugify, "~> 1.3"}
+      {:slugify, "~> 1.3"},
+      {:sweet_xml, "~> 0.7.3"},
+      {:httpoison, "~> 2.1"}
     ]
   end
 

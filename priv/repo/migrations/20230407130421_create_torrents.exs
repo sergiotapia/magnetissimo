@@ -8,6 +8,7 @@ defmodule Magnetissimo.Repo.Migrations.CreateTorrents do
       add :slug, :text
       add :description, :text
       add :canonical_url, :text
+      add :published_at, :utc_datetime_usec
       add :leechers, :integer
       add :seeders, :integer
       add :magnet_url, :text

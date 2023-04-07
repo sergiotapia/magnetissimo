@@ -10,6 +10,7 @@ defmodule Magnetissimo.Torrents.Torrent do
   typed_schema "torrents" do
     field :name, :string
     field :slug, :string
+    field :published_at, :utc_datetime_usec
     field :description, :string
     field :canonical_url, :string
     field :magnet_url, :string
@@ -29,6 +30,7 @@ defmodule Magnetissimo.Torrents.Torrent do
       :name,
       :description,
       :canonical_url,
+      :published_at,
       :leechers,
       :seeders,
       :magnet_url,
@@ -39,6 +41,7 @@ defmodule Magnetissimo.Torrents.Torrent do
       :name,
       :description,
       :canonical_url,
+      :published_at,
       :leechers,
       :seeders,
       :magnet_url,
