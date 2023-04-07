@@ -1,0 +1,61 @@
+defmodule Magnetissimo.TorrentsFixtures do
+  @moduledoc """
+  This module defines test helpers for creating
+  entities via the `Magnetissimo.Torrents` context.
+  """
+
+  @doc """
+  Generate a source.
+  """
+  def source_fixture(attrs \\ %{}) do
+    {:ok, source} =
+      attrs
+      |> Enum.into(%{
+        name: "Nyaa",
+        url: "https://nyaa.si"
+      })
+      |> Magnetissimo.Torrents.create_source()
+
+    source
+  end
+
+  @doc """
+  Generate a category.
+  """
+  def category_fixture(attrs \\ %{}) do
+    {:ok, category} =
+      attrs
+      |> Enum.into(%{
+        name: "some name",
+        slug: "some slug"
+      })
+      |> Magnetissimo.Torrents.create_category()
+
+    category
+  end
+
+  @doc """
+  Generate a torrent.
+  """
+  def torrent_fixture(attrs \\ %{}) do
+    source = source_fixture()
+    category = category_fixture()
+
+    {:ok, torrent} =
+      attrs
+      |> Enum.into(%{
+        leechers: 42,
+        magnet_url: "some magnet_url",
+        name: "some name",
+        canonical_url: "https://nyaa.si/",
+        seeders: 42,
+        slug: "some slug",
+        description: "Foobarbaz",
+        source_id: source.id,
+        category_id: category.id
+      })
+      |> Magnetissimo.Torrents.create_torrent()
+
+    torrent
+  end
+end

@@ -52,7 +52,8 @@ defmodule Magnetissimo.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:ecto_identifier, "~> 0.2.0"},
       {:dialyxir, "~> 1.2", runtime: false, only: [:dev]},
-      {:typed_ecto_schema, "~> 0.4.1", runtime: false}
+      {:typed_ecto_schema, "~> 0.4.1", runtime: false},
+      {:slugify, "~> 1.3"}
     ]
   end
 
