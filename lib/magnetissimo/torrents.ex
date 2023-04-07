@@ -6,7 +6,9 @@ defmodule Magnetissimo.Torrents do
   import Ecto.Query, warn: false
   alias Magnetissimo.Repo
 
+  alias Magnetissimo.Torrents.Category
   alias Magnetissimo.Torrents.Source
+  alias Magnetissimo.Torrents.Torrent
 
   @doc """
   Returns the list of sources.
@@ -17,6 +19,7 @@ defmodule Magnetissimo.Torrents do
       [%Source{}, ...]
 
   """
+  @spec list_sources() :: [Source.t()]
   def list_sources do
     Repo.all(Source)
   end
@@ -35,6 +38,7 @@ defmodule Magnetissimo.Torrents do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_source!(binary()) :: Source.t()
   def get_source!(id), do: Repo.get!(Source, id)
 
   @doc """
@@ -49,6 +53,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_source(map()) :: {:ok, Source.t()} | {:error, Ecto.Changeset.t()}
   def create_source(attrs \\ %{}) do
     %Source{}
     |> Source.changeset(attrs)
@@ -67,6 +72,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_source(Source.t(), map()) :: {:ok, Source.t()} | {:error, Ecto.Changeset.t()}
   def update_source(%Source{} = source, attrs) do
     source
     |> Source.changeset(attrs)
@@ -85,6 +91,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec delete_source(Source.t()) :: {:ok, Source.t()} | {:error, Ecto.Changeset.t()}
   def delete_source(%Source{} = source) do
     Repo.delete(source)
   end
@@ -98,11 +105,10 @@ defmodule Magnetissimo.Torrents do
       %Ecto.Changeset{data: %Source{}}
 
   """
+  @spec change_source(Source.t(), map()) :: Ecto.Changeset.t()
   def change_source(%Source{} = source, attrs \\ %{}) do
     Source.changeset(source, attrs)
   end
-
-  alias Magnetissimo.Torrents.Category
 
   @doc """
   Returns the list of categories.
@@ -113,6 +119,7 @@ defmodule Magnetissimo.Torrents do
       [%Category{}, ...]
 
   """
+  @spec list_categories() :: [Category.t()]
   def list_categories do
     Repo.all(Category)
   end
@@ -131,6 +138,7 @@ defmodule Magnetissimo.Torrents do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_category!(binary()) :: Category.t()
   def get_category!(id), do: Repo.get!(Category, id)
 
   @doc """
@@ -145,6 +153,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_category(map()) :: {:ok, Category.t()} | {:error, Ecto.Changeset.t()}
   def create_category(attrs \\ %{}) do
     %Category{}
     |> Category.changeset(attrs)
@@ -163,6 +172,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_category(Category.t(), map()) :: {:ok, Category.t()} | {:error, Ecto.Changeset.t()}
   def update_category(%Category{} = category, attrs) do
     category
     |> Category.changeset(attrs)
@@ -181,6 +191,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec delete_category(Category.t()) :: {:ok, Category.t()} | {:error, Ecto.Changeset.t()}
   def delete_category(%Category{} = category) do
     Repo.delete(category)
   end
@@ -194,11 +205,10 @@ defmodule Magnetissimo.Torrents do
       %Ecto.Changeset{data: %Category{}}
 
   """
+  @spec change_category(Category.t(), map()) :: Ecto.Changeset.t()
   def change_category(%Category{} = category, attrs \\ %{}) do
     Category.changeset(category, attrs)
   end
-
-  alias Magnetissimo.Torrents.Torrent
 
   @doc """
   Returns the list of torrents.
@@ -209,6 +219,7 @@ defmodule Magnetissimo.Torrents do
       [%Torrent{}, ...]
 
   """
+  @spec list_torrents() :: [Torrent.t()]
   def list_torrents do
     Repo.all(Torrent)
   end
@@ -227,6 +238,7 @@ defmodule Magnetissimo.Torrents do
       ** (Ecto.NoResultsError)
 
   """
+  @spec get_torrent!(binary()) :: Torrent.t()
   def get_torrent!(id), do: Repo.get!(Torrent, id)
 
   @doc """
@@ -241,6 +253,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec create_torrent(map()) :: {:ok, Torrent.t()} | {:error, Ecto.Changeset.t()}
   def create_torrent(attrs \\ %{}) do
     %Torrent{}
     |> Torrent.changeset(attrs)
@@ -259,6 +272,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec update_torrent(Torrent.t(), map()) :: {:ok, Torrent.t()} | {:error, Ecto.Changeset.t()}
   def update_torrent(%Torrent{} = torrent, attrs) do
     torrent
     |> Torrent.changeset(attrs)
@@ -277,6 +291,7 @@ defmodule Magnetissimo.Torrents do
       {:error, %Ecto.Changeset{}}
 
   """
+  @spec delete_torrent(Torrent.t()) :: {:ok, Torrent.t()} | {:error, Ecto.Changeset.t()}
   def delete_torrent(%Torrent{} = torrent) do
     Repo.delete(torrent)
   end
@@ -290,6 +305,7 @@ defmodule Magnetissimo.Torrents do
       %Ecto.Changeset{data: %Torrent{}}
 
   """
+  @spec change_torrent(Torrent.t(), map()) :: Ecto.Changeset.t()
   def change_torrent(%Torrent{} = torrent, attrs \\ %{}) do
     Torrent.changeset(torrent, attrs)
   end
