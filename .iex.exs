@@ -1,0 +1,1 @@
+alias Magnetissimo.Crawlers.Nyaa

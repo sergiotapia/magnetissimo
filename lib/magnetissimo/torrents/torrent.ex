@@ -16,6 +16,7 @@ defmodule Magnetissimo.Torrents.Torrent do
     field :magnet_url, :string
     field :leechers, :integer
     field :seeders, :integer
+    field :size_in_bytes, :integer
 
     belongs_to :category, Category
     belongs_to :source, Source
@@ -33,21 +34,23 @@ defmodule Magnetissimo.Torrents.Torrent do
       :published_at,
       :leechers,
       :seeders,
+      :size_in_bytes,
       :magnet_url,
       :category_id,
       :source_id
     ])
     |> validate_required([
       :name,
-      :description,
       :canonical_url,
       :published_at,
       :leechers,
       :seeders,
+      :size_in_bytes,
       :magnet_url,
       :category_id,
       :source_id
     ])
+    |> unique_constraint(:canonical_url)
     |> put_slug()
   end
 

@@ -41,6 +41,11 @@ defmodule Magnetissimo.Torrents do
   @spec get_source!(binary()) :: Source.t()
   def get_source!(id), do: Repo.get!(Source, id)
 
+  @spec get_source_by_name!(binary()) :: Source.t()
+  def get_source_by_name!(name) do
+    Repo.one!(from s in Source, where: s.name == ^name)
+  end
+
   @doc """
   Creates a source.
 
@@ -140,6 +145,28 @@ defmodule Magnetissimo.Torrents do
   """
   @spec get_category!(binary()) :: Category.t()
   def get_category!(id), do: Repo.get!(Category, id)
+
+  @spec get_category_by_name!(binary()) :: Category.t()
+  def get_category_by_name!(name) do
+    Repo.one!(from c in Category, where: c.name == ^name)
+  end
+
+  @doc """
+  Gets a single category by name or alias.
+
+  Raises `Ecto.NoResultsError` if the Category does not exist.
+  """
+  @spec get_category_by_name_or_alias!(binary()) :: Category.t()
+  def get_category_by_name_or_alias!(alias_name) do
+    query =
+      from c in Category,
+        where:
+          fragment("? = ANY(alternative_names)", ^alias_name) or fragment("name = ?", ^alias_name),
+        select: c,
+        limit: 1
+
+    Repo.one!(query)
+  end
 
   @doc """
   Creates a category.

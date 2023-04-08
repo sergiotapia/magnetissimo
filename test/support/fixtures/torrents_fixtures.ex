@@ -51,6 +51,8 @@ defmodule Magnetissimo.TorrentsFixtures do
         seeders: 42,
         slug: "some slug",
         description: "Foobarbaz",
+        published_at: DateTime.utc_now(),
+        size_in_bytes: 42,
         source_id: source.id,
         category_id: category.id
       })

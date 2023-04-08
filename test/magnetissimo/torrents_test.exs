@@ -142,8 +142,10 @@ defmodule Magnetissimo.TorrentsTest do
         name: "some name",
         description: "Foobarbaz",
         canonical_url: "https://nyaa.si/view/1559131",
+        published_at: DateTime.utc_now(),
         seeders: 42,
         slug: "some slug",
+        size_in_bytes: 42,
         source_id: source.id,
         category_id: category.id
       }
