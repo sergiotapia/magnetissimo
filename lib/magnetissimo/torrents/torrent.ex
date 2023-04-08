@@ -50,7 +50,6 @@ defmodule Magnetissimo.Torrents.Torrent do
       :category_id,
       :source_id
     ])
-    |> unique_constraint(:canonical_url)
     |> put_slug()
   end
 

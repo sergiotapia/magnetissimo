@@ -19,8 +19,6 @@ defmodule Magnetissimo.Repo.Migrations.CreateTorrents do
       timestamps(type: :utc_datetime_usec)
     end
 
-    create unique_index(:torrents, [:canonical_url])
-
     create index(:torrents, [:category_id])
     create index(:torrents, [:source_id])
   end
