@@ -27,7 +27,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     source = Torrents.get_source_by_name!("Nyaa.si")
 
     torrents
-    |> Enum.map(fn torrent ->
+    |> Enum.each(fn torrent ->
       category = torrent.category |> List.to_string() |> Torrents.get_category_by_name_or_alias!()
 
       torrent = %{
@@ -43,8 +43,15 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         source_id: source.id
       }
 
-      Logger.info("[Nyaa] Creating torrent: #{torrent.name} (#{torrent.canonical_url})")
-      Torrents.create_torrent(torrent)
+      case Torrents.create_torrent(torrent) do
+        {:ok, torrent} ->
+          Logger.info("[Nyaa] Creating torrent: #{torrent.name} (#{torrent.canonical_url})")
+
+        {:error, changeset} ->
+          Logger.error(
+            "[Nyaa] Skipped creating torrent: #{torrent.name} (#{torrent.canonical_url}) - reason: #{inspect(changeset.errors)}"
+          )
+      end
     end)
   end
 

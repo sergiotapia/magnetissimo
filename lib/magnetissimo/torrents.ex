@@ -11,6 +11,36 @@ defmodule Magnetissimo.Torrents do
   alias Magnetissimo.Torrents.Torrent
 
   @doc """
+  Returns the list of torrents by performing a full-text
+  search against the name and description fields.
+
+  ## Examples
+
+      iex> search_torrents("x265")
+      [%Torrent{}, ...]
+  """
+  @spec search_torrents(binary()) :: [Torrent.t()]
+  def search_torrents(search_term) do
+    query =
+      from(t in Torrent,
+        where:
+          fragment(
+            "search_vector @@ websearch_to_tsquery(?)",
+            ^search_term
+          ),
+        order_by: {
+          :desc,
+          fragment(
+            "ts_rank_cd(search_vector, websearch_to_tsquery(?), 4)",
+            ^search_term
+          )
+        }
+      )
+
+    Repo.all(query)
+  end
+
+  @doc """
   Returns the list of sources.
 
   ## Examples

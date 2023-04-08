@@ -10,6 +10,38 @@ defmodule Magnetissimo.TorrentsTest do
 
     @invalid_attrs %{name: nil, url: nil}
 
+    test "search_torrents/1 returns all matching torrents" do
+      category = category_fixture()
+
+      torrent =
+        torrent_fixture(%{
+          name: "Hello world x265",
+          description: "x265",
+          canonical_url: "https://foobar.com",
+          category_id: category.id
+        })
+
+      assert Torrents.search_torrents("x265") == [torrent]
+
+      torrent_2 =
+        torrent_fixture(%{
+          name: "American Dad s03e03",
+          description: "Funny show",
+          canonical_url: "https://barbaz.com",
+          category_id: category.id
+        })
+
+      torrent_3 =
+        torrent_fixture(%{
+          name: "American Idol s01e02",
+          description: "Sing",
+          canonical_url: "https://bazboo.com",
+          category_id: category.id
+        })
+
+      assert Torrents.search_torrents("american") == [torrent_2, torrent_3]
+    end
+
     test "list_sources/0 returns all sources" do
       source = source_fixture()
       assert Torrents.list_sources() == [source]

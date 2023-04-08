@@ -38,23 +38,20 @@ defmodule Magnetissimo.TorrentsFixtures do
   Generate a torrent.
   """
   def torrent_fixture(attrs \\ %{}) do
-    source = source_fixture()
-    category = category_fixture()
-
     {:ok, torrent} =
       attrs
       |> Enum.into(%{
         leechers: 42,
         magnet_url: "some magnet_url",
         name: "some name",
-        canonical_url: "https://nyaa.si/",
+        canonical_url: attrs[:canonical_url] || "https://nyaa.si/",
         seeders: 42,
         slug: "some slug",
         description: "Foobarbaz",
         published_at: DateTime.utc_now(),
         size_in_bytes: 42,
-        source_id: source.id,
-        category_id: category.id
+        source_id: attrs[:source_id] || source_fixture().id,
+        category_id: attrs[:category_id] || category_fixture().id
       })
       |> Magnetissimo.Torrents.create_torrent()
 
