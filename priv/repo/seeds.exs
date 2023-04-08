@@ -59,7 +59,7 @@ Torrents.create_category(%{
 Torrents.create_category(%{
   parent_id: books_category.id,
   name: "Books - English-translated",
-  alternative_names: ["Literature - English-translated", "Books"]
+  alternative_names: ["Literature - English-translated", "Books", "Ebooks", "e-books", "ebook"]
 })
 
 Torrents.create_category(%{
@@ -91,7 +91,7 @@ Torrents.create_category(%{
 Torrents.create_category(%{
   parent_id: video_category.id,
   name: "Video - Television",
-  alternative_names: ["TV Shows"]
+  alternative_names: ["TV Shows", "TV", "television", "Television", "TV - Other"]
 })
 
 Torrents.create_category(%{parent_id: video_category.id, name: "Video - Documentaries"})
@@ -116,7 +116,7 @@ Torrents.create_category(%{
 Torrents.create_category(%{
   parent_id: software_category.id,
   name: "Software - Applications",
-  alternative_names: ["Software"]
+  alternative_names: ["Software", "Mac", "Linux", "Windows", "Apps", "Apple"]
 })
 
 Torrents.create_category(%{

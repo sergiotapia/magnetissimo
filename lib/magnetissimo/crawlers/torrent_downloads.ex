@@ -8,7 +8,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   def search(search_term) do
     source = Torrents.get_source_by_name!("TorrentDownloads")
 
-    1..1
+    1..20
     |> Enum.each(fn page ->
       search_term
       |> get_search_page_html(page)
@@ -81,8 +81,22 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
       |> Floki.text()
       |> String.split(": ")
       |> List.last()
-      |> IO.inspect()
       |> Utils.size_to_bytes()
+
+    {:ok, published_at} =
+      torrent_page_html
+      |> Floki.find(".grey_bar1, .grey_bara1")
+      |> Enum.filter(fn item ->
+        item |> Floki.text() |> String.contains?("Torrent added")
+      end)
+      |> List.first()
+      |> Floki.text()
+      |> String.split(": ")
+      |> List.last()
+      |> Timex.parse("{YYYY}-{0M}-{0D} {h24}:{m}:{s}")
+
+    category_name = torrent_page_html |> Floki.find("h1.movies") |> Floki.text()
+    category = Torrents.get_category_by_name_or_alias!(category_name)
 
     %{
       name: name,
@@ -91,14 +105,11 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
       seeders: seeders,
       magnet_url: magnet_url,
       source_id: source.id,
-      size_in_bytes: size_in_bytes
+      size_in_bytes: size_in_bytes,
+      published_at: published_at,
+      category_id: category.id
     }
-    |> IO.inspect()
-
-    # torrent = %{
-    #   published_at: torrent.published_at |> List.to_string() |> parse_published_at(),
-    #   category_id: category.id
-    # }
+    |> Torrents.create_torrent_for_source(source.name)
   end
 
   def crawl_latest() do
@@ -167,7 +178,8 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   @spec get_search_page_html(binary(), integer()) :: binary()
   def get_search_page_html(search_term, page \\ 1) do
     # Put some respek on they servers.
-    Process.sleep(350)
+    sleep_ms = 350 + :rand.uniform(200)
+    Process.sleep(sleep_ms)
     Logger.info("[TorrentDownloads] Fetching search results page.")
 
     search_term =
