@@ -27,7 +27,8 @@ Torrents.create_source(%{
 
 Torrents.create_category(%{
   parent_id: anime_category.id,
-  name: "Anime - Music Video"
+  name: "Anime - Music Video",
+  alternative_names: ["Anime - Anime Music Video"]
 })
 
 Torrents.create_category(%{
@@ -81,7 +82,7 @@ Torrents.create_category(%{
   alternative_names: [
     "Live Action - Raw",
     "Live Action - English-translated",
-    "Live Action - Idol-Promotional-video",
+    "Live Action - Idol/Promotional Video",
     "Live Action - Non-English-translated",
     "Movies"
   ]

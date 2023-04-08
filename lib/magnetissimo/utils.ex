@@ -24,6 +24,9 @@ defmodule Magnetissimo.Utils do
     unit = String.downcase(unit)
 
     case unit do
+      "tb" -> size * 1_000_000_000_000
+      "tib" -> size * 1_000_000_000_000
+      "TiB" -> size * 1_000_000_000_000
       "gb" -> size * 1_000_000_000
       "gib" -> size * 1_000_000_000
       "GiB" -> size * 1_000_000_000

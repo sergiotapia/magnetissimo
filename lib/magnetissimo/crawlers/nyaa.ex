@@ -6,10 +6,23 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   alias Magnetissimo.Utils
 
   def search(search_term) do
+    page_count =
+      search_term
+      |> get_search_page_html()
+      |> get_page_count()
+
+    1..page_count
+    |> Enum.each(fn page ->
+      search_term
+      |> get_search_page_html(page)
+      |> parse_search_page()
+    end)
+  end
+
+  def parse_search_page(search_page_html) do
     source = Torrents.get_source_by_name!("Nyaa.si")
 
-    search_term
-    |> get_search_page_html()
+    search_page_html
     |> Floki.parse_document!()
     |> Floki.find("table.torrent-list tr")
     # Drop the header of the table
@@ -115,6 +128,24 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     end)
   end
 
+  @spec get_page_count(String.t()) :: integer()
+  def get_page_count(search_page_html) do
+    page_item =
+      search_page_html
+      |> Floki.parse_document!()
+      |> Floki.find("ul.pagination li")
+      |> Enum.at(-2)
+
+    if page_item do
+      page_item
+      |> Floki.find("a")
+      |> Floki.text()
+      |> String.to_integer()
+    else
+      1
+    end
+  end
+
   @spec parse_published_at(String.t()) :: DateTime.t()
   def parse_published_at(published_at) do
     {:ok, parsed_datetime} = Timex.parse(published_at, "{RFC1123}")
@@ -133,8 +164,10 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     |> Floki.text()
   end
 
-  @spec get_search_page_html(binary()) :: binary()
-  def get_search_page_html(search_term) do
+  @spec get_search_page_html(binary(), integer()) :: binary()
+  def get_search_page_html(search_term, page \\ 1) do
+    # Put some respek on they servers.
+    Process.sleep(350)
     Logger.info("[Nyaa] Fetching search results page.")
 
     search_term =
@@ -142,7 +175,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
       |> String.replace(" ", "+")
 
     %{status_code: 200, body: body} =
-      "https://nyaa.si/?f=0&c=0_0&q=#{search_term}"
+      "https://nyaa.si/?f=0&c=0_0&q=#{search_term}&p=#{page}"
       |> HTTPoison.get!()
 
     body
