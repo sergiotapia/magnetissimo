@@ -4,6 +4,7 @@ defmodule Magnetissimo.Torrents do
   """
 
   import Ecto.Query, warn: false
+  require Logger
   alias Magnetissimo.Repo
 
   alias Magnetissimo.Torrents.Category
@@ -322,6 +323,24 @@ defmodule Magnetissimo.Torrents do
     %Torrent{}
     |> Torrent.changeset(attrs)
     |> Repo.insert()
+  end
+
+  def create_torrent_for_source(torrent_attrs, source_name) do
+    case create_torrent(torrent_attrs) do
+      {:ok, torrent} ->
+        Logger.info(
+          "[#{source_name}] Creating torrent: #{torrent_attrs.name} (#{torrent_attrs.canonical_url})"
+        )
+
+        {:ok, torrent}
+
+      {:error, changeset} ->
+        Logger.error(
+          "[#{source_name}] Skipped creating torrent: #{torrent_attrs.name} (#{torrent_attrs.canonical_url}) - reason: #{inspect(changeset.errors)}"
+        )
+
+        {:error, changeset}
+    end
   end
 
   @doc """

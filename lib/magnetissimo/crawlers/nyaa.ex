@@ -5,6 +5,74 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   alias Magnetissimo.Torrents
   alias Magnetissimo.Utils
 
+  def search(search_term) do
+    source = Torrents.get_source_by_name!("Nyaa.si")
+
+    search_term
+    |> get_search_page_html()
+    |> Floki.parse_document!()
+    |> Floki.find("table.torrent-list tr")
+    # Drop the header of the table
+    |> Enum.drop(1)
+    |> Enum.each(fn row ->
+      canonical_url =
+        row
+        |> Floki.find("a")
+        |> Enum.at(1)
+        |> Floki.attribute("href")
+        |> List.first()
+
+      canonical_url = "https://nyaa.si#{canonical_url}"
+      leechers = row |> Floki.find("td") |> Enum.at(6) |> Floki.text() |> String.to_integer()
+      seeders = row |> Floki.find("td") |> Enum.at(5) |> Floki.text() |> String.to_integer()
+
+      magnet_url =
+        row
+        |> Floki.find("a")
+        |> Enum.filter(fn a ->
+          a |> Floki.attribute("href") |> List.first() |> String.starts_with?("magnet:")
+        end)
+        |> List.first()
+        |> Floki.attribute("href")
+        |> List.first()
+
+      name = row |> Floki.find("td") |> Enum.at(1) |> Floki.text()
+      size = row |> Floki.find("td") |> Enum.at(3) |> Floki.text() |> Utils.size_to_bytes()
+
+      category =
+        row
+        |> Floki.find("a")
+        |> Enum.at(0)
+        |> Floki.attribute("title")
+        |> List.first()
+        |> Torrents.get_category_by_name_or_alias!()
+
+      # Published at comes in timestamp format, like: "1680594232"
+      published_at =
+        row
+        |> Floki.find("td")
+        |> Enum.at(4)
+        |> Floki.attribute("data-timestamp")
+        |> List.first()
+        |> String.to_integer()
+        |> DateTime.from_unix!()
+
+      torrent = %{
+        canonical_url: canonical_url,
+        leechers: leechers,
+        magnet_url: magnet_url,
+        name: name,
+        published_at: published_at,
+        seeders: seeders,
+        size_in_bytes: size,
+        category_id: category.id,
+        source_id: source.id
+      }
+
+      Torrents.create_torrent_for_source(torrent, source.name)
+    end)
+  end
+
   def crawl_latest() do
     Logger.info("[Nyaa] Crawling latest torrents.")
 
@@ -43,15 +111,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         source_id: source.id
       }
 
-      case Torrents.create_torrent(torrent) do
-        {:ok, torrent} ->
-          Logger.info("[Nyaa] Creating torrent: #{torrent.name} (#{torrent.canonical_url})")
-
-        {:error, changeset} ->
-          Logger.error(
-            "[Nyaa] Skipped creating torrent: #{torrent.name} (#{torrent.canonical_url}) - reason: #{inspect(changeset.errors)}"
-          )
-      end
+      Torrents.create_torrent_for_source(torrent, source.name)
     end)
   end
 
@@ -71,6 +131,21 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     |> Floki.parse_document!()
     |> Floki.find("#torrent-description")
     |> Floki.text()
+  end
+
+  @spec get_search_page_html(binary()) :: binary()
+  def get_search_page_html(search_term) do
+    Logger.info("[Nyaa] Fetching search results page.")
+
+    search_term =
+      search_term
+      |> String.replace(" ", "+")
+
+    %{status_code: 200, body: body} =
+      "https://nyaa.si/?f=0&c=0_0&q=#{search_term}"
+      |> HTTPoison.get!()
+
+    body
   end
 
   @spec get_rss :: binary()
