@@ -111,11 +111,17 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     |> Enum.each(fn torrent ->
       category = torrent.category |> List.to_string() |> Torrents.get_category_by_name_or_alias!()
 
+      name = torrent.name |> List.to_string()
+      magnet_hash = torrent.magnet_url |> List.to_string()
+
+      magnet_url =
+        "magnet:?xt=urn:btih:#{magnet_hash}&dn=#{name}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
+
       torrent = %{
         canonical_url: torrent.canonical_url |> List.to_string(),
         leechers: torrent.leechers |> List.to_string() |> Integer.parse() |> elem(0),
-        magnet_url: torrent.magnet_url |> List.to_string(),
-        name: torrent.name |> List.to_string(),
+        magnet_url: magnet_url,
+        name: name,
         published_at: torrent.published_at |> List.to_string() |> parse_published_at(),
         seeders: torrent.seeders |> List.to_string() |> Integer.parse() |> elem(0),
         size_in_bytes: torrent.size |> List.to_string() |> Utils.size_to_bytes(),
