@@ -8,12 +8,12 @@ defmodule Magnetissimo.Torrents.Category do
   @primary_key {:id, :string, autogenerate: {Ecto.Nanoid, :autogenerate, []}}
   @foreign_key_type :string
   typed_schema "categories" do
-    field :name, :string
-    field :alternative_names, {:array, :string}
-    field :slug, :string
+    field(:name, :string)
+    field(:alternative_names, {:array, :string})
+    field(:slug, :string)
 
     belongs_to(:parent_category, Category, references: :id, foreign_key: :parent_id)
-    has_many :torrents, Torrent
+    has_many(:torrents, Torrent)
 
     timestamps(type: :utc_datetime_usec)
   end

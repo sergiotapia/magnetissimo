@@ -15,49 +15,60 @@ alias Magnetissimo.Torrents
 {:ok, source} =
   Torrents.create_source(%{
     name: "Nyaa.si",
-    url: "https://nyaa.si/"
+    url: "https://nyaa.si"
   })
+
+Torrents.create_source(%{
+  name: "TorrentDownloads",
+  url: "https://torrentdownloads.pro"
+})
 
 {:ok, anime_category} = Torrents.create_category(%{name: "Anime"})
 
 Torrents.create_category(%{
-  category_id: anime_category.id,
+  parent_id: anime_category.id,
   name: "Anime - Music Video"
 })
 
 Torrents.create_category(%{
-  category_id: anime_category.id,
-  name: "Anime - English-translated"
+  parent_id: anime_category.id,
+  name: "Anime - English-translated",
+  alternative_names: ["Anime"]
 })
 
 Torrents.create_category(%{
-  category_id: anime_category.id,
+  parent_id: anime_category.id,
   name: "Anime - Non-English translated",
   alternative_names: ["Anime - Non-English-translated"]
 })
 
-Torrents.create_category(%{category_id: anime_category.id, name: "Anime - Raw"})
+Torrents.create_category(%{parent_id: anime_category.id, name: "Anime - Raw"})
 
 {:ok, audio_category} = Torrents.create_category(%{name: "Audio"})
-Torrents.create_category(%{category_id: audio_category.id, name: "Audio - Lossless"})
-Torrents.create_category(%{category_id: audio_category.id, name: "Audio - Lossy"})
+Torrents.create_category(%{parent_id: audio_category.id, name: "Audio - Lossless"})
+
+Torrents.create_category(%{
+  parent_id: audio_category.id,
+  name: "Audio - Lossy",
+  alternative_names: ["Music"]
+})
 
 {:ok, books_category} = Torrents.create_category(%{name: "Books"})
 
 Torrents.create_category(%{
-  category_id: books_category.id,
+  parent_id: books_category.id,
   name: "Books - English-translated",
-  alternative_names: ["Literature - English-translated"]
+  alternative_names: ["Literature - English-translated", "Books"]
 })
 
 Torrents.create_category(%{
-  category_id: books_category.id,
+  parent_id: books_category.id,
   name: "Books - Non-English translated",
   alternative_names: ["Literature - Non-English-translated"]
 })
 
 Torrents.create_category(%{
-  category_id: books_category.id,
+  parent_id: books_category.id,
   name: "Books - Raw",
   alternative_names: ["Literature - Raw"]
 })
@@ -65,37 +76,53 @@ Torrents.create_category(%{
 {:ok, video_category} = Torrents.create_category(%{name: "Video"})
 
 Torrents.create_category(%{
-  category_id: video_category.id,
+  parent_id: video_category.id,
   name: "Video - Movies",
   alternative_names: [
     "Live Action - Raw",
     "Live Action - English-translated",
     "Live Action - Idol-Promotional-video",
-    "Live Action - Non-English-translated"
+    "Live Action - Non-English-translated",
+    "Movies"
   ]
 })
 
-Torrents.create_category(%{category_id: video_category.id, name: "Video - Television"})
-Torrents.create_category(%{category_id: video_category.id, name: "Video - Documentaries"})
-Torrents.create_category(%{category_id: video_category.id, name: "Video - XXX"})
+Torrents.create_category(%{
+  parent_id: video_category.id,
+  name: "Video - Television",
+  alternative_names: ["TV Shows"]
+})
+
+Torrents.create_category(%{parent_id: video_category.id, name: "Video - Documentaries"})
+Torrents.create_category(%{parent_id: video_category.id, name: "Video - XXX"})
 
 {:ok, images_category} = Torrents.create_category(%{name: "Images"})
 
 Torrents.create_category(%{
-  category_id: images_category.id,
+  parent_id: images_category.id,
   name: "Images - Graphics",
   alternative_names: ["Pictures - Graphics"]
 })
 
 Torrents.create_category(%{
-  category_id: images_category.id,
+  parent_id: images_category.id,
   name: "Images - Photos",
   alternative_names: ["Pictures - Photos"]
 })
 
 {:ok, software_category} = Torrents.create_category(%{name: "Software"})
-Torrents.create_category(%{category_id: software_category.id, name: "Software - Applications"})
-Torrents.create_category(%{category_id: software_category.id, name: "Software - Games"})
+
+Torrents.create_category(%{
+  parent_id: software_category.id,
+  name: "Software - Applications",
+  alternative_names: ["Software"]
+})
+
+Torrents.create_category(%{
+  parent_id: software_category.id,
+  name: "Software - Games",
+  alternative_names: ["Games"]
+})
 
 {:ok, other_category} = Torrents.create_category(%{name: "Other"})
 
