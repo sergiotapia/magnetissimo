@@ -70,7 +70,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         |> String.to_integer()
         |> DateTime.from_unix!()
 
-      torrent = %{
+      %{
         canonical_url: canonical_url,
         leechers: leechers,
         magnet_url: magnet_url,
@@ -81,8 +81,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         category_id: category.id,
         source_id: source.id
       }
-
-      Torrents.create_torrent_for_source(torrent, source.name)
+      |> Torrents.create_torrent_for_source(source.name)
     end)
   end
 
@@ -117,7 +116,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
       magnet_url =
         "magnet:?xt=urn:btih:#{magnet_hash}&dn=#{name}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
 
-      torrent = %{
+      %{
         canonical_url: torrent.canonical_url |> List.to_string(),
         leechers: torrent.leechers |> List.to_string() |> Integer.parse() |> elem(0),
         magnet_url: magnet_url,
@@ -129,8 +128,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         category_id: category.id,
         source_id: source.id
       }
-
-      Torrents.create_torrent_for_source(torrent, source.name)
+      |> Torrents.create_torrent_for_source(source.name)
     end)
   end
 
