@@ -1,4 +1,6 @@
-# Phoenix Liveview Rewrite underway!
+# Phoenix Liveview Rewrite underway! Started April, 2023!
+
+Check the ![liveview-rewrite](https://github.com/sergiotapia/magnetissimo/tree/liveview-rewrite) branch
 
 I'm currently rewriting the bulk of the app for a relaunch of sorts,
 using the fantastic Phoenix Liveview.
