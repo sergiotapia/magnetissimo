@@ -23,6 +23,11 @@ Torrents.create_source(%{
   url: "https://torrentdownloads.pro"
 })
 
+Torrents.create_source(%{
+  name: "YTS",
+  url: "https://yts.mx/"
+})
+
 {:ok, anime_category} = Torrents.create_category(%{name: "Anime"})
 
 Torrents.create_category(%{
