@@ -12,12 +12,15 @@ defmodule Magnetissimo.Repo.Migrations.CreateTorrents do
       add :leechers, :integer
       add :seeders, :integer
       add :size_in_bytes, :bigint
+      add :magnet_hash, :text
       add :magnet_url, :text
       add :category_id, references(:categories, on_delete: :nothing, type: :string)
       add :source_id, references(:sources, on_delete: :nothing, type: :string)
 
       timestamps(type: :utc_datetime_usec)
     end
+
+    create unique_index(:torrents, [:magnet_hash])
 
     create index(:torrents, [:category_id])
     create index(:torrents, [:source_id])

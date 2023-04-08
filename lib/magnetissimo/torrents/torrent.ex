@@ -14,6 +14,7 @@ defmodule Magnetissimo.Torrents.Torrent do
     field :description, :string
     field :canonical_url, :string
     field :magnet_url, :string
+    field :magnet_hash, :string
     field :leechers, :integer
     field :seeders, :integer
     field :size_in_bytes, :integer
@@ -36,6 +37,7 @@ defmodule Magnetissimo.Torrents.Torrent do
       :seeders,
       :size_in_bytes,
       :magnet_url,
+      :magnet_hash,
       :category_id,
       :source_id
     ])
@@ -47,9 +49,11 @@ defmodule Magnetissimo.Torrents.Torrent do
       :seeders,
       :size_in_bytes,
       :magnet_url,
+      :magnet_hash,
       :category_id,
       :source_id
     ])
+    |> unique_constraint(:magnet_hash)
     |> put_slug()
   end
 
