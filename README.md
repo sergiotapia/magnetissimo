@@ -1,8 +1,18 @@
-# I've paused development of Magnetissimo to focus on Torrentinim.
+# Phoenix Liveview Rewrite underway!
 
-https://github.com/sergiotapia/torrentinim
+I'm currently rewriting the bulk of the app for a relaunch of sorts,
+using the fantastic Phoenix Liveview.
 
-It's smaller, easier to get running on any platform with native support for Mac, Linux and Windows. Check it out!
+Some good things that are coming really soon:
+
+- Proper sorting by file sizes, bytes are now saved in bigint, not strings!
+- Slick new UI powered by Phoenix Liveview.
+- On-Demand searching. Search for anything and we'll find it!
+- User accounts and custom feeds. Add any torrent to your feed and consume your feeds's JSON API from any other app you may be using.
+- Proper Dockerfile to support easy deploys.
+- Improved guides on how to host this easily on platforms like Render.com and Northflank. (HELP NEEDED FOR THIS ONE!)
+
+---
 
 ![https://i.imgur.com/J6eB3mp.png](https://i.imgur.com/J6eB3mp.png)
 
