@@ -136,7 +136,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
           name: ~x"./title/text()",
           canonical_url: ~x"./link/text()",
           published_at: ~x"./pubDate/text()",
-          magnet_url: ~x"./info_hash/text()",
+          magnet_hash: ~x"./info_hash/text()",
           seeders: ~x"./seeders/text()",
           leechers: ~x"./leechers/text()",
           category: ~x"./category/text()",
@@ -149,7 +149,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     torrents
     |> Enum.each(fn torrent ->
       category = torrent.category |> List.to_string() |> Torrents.get_category_by_name_or_alias!()
-      magnet_hash = torrent.magnet_url |> List.to_string()
+      magnet_hash = torrent.magnet_hash |> List.to_string()
       magnet_name = torrent.name |> List.to_string() |> String.replace(" ", "+")
 
       magnet_url =
@@ -160,6 +160,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
           "https://www.torrentdownloads.pro#{torrent.canonical_url |> List.to_string()}",
         leechers: torrent.leechers |> List.to_string() |> Integer.parse() |> elem(0),
         magnet_url: magnet_url,
+        magnet_hash: magnet_hash,
         name: torrent.name |> List.to_string(),
         published_at: torrent.published_at |> List.to_string() |> parse_published_at(),
         seeders: torrent.seeders |> List.to_string() |> Integer.parse() |> elem(0),

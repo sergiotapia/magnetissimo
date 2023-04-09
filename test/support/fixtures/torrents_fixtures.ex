@@ -43,6 +43,7 @@ defmodule Magnetissimo.TorrentsFixtures do
       |> Enum.into(%{
         leechers: 42,
         magnet_url: "some magnet_url",
+        magnet_hash: "a1426da021392a1dd76ddbffa8c1b635b09538f6",
         name: "some name",
         canonical_url: attrs[:canonical_url] || "https://nyaa.si/",
         seeders: 42,

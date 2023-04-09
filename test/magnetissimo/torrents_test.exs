@@ -18,7 +18,8 @@ defmodule Magnetissimo.TorrentsTest do
           name: "Hello world x265",
           description: "x265",
           canonical_url: "https://foobar.com",
-          category_id: category.id
+          category_id: category.id,
+          magnet_hash: "123"
         })
 
       assert Torrents.search_torrents("x265") == [torrent]
@@ -28,7 +29,8 @@ defmodule Magnetissimo.TorrentsTest do
           name: "American Dad s03e03",
           description: "Funny show",
           canonical_url: "https://barbaz.com",
-          category_id: category.id
+          category_id: category.id,
+          magnet_hash: "222"
         })
 
       torrent_3 =
@@ -36,7 +38,8 @@ defmodule Magnetissimo.TorrentsTest do
           name: "American Idol s01e02",
           description: "Sing",
           canonical_url: "https://bazboo.com",
-          category_id: category.id
+          category_id: category.id,
+          magnet_hash: "333"
         })
 
       assert Torrents.search_torrents("american") == [torrent_2, torrent_3]
@@ -171,6 +174,7 @@ defmodule Magnetissimo.TorrentsTest do
       valid_attrs = %{
         leechers: 42,
         magnet_url: "some magnet_url",
+        magnet_hash: "a1426da021392a1dd76ddbffa8c1b635b09538f6",
         name: "some name",
         description: "Foobarbaz",
         canonical_url: "https://nyaa.si/view/1559131",
