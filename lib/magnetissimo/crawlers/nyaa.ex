@@ -49,8 +49,17 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         |> Floki.attribute("href")
         |> List.first()
 
+      torrent_page_html = get_torrent_page_html(canonical_url)
+      magnet_hash = torrent_page_html |> Floki.find("kbd") |> IO.inspect() |> Floki.text()
+
       name = row |> Floki.find("td") |> Enum.at(1) |> Floki.text()
       size = row |> Floki.find("td") |> Enum.at(3) |> Floki.text() |> Utils.size_to_bytes()
+
+      description =
+        torrent_page_html
+        |> Floki.parse_document!()
+        |> Floki.find("#torrent-description")
+        |> Floki.text()
 
       category =
         row
@@ -74,7 +83,9 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         canonical_url: canonical_url,
         leechers: leechers,
         magnet_url: magnet_url,
+        magnet_hash: magnet_hash,
         name: name,
+        description: description,
         published_at: published_at,
         seeders: seeders,
         size_in_bytes: size,
@@ -110,21 +121,32 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     |> Enum.each(fn torrent ->
       category = torrent.category |> List.to_string() |> Torrents.get_category_by_name_or_alias!()
 
+      torrent_page_html =
+        torrent.canonical_url
+        |> get_torrent_page_html()
+
       name = torrent.name |> List.to_string()
       magnet_hash = torrent.magnet_url |> List.to_string()
 
       magnet_url =
         "magnet:?xt=urn:btih:#{magnet_hash}&dn=#{name}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
 
+      description =
+        torrent_page_html
+        |> Floki.parse_document!()
+        |> Floki.find("#torrent-description")
+        |> Floki.text()
+
       %{
         canonical_url: torrent.canonical_url |> List.to_string(),
         leechers: torrent.leechers |> List.to_string() |> Integer.parse() |> elem(0),
         magnet_url: magnet_url,
+        magnet_hash: magnet_hash,
         name: name,
         published_at: torrent.published_at |> List.to_string() |> parse_published_at(),
         seeders: torrent.seeders |> List.to_string() |> Integer.parse() |> elem(0),
         size_in_bytes: torrent.size |> List.to_string() |> Utils.size_to_bytes(),
-        description: get_torrent_description(torrent.canonical_url),
+        description: description,
         category_id: category.id,
         source_id: source.id
       }
@@ -156,16 +178,13 @@ defmodule Magnetissimo.Crawlers.Nyaa do
     Timex.to_datetime(parsed_datetime, "Etc/UTC")
   end
 
-  @spec get_torrent_description(String.t()) :: String.t()
-  def get_torrent_description(url) do
+  @spec get_torrent_page_html(String.t()) :: String.t()
+  def get_torrent_page_html(url) do
     # Put some respek on they servers.
     Process.sleep(350)
     %{status_code: 200, body: body} = HTTPoison.get!(url)
 
     body
-    |> Floki.parse_document!()
-    |> Floki.find("#torrent-description")
-    |> Floki.text()
   end
 
   @spec get_search_page_html(binary(), integer()) :: binary()
