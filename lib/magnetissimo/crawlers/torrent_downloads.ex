@@ -71,6 +71,18 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
       |> Floki.attribute("href")
       |> List.first()
 
+    magnet_hash =
+      torrent_page_html
+      |> Floki.find(".grey_bar1, .grey_bara1")
+      |> Enum.filter(fn item ->
+        item |> Floki.text() |> String.contains?("Infohash")
+      end)
+      |> List.first()
+      |> Floki.text()
+      |> String.split(": ")
+      |> List.last()
+      |> String.trim()
+
     size_in_bytes =
       torrent_page_html
       |> Floki.find(".grey_bar1, .grey_bara1")
@@ -104,6 +116,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
       leechers: leechers,
       seeders: seeders,
       magnet_url: magnet_url,
+      magnet_hash: magnet_hash,
       source_id: source.id,
       size_in_bytes: size_in_bytes,
       published_at: published_at,
