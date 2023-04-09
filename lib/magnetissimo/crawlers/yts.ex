@@ -56,6 +56,7 @@ defmodule Magnetissimo.Crawlers.Yts do
         leechers: torrent_json["peers"],
         seeders: torrent_json["seeds"],
         magnet_url: magnet_url,
+        magnet_hash: magnet_hash,
         name: name,
         published_at: published_at,
         size_in_bytes: torrent_json["size_bytes"],
