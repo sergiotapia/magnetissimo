@@ -54,6 +54,7 @@ defmodule Magnetissimo.Torrents.Torrent do
       :source_id
     ])
     |> unique_constraint(:magnet_hash)
+    |> validate_length(:magnet_hash, min: 40, max: 40)
     |> put_slug()
   end
 
