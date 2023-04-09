@@ -37,7 +37,7 @@ defmodule Magnetissimo.Crawlers.Yts do
     |> Enum.each(&Torrents.create_torrent_for_source(&1, source.name))
   end
 
-  @spec parse_torrent_json(map(), Category.t(), Source.t()) :: List[map()]
+  @spec parse_torrent_json(map(), Category.t(), Source.t()) :: list(map())
   def parse_torrent_json(movie_json, category, source) do
     movie_json["torrents"]
     |> Enum.map(fn torrent_json ->
@@ -45,7 +45,7 @@ defmodule Magnetissimo.Crawlers.Yts do
       magnet_hash = torrent_json["hash"]
 
       magnet_url =
-        "magnet:?xt=urn:btih:#{magnet_hash}&dn=#{name}&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.tracker.cl%3A1337%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2970%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fipv4.tracker.harry.lu%3A80%2Fannounce&tr=https%3A%2F%2Fopentracker.i2p.rocks%3A443%2Fannounce"
+        "?xt=urn:btih:#{magnet_hash}&dn=#{name}&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fopen.tracker.cl%3A1337%2Fannounce&tr=udp%3A%2F%2F9.rarbg.me%3A2970%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.dler.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Fipv4.tracker.harry.lu%3A80%2Fannounce&tr=https%3A%2F%2Fopentracker.i2p.rocks%3A443%2Fannounce"
 
       published_at =
         torrent_json["date_uploaded_unix"]

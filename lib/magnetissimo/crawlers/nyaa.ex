@@ -48,6 +48,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         |> List.first()
         |> Floki.attribute("href")
         |> List.first()
+        |> String.replace("magnet:", "")
 
       torrent_page_html = get_torrent_page_html(canonical_url)
       magnet_hash = torrent_page_html |> Floki.find("kbd") |> IO.inspect() |> Floki.text()
@@ -129,7 +130,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
       magnet_hash = torrent.magnet_url |> List.to_string()
 
       magnet_url =
-        "magnet:?xt=urn:btih:#{magnet_hash}&dn=#{name}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
+        "?xt=urn:btih:#{magnet_hash}&dn=#{name}&tr=http%3A%2F%2Fnyaa.tracker.wf%3A7777%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce"
 
       description =
         torrent_page_html

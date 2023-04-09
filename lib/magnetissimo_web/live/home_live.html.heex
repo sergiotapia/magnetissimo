@@ -1,0 +1,8 @@
+<p class="text-2xl">test</p>
+
+<div id="torrents" phx-update="stream">
+  <div :for={{dom_id, torrent} <- @streams.torrents} id={dom_id}>
+    <p><%= torrent.name %></p>
+    <.link href={{:magnet, torrent.magnet_url}}>download</.link>
+  </div>
+</div>

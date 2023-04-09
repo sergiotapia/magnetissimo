@@ -55,6 +55,9 @@ defmodule Magnetissimo.Torrents.Torrent do
     ])
     |> unique_constraint(:magnet_hash)
     |> validate_length(:magnet_hash, min: 40, max: 40)
+    |> validate_format(:magnet_url, ~r/^(?!magnet:)/,
+      message: "must not start with `magnet:` - we add that on the frontend."
+    )
     |> put_slug()
   end
 
