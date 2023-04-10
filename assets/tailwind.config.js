@@ -14,6 +14,8 @@ module.exports = {
         sky: "#013778",
         water: "#77e2f4",
         sand: "#c2ccbe",
+        tree: "##84b85d",
+        grass: "#b1c34d",
       },
     },
   },
