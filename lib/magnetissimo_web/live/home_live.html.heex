@@ -1,8 +1,17 @@
-<p class="text-2xl">test</p>
+<.box>
+  <button data-details="Find">Search</button>
+  <button data-details="Find">Latest</button>
+  <button data-details="Find">My Feeds</button>
+  <button data-details="Find">Github</button>
+</.box>
 
-<div id="torrents" phx-update="stream">
-  <div :for={{dom_id, torrent} <- @streams.torrents} id={dom_id}>
-    <p><%= torrent.name %></p>
-    <.link href={{:magnet, torrent.magnet_url}}>download</.link>
+<.box>
+  <div id="torrents" phx-update="stream">
+    <div :for={{dom_id, torrent} <- @streams.torrents} id={dom_id}>
+
+        <p><%= torrent.name %></p>
+        <.link href={{:magnet, torrent.magnet_url}}>download</.link>
+
+    </div>
   </div>
-</div>
+</.box>

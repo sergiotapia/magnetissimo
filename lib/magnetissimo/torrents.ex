@@ -286,7 +286,14 @@ defmodule Magnetissimo.Torrents do
   """
   @spec list_torrents() :: [Torrent.t()]
   def list_torrents do
-    Repo.all(Torrent)
+    q =
+      from(t in Torrent,
+        preload: [:source, :category],
+        order_by: [desc: t.inserted_at],
+        limit: 10
+      )
+
+    Repo.all(q)
   end
 
   @doc """
