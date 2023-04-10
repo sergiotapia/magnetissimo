@@ -5,7 +5,7 @@
 /* This file is for your main application CSS */
 
 body {
-  height: 100vh;
+  @apply min-h-screen;
 }
 
 .sidebar {
@@ -60,7 +60,7 @@ body {
   transform: rotate(2deg);
 }
 
-.globe { 
+.globe {
   position: absolute;
   top: 0;
   left: 0;

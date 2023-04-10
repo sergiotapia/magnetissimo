@@ -1,15 +1,15 @@
-<.box>
+<.box class="mb-16">
   <.button>Search</.button>
   <.button>Latest</.button>
   <.button>My Feeds</.button>
   <.button>Github</.button>
 </.box>
 
-<.box class="bg-white/40 backdrop-blur-2xl">
-  <div id="torrents" phx-update="stream">
-    <div :for={{dom_id, torrent} <- @streams.torrents} id={dom_id}>
-      <p><%= torrent.name %></p>
-      <.link href={{:magnet, torrent.magnet_url}}>download</.link>
-    </div>
-  </div>
-</.box>
+<div id="torrents" phx-update="stream">
+  <MagnetissimoWeb.Components.Torrents.search_result
+    :for={{dom_id, torrent} <- @streams.torrents}
+    torrent={torrent}
+    id={dom_id}
+    class="bg-white/40 backdrop-blur-2xl mb-4"
+  />
+</div>

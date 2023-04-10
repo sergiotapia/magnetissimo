@@ -1,10 +1,8 @@
 defmodule MagnetissimoWeb.Components.Containers do
   use Phoenix.Component
 
-  alias Phoenix.LiveView.JS
-  import MagnetissimoWeb.Gettext
-
   attr(:class, :string, default: "")
+  attr(:id, :string)
   slot(:inner_block, required: true)
 
   def box(assigns) do

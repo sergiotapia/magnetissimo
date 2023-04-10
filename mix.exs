@@ -57,7 +57,8 @@ defmodule Magnetissimo.MixProject do
       {:slugify, "~> 1.3"},
       {:sweet_xml, "~> 0.7.3"},
       {:httpoison, "~> 2.1"},
-      {:timex, "~> 3.7"}
+      {:timex, "~> 3.7"},
+      {:size, "~> 0.1.1"}
     ]
   end
 
