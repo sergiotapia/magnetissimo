@@ -5,7 +5,7 @@
   <.button>Github</.button>
 </.box>
 
-<.box>
+<.box class="bg-white/40 backdrop-blur-2xl">
   <div id="torrents" phx-update="stream">
     <div :for={{dom_id, torrent} <- @streams.torrents} id={dom_id}>
       <p><%= torrent.name %></p>

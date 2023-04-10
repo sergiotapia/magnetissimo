@@ -15,6 +15,12 @@
     <div class="flex flex-row h-screen">
       <div class="pt-10 relative sidebar w-1/5 bg-gradient-to-b from-tree to-grass border-r-2 border-neutral-50 z-10">
         <.box class="mx-3 mb-4">
+          <.link navigate={~p"/"}>
+            <h1 class="mb-4">Magnetissimo</h1>
+          </.link>
+        </.box>
+
+        <.box class="mx-3 mb-4">
           <MagnetissimoWeb.Layouts.Sidebar.auth current_user={@current_user} />
         </.box>
 

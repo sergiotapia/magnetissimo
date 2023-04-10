@@ -24,45 +24,28 @@ defmodule MagnetissimoWeb.Layouts.Sidebar do
   def auth(assigns) do
     ~H"""
     <div>
-      <p>asdasdasd</p>
+      <h2 class="text-white font-bold underline underline-offset-4 mb-4">Account</h2>
+
       <%= if @current_user do %>
-        <li class="text-[0.8125rem] leading-6 text-zinc-900">
-          <%= @current_user.email %>
-        </li>
-        <li>
-          <.link
-            href={~p"/users/settings"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Settings
-          </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/users/log_out"}
-            method="delete"
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Log out
-          </.link>
-        </li>
+        Welcome back, <%= @current_user.email %>
+        <.link href={~p"/users/settings"} class="block text-white hover:text-zinc-700">
+          Settings
+        </.link>
+        <.link href={~p"/users/log_out"} method="delete" class="block text-white hover:text-zinc-700">
+          Log out
+        </.link>
       <% else %>
-        <li>
-          <.link
-            href={~p"/users/register"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Register
-          </.link>
-        </li>
-        <li>
-          <.link
-            href={~p"/users/log_in"}
-            class="text-[0.8125rem] leading-6 text-zinc-900 font-semibold hover:text-zinc-700"
-          >
-            Log in
-          </.link>
-        </li>
+        <.link href={~p"/users/register"} class="block text-white hover:text-zinc-700">
+          Register
+        </.link>
+        <.link href={~p"/users/log_in"} class="block text-white hover:text-zinc-700">
+          Log in
+        </.link>
+
+        <p class="text-sm italic">
+          <span class="font-bold">Why do I need an account?</span>
+          You don't. Only create an account if you want to manage feeds.
+        </p>
       <% end %>
     </div>
     """
