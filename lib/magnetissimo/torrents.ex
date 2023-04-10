@@ -7,9 +7,35 @@ defmodule Magnetissimo.Torrents do
   require Logger
   alias Magnetissimo.Repo
 
+  alias Magnetissimo.Torrents.Torrent
   alias Magnetissimo.Torrents.Category
   alias Magnetissimo.Torrents.Source
   alias Magnetissimo.Torrents.Torrent
+
+  @doc """
+  Returns a list of crawler statistics for every source
+  in the database. How many torrents we've indexed per source.
+
+  ## Examples
+
+      iex> get_crawler_statistics()
+      [
+        {"rarbg", 200},
+        {"yts", 123},
+        {"1337x", 39}
+      ]
+  """
+  @spec get_crawler_statistics() :: [{binary(), integer()}]
+  def get_crawler_statistics do
+    query =
+      from(t in Torrent,
+        inner_join: source in assoc(t, :source),
+        group_by: [source.name, source.id],
+        select: {source.name, count(t.id)}
+      )
+
+    Repo.all(query)
+  end
 
   @doc """
   Returns the list of torrents by performing a full-text

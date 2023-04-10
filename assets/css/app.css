@@ -8,6 +8,10 @@ body {
   height: 100vh;
 }
 
+.sidebar {
+  box-shadow: 7px 0px 20px rgb(0 0 0 / 20%);
+}
+
 .button {
   @apply bg-transparent border-0 text-white box-border h-12 relative rounded px-3 cursor-pointer outline-0;
   transition: box-shadow 250ms, top 50ms, color 250ms;
@@ -24,6 +28,7 @@ body {
 .button:hover {
   box-shadow: 0 0 1em 0.5ex rgba(255, 255, 255, 0.3);
 }
+
 .box {
   border-radius: 5px;
   backdrop-filter: blur(2px);
@@ -32,4 +37,32 @@ body {
   border-bottom-color: rgba(255, 255, 255, 0.2);
   box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
   padding: 15px;
+}
+
+.fish-1 {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  transform: rotate(10deg);
+}
+
+.fish-2 {
+  position: absolute;
+  bottom: 169px;
+  right: 137px;
+  transform: rotate(328deg);
+}
+
+.fish-3 {
+  position: absolute;
+  bottom: 173px;
+  right: 30px;
+  transform: rotate(2deg);
+}
+
+.globe { 
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 325px;
 }
