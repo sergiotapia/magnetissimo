@@ -1,17 +1,15 @@
 <.box>
-  <button data-details="Find">Search</button>
-  <button data-details="Find">Latest</button>
-  <button data-details="Find">My Feeds</button>
-  <button data-details="Find">Github</button>
+  <.button>Search</.button>
+  <.button>Latest</.button>
+  <.button>My Feeds</.button>
+  <.button>Github</.button>
 </.box>
 
 <.box>
   <div id="torrents" phx-update="stream">
     <div :for={{dom_id, torrent} <- @streams.torrents} id={dom_id}>
-
-        <p><%= torrent.name %></p>
-        <.link href={{:magnet, torrent.magnet_url}}>download</.link>
-
+      <p><%= torrent.name %></p>
+      <.link href={{:magnet, torrent.magnet_url}}>download</.link>
     </div>
   </div>
 </.box>

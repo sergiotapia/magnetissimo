@@ -4,30 +4,26 @@
 
 /* This file is for your main application CSS */
 
-button {
-  background-color: transparent;
-  border: 0;  
-  color: rgba(255,255,255,1);
-  box-shadow: 0em 0 5px 5px rgba(0,0,0,0.1);
-  background-image: radial-gradient(ellipse 300% 110% at top center,
-  rgba(255,200,200,0.2) 0%, 
-  rgba(255,220,220,0.4) 49%,
-  rgba(255,220,229,0.3) 50%,
-  rgba(255,255,255,0.2) 100%);
-  box-sizing: border-box; 
-  height: 3em;
-  position: relative;
-  border-radius: 10px;
-  padding: 0 10px;
-  transition: box-shadow 250ms, top 50ms, color 250ms;
-  cursor: pointer;
-  outline: 0;
-  
-  &:hover {
-    box-shadow: 0 0 1em 0.5ex rgba(255, 255, 255, 0.3);
-  }
+body {
+  height: 100vh;
 }
 
+.button {
+  @apply bg-transparent border-0 text-white box-border h-12 relative rounded px-3 cursor-pointer outline-0;
+  transition: box-shadow 250ms, top 50ms, color 250ms;
+  box-shadow: 0em 0 5px 5px rgba(0, 0, 0, 0.1);
+  background-image: radial-gradient(
+    ellipse 300% 110% at top center,
+    rgba(255, 200, 200, 0.2) 0%,
+    rgba(255, 220, 220, 0.4) 49%,
+    rgba(255, 220, 229, 0.3) 50%,
+    rgba(255, 255, 255, 0.2) 100%
+  );
+}
+
+.button:hover {
+  box-shadow: 0 0 1em 0.5ex rgba(255, 255, 255, 0.3);
+}
 .box {
   border-radius: 5px;
   backdrop-filter: blur(2px);
