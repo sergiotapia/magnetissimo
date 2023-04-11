@@ -19,52 +19,42 @@ defmodule MagnetissimoWeb.Header do
 
   def render(assigns) do
     ~H"""
-    <header>
-      <div class="mx-auto px-6 w-full max-w-screen-xl">
-        <div class="h-20 grid grid-cols-3 items-center">
-          <div>
-            <%!-- <.link>
-              <img src="/images/logo.svg" alt="Magnetissimo" />
-            </.link> --%>
-          </div>
+    <header class="w-screen px-6 mx-auto border border-red-600 max-w-screen-2xl py-7">
+      <div class="flex items-center justify-between">
+        <.link class="inline-block mr-8" href={~p"/"}>
+          <h1 class="text-4xl font-bold">Magnetissimo</h1>
+        </.link>
+        <.link navigate={~p"/"} class="inline-block mr-5">Search</.link>
+        <.link navigate={~p"/latest"} class="inline-block mr-5">Latest</.link>
+        <.link navigate={~p"/feeds"} class="inline-block mr-5">Feeds</.link>
+        <.link
+          href="https://github.com/sergiotapia/magnetissimo"
+          target="_blank"
+          class="inline-block mr-5"
+        >
+          Github
+        </.link>
 
-          <div class="flex justify-center">
-            <button class="py-2 px-4 flex items-center gap-1 bg-neutral-100 rounded-full text-neutral-500">
-              <div class="text-sm font-semibold">33k magnets</div>
-              <.icon name="hero-chevron-right-mini" class="w-4 h-4" />
-            </button>
-          </div>
-
-          <div class="flex justify-end">
-            <div>
-              <h2 class="text-white font-bold underline underline-offset-4 mb-4">Account</h2>
-
-              <%= if @current_user do %>
-                Welcome back, <%= @current_user.email %>
-                <.link href={~p"/users/settings"}>
-                  Settings
-                </.link>
-                <.link href={~p"/users/log_out"} method="delete">
-                  Log out
-                </.link>
-              <% else %>
-                <.link href={~p"/users/register"}>
-                  Register
-                </.link>
-                <.link href={~p"/users/log_in"}>
-                  Log in
-                </.link>
-
-                <p class="text-sm italic">
-                  <span class="font-bold">Why do I need an account?</span>
-                  You don't. Only create an account if you want to manage feeds.
-                </p>
-              <% end %>
-            </div>
-          </div>
+        <div class="flex">
+          <%= if @current_user do %>
+            <span class="inline-block mr-5">
+              Welcome back, <%= @current_user.email %>!
+            </span>
+            <.link class="inline-block mr-5" href={~p"/users/settings"}>
+              Settings
+            </.link>
+            <.link href={~p"/users/log_out"} method="delete">
+              Log out
+            </.link>
+          <% else %>
+            <.link class="inline-block mr-8" href={~p"/users/register"}>
+              Register
+            </.link>
+            <.link href={~p"/users/log_in"}>
+              Log in
+            </.link>
+          <% end %>
         </div>
-
-        <hr class="my-8 border-black/10" />
       </div>
     </header>
     """

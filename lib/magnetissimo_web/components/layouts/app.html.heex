@@ -1,13 +1,13 @@
-<div class="min-h-screen flex flex-col">
+<div class="flex flex-col min-h-screen">
   <.live_component module={MagnetissimoWeb.Header} id="header" current_user={@current_user} />
 
   <.flash_group flash={@flash} />
 
-  <div class="flex-1 mx-auto px-6 pb-8 w-full max-w-screen-xl">
+  <div class="w-screen px-6 py-8 mx-auto border border-red-800 max-w-screen-2xl">
     <%= @inner_content %>
   </div>
 
   <footer class="py-4 shadow-[0_-1px_0_rgba(0,0,0,.1)]">
-    <div class="text-sm text-neutral-500 text-center">GitHub contribution here</div>
+    <div class="text-sm text-center text-neutral-500">GitHub contribution here</div>
   </footer>
 </div>
