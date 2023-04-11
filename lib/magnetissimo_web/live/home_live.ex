@@ -7,7 +7,7 @@ defmodule MagnetissimoWeb.HomeLive do
   def mount(params, _session, socket) do
     socket =
       socket
-      |> assign_search_term(params["search_term"])
+      # |> assign_search_term(params["search_term"])
       |> assign_torrents(params["search_term"])
 
     {:ok, socket}
@@ -16,43 +16,43 @@ defmodule MagnetissimoWeb.HomeLive do
   def handle_params(params, _uri, socket) do
     socket =
       socket
-      |> assign_search_term(params["search_term"])
+      # |> assign_search_term(params["search_term"])
       |> assign_torrents(params["search_term"])
 
     {:noreply, socket}
   end
 
-  def handle_event("submit", %{"search" => %{"search_term" => search_term}}, socket) do
-    {:noreply,
-     push_patch(socket,
-       to: ~p"/search/#{search_term}",
-       replace: true
-     )}
-  end
+  # def handle_event("submit", %{"search" => %{"search_term" => search_term}}, socket) do
+  #   {:noreply,
+  #    push_patch(socket,
+  #      to: ~p"/search/#{search_term}",
+  #      replace: true
+  #    )}
+  # end
 
-  def handle_event("search", %{"search" => %{"search_term" => ""}}, socket) do
-    {:noreply,
-     push_patch(socket,
-       to: ~p"/",
-       replace: true
-     )}
-  end
+  # def handle_event("search", %{"search" => %{"search_term" => ""}}, socket) do
+  #   {:noreply,
+  #    push_patch(socket,
+  #      to: ~p"/",
+  #      replace: true
+  #    )}
+  # end
 
-  def handle_event("search", %{"search" => %{"search_term" => search_term}}, socket) do
-    {:noreply,
-     push_patch(socket,
-       to: ~p"/search/#{search_term}",
-       replace: true
-     )}
-  end
+  # def handle_event("search", %{"search" => %{"search_term" => search_term}}, socket) do
+  #   {:noreply,
+  #    push_patch(socket,
+  #      to: ~p"/search/#{search_term}",
+  #      replace: true
+  #    )}
+  # end
 
-  defp assign_search_term(socket, nil) do
-    assign(socket, :search_term, nil)
-  end
+  # defp assign_search_term(socket, nil) do
+  #   assign(socket, :search_term, nil)
+  # end
 
-  defp assign_search_term(socket, search_term) do
-    assign(socket, :search_term, search_term)
-  end
+  # defp assign_search_term(socket, search_term) do
+  #   assign(socket, :search_term, search_term)
+  # end
 
   defp assign_torrents(socket, nil) do
     torrents = Torrents.list_torrents()

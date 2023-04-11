@@ -185,11 +185,9 @@ defmodule MagnetissimoWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
-        <%= render_slot(@inner_block, f) %>
-        <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
-          <%= render_slot(action, f) %>
-        </div>
+      <%= render_slot(@inner_block, f) %>
+      <div :for={action <- @actions} class="mt-2 flex items-center justify-between gap-6">
+        <%= render_slot(action, f) %>
       </div>
     </.form>
     """
@@ -240,6 +238,7 @@ defmodule MagnetissimoWeb.CoreComponents do
   attr(:name, :any)
   attr(:label, :string, default: nil)
   attr(:value, :any)
+  attr(:class, :string, default: nil)
 
   attr(:type, :string,
     default: "text",
@@ -350,6 +349,7 @@ defmodule MagnetissimoWeb.CoreComponents do
           "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           "phx-no-feedback:border-zinc-300 phx-no-feedback:focus:border-zinc-400",
           "border-zinc-300 focus:border-zinc-400",
+          @class,
           @errors != [] && "border-rose-400 focus:border-rose-400"
         ]}
         {@rest}
@@ -434,6 +434,7 @@ defmodule MagnetissimoWeb.CoreComponents do
 
   slot :col, required: true do
     attr(:label, :string)
+    attr(:class, :string)
   end
 
   slot(:action, doc: "the slot for showing user actions in the last table column")
@@ -445,38 +446,36 @@ defmodule MagnetissimoWeb.CoreComponents do
       end
 
     ~H"""
-    <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-[40rem] mt-11 sm:w-full">
+    <div class="w-full">
+      <table class="border-collapse table-auto w-full">
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
-            <th :for={col <- @col} class="p-0 pr-6 pb-4 font-normal"><%= col[:label] %></th>
-            <th class="relative p-0 pb-4"><span class="sr-only"><%= gettext("Actions") %></span></th>
+            <th
+              :for={col <- @col}
+              class="p-4 text-xs font-semibold tracking-wide uppercase text-neutral-800/60"
+            >
+              <%= col[:label] %>
+            </th>
           </tr>
         </thead>
         <tbody
           id={@id}
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
-          class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
+          class="relative divide-y divide-black/10 border-t border-black/10 text-sm leading-6 text-neutral-800"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-gradient-to-r hover:from-neutral-50">
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
-              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
+              class={["py-3 px-4", @row_click && "hover:cursor-pointer", col[:class]]}
             >
-              <div class="block py-4 pr-6">
-                <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
-                <span class={["relative", i == 0 && "font-semibold text-zinc-900"]}>
-                  <%= render_slot(col, @row_item.(row)) %>
-                </span>
-              </div>
+              <%= render_slot(col, @row_item.(row)) %>
             </td>
-            <td :if={@action != []} class="relative w-14 p-0">
+            <td :if={@action != []} class="">
               <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
-                <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
                 <span
                   :for={action <- @action}
-                  class="relative ml-4 font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+                  class="relative font-semibold leading-6 text-neutral-800 hover:text-neutral-800"
                 >
                   <%= render_slot(action, @row_item.(row)) %>
                 </span>

@@ -1,21 +1,86 @@
+<%!-- <h1 class="mb-4 text-3xl font-extrabold tracking-tight">Search the seas.</h1>
 <.simple_form :let={f} for={%{}} as={:search} phx-change="search" phx-submit="submit">
-  <.input phx_debounce="300" field={f[:search_term]} label="Search Term" value={@search_term} />
+  <.input
+    phx_debounce="300"
+    field={f[:search_term]}
+    value={@search_term}
+    placeholder="Search anything"
+    class="mt-0 p-5 bg-neutral-100 border-0 rounded-xl sm:text-base tracking-tight placeholder:text-neutral-400"
+  />
+
+  <div class="mt-3 flex flex-nowrap gap-3 overflow-x-auto overflow-hidden">
+    <button :for={_ <- 0..9} class="shrink-0 py-2 px-4 bg-neutral-200 rounded-lg text-sm">
+      Recent search value
+    </button>
+  </div>
 </.simple_form>
 
-<.table id="torrents" rows={@torrents}>
-  <:col :let={torrent} label="Category"><%= torrent.category.name %></:col>
-  <:col :let={torrent} label="Source"><%= torrent.source.name %></:col>
-  <:col :let={torrent} label="Name">
-    <.link navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
-      <%= torrent.name %>
-    </.link>
-  </:col>
-  <:col :let={torrent} label="Filesize">
-    <%= torrent.size_in_bytes |> Size.humanize!() %>
-  </:col>
-  <:col :let={torrent} label="Seeders"><%= torrent.seeders %></:col>
-  <:col :let={torrent} label="Leechers"><%= torrent.leechers %></:col>
-  <:col :let={torrent} label="Magnet URL">
-    <.link href={{:magnet, torrent.magnet_url}}>Download</.link>
-  </:col>
-</.table>
+<hr class="my-8 border-black/10" /> --%>
+
+<div class="grid grid-cols-[14rem_minmax(0px,_1fr)] items-start gap-8">
+  <div>
+    <div class="mb-2 text-lg font-bold tracking-tight">Filters</div>
+
+    <div class="flex flex-col">
+      <button
+        :for={_ <- 0..4}
+        class="group flex items-center gap-1"
+      >
+        <div class="w-1 h-6 bg-black rounded-full"></div>
+
+        <div class="flex-1 py-2 px-2 bg-neutral-100 rounded-lg flex items-baseline justify-between">
+          <div class="text-sm">Index site</div>
+          <div class="text-xs text-neutral-500">420</div>
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <div>
+    <div class="p-4 flex justify-center">
+      <svg class="animate-spin h-6 w-6 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    </div>
+
+    <div class="mb-6 border border-black/10 rounded-xl overflow-hidden">
+      <.table id="torrents" rows={@torrents}>
+        <:col :let={torrent} label="Name" class="w-full">
+          <.link navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
+            <div class="text-sm font-medium"><%= torrent.name %></div>
+            <div class="text-sm font-normal text-neutral-500"><%= torrent.category.name %></div>
+          </.link>
+        </:col>
+        <:col :let={torrent} label="Filesize" class="font-mono tabular-nums">
+            <%= torrent.size_in_bytes |> Size.humanize!() %>
+        </:col>
+
+        <:col :let={torrent} label="Seeds" class="font-mono tabular-nums">
+          <%= torrent.seeders %>
+        </:col>
+
+        <:col :let={torrent} label="Peers" class="font-mono tabular-nums">
+          <%= torrent.leechers %>
+        </:col>
+        
+        <:col :let={torrent} label="Source">
+          <%= torrent.source.name %>
+        </:col>
+
+        <:col :let={torrent} label="Magnet" class="flex items-center justify-center">
+          <.link
+            href={{:magnet, torrent.magnet_url}}
+            class="p-2 inline-block ring-inset ring-1 ring-black/[.15] hover:bg-neutral-100 rounded-full text-neutral-700"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3h-3c-1.103 0-2 .897-2 2v8c0 1.103-.897 2-2 2s-2-.897-2-2V5c0-1.103-.897-2-2-2H5c-1.103 0-2 .897-2 2v8c0 4.963 4.037 9 9 9s9-4.037 9-9V5c0-1.103-.897-2-2-2zm-3 2h3v3h-3V5zM5 5h3v3H5V5zm7 15c-3.859 0-7-3.141-7-7v-3h3v3c0 2.206 1.794 4 4 4s4-1.794 4-4v-3h3v3c0 3.859-3.141 7-7 7z"></path></svg>
+          </.link>
+        </:col>
+      </.table>
+    </div>
+    
+    <%!-- <div class="flex justify-center gap-1">
+      <button :for{_ <- 0..4} class="py-2 px-4 hover:bg-neutral-200 rounded text-sm font-bold">3</button>
+    </div> --%>
+  </div>
+</div>
