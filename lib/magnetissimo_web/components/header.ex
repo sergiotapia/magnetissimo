@@ -36,27 +36,33 @@ defmodule MagnetissimoWeb.Header do
           </div>
 
           <div class="flex justify-end">
-            <div>account</div>
-            <div>toggle</div>
+            <div>
+              <h2 class="text-white font-bold underline underline-offset-4 mb-4">Account</h2>
+
+              <%= if @current_user do %>
+                Welcome back, <%= @current_user.email %>
+                <.link href={~p"/users/settings"}>
+                  Settings
+                </.link>
+                <.link href={~p"/users/log_out"} method="delete">
+                  Log out
+                </.link>
+              <% else %>
+                <.link href={~p"/users/register"}>
+                  Register
+                </.link>
+                <.link href={~p"/users/log_in"}>
+                  Log in
+                </.link>
+
+                <p class="text-sm italic">
+                  <span class="font-bold">Why do I need an account?</span>
+                  You don't. Only create an account if you want to manage feeds.
+                </p>
+              <% end %>
+            </div>
           </div>
         </div>
-
-        <h1 class="mb-4 text-3xl font-extrabold tracking-tight">Search the seas.</h1>
-        <%!-- <.simple_form :let={f} for={%{}} as={:search} phx-change="search" phx-submit="submit">
-          <.input
-            phx_debounce="300"
-            field={f[:search_term]}
-            value={@search_term}
-            placeholder="Search anything"
-            class="mt-0 p-5 bg-neutral-100 border-0 rounded-xl sm:text-base tracking-tight placeholder:text-neutral-400"
-          />
-
-          <div class="mt-3 flex flex-nowrap gap-3 overflow-x-auto overflow-hidden">
-            <button :for={_ <- 0..9} class="shrink-0 py-2 px-4 bg-neutral-200 rounded-lg text-sm">
-              Recent search value
-            </button>
-          </div>
-        </.simple_form> --%>
 
         <hr class="my-8 border-black/10" />
       </div>

@@ -19,11 +19,6 @@ defmodule MagnetissimoWeb.Router do
 
   scope "/", MagnetissimoWeb do
     pipe_through(:browser)
-
-    live("/", HomeLive)
-    live("/search/:search_term", HomeLive)
-
-    live("/torrents/:torrent_id/:torrent_slug", TorrentLive)
   end
 
   # Other scopes may use custom stacks.
@@ -83,6 +78,11 @@ defmodule MagnetissimoWeb.Router do
       on_mount: [{MagnetissimoWeb.UserAuth, :mount_current_user}] do
       live("/users/confirm/:token", UserConfirmationLive, :edit)
       live("/users/confirm", UserConfirmationInstructionsLive, :new)
+
+      live("/", HomeLive)
+      live("/search/:search_term", HomeLive)
+
+      live("/torrents/:torrent_id/:torrent_slug", TorrentLive)
     end
   end
 end
