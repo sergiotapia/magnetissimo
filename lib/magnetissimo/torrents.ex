@@ -323,6 +323,18 @@ defmodule Magnetissimo.Torrents do
     Repo.all(q)
   end
 
+  @spec list_latest_torrents() :: [Torrent.t()]
+  def list_latest_torrents() do
+    q =
+      from(t in Torrent,
+        preload: [:source, :category],
+        order_by: [desc: t.inserted_at],
+        limit: 25
+      )
+
+    Repo.all(q)
+  end
+
   @doc """
   Gets a single torrent.
 
