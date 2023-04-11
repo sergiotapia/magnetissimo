@@ -5,7 +5,11 @@
 <.table id="torrents" rows={@torrents}>
   <:col :let={torrent} label="Category"><%= torrent.category.name %></:col>
   <:col :let={torrent} label="Source"><%= torrent.source.name %></:col>
-  <:col :let={torrent} label="Name"><%= torrent.name %></:col>
+  <:col :let={torrent} label="Name">
+    <.link navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
+      <%= torrent.name %>
+    </.link>
+  </:col>
   <:col :let={torrent} label="Filesize">
     <%= torrent.size_in_bytes |> Size.humanize!() %>
   </:col>

@@ -121,7 +121,15 @@ Torrents.create_category(%{
 Torrents.create_category(%{
   parent_id: software_category.id,
   name: "Software - Applications",
-  alternative_names: ["Software", "Mac", "Linux", "Windows", "Apps", "Apple"]
+  alternative_names: [
+    "Software",
+    "Mac",
+    "Linux",
+    "Windows",
+    "Apps",
+    "Apple",
+    "Other operating systems"
+  ]
 })
 
 Torrents.create_category(%{

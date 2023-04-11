@@ -22,6 +22,8 @@ defmodule MagnetissimoWeb.Router do
 
     live("/", HomeLive)
     live("/search/:search_term", HomeLive)
+
+    live("/torrents/:torrent_id/:torrent_slug", TorrentLive)
   end
 
   # Other scopes may use custom stacks.

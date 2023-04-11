@@ -22,6 +22,14 @@ defmodule MagnetissimoWeb.HomeLive do
     {:noreply, socket}
   end
 
+  def handle_event("submit", %{"search" => %{"search_term" => search_term}}, socket) do
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/search/#{search_term}",
+       replace: true
+     )}
+  end
+
   def handle_event("search", %{"search" => %{"search_term" => ""}}, socket) do
     {:noreply,
      push_patch(socket,
