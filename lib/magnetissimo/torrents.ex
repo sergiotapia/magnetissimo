@@ -61,7 +61,8 @@ defmodule Magnetissimo.Torrents do
             "ts_rank_cd(search_vector, websearch_to_tsquery(?), 4)",
             ^search_term
           )
-        }
+        },
+        preload: [:source, :category]
       )
 
     Repo.all(query)
@@ -316,7 +317,7 @@ defmodule Magnetissimo.Torrents do
       from(t in Torrent,
         preload: [:source, :category],
         order_by: [desc: t.inserted_at],
-        limit: 10
+        limit: 25
       )
 
     Repo.all(q)

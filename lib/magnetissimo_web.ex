@@ -85,7 +85,6 @@ defmodule MagnetissimoWeb do
       import Phoenix.HTML
       # Core UI components and translation
       import MagnetissimoWeb.CoreComponents
-      import MagnetissimoWeb.Components.Containers
       import MagnetissimoWeb.Gettext
 
       # Shortcut for generating JS commands

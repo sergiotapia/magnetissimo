@@ -4,7 +4,63 @@ defmodule MagnetissimoWeb.HomeLive do
   alias Magnetissimo.Torrents
 
   @impl true
-  def mount(_params, _session, socket) do
-    {:ok, stream(socket, :torrents, Torrents.list_torrents())}
+  def mount(params, _session, socket) do
+    socket =
+      socket
+      |> assign_search_term(params["search_term"])
+      |> assign_torrents(params["search_term"])
+
+    {:ok, socket}
+  end
+
+  def handle_params(params, _uri, socket) do
+    socket =
+      socket
+      |> assign_search_term(params["search_term"])
+      |> assign_torrents(params["search_term"])
+
+    {:noreply, socket}
+  end
+
+  def handle_event("search", %{"search" => %{"search_term" => ""}}, socket) do
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/",
+       replace: true
+     )}
+  end
+
+  def handle_event("search", %{"search" => %{"search_term" => search_term}}, socket) do
+    {:noreply,
+     push_patch(socket,
+       to: ~p"/search/#{search_term}",
+       replace: true
+     )}
+  end
+
+  defp assign_search_term(socket, nil) do
+    assign(socket, :search_term, nil)
+  end
+
+  defp assign_search_term(socket, search_term) do
+    assign(socket, :search_term, search_term)
+  end
+
+  defp assign_torrents(socket, nil) do
+    assign(socket, :torrents, [])
+  end
+
+  defp assign_torrents(socket, search_term) do
+    cond do
+      String.length(search_term) >= 3 ->
+        torrents = Torrents.search_torrents(search_term)
+        assign(socket, :torrents, torrents)
+
+      String.length(search_term) == 0 ->
+        assign(socket, :torrents, [])
+
+      true ->
+        assign(socket, :torrents, [])
+    end
   end
 end

@@ -21,6 +21,7 @@ defmodule MagnetissimoWeb.Router do
     pipe_through(:browser)
 
     live("/", HomeLive)
+    live("/search/:search_term", HomeLive)
   end
 
   # Other scopes may use custom stacks.

@@ -1,15 +1,17 @@
-<.box class="mb-16">
-  <.button>Search</.button>
-  <.button>Latest</.button>
-  <.button>My Feeds</.button>
-  <.button>Github</.button>
-</.box>
+<.simple_form :let={f} for={%{}} as={:search} phx-change="search" phx-submit="submit">
+  <.input field={f[:search_term]} label="Search Term" value={@search_term} />
+</.simple_form>
 
-<div id="torrents" phx-update="stream">
-  <MagnetissimoWeb.Components.Torrents.search_result
-    :for={{dom_id, torrent} <- @streams.torrents}
-    torrent={torrent}
-    id={dom_id}
-    class="bg-white/40 backdrop-blur-2xl mb-4"
-  />
-</div>
+<.table id="torrents" rows={@torrents}>
+  <:col :let={torrent} label="Category"><%= torrent.category.name %></:col>
+  <:col :let={torrent} label="Source"><%= torrent.source.name %></:col>
+  <:col :let={torrent} label="Name"><%= torrent.name %></:col>
+  <:col :let={torrent} label="Filesize">
+    <%= torrent.size_in_bytes |> Size.humanize!() %>
+  </:col>
+  <:col :let={torrent} label="Seeders"><%= torrent.seeders %></:col>
+  <:col :let={torrent} label="Leechers"><%= torrent.leechers %></:col>
+  <:col :let={torrent} label="Magnet URL">
+    <.link href={{:magnet, torrent.magnet_url}}>Download</.link>
+  </:col>
+</.table>
