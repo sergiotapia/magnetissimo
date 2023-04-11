@@ -230,7 +230,13 @@ defmodule Magnetissimo.Torrents do
         limit: 1
       )
 
-    Repo.one!(query)
+    case Repo.one(query) do
+      nil ->
+        Repo.one!(from(c in Category, where: c.name == "Other"))
+
+      category ->
+        category
+    end
   end
 
   @doc """

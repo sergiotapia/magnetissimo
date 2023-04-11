@@ -5,6 +5,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   alias Magnetissimo.Torrents
   alias Magnetissimo.Utils
 
+  @spec search(String.t()) :: :ok
   def search(search_term) do
     source = Torrents.get_source_by_name!("TorrentDownloads")
 
@@ -16,6 +17,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     end)
   end
 
+  @spec parse_search_page(String.t(), Torrents.Source.t()) :: :ok
   def parse_search_page(search_page_html, source) do
     search_page_html
     |> Floki.parse_document!()
