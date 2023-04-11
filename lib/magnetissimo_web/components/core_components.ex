@@ -259,7 +259,7 @@ defmodule MagnetissimoWeb.CoreComponents do
 
   attr(:rest, :global,
     include: ~w(autocomplete cols disabled form list max maxlength min minlength
-                pattern placeholder readonly required rows size step)
+                pattern placeholder readonly required rows size step phx_debounce)
   )
 
   slot(:inner_block)

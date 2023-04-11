@@ -56,6 +56,6 @@ defmodule Magnetissimo.TorrentsFixtures do
       })
       |> Magnetissimo.Torrents.create_torrent()
 
-    torrent
+    Magnetissimo.Repo.preload(torrent, [:source, :category])
   end
 end

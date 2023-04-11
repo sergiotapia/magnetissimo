@@ -55,7 +55,7 @@ defmodule MagnetissimoWeb.HomeLive do
   end
 
   defp assign_torrents(socket, nil) do
-    torrents = Torrents.list_latest_torrents()
+    torrents = Torrents.list_torrents()
     assign(socket, :torrents, torrents)
   end
 

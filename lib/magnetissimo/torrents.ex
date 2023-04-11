@@ -316,19 +316,7 @@ defmodule Magnetissimo.Torrents do
     q =
       from(t in Torrent,
         preload: [:source, :category],
-        order_by: [desc: t.inserted_at],
-        limit: 25
-      )
-
-    Repo.all(q)
-  end
-
-  @spec list_latest_torrents() :: [Torrent.t()]
-  def list_latest_torrents() do
-    q =
-      from(t in Torrent,
-        preload: [:source, :category],
-        order_by: [desc: t.inserted_at],
+        order_by: [desc: t.published_at],
         limit: 25
       )
 
@@ -350,7 +338,7 @@ defmodule Magnetissimo.Torrents do
 
   """
   @spec get_torrent!(binary()) :: Torrent.t()
-  def get_torrent!(id), do: Repo.get!(Torrent, id)
+  def get_torrent!(id), do: Repo.get!(Torrent, id) |> Repo.preload([:category, :source])
 
   @doc """
   Creates a torrent.

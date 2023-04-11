@@ -1,5 +1,5 @@
 <.simple_form :let={f} for={%{}} as={:search} phx-change="search" phx-submit="submit">
-  <.input field={f[:search_term]} label="Search Term" value={@search_term} />
+  <.input phx_debounce="300" field={f[:search_term]} label="Search Term" value={@search_term} />
 </.simple_form>
 
 <.table id="torrents" rows={@torrents}>
