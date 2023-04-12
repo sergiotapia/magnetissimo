@@ -27,6 +27,8 @@ defmodule Magnetissimo.Torrents.Torrent do
 
   @doc false
   def changeset(torrent, attrs) do
+    attrs = Map.update(attrs, :name, "", &String.replace(&1, ~r/\p{So}/u, ""))
+
     torrent
     |> cast(attrs, [
       :name,
