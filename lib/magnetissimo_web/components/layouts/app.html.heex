@@ -3,11 +3,23 @@
 
   <.flash_group flash={@flash} />
 
-  <div class="w-screen px-6 py-8 mx-auto border border-red-800 max-w-screen-2xl">
+  <div class="w-full px-6 py-8 mx-auto max-w-screen-2xl">
     <%= @inner_content %>
   </div>
 
   <footer class="py-4 shadow-[0_-1px_0_rgba(0,0,0,.1)]">
-    <div class="text-sm text-center text-neutral-500">GitHub contribution here</div>
+    <div class="text-sm text-center text-neutral-500">
+      <p>
+        Built with a ton of love for
+        <.link class="text-blue-500" target="_blank" href="https://github.com/elixir-lang/elixir">
+          Elixir
+        </.link>
+        and <.link
+          class="text-blue-500"
+          target="_blank"
+          href="https://github.com/phoenixframework/phoenix"
+        >Phoenix Liveview</.link>.
+      </p>
+    </div>
   </footer>
 </div>

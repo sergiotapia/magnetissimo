@@ -1,10 +1,10 @@
-<h1 class="mb-4 text-2xl font-extrabold tracking-tight">Search the seas.</h1>
+<h1 class="mb-4 text-lg font-extrabold tracking-tight">Search the seas.</h1>
 <.simple_form :let={f} for={%{}} as={:search} phx-change="search" phx-submit="submit">
   <.input
     phx_debounce="300"
     field={f[:search_term]}
     value={@search_term}
-    placeholder="Search for any torrent by name"
+    placeholder="Search for any torrent by name."
     class="p-5 mt-0 tracking-tight border-0 bg-neutral-100 rounded-xl sm:text-base placeholder:text-neutral-400"
   />
 </.simple_form>
@@ -13,45 +13,37 @@
 
 <div class="grid grid-cols-[14rem_minmax(0px,_1fr)] items-start gap-8">
   <div>
-    <div class="mb-2 text-lg font-bold tracking-tight">Filters</div>
-
+    <h2 class="mb-2 text-lg font-bold tracking-tight">Indexing Summary</h2>
+    <p class="mb-2 text-sm">
+      How many torrents we've imported from each of the supported sources.
+    </p>
     <div class="flex flex-col">
-      <button :for={_ <- 0..4} class="flex items-center gap-1 group">
+      <button :for={{source, count} <- @source_counts} class="flex items-center gap-1 group">
         <div class="w-1 h-6 bg-black rounded-full"></div>
 
         <div class="flex items-baseline justify-between flex-1 px-2 py-2 rounded-lg bg-neutral-100">
-          <div class="text-sm">Index site</div>
-          <div class="text-xs text-neutral-500">420</div>
+          <div class="text-sm"><%= source %></div>
+          <div class="text-xs text-neutral-500"><%= count %></div>
         </div>
       </button>
     </div>
   </div>
 
   <div>
-    <div class="flex justify-center p-4">
-      <svg
-        class="w-6 h-6 text-black animate-spin"
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-      >
-        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
-        </circle>
-        <path
-          class="opacity-75"
-          fill="currentColor"
-          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-        >
-        </path>
-      </svg>
-    </div>
+    <h2 class="mb-2 text-lg font-bold">Latest torrents</h2>
 
     <div class="mb-6 overflow-hidden border border-black/10 rounded-xl">
       <.table id="torrents" rows={@torrents}>
         <:col :let={torrent} label="Name" class="w-full">
           <.link navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
-            <div class="text-sm font-medium"><%= torrent.name %></div>
-            <div class="text-sm font-normal text-neutral-500"><%= torrent.category.name %></div>
+            <div class="text-sm font-medium">
+              <%= torrent.name %>
+              <.link href={torrent.canonical_url} target="_blank">URL</.link>
+            </div>
+            <div class="text-sm font-normal text-neutral-500">
+              <%= torrent.category.name %> &middot; <%= torrent.source.name %> &middot; <%= torrent.published_at
+              |> Calendar.strftime("%B %-d, %Y - %I:%M:%S %p %Z") %>
+            </div>
           </.link>
         </:col>
         <:col :let={torrent} label="Filesize" class="font-mono tabular-nums">
@@ -64,10 +56,6 @@
 
         <:col :let={torrent} label="Peers" class="font-mono tabular-nums">
           <%= torrent.leechers %>
-        </:col>
-
-        <:col :let={torrent} label="Source">
-          <%= torrent.source.name %>
         </:col>
 
         <:col :let={torrent} label="Magnet" class="flex items-center justify-center">
@@ -90,8 +78,22 @@
       </.table>
     </div>
 
-    <%!-- <div class="flex justify-center gap-1">
-      <button :for{_ <- 0..4} class="px-4 py-2 text-sm font-bold rounded hover:bg-neutral-200">3</button>
-    </div> --%>
+    <div class="flex justify-center p-4">
+      <svg
+        class="w-6 h-6 text-black animate-spin"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+        </circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        >
+        </path>
+      </svg>
+    </div>
   </div>
 </div>

@@ -20,9 +20,9 @@ defmodule Magnetissimo.Torrents do
 
       iex> get_crawler_statistics()
       [
-        {"rarbg", 200},
-        {"yts", 123},
-        {"1337x", 39}
+        {"1337x", 200},
+        {"rarbg", 123},
+        {"yts", 39}
       ]
   """
   @spec get_crawler_statistics() :: [{binary(), integer()}]
@@ -31,6 +31,7 @@ defmodule Magnetissimo.Torrents do
       from(t in Torrent,
         inner_join: source in assoc(t, :source),
         group_by: [source.name, source.id],
+        order_by: [asc: source.name],
         select: {source.name, count(t.id)}
       )
 

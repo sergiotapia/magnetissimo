@@ -9,6 +9,7 @@ defmodule MagnetissimoWeb.HomeLive do
       socket
       |> assign_search_term(params["search_term"])
       |> assign_torrents(params["search_term"])
+      |> assign_source_count()
 
     {:ok, socket}
   end
@@ -71,5 +72,9 @@ defmodule MagnetissimoWeb.HomeLive do
       true ->
         assign(socket, :torrents, [])
     end
+  end
+
+  def assign_source_count(socket) do
+    assign(socket, :source_counts, Torrents.get_crawler_statistics())
   end
 end

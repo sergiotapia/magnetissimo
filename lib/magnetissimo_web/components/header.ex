@@ -19,13 +19,12 @@ defmodule MagnetissimoWeb.Header do
 
   def render(assigns) do
     ~H"""
-    <header class="w-screen px-6 mx-auto border border-red-600 max-w-screen-2xl py-7">
+    <header class="w-full px-6 mx-auto max-w-screen-2xl py-7">
       <div class="flex items-center justify-between">
-        <.link class="inline-block mr-8" href={~p"/"}>
+        <.link class="inline-block mr-8" navigate={~p"/"}>
           <h1 class="text-4xl font-bold">Magnetissimo</h1>
         </.link>
-        <.link navigate={~p"/"} class="inline-block mr-5">Search</.link>
-        <.link navigate={~p"/latest"} class="inline-block mr-5">Latest</.link>
+        <.link navigate={~p"/"} class="inline-block mr-5">Home</.link>
         <.link navigate={~p"/feeds"} class="inline-block mr-5">Feeds</.link>
         <.link
           href="https://github.com/sergiotapia/magnetissimo"
