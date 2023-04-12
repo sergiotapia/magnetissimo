@@ -6,7 +6,9 @@ Magnetissimo is a self-hosted web application that indexes all
 popular torrent sites and saves the magnet links to your local
 database.
 
-![image](https://user-images.githubusercontent.com/686715/231346453-336c816a-f1eb-407e-88ce-c0fdc2fa7f84.png)
+![image](https://user-images.githubusercontent.com/686715/231510383-cc0e8f00-0cf7-4990-8933-4185a69e4f0e.png)
+
+![image](https://user-images.githubusercontent.com/686715/231512138-879737fc-02a9-43d0-a609-292a4fae6b2b.png)
 
 ### Goals:
 

@@ -2,46 +2,36 @@
 
 <div class="mb-4">
   <p>
-    <span class="font-bold">Category:</span>
-    <span><%= @torrent.category.name %></span>
-  </p>
-  <p>
-    <span class="font-bold">Source:</span>
-    <span class="inline-flex items-center">
-      <%= @torrent.source.name %>
-      <span class="mx-2">&middot;</span>
-      <.link
-        href={@torrent.canonical_url}
-        target="_blank"
-        title="Visit the canonical url for this torrent."
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="w-6 h-6"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"
-          />
-        </svg>
-      </.link>
-    </span>
+    <span class="font-bold">Filesize:</span>
+    <span><%= @torrent.size_in_bytes |> Size.humanize!() %></span>
   </p>
   <p>
     <span class="font-bold">Published at:</span>
     <span><%= @torrent.published_at |> Calendar.strftime("%B %-d, %Y - %I:%M:%S %p %Z") %></span>
   </p>
+  <p>
+    <span class="font-bold">Category:</span>
+    <span><%= @torrent.category.name %></span>
+  </p>
+  <p>
+    <span class="font-bold">Source:</span>
+    <span>
+      <.link
+        href={@torrent.canonical_url}
+        target="_blank"
+        title="Visit the canonical url for this torrent."
+        class="text-blue-500 hover:underline"
+      >
+        <%= @torrent.source.name %>
+      </.link>
+    </span>
+  </p>
 </div>
 
-<div>
+<div class="flex items-center">
   <.link
     href={{:magnet, @torrent.magnet_url}}
-    class="inline-flex items-center text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+    class="mr-4 inline-flex items-center text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
   >
     <span class="mr-4">Magnet Download</span>
     <svg
@@ -59,6 +49,15 @@
       />
     </svg>
   </.link>
+  <span class="inline-flex flex-col items-center mr-4">
+    <span>Seeders</span>
+    <span class="ml-1 text-sm font-bold text-green-500"><%= @torrent.seeders %></span>
+  </span>
+
+  <span class="inline-flex flex-col items-center">
+    <span>Leechers</span>
+    <span class="ml-1 text-sm font-bold text-red-500"><%= @torrent.leechers %></span>
+  </span>
 </div>
 
 <hr class="my-8 border-black/10" />
@@ -69,5 +68,7 @@
     <%= Earmark.as_html!(@torrent.description)
     |> HtmlSanitizeEx.markdown_html()
     |> Phoenix.HTML.raw() %>
+  <% else %>
+    <p>No description found on crawler site.</p>
   <% end %>
 </div>
