@@ -49,6 +49,27 @@ defmodule Magnetissimo.Torrents do
   """
   @spec search_torrents(binary()) :: [Torrent.t()]
   def search_torrents(search_term) do
+    # Setting unique period to 604800 in seconds ==  1 week.
+    keys = [:search_term]
+
+    %{search_term: search_term}
+    |> Magnetissimo.Workers.Nyaa.new(
+      unique: [fields: [:args, :worker], keys: keys, period: 604_800]
+    )
+    |> Oban.insert()
+
+    %{search_term: search_term}
+    |> Magnetissimo.Workers.TorrentDownloads.new(
+      unique: [fields: [:args, :worker], keys: keys, period: 604_800]
+    )
+    |> Oban.insert()
+
+    %{search_term: search_term}
+    |> Magnetissimo.Workers.Yts.new(
+      unique: [fields: [:args, :worker], keys: keys, period: 604_800]
+    )
+    |> Oban.insert()
+
     query =
       from(t in Torrent,
         where:
