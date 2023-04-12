@@ -54,20 +54,18 @@ defmodule Magnetissimo.Torrents do
 
     %{search_term: search_term}
     |> Magnetissimo.Workers.Nyaa.new(
-      unique: [fields: [:args, :worker], keys: keys, period: 604_800]
+      unique: [fields: [:args, :worker], keys: keys, period: 86400]
     )
     |> Oban.insert()
 
     %{search_term: search_term}
     |> Magnetissimo.Workers.TorrentDownloads.new(
-      unique: [fields: [:args, :worker], keys: keys, period: 604_800]
+      unique: [fields: [:args, :worker], keys: keys, period: 86400]
     )
     |> Oban.insert()
 
     %{search_term: search_term}
-    |> Magnetissimo.Workers.Yts.new(
-      unique: [fields: [:args, :worker], keys: keys, period: 604_800]
-    )
+    |> Magnetissimo.Workers.Yts.new(unique: [fields: [:args, :worker], keys: keys, period: 86400])
     |> Oban.insert()
 
     query =

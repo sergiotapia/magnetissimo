@@ -66,7 +66,8 @@ config :nanoid,
 
 config :magnetissimo, Oban,
   repo: Magnetissimo.Repo,
-  plugins: [Oban.Plugins.Pruner],
+  # Jobs will be pruned after 24 hours in the database.
+  plugins: [{Oban.Plugins.Pruner, max_age: 86400}],
   queues: [nyaa: 1, torrent_downloads: 1, yts: 1]
 
 # queues: [default: 10]
