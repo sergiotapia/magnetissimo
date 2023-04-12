@@ -17,10 +17,17 @@ defmodule Magnetissimo.Crawlers.Yts do
 
     json = Jason.decode!(body)
 
-    json["data"]["movies"]
-    |> Enum.map(&parse_torrent_json(&1, category, source))
-    |> List.flatten()
-    |> Enum.each(&Torrents.create_torrent_for_source(&1, source.name))
+    case json["data"]["movies"] do
+      nil ->
+        Logger.error("[YTS] No results for search term: #{search_term}")
+        Logger.error(json)
+
+      movies ->
+        movies
+        |> Enum.map(&parse_torrent_json(&1, category, source))
+        |> List.flatten()
+        |> Enum.each(&Torrents.create_torrent_for_source(&1, source.name))
+    end
   end
 
   def crawl_latest() do
@@ -31,10 +38,17 @@ defmodule Magnetissimo.Crawlers.Yts do
     %{status_code: 200, body: body} = HTTPoison.get!("https://yts.mx/api/v2/list_movies.json")
     json = Jason.decode!(body)
 
-    json["data"]["movies"]
-    |> Enum.map(&parse_torrent_json(&1, category, source))
-    |> List.flatten()
-    |> Enum.each(&Torrents.create_torrent_for_source(&1, source.name))
+    case json["data"]["movies"] do
+      nil ->
+        Logger.error("[YTS] Failed to fetch RSS feed.")
+        Logger.error(json)
+
+      movies ->
+        movies
+        |> Enum.map(&parse_torrent_json(&1, category, source))
+        |> List.flatten()
+        |> Enum.each(&Torrents.create_torrent_for_source(&1, source.name))
+    end
   end
 
   @spec parse_torrent_json(map(), Category.t(), Source.t()) :: list(map())

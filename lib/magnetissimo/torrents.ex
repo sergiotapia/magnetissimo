@@ -39,6 +39,44 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
+  Creates Oban jobs for each out crawlers for the given
+  search term. Uniqueness is validated per 24 hours to avoid
+  duplicate crawls.
+
+  ## Examples
+
+      iex> enqueue_crawls_for_search_term("x265")
+      :ok
+  """
+  @spec enqueue_crawls_for_search_term(binary()) :: :ok
+  def enqueue_crawls_for_search_term(search_term) do
+    keys = [:search_term]
+
+    {:ok, _} =
+      %{search_term: search_term}
+      |> Magnetissimo.Workers.Nyaa.new(
+        unique: [fields: [:args, :worker], keys: keys, period: 86400]
+      )
+      |> Oban.insert()
+
+    {:ok, _} =
+      %{search_term: search_term}
+      |> Magnetissimo.Workers.TorrentDownloads.new(
+        unique: [fields: [:args, :worker], keys: keys, period: 86400]
+      )
+      |> Oban.insert()
+
+    {:ok, _} =
+      %{search_term: search_term}
+      |> Magnetissimo.Workers.Yts.new(
+        unique: [fields: [:args, :worker], keys: keys, period: 86400]
+      )
+      |> Oban.insert()
+
+    :ok
+  end
+
+  @doc """
   Returns the list of torrents by performing a full-text
   search against the name and description fields.
 
@@ -49,24 +87,7 @@ defmodule Magnetissimo.Torrents do
   """
   @spec search_torrents(binary()) :: [Torrent.t()]
   def search_torrents(search_term) do
-    # Setting unique period to 604800 in seconds ==  1 week.
-    keys = [:search_term]
-
-    %{search_term: search_term}
-    |> Magnetissimo.Workers.Nyaa.new(
-      unique: [fields: [:args, :worker], keys: keys, period: 86400]
-    )
-    |> Oban.insert()
-
-    %{search_term: search_term}
-    |> Magnetissimo.Workers.TorrentDownloads.new(
-      unique: [fields: [:args, :worker], keys: keys, period: 86400]
-    )
-    |> Oban.insert()
-
-    %{search_term: search_term}
-    |> Magnetissimo.Workers.Yts.new(unique: [fields: [:args, :worker], keys: keys, period: 86400])
-    |> Oban.insert()
+    enqueue_crawls_for_search_term(search_term)
 
     query =
       from(t in Torrent,

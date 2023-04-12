@@ -23,25 +23,12 @@ defmodule Magnetissimo.Utils do
     {size, _} = Float.parse(size)
     unit = String.downcase(unit)
 
-    case unit do
-      "tb" -> size * 1_000_000_000_000
-      "TB" -> size * 1_000_000_000_000
-      "tib" -> size * 1_000_000_000_000
-      "TiB" -> size * 1_000_000_000_000
-      "gb" -> size * 1_000_000_000
-      "GB" -> size * 1_000_000_000
-      "gib" -> size * 1_000_000_000
-      "GiB" -> size * 1_000_000_000
-      "mb" -> size * 1_000_000
-      "MB" -> size * 1_000_000
-      "mib" -> size * 1_000_000
-      "MiB" -> size * 1_000_000
-      "kb" -> size * 1_000
-      "KB" -> size * 1_000
-      "kib" -> size * 1_000
-      "KiB" -> size * 1_000
-      "b" -> size
-      "B" -> size
+    cond do
+      unit in ["tb", "TB", "tib", "TiB"] -> size * 1_000_000_000_000
+      unit in ["gb", "GB", "gib", "GiB"] -> size * 1_000_000_000
+      unit in ["mb", "MB", "mib", "MiB"] -> size * 1_000_000
+      unit in ["kb", "KB", "kib", "KiB"] -> size * 1_000
+      unit in ["b", "B"] -> size
     end
     |> Kernel.trunc()
   end
