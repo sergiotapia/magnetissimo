@@ -36,14 +36,16 @@
       <.table id="torrents" rows={@torrents}>
         <:col :let={torrent} label="Name" class="w-full">
           <.link navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
-            <div class="text-sm font-medium">
+            <span class="inline-block text-sm font-medium">
               <%= torrent.name %>
-              <.link href={torrent.canonical_url} target="_blank">URL</.link>
-            </div>
-            <div class="text-sm font-normal text-neutral-500">
-              <%= torrent.category.name %> &middot; <%= torrent.source.name %> &middot; <%= torrent.published_at
-              |> Calendar.strftime("%B %-d, %Y - %I:%M:%S %p %Z") %>
-            </div>
+            </span>
+            <span class="inline-block text-sm font-normal text-neutral-500">
+              <%= torrent.category.name %> &middot; <%= torrent.source.name %> &middot;
+              <span title="When this torrent was originally published.">
+                <%= torrent.published_at
+                |> Calendar.strftime("%B %-d, %Y - %I:%M:%S %p %Z") %>
+              </span>
+            </span>
           </.link>
         </:col>
         <:col :let={torrent} label="Filesize" class="font-mono tabular-nums">
