@@ -36,7 +36,7 @@
       <.table id="torrents" rows={@torrents}>
         <:col :let={torrent} label="Name" class="w-full">
           <.link navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
-            <span class="inline-block text-sm font-medium">
+            <span class="inline-block text-sm font-medium ">
               <%= torrent.name %>
             </span>
             <span class="inline-block text-sm font-normal text-neutral-500">

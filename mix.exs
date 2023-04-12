@@ -61,8 +61,7 @@ defmodule Magnetissimo.MixProject do
       {:size, "~> 0.1.1"},
       {:earmark, "~> 1.4"},
       {:html_sanitize_ex, "~> 1.4"},
-      {:oban, "~> 2.14"},
-      {:pandex, "~> 0.2.0"}
+      {:oban, "~> 2.14"}
     ]
   end
 

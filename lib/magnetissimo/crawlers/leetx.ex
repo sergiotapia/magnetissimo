@@ -89,11 +89,10 @@ defmodule Magnetissimo.Crawlers.Leetx do
       |> Floki.text()
       |> String.replace("Infohash :", "")
 
-    {:ok, description} =
+    description =
       torrent_page_html
       |> Floki.find("div#description")
       |> Floki.raw_html()
-      |> Pandex.html_to_commonmark()
 
     # The datetime string is in relative string format.
     # I couldn't find a good way to convert "2 hours ago" to a datetime.
