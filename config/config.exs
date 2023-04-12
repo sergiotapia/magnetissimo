@@ -64,6 +64,13 @@ config :nanoid,
   size: 12,
   alphabet: "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
+config :magnetissimo, Oban,
+  repo: Magnetissimo.Repo,
+  plugins: [Oban.Plugins.Pruner],
+  queues: [nyaa: 1, torrent_downloads: 1, yts: 1]
+
+# queues: [default: 10]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{config_env()}.exs"

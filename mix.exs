@@ -60,7 +60,8 @@ defmodule Magnetissimo.MixProject do
       {:timex, "~> 3.7"},
       {:size, "~> 0.1.1"},
       {:earmark, "~> 1.4"},
-      {:html_sanitize_ex, "~> 1.4"}
+      {:html_sanitize_ex, "~> 1.4"},
+      {:oban, "~> 2.14"}
     ]
   end
 

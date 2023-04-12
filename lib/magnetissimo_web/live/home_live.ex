@@ -14,6 +14,7 @@ defmodule MagnetissimoWeb.HomeLive do
     {:ok, socket}
   end
 
+  @impl true
   def handle_params(params, _uri, socket) do
     socket =
       socket
@@ -23,6 +24,7 @@ defmodule MagnetissimoWeb.HomeLive do
     {:noreply, socket}
   end
 
+  @impl true
   def handle_event("submit", %{"search" => %{"search_term" => search_term}}, socket) do
     {:noreply,
      push_patch(socket,
