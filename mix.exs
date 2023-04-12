@@ -4,7 +4,7 @@ defmodule Magnetissimo.MixProject do
   def project do
     [
       app: :magnetissimo,
-      version: "0.1.0",
+      version: "2.0.0",
       elixir: "~> 1.14",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
