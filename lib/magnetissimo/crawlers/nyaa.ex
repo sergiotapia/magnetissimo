@@ -51,7 +51,7 @@ defmodule Magnetissimo.Crawlers.Nyaa do
         |> String.replace("magnet:", "")
 
       torrent_page_html = get_torrent_page_html(canonical_url)
-      magnet_hash = torrent_page_html |> Floki.find("kbd") |> IO.inspect() |> Floki.text()
+      magnet_hash = torrent_page_html |> Floki.find("kbd") |> Floki.text()
 
       name = row |> Floki.find("td") |> Enum.at(1) |> Floki.text()
       size = row |> Floki.find("td") |> Enum.at(3) |> Floki.text() |> Utils.size_to_bytes()

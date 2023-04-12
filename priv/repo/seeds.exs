@@ -28,6 +28,11 @@ Torrents.create_source(%{
   url: "https://yts.mx/"
 })
 
+Torrents.create_source(%{
+  name: "1337x",
+  url: "https://www.1337x.to"
+})
+
 {:ok, anime_category} = Torrents.create_category(%{name: "Anime"})
 
 Torrents.create_category(%{
@@ -99,8 +104,17 @@ Torrents.create_category(%{
   alternative_names: ["TV Shows", "TV", "television", "Television", "TV - Other"]
 })
 
-Torrents.create_category(%{parent_id: video_category.id, name: "Video - Documentaries"})
-Torrents.create_category(%{parent_id: video_category.id, name: "Video - XXX"})
+Torrents.create_category(%{
+  parent_id: video_category.id,
+  name: "Video - Documentaries",
+  alternative_names: ["Documentaries", "Documentary"]
+})
+
+Torrents.create_category(%{
+  parent_id: video_category.id,
+  name: "Video - XXX",
+  alternative_names: ["XXX"]
+})
 
 {:ok, images_category} = Torrents.create_category(%{name: "Images"})
 
