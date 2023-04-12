@@ -4,7 +4,64 @@ defmodule Magnetissimo.Crawlers.Leetx do
   alias Magnetissimo.Torrents
   alias Magnetissimo.Utils
 
-  def crawl_latest() do
+  def search(search_term) do
+    source = Torrents.get_source_by_name!("1337x")
+
+    page_count =
+      search_term
+      |> get_search_page_html()
+      |> get_page_count()
+
+    1..page_count
+    |> Enum.each(fn page ->
+      search_term
+      |> get_search_page_html(page)
+      |> parse_table()
+      |> List.flatten()
+      |> Enum.each(fn torrent_url ->
+        torrent_url
+        |> get_page_html()
+        |> parse_torrent_page(torrent_url, source)
+        |> Torrents.create_torrent_for_source(source.name)
+      end)
+    end)
+  end
+
+  @spec get_page_count(String.t()) :: integer()
+  def get_page_count(search_page_html) do
+    pages =
+      search_page_html
+      |> Floki.parse_document!()
+      |> Floki.find(".pagination ul li")
+
+    if Enum.any?(pages) do
+      last_pagination_li =
+        pages
+        |> Enum.filter(fn page ->
+          text =
+            page
+            |> Floki.find("a")
+            |> Floki.text()
+
+          text == "Last"
+        end)
+
+      href =
+        last_pagination_li
+        |> Floki.find("a")
+        |> Floki.attribute("href")
+        |> List.first()
+
+      Regex.run(~r{/\d+/$}, href)
+      |> List.first()
+      |> String.replace("/", "")
+      |> String.to_integer()
+    else
+      1
+    end
+  end
+
+  def crawl_latest do
     Logger.info("[1337x] Crawling latest torrents.")
 
     category_pages =
@@ -160,7 +217,7 @@ defmodule Magnetissimo.Crawlers.Leetx do
   def get_search_page_html(search_term, page \\ 1) do
     # Put some respek on they servers.
     Process.sleep(350)
-    Logger.info("[Nyaa] Fetching search results page.")
+    Logger.info("[1337x] Fetching search results page.")
 
     search_term =
       search_term

@@ -73,6 +73,13 @@ defmodule Magnetissimo.Torrents do
       )
       |> Oban.insert()
 
+    {:ok, _} =
+      %{search_term: search_term}
+      |> Magnetissimo.Workers.Leetx.new(
+        unique: [fields: [:args, :worker], keys: keys, period: 86400]
+      )
+      |> Oban.insert()
+
     :ok
   end
 
