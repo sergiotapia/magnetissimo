@@ -25,7 +25,7 @@ defmodule MagnetissimoWeb.Header do
           <h1 class="text-4xl font-bold">Magnetissimo</h1>
         </.link>
         <.link navigate={~p"/"} class="inline-block mr-5">Home</.link>
-        <.link navigate={~p"/feeds"} class="inline-block mr-5">Feeds</.link>
+        <.link navigate={~p"/"} class="inline-block mr-5">Feeds</.link>
         <.link
           href="https://github.com/sergiotapia/magnetissimo"
           target="_blank"
