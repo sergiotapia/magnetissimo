@@ -1,18 +1,51 @@
 # Magnetissimo
 
-To start your Phoenix server:
+![https://i.imgur.com/J6eB3mp.png](https://i.imgur.com/J6eB3mp.png)
 
-  * Run `mix setup` to install and setup dependencies
-  * Start Phoenix endpoint with `mix phx.server` or inside IEx with `iex -S mix phx.server`
+Magnetissimo is a self-hosted web application that indexes all
+popular torrent sites and saves the magnet links to your local
+database.
 
-Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
+![image](https://user-images.githubusercontent.com/686715/231346453-336c816a-f1eb-407e-88ce-c0fdc2fa7f84.png)
 
-Ready to run in production? Please [check our deployment guides](https://hexdocs.pm/phoenix/deployment.html).
+### Goals:
 
-## Learn more
+- **No javascript**
+- Crawl multiple index sites for torrents and magnet links.
+- Easily integrates with both [Sonarr](https://github.com/Sonarr/Sonarr) and [Radarr](https://github.com/Radarr/Radarr).
+- Run without ceremony. No need for configurations.
+- Easy to understand source code. Special care is taken to keep code lean and understandable.
+- High performance, leveraging Elixir's GenServer and Erlang's BEAM VM.
 
-  * Official website: https://www.phoenixframework.org/
-  * Guides: https://hexdocs.pm/phoenix/overview.html
-  * Docs: https://hexdocs.pm/phoenix
-  * Forum: https://elixirforum.com/c/phoenix-forum
-  * Source: https://github.com/phoenixframework/phoenix
+### Usage Guide:
+
+TBD - We need to write some easy to follow guides here. HELP WANTED!
+
+### Contributing:
+
+We have a `.tool-versions` so you can use ASDF to install the right versions
+really easily.
+
+```
+elixir 1.14.4
+nodejs 19.8.1
+```
+
+Then `asdf install`.
+
+You also need to have Postgres running and configure it using the `DATABASE_URL`
+environment variable.
+
+Finally set up your database with some dummy data and run the project.
+
+```bash
+mix deps.get
+mix ecto.reset
+iex -S mix phx.server
+```
+
+### Community
+
+Want to talk about Magnetissimo or suggest features? We have an official Discord server.
+
+[Click to join our official Discord server](https://discord.gg/CFtGUaW)
