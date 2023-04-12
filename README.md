@@ -23,6 +23,12 @@ database.
 
 TBD - We need to write some easy to follow guides here. HELP WANTED!
 
+We want to explain how to run Magnetissimo on:
+
+- Windows
+- Linux
+- Mac
+
 ### Contributing:
 
 We have a `.tool-versions` so you can use ASDF to install the right versions
