@@ -3,8 +3,8 @@ defmodule MagnetissimoWeb.TorrentsController do
 
   alias Magnetissimo.Torrents
 
-  def search(conn, _params) do
-    torrents = Torrents.search_torrents("red dwarf")
+  def search(conn, %{"search_term" => search_term} = _params) do
+    torrents = Torrents.sync_search_torrents(search_term)
     render(conn, :index, torrents: torrents)
   end
 

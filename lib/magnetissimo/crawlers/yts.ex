@@ -5,6 +5,11 @@ defmodule Magnetissimo.Crawlers.Yts do
   alias Magnetissimo.Torrents.Category
   alias Magnetissimo.Torrents.Source
 
+  @spec fast_search(binary()) :: :ok
+  def fast_search(search_term) do
+    search(search_term)
+  end
+
   def search(search_term) do
     Logger.info("[YTS] Fetching search results page.")
     category = Torrents.get_category_by_name_or_alias!("Movies")

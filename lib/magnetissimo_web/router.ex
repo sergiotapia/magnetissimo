@@ -23,9 +23,9 @@ defmodule MagnetissimoWeb.Router do
 
   # Other scopes may use custom stacks.
   scope "/api", MagnetissimoWeb do
-    pipe_through :api
+    pipe_through(:api)
 
-    get("/search", TorrentsController, :search)
+    get("/search/:search_term", TorrentsController, :search)
     get("/latest", TorrentsController, :latest)
   end
 

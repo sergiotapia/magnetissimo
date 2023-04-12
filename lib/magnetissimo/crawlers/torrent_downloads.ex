@@ -5,6 +5,18 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   alias Magnetissimo.Torrents
   alias Magnetissimo.Utils
 
+  @spec fast_search(String.t()) :: :ok
+  def fast_search(search_term) do
+    source = Torrents.get_source_by_name!("TorrentDownloads")
+
+    1..1
+    |> Enum.each(fn page ->
+      search_term
+      |> get_search_page_html(page)
+      |> parse_search_page(source)
+    end)
+  end
+
   @spec search(String.t()) :: :ok
   def search(search_term) do
     source = Torrents.get_source_by_name!("TorrentDownloads")
