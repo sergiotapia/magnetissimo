@@ -29,6 +29,18 @@ We want to explain how to run Magnetissimo on:
 - Linux
 - Mac
 
+### API
+
+All endpoints returns JSON formatted information.
+
+`/search` endpoint: http://localhost:4000/api/search/:search_term
+
+Search returns torrents that match the `search_term` param.
+
+- `/latest` endpoint: http://localhost:4000/api/latest
+
+Latest returns the latest 50 published_at torrents.
+
 ### Contributing:
 
 We have a `.tool-versions` so you can use ASDF to install the right versions

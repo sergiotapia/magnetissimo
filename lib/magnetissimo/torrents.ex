@@ -402,7 +402,7 @@ defmodule Magnetissimo.Torrents do
       from(t in Torrent,
         preload: [:source, :category],
         order_by: [desc: t.published_at],
-        limit: 25
+        limit: 50
       )
 
     Repo.all(q)
