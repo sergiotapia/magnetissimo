@@ -37,7 +37,7 @@ All endpoints returns JSON formatted information.
 
 Search returns torrents that match the `search_term` param.
 
-- `/latest` endpoint: http://localhost:4000/api/latest
+`/latest` endpoint: http://localhost:4000/api/latest
 
 Latest returns the latest 50 published_at torrents.
 
