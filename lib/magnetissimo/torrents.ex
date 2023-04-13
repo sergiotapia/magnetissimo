@@ -44,64 +44,17 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
-  Creates Oban jobs for each out crawlers for the given
-  search term. Uniqueness is validated per 24 hours to avoid
-  duplicate crawls.
+  Returns a list of torrents from the database by performing
+  an ilike match against a Torrent's name and description.
 
   ## Examples
 
-      iex> enqueue_crawls_for_search_term("x265")
-      :ok
-  """
-  @spec enqueue_crawls_for_search_term(binary()) :: :ok
-  def enqueue_crawls_for_search_term(search_term) do
-    keys = [:search_term]
-
-    {:ok, _} =
-      %{search_term: search_term}
-      |> Magnetissimo.Workers.Nyaa.new(
-        unique: [fields: [:args, :worker], keys: keys, period: 86400]
-      )
-      |> Oban.insert()
-
-    {:ok, _} =
-      %{search_term: search_term}
-      |> Magnetissimo.Workers.TorrentDownloads.new(
-        unique: [fields: [:args, :worker], keys: keys, period: 86400]
-      )
-      |> Oban.insert()
-
-    {:ok, _} =
-      %{search_term: search_term}
-      |> Magnetissimo.Workers.Yts.new(
-        unique: [fields: [:args, :worker], keys: keys, period: 86400]
-      )
-      |> Oban.insert()
-
-    {:ok, _} =
-      %{search_term: search_term}
-      |> Magnetissimo.Workers.Leetx.new(
-        unique: [fields: [:args, :worker], keys: keys, period: 86400]
-      )
-      |> Oban.insert()
-
-    :ok
-  end
-
-  @doc """
-  Performs a real-time synchrounous search against the database
-  and all crawlers first page. This is meant to be used
-  by apps like Radarr and Sonarr through our API. The Magnetissimo
-  app should still use search_torrents/1.
-
-  ## Examples
-
-      iex> sync_search_torrents("x265")
+      iex> search_torrents("x265")
       [%Torrent{}, ...]
 
   """
-  @spec sync_search_torrents(binary()) :: [Torrent.t()]
-  def sync_search_torrents(search_term) do
+  @spec search_torrents(binary()) :: [Torrent.t()]
+  def search_torrents(search_term) do
     crawlers = [
       Leetx,
       Nyaa,
@@ -118,24 +71,6 @@ defmodule Magnetissimo.Torrents do
       timeout: :infinity
     )
     |> Stream.run()
-
-    search_torrents(search_term)
-  end
-
-  @doc """
-  Returns a list of torrents from the database by performing
-  a full-text search against name and description fields. Also
-  enqueues jobs for each crawler we support to backfill torrents.
-
-  ## Examples
-
-      iex> search_torrents("x265")
-      [%Torrent{}, ...]
-
-  """
-  @spec search_torrents(binary()) :: [Torrent.t()]
-  def search_torrents(search_term) do
-    enqueue_crawls_for_search_term(search_term)
 
     query =
       from(t in Torrent,

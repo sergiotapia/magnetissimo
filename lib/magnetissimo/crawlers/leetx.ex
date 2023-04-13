@@ -14,16 +14,12 @@ defmodule Magnetissimo.Crawlers.Leetx do
       |> get_search_page_html(page)
       |> parse_table()
       |> List.flatten()
-      |> Enum.chunk_every(2)
       |> Task.async_stream(
-        fn torrent_urls ->
-          torrent_urls
-          |> Enum.each(fn torrent_url ->
-            torrent_url
-            |> get_page_html()
-            |> parse_torrent_page(torrent_url, source)
-            |> Torrents.create_torrent_for_source(source.name)
-          end)
+        fn torrent_url ->
+          torrent_url
+          |> get_page_html()
+          |> parse_torrent_page(torrent_url, source)
+          |> Torrents.create_torrent_for_source(source.name)
         end,
         ordered: false,
         timeout: :infinity

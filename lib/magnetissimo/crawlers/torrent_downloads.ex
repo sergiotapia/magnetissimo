@@ -39,15 +39,11 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     end)
     |> Floki.attribute("href")
     |> Enum.map(fn href -> "https://www.torrentdownloads.pro#{href}" end)
-    |> Enum.chunk_every(2)
     |> Task.async_stream(
-      fn torrent_urls ->
-        torrent_urls
-        |> Enum.each(fn torrent_url ->
-          torrent_url
-          |> get_torrent_page_html()
-          |> parse_torrent_page(torrent_url, source)
-        end)
+      fn torrent_url ->
+        torrent_url
+        |> get_torrent_page_html()
+        |> parse_torrent_page(torrent_url, source)
       end,
       ordered: false,
       timeout: :infinity
