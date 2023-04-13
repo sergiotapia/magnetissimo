@@ -195,9 +195,6 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
 
   @spec get_search_page_html(binary(), integer()) :: binary()
   def get_search_page_html(search_term, page \\ 1) do
-    # Put some respek on they servers.
-    sleep_ms = 350 + :rand.uniform(200)
-    Process.sleep(sleep_ms)
     Logger.info("[TorrentDownloads] Fetching search results page.")
 
     search_term =
@@ -213,9 +210,6 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
 
   @spec get_torrent_page_html(binary()) :: binary()
   def get_torrent_page_html(torrent_page_url) do
-    # Put some respek on they servers.
-    sleep_ms = 350 + :rand.uniform(200)
-    Process.sleep(sleep_ms)
     Logger.info("[TorrentDownloads] Fetching torrent page: #{torrent_page_url}")
 
     %{status_code: 200, body: body} =

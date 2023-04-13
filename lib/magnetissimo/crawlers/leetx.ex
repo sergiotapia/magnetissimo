@@ -225,8 +225,6 @@ defmodule Magnetissimo.Crawlers.Leetx do
   end
 
   def get_page_html(url) do
-    # Put some respek on they servers.
-    Process.sleep(350)
     %{status_code: 200, body: body} = HTTPoison.get!(url)
 
     body
@@ -234,8 +232,6 @@ defmodule Magnetissimo.Crawlers.Leetx do
 
   @spec get_search_page_html(binary(), integer()) :: binary()
   def get_search_page_html(search_term, page \\ 1) do
-    # Put some respek on they servers.
-    Process.sleep(350)
     Logger.info("[1337x] Fetching search results page.")
 
     search_term =
