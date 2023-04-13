@@ -22,9 +22,12 @@ defmodule MagnetissimoWeb.Router do
   end
 
   # Other scopes may use custom stacks.
-  # scope "/api", MagnetissimoWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", MagnetissimoWeb do
+    pipe_through(:api)
+
+    get("/search/:search_term", TorrentsController, :search)
+    get("/latest", TorrentsController, :latest)
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:magnetissimo, :dev_routes) do

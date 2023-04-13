@@ -4,6 +4,25 @@ defmodule Magnetissimo.Crawlers.Leetx do
   alias Magnetissimo.Torrents
   alias Magnetissimo.Utils
 
+  @spec fast_search(binary()) :: :ok
+  def fast_search(search_term) do
+    source = Torrents.get_source_by_name!("1337x")
+
+    1..1
+    |> Enum.each(fn page ->
+      search_term
+      |> get_search_page_html(page)
+      |> parse_table()
+      |> List.flatten()
+      |> Enum.each(fn torrent_url ->
+        torrent_url
+        |> get_page_html()
+        |> parse_torrent_page(torrent_url, source)
+        |> Torrents.create_torrent_for_source(source.name)
+      end)
+    end)
+  end
+
   def search(search_term) do
     source = Torrents.get_source_by_name!("1337x")
 
@@ -206,8 +225,6 @@ defmodule Magnetissimo.Crawlers.Leetx do
   end
 
   def get_page_html(url) do
-    # Put some respek on they servers.
-    Process.sleep(350)
     %{status_code: 200, body: body} = HTTPoison.get!(url)
 
     body
@@ -215,8 +232,6 @@ defmodule Magnetissimo.Crawlers.Leetx do
 
   @spec get_search_page_html(binary(), integer()) :: binary()
   def get_search_page_html(search_term, page \\ 1) do
-    # Put some respek on they servers.
-    Process.sleep(350)
     Logger.info("[1337x] Fetching search results page.")
 
     search_term =

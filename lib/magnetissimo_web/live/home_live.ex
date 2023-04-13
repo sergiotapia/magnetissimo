@@ -64,7 +64,7 @@ defmodule MagnetissimoWeb.HomeLive do
 
   defp assign_torrents(socket, search_term) do
     cond do
-      String.length(search_term) >= 3 ->
+      String.length(search_term) >= 2 ->
         torrents = Torrents.search_torrents(search_term)
         assign(socket, :torrents, torrents)
 

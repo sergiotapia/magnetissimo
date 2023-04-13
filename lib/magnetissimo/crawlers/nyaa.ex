@@ -5,6 +5,16 @@ defmodule Magnetissimo.Crawlers.Nyaa do
   alias Magnetissimo.Torrents
   alias Magnetissimo.Utils
 
+  @spec fast_search(binary()) :: :ok
+  def fast_search(search_term) do
+    1..1
+    |> Enum.each(fn page ->
+      search_term
+      |> get_search_page_html(page)
+      |> parse_search_page()
+    end)
+  end
+
   def search(search_term) do
     page_count =
       search_term
@@ -181,8 +191,6 @@ defmodule Magnetissimo.Crawlers.Nyaa do
 
   @spec get_torrent_page_html(String.t()) :: String.t()
   def get_torrent_page_html(url) do
-    # Put some respek on they servers.
-    Process.sleep(350)
     %{status_code: 200, body: body} = HTTPoison.get!(url)
 
     body
@@ -190,8 +198,6 @@ defmodule Magnetissimo.Crawlers.Nyaa do
 
   @spec get_search_page_html(binary(), integer()) :: binary()
   def get_search_page_html(search_term, page \\ 1) do
-    # Put some respek on they servers.
-    Process.sleep(350)
     Logger.info("[Nyaa] Fetching search results page.")
 
     search_term =

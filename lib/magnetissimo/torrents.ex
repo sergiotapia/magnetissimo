@@ -12,6 +12,11 @@ defmodule Magnetissimo.Torrents do
   alias Magnetissimo.Torrents.Source
   alias Magnetissimo.Torrents.Torrent
 
+  alias Magnetissimo.Crawlers.Leetx
+  alias Magnetissimo.Crawlers.Nyaa
+  alias Magnetissimo.Crawlers.TorrentDownloads
+  alias Magnetissimo.Crawlers.Yts
+
   @doc """
   Returns a list of crawler statistics for every source
   in the database. How many torrents we've indexed per source.
@@ -84,13 +89,49 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
-  Returns the list of torrents by performing a full-text
-  search against the name and description fields.
+  Performs a real-time synchrounous search against the database
+  and all crawlers first page. This is meant to be used
+  by apps like Radarr and Sonarr through our API. The Magnetissimo
+  app should still use search_torrents/1.
+
+  ## Examples
+
+      iex> sync_search_torrents("x265")
+      [%Torrent{}, ...]
+
+  """
+  @spec sync_search_torrents(binary()) :: [Torrent.t()]
+  def sync_search_torrents(search_term) do
+    crawlers = [
+      Leetx,
+      Nyaa,
+      TorrentDownloads,
+      Yts
+    ]
+
+    Task.async_stream(
+      crawlers,
+      fn crawler_module ->
+        crawler_module.fast_search(search_term)
+      end,
+      ordered: false,
+      timeout: :infinity
+    )
+    |> Stream.run()
+
+    search_torrents(search_term)
+  end
+
+  @doc """
+  Returns a list of torrents from the database by performing
+  a full-text search against name and description fields. Also
+  enqueues jobs for each crawler we support to backfill torrents.
 
   ## Examples
 
       iex> search_torrents("x265")
       [%Torrent{}, ...]
+
   """
   @spec search_torrents(binary()) :: [Torrent.t()]
   def search_torrents(search_term) do
@@ -98,18 +139,8 @@ defmodule Magnetissimo.Torrents do
 
     query =
       from(t in Torrent,
-        where:
-          fragment(
-            "search_vector @@ websearch_to_tsquery(?)",
-            ^search_term
-          ),
-        order_by: {
-          :desc,
-          fragment(
-            "ts_rank_cd(search_vector, websearch_to_tsquery(?), 4)",
-            ^search_term
-          )
-        },
+        where: ilike(t.name, ^"%#{search_term}%") or ilike(t.description, ^"%#{search_term}%"),
+        order_by: [desc: t.published_at],
         preload: [:source, :category]
       )
 
