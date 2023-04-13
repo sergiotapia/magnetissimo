@@ -33,10 +33,13 @@
     <h2 class="mb-2 text-lg font-bold">Latest torrents</h2>
 
     <div class="mb-6 overflow-hidden border border-black/10 rounded-xl">
-      <.table id="torrents" rows={@torrents}>
-        <:col :let={torrent} label="Name" class="w-full">
-          <.link navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
-            <span class="inline-block text-sm font-medium ">
+      <.table class="w-full table-auto" id="torrents" rows={@torrents}>
+        <:col :let={torrent} label="Name">
+          <.link class="flex flex-col" navigate={~p"/torrents/#{torrent.id}/#{torrent.slug}"}>
+            <span
+              title={torrent.name}
+              class="inline-block max-w-md overflow-hidden text-sm font-medium 2xl:max-w-2xl whitespace-nowrap text-ellipsis"
+            >
               <%= torrent.name %>
             </span>
             <span class="inline-block text-sm font-normal text-neutral-500">

@@ -423,6 +423,7 @@ defmodule MagnetissimoWeb.CoreComponents do
       </.table>
   """
   attr(:id, :string, required: true)
+  attr(:class, :string)
   attr(:rows, :list, required: true)
   attr(:row_id, :any, default: nil, doc: "the function for generating the row id")
   attr(:row_click, :any, default: nil, doc: "the function for handling phx-click on each row")
@@ -447,7 +448,7 @@ defmodule MagnetissimoWeb.CoreComponents do
 
     ~H"""
     <div class="w-full">
-      <table class="w-full border-collapse table-auto">
+      <table class={@class}>
         <thead class="text-sm leading-6 text-left text-zinc-500">
           <tr>
             <th
