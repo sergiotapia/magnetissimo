@@ -34,7 +34,9 @@ spec:
             periodSeconds: 10
           env:
             - name: DATABASE_URL
-              value: "postgresql://postgres:postgres@postgres-svc.default.svc.cluster.local:5432/magnetissimo"
+              value: "postgresql://postgres:postgres@postgres-svc.default.svc.cluster.local:5432/magnetissimo"\
+            - name: SECRET_KEY_BASE
+              value: "SECRET_KEY_HERE"
 ---
 apiVersion: apps/v1
 kind: Deployment
