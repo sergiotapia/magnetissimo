@@ -53,6 +53,7 @@ Edit k8s/ingress.yaml and replace the host with your domain name.
 The Postgres database is configured to use the DNS name assuming it is being deployed to the default namespace, update this in the enviroment variables if you are deploying to a different namespace.
 
 Finaly, deploy the application to your cluster.
+kubectl apply -f k8s/pvc.yaml
 kubectl apply -f k8s/deployment.yaml
 kubectl apply -f k8s/svc.yaml
 kubectl apply -f k8s/ingress.yaml
