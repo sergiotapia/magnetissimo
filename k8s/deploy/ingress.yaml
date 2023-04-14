@@ -1,0 +1,62 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: magnet-tls
+  namespace: default
+  labels:
+    app.kubernetes.io/name: magnet-tls
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    kubernetes.io/ingress.class: traefik
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: "kube-system-traefik-forward-auth@kubernetescrd"
+    traeifk.ingress.kubernetes.io/router.entrypoints: "websecure"
+spec:
+  tls:
+  - hosts:
+    - "magnet.0xem.ma"
+    secretName: magnet-tls
+  rules:
+    - host: "magnet.0xem.ma"
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: magnet
+                port:
+                  number: 4000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: magnet
+  namespace: default
+  labels:
+    app.kubernetes.io/name: magnet
+  annotations:
+    traefik.ingress.kubernetes.io/router.middlewares: "kube-system-traefik-forward-auth@kubernetescrd"
+    traeifk.ingress.kubernetes.io/router.entrypoints: "web"
+spec:
+  rules:
+    - host: "magnet.0xem.ma"
+      http:
+        paths:
+          - path: "/"
+            pathType: Prefix
+            backend:
+              service:
+                name: magnet
+                port:
+                  number: 4000
+---
+apiVersion: endpointmonitor.stakater.com/v1alpha1
+kind: EndpointMonitor
+metadata:
+  name: magnet-monitor
+spec:
+  forceHttps: true
+  urlFrom:
+    ingressRef:
+      name: magnet-tls
