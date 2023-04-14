@@ -30,8 +30,9 @@ We want to explain how to run Magnetissimo on:
 **Docker Compose**
 
 ```
-# Generate a secret_key
-openssl rand -hex 32
+# Generate a secret_key with either
+openssl rand -base64 64
+mix phx.gen.secret
 
 # Enter that key as SECRET_KEY_BASE in the docker-compse.yml file
 SECRET_KEY_BASE=YourKeyGoesHere
