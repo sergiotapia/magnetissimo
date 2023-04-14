@@ -21,7 +21,7 @@ services:
       # Uncomment this environment variable and replace with your domain
       # if you are not using localhost.
       # This is to avoid the "We can't find the internet" websocket error.
-      # Support top level and subdomains.
+      # Supports top level and subdomains.
       # - PHX_HOST=magnetissimo.domain.tld
 
       # Uncomment this environment variable and fill it in with either:
