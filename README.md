@@ -28,14 +28,24 @@ We want to explain how to run Magnetissimo on:
 - Windows
 - Linux
 - Mac
+- Docker Compose
+  ```
+  # Generate a secret_key
+  openssl rand -hex 32
 
-Right now you can run Magnetissimo via it's Dockerfile or through your CLI:
+  # Enter that key as SECRET_KEY_BASE in the docker-compse.yml file
+  SECRET_KEY_BASE=YourKeyGoesHere
 
-```
-asdf install
-mix deps.get
-iex -S mix phx.server
-```
+  # Start the application
+  docker compose up -d
+  ```
+- CLI
+
+  ```
+  asdf install
+  mix deps.get
+  iex -S mix phx.server
+  ```
 
 Then visit: http://localhost:4000
 
