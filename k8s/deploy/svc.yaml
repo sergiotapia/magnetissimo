@@ -1,0 +1,19 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: magnetissimo-svc
+spec:
+  selector:
+    app.kubernetes.io/name: magnetissimo
+  ports:
+    - port: 4000
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: postgres-svc
+spec:
+  selector:
+    app.kubernetes.io/name: magnetissimo
+  ports:
+    - port: 4000
