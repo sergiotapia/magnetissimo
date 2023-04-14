@@ -1,28 +1,29 @@
-version: '3'
+version: "3"
 services:
   postgres:
     container_name: postgres
     image: postgres:15.2-alpine
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=user1
-      - POSTGRES_PASSWORD=pass1
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
       - POSTGRES_DB=magnetissimo
     networks:
       - magnetissimo
     volumes:
-      - 'pgdata:/var/lib/postgresql/data'
+      - "pgdata:/var/lib/postgresql/data"
   magnetissimo:
     container_name: magnetissimo
     build: https://github.com/sergiotapia/magnetissimo.git
     restart: unless-stopped
     environment:
-      - DATABASE_URL=ecto://user1:pass1@postgres:5432/magnetissimo
-      - SECRET_KEY_BASE=YourKeyGoesHere
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/magnetissimo
+      # You should change this to a random 32 to 64 character string
+      - SECRET_KEY_BASE=iPrys6tF8JN+MP4f00re6dJcl3lMCvG0nJq5CuU+eklgiug5oCRkmX1chyvhat50
     networks:
       - magnetissimo
     ports:
-      - '4000:4000/tcp'
+      - "4000:4000/tcp"
     depends_on:
       - postgres
 
