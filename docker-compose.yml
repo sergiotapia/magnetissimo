@@ -18,6 +18,9 @@ services:
     restart: unless-stopped
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/magnetissimo
+      # Uncomment the following environment variable and replace with your domain
+      # if you are not using localhostand you receive "We can't find the internet error" error
+      # - PHX_HOST=magnetissimo.domain.tld
       # Uncomment this environment variable and fill it in with either:
       # openssl rand -base64 64
       # mix phx.gen.secret
