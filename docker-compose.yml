@@ -21,7 +21,7 @@ services:
       # You should change this to a random 32 to 64 character string
       # You can run: openssl rand -base64 48
       # or: mix phx.gen.secret
-      - SECRET_KEY_BASE=
+      # - SECRET_KEY_BASE=
     networks:
       - magnetissimo
     ports:
