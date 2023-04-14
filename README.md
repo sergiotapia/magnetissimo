@@ -41,6 +41,22 @@ SECRET_KEY_BASE=YourKeyGoesHere
 docker compose up -d
 ```
 
+** Kubernetes **
+```
+# Generate a secret_key with either
+openssl rand -base64 64
+mix phx.gen.secret
+
+Edit the k8s/deployment.yaml file, and replace the ENV SECRET_KEY_BASE with your generated key.
+Edit k8s/ingress.yaml and replace the host with your domain name.
+
+The Postgres database is configured to use the DNS name assuming it is being deployed to the default namespace, update this in the enviroment variables if you are deploying to a different namespace.
+
+Finaly, deploy the application to your cluster.
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/svc.yaml
+kubectl apply -f k8s/ingress.yaml
+```
 **Local Development**
 
 ```

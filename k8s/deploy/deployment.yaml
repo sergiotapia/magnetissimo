@@ -62,6 +62,7 @@ spec:
       enableServiceLinks: true
       containers:
         - image: postgres:15.2-alpine
+          name: magnetissimo-postgressql
           env:
             - name: POSTGRES_USER
               value: postgres
