@@ -1,0 +1,34 @@
+version: '3'
+services:
+  postgres:
+    container_name: postgres
+    image: postgres:15.2-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=user1
+      - POSTGRES_PASSWORD=pass1
+      - POSTGRES_DB=magnetissimo
+    networks:
+      - magnetissimo
+    volumes:
+      - 'pgdata:/var/lib/postgresql/data'
+  magnetissimo:
+    container_name: magnetissimo
+    build: https://github.com/sergiotapia/magnetissimo.git
+    restart: unless-stopped
+    environment:
+      - DATABASE_URL=ecto://user1:pass1@postgres:5432/magnetissimo
+      - SECRET_KEY_BASE=YourKeyGoesHere
+    networks:
+      - magnetissimo
+    ports:
+      - '4000:4000/tcp'
+    depends_on:
+      - postgres
+
+networks:
+  magnetissimo:
+
+volumes:
+  pgdata:
+    driver: local
