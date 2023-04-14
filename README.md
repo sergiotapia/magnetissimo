@@ -40,7 +40,7 @@ SECRET_KEY_BASE=YourKeyGoesHere
 docker compose up -d
 ```
 
-**Development**
+**Local Development**
 
 ```
 asdf install
