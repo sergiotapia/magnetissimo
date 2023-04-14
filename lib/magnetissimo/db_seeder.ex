@@ -1,65 +1,58 @@
 defmodule Magnetissimo.DbSeeder do
-  alias Magnetissimo.Torrents
+  require Logger
 
-  def run do
-    existing_sources = Torrents.list_sources()
+  alias Magnetissimo.Torrents
+  alias Magnetissimo.Torrents.Source
+  alias Magnetissimo.Torrents.Category
+
+  def run(repo) do
+    existing_sources = repo.all(Magnetissimo.Torrents.Source)
+
+    Logger.info("#{Enum.count(existing_sources)} sources found in database.}")
 
     if Enum.empty?(existing_sources) do
-      {:ok, source} =
-        Torrents.create_source(%{
-          name: "Nyaa.si",
-          url: "https://nyaa.si"
-        })
+      Logger.info("Initializing necessary database records.")
 
-      Torrents.create_source(%{
-        name: "TorrentDownloads",
-        url: "https://torrentdownloads.pro"
-      })
+      source = repo.insert!(%Source{name: "Nyaa.si", url: "https://nyaa.si"})
 
-      Torrents.create_source(%{
-        name: "YTS",
-        url: "https://yts.mx/"
-      })
+      repo.insert!(%Source{name: "TorrentDownloads", url: "https://torrentdownloads.pro"})
+      repo.insert!(%Source{name: "YTS", url: "https://yts.mx/"})
+      repo.insert!(%Source{name: "1337x", url: "https://www.1337x.to"})
 
-      Torrents.create_source(%{
-        name: "1337x",
-        url: "https://www.1337x.to"
-      })
+      anime_category = repo.insert!(%Category{name: "Anime"})
 
-      {:ok, anime_category} = Torrents.create_category(%{name: "Anime"})
-
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: anime_category.id,
         name: "Anime - Music Video",
         alternative_names: ["Anime - Anime Music Video"]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: anime_category.id,
         name: "Anime - English-translated",
         alternative_names: ["Anime"]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: anime_category.id,
         name: "Anime - Non-English translated",
         alternative_names: ["Anime - Non-English-translated"]
       })
 
-      Torrents.create_category(%{parent_id: anime_category.id, name: "Anime - Raw"})
+      repo.insert!(%Category{parent_id: anime_category.id, name: "Anime - Raw"})
 
-      {:ok, audio_category} = Torrents.create_category(%{name: "Audio"})
-      Torrents.create_category(%{parent_id: audio_category.id, name: "Audio - Lossless"})
+      audio_category = repo.insert!(%Category{name: "Audio"})
+      repo.insert!(%Category{parent_id: audio_category.id, name: "Audio - Lossless"})
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: audio_category.id,
         name: "Audio - Lossy",
         alternative_names: ["Music"]
       })
 
-      {:ok, books_category} = Torrents.create_category(%{name: "Books"})
+      books_category = repo.insert!(%Category{name: "Books"})
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: books_category.id,
         name: "Books - English-translated",
         alternative_names: [
@@ -71,21 +64,21 @@ defmodule Magnetissimo.DbSeeder do
         ]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: books_category.id,
         name: "Books - Non-English translated",
         alternative_names: ["Literature - Non-English-translated"]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: books_category.id,
         name: "Books - Raw",
         alternative_names: ["Literature - Raw"]
       })
 
-      {:ok, video_category} = Torrents.create_category(%{name: "Video"})
+      video_category = repo.insert!(%Category{name: "Video"})
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: video_category.id,
         name: "Video - Movies",
         alternative_names: [
@@ -97,41 +90,41 @@ defmodule Magnetissimo.DbSeeder do
         ]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: video_category.id,
         name: "Video - Television",
         alternative_names: ["TV Shows", "TV", "television", "Television", "TV - Other"]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: video_category.id,
         name: "Video - Documentaries",
         alternative_names: ["Documentaries", "Documentary"]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: video_category.id,
         name: "Video - XXX",
         alternative_names: ["XXX"]
       })
 
-      {:ok, images_category} = Torrents.create_category(%{name: "Images"})
+      images_category = repo.insert!(%Category{name: "Images"})
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: images_category.id,
         name: "Images - Graphics",
         alternative_names: ["Pictures - Graphics"]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: images_category.id,
         name: "Images - Photos",
         alternative_names: ["Pictures - Photos"]
       })
 
-      {:ok, software_category} = Torrents.create_category(%{name: "Software"})
+      software_category = repo.insert!(%Category{name: "Software"})
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: software_category.id,
         name: "Software - Applications",
         alternative_names: [
@@ -145,13 +138,13 @@ defmodule Magnetissimo.DbSeeder do
         ]
       })
 
-      Torrents.create_category(%{
+      repo.insert!(%Category{
         parent_id: software_category.id,
         name: "Software - Games",
         alternative_names: ["Games"]
       })
 
-      {:ok, other_category} = Torrents.create_category(%{name: "Other"})
+      other_category = repo.insert!(%Category{name: "Other"})
 
       {:ok, _} =
         Torrents.create_torrent(%{
@@ -168,6 +161,8 @@ defmodule Magnetissimo.DbSeeder do
           category_id: other_category.id,
           source_id: source.id
         })
+    else
+      Logger.info("Database is already initialized with necessary data.")
     end
   end
 end

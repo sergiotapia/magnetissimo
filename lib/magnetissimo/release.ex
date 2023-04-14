@@ -12,9 +12,8 @@ defmodule Magnetissimo.Release do
 
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
+      _ = Ecto.Migrator.with_repo(repo, &DbSeeder.run(&1))
     end
-
-    DbSeeder.run()
   end
 
   def rollback(repo, version) do
