@@ -5,12 +5,16 @@ defmodule Magnetissimo.Release do
   """
   @app :magnetissimo
 
+  alias Magnetissimo.DbSeeder
+
   def migrate do
     load_app()
 
     for repo <- repos() do
       {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :up, all: true))
     end
+
+    DbSeeder.run()
   end
 
   def rollback(repo, version) do
