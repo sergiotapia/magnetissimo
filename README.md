@@ -21,31 +21,32 @@ database.
 
 ### Usage Guide:
 
-TBD - We need to write some easy to follow guides here. HELP WANTED!
-
 We want to explain how to run Magnetissimo on:
 
 - Windows
 - Linux
 - Mac
-- Docker Compose
-  ```
-  # Generate a secret_key
-  openssl rand -hex 32
 
-  # Enter that key as SECRET_KEY_BASE in the docker-compse.yml file
-  SECRET_KEY_BASE=YourKeyGoesHere
+**Docker Compose**
 
-  # Start the application
-  docker compose up -d
-  ```
-- CLI
+```
+# Generate a secret_key
+openssl rand -hex 32
 
-  ```
-  asdf install
-  mix deps.get
-  iex -S mix phx.server
-  ```
+# Enter that key as SECRET_KEY_BASE in the docker-compse.yml file
+SECRET_KEY_BASE=YourKeyGoesHere
+
+# Start the application
+docker compose up -d
+```
+
+**Development**
+
+```
+asdf install
+mix deps.get
+iex -S mix phx.server
+```
 
 Then visit: http://localhost:4000
 
