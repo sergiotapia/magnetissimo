@@ -19,7 +19,9 @@ services:
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/magnetissimo
       # You should change this to a random 32 to 64 character string
-      - SECRET_KEY_BASE=iPrys6tF8JN+MP4f00re6dJcl3lMCvG0nJq5CuU+eklgiug5oCRkmX1chyvhat50
+      # You can run: openssl rand -base64 48
+      # or: mix phx.gen.secret
+      - SECRET_KEY_BASE=
     networks:
       - magnetissimo
     ports:
