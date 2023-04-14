@@ -41,7 +41,7 @@ SECRET_KEY_BASE=YourKeyGoesHere
 docker compose up -d
 ```
 
-** Kubernetes **
+**Kubernetes**
 ```
 # Generate a secret_key with either
 openssl rand -base64 64
