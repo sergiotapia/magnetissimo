@@ -48,7 +48,7 @@ openssl rand -base64 64
 mix phx.gen.secret
 
 Edit the k8s/deployment.yaml file, and replace the ENV SECRET_KEY_BASE with your generated key.
-Edit k8s/ingress.yaml and replace the host with your domain name.
+Edit k8s/ingress.yaml & the PHX_HOST in k8s/deployment.yaml and replace the host with your domain name.
 
 The Postgres database is configured to use the DNS name assuming it is being deployed to the default namespace, update this in the enviroment variables if you are deploying to a different namespace.
 
