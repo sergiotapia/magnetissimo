@@ -18,6 +18,6 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: magnet
+                name: magnetissimo-svc
                 port:
                   number: 4000
