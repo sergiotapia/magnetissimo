@@ -41,6 +41,18 @@ SECRET_KEY_BASE=YourKeyGoesHere
 docker compose up -d
 ```
 
+If you are going to access Magnetissimo at an address besides `localhost`, add `PHX_HOST` to your environment variables. For example, to access it at `http://192.168.0.54:4000`:
+
+```
+      - PHX_HOST=192.168.0.54
+```
+
+Or to access it at `https://magnetissimo.domain.tld`:
+
+```
+      - PHX_HOST=magnetissimo.domain.tld
+```
+
 **Kubernetes**
 ```
 # Generate a secret_key with either
