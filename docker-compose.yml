@@ -14,7 +14,7 @@ services:
       - "pgdata:/var/lib/postgresql/data"
   magnetissimo:
     container_name: magnetissimo
-    build: https://github.com/sergiotapia/magnetissimo.git
+    image: ghcr.io/sergiotapia/magnetissimo:master
     restart: unless-stopped
     environment:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/magnetissimo

@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: magnetissimo
+  namespace: default
+  labels:
+    app.kubernetes.io/name: magnetissimo
+spec:
+  revisionHistoryLimit: 3
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: magnetissimo
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: magnetissimo
+    spec:
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      containers:
+        - image: ghcr.io/sergiotapia/magnetissimo:master
+          imagePullPolicy: Always
+          name: magnetissimo
+          ports:
+          - containerPort: 4000
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://postgres:postgres@postgres-svc.default.svc.cluster.local:5432/magnetissimo"\
+            - name: SECRET_KEY_BASE
+              value: "SECRET_KEY_HERE"
+            - name: PHX_HOST
+              value: "magnet.example.com"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: magnetissimo-postgressql
+  namespace: default
+  labels:
+    app.kubernetes.io/name: magnetissimo-postgressql
+spec:
+  revisionHistoryLimit: 3
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: magnetissimo-postgressql
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: magnetissimo-postgressql
+    spec:
+      dnsPolicy: ClusterFirst
+      enableServiceLinks: true
+      containers:
+        - image: postgres:15.2-alpine
+          name: magnetissimo-postgressql
+          env:
+            - name: POSTGRES_USER
+              value: postgres
+            - name: POSTGRES_PASSWORD
+              value: postgres
+            - name: POSTGRES_DB
+              value: magnetissimo
+          volumeMounts:
+            - name: magnetissimo-db
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: magnetissimo-db
+          persistentVolumeClaim:
+            claimName: magnetissimo-db
+            size: 5Gi
