@@ -39,7 +39,7 @@ defmodule MagnetissimoWeb do
   def controller do
     quote do
       use Phoenix.Controller,
-        formats: [:html, :json],
+        formats: [:html, :json, :xml],
         layouts: [html: MagnetissimoWeb.Layouts]
 
       import Plug.Conn

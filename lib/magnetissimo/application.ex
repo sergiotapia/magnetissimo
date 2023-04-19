@@ -18,13 +18,13 @@ defmodule Magnetissimo.Application do
       {Finch, name: Magnetissimo.Finch},
       # Start the Endpoint (http/https)
       MagnetissimoWeb.Endpoint,
-      {Oban, Application.fetch_env!(:magnetissimo, Oban)},
+      {Oban, Application.fetch_env!(:magnetissimo, Oban)}
       # Start a worker by calling: Magnetissimo.Worker.start_link(arg)
       # {Magnetissimo.Worker, arg}
-      Magnetissimo.Genservers.Leetx,
-      Magnetissimo.Genservers.Nyaa,
-      Magnetissimo.Genservers.TorrentDownloads,
-      Magnetissimo.Genservers.Yts
+      # Magnetissimo.Genservers.Leetx,
+      # Magnetissimo.Genservers.Nyaa,
+      # Magnetissimo.Genservers.TorrentDownloads,
+      # Magnetissimo.Genservers.Yts
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

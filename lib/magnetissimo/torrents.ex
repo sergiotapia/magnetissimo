@@ -201,6 +201,23 @@ defmodule Magnetissimo.Torrents do
     Repo.all(Category)
   end
 
+  def list_category_tree_by_name(name, repo \\ Repo) do
+    query =
+      from(c in Category,
+        as: :categories,
+        distinct: true,
+        where:
+          c.name == ^name or
+            exists(
+              from(p in Category,
+                where: p.id == parent_as(:categories).parent_id and p.name == ^name
+              )
+            )
+      )
+
+    repo.all(query)
+  end
+
   @doc """
   Gets a single category.
 

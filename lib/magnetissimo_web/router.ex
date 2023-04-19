@@ -25,6 +25,7 @@ defmodule MagnetissimoWeb.Router do
   scope "/api", MagnetissimoWeb do
     pipe_through(:api)
 
+    get("/search-torznab/:search_term", TorrentsController, :search_torznab)
     get("/search/:search_term", TorrentsController, :search)
     get("/latest", TorrentsController, :latest)
   end

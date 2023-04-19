@@ -11,6 +11,7 @@ defmodule Magnetissimo.Torrents.Category do
     field(:name, :string)
     field(:alternative_names, {:array, :string})
     field(:slug, :string)
+    field(:newznab_category_id, :string)
 
     belongs_to(:parent_category, Category, references: :id, foreign_key: :parent_id)
     has_many(:torrents, Torrent)
@@ -21,7 +22,7 @@ defmodule Magnetissimo.Torrents.Category do
   @doc false
   def changeset(category, attrs) do
     category
-    |> cast(attrs, [:name, :alternative_names, :parent_id])
+    |> cast(attrs, [:name, :alternative_names, :newznab_category_id, :parent_id])
     |> validate_required([:name])
     |> put_slug()
   end
