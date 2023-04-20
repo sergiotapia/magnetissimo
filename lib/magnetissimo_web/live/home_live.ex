@@ -59,10 +59,15 @@ defmodule MagnetissimoWeb.HomeLive do
   defp assign_torrents(socket) do
     params = merge_and_sanitize_params(socket)
 
-    torrents = Torrents.list_torrents(params)
+    %{torrents: torrents, total_count: total_count} = Torrents.list_torrents(params)
 
     socket
     |> assign(:torrents, torrents)
+    |> assign_total_count(total_count)
+  end
+
+  defp assign_total_count(socket, total_count) do
+    update(socket, :pagination, fn pagination -> %{pagination | total_count: total_count} end)
   end
 
   defp merge_and_sanitize_params(socket, overrides \\ %{}) do

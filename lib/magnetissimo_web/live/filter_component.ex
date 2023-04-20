@@ -39,7 +39,6 @@ defmodule MagnetissimoWeb.FilterComponent do
   end
 
   defp assign_changeset(%{filter: filter}, socket) do
-    IO.inspect(filter)
     assign(socket, :changeset, FilterForm.change_values(filter))
   end
 end

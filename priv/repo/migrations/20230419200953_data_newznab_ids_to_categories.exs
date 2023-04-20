@@ -12,8 +12,6 @@ defmodule Magnetissimo.Repo.Migrations.DataNewznabIdsToCategories do
 
     repo = repo()
 
-    Torrents.list_category_tree_by_name("Anime", repo) |> IO.inspect()
-
     Torrents.list_category_tree_by_name("Anime", repo)
     |> Enum.each(fn category ->
       change = Torrents.change_category(category, %{newznab_category_id: "5070"})

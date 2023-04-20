@@ -25,6 +25,12 @@
   <div>
     <h2 class="mb-2 text-lg font-bold">Latest torrents</h2>
 
+    <.live_component
+      module={MagnetissimoWeb.PaginationComponent}
+      id="pagination-top"
+      pagination={@pagination}
+    />
+
     <div class="mb-6 overflow-hidden border border-black/10 rounded-xl">
       <.table class="w-full table-auto" id="torrents" rows={@torrents}>
         <:col :let={torrent} label="Name">
@@ -75,5 +81,11 @@
         </:col>
       </.table>
     </div>
+
+    <.live_component
+      module={MagnetissimoWeb.PaginationComponent}
+      id="pagination-bottom"
+      pagination={@pagination}
+    />
   </div>
 </div>

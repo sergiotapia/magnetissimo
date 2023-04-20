@@ -351,10 +351,16 @@ defmodule Magnetissimo.Torrents do
   def list_torrents(opts) do
     query = from(t in Torrent) |> filter(opts)
 
-    query
-    |> sort(opts)
-    |> Repo.all()
-    |> Repo.preload([:category, :source])
+    total_count = Repo.aggregate(query, :count)
+
+    torrents =
+      query
+      |> sort(opts)
+      |> paginate(opts)
+      |> Repo.all()
+      |> Repo.preload([:category, :source])
+
+    %{torrents: torrents, total_count: total_count}
   end
 
   defp sort(query, %{sort_dir: sort_dir, sort_by: sort_by})
@@ -364,6 +370,17 @@ defmodule Magnetissimo.Torrents do
   end
 
   defp sort(query, _opts), do: query
+
+  defp paginate(query, %{page: page, page_size: page_size})
+       when is_integer(page) and is_integer(page_size) do
+    offset = max(page - 1, 0) * page_size
+
+    query
+    |> limit(^page_size)
+    |> offset(^offset)
+  end
+
+  defp paginate(query, _opts), do: query
 
   defp filter(query, opts) do
     query

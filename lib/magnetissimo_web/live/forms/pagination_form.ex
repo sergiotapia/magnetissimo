@@ -9,7 +9,7 @@ defmodule MagnetissimoWeb.Forms.PaginationForm do
 
   @default_values %{
     page: 1,
-    page_size: 20,
+    page_size: 10,
     total_count: 0
   }
 
