@@ -15,6 +15,14 @@ defmodule MagnetissimoWeb.TorrentsController do
   end
 
   # Torznab API handlers.
+  def latest_torznab(conn, _params) do
+    torrents = Torrents.list_torrents()
+
+    conn
+    |> put_resp_content_type("text/xml")
+    |> render("latest_torznab.xml", torrents: torrents)
+  end
+
   def search_torznab(conn, %{"search_term" => search_term} = _params) do
     torrents = Torrents.search_torrents(search_term)
 

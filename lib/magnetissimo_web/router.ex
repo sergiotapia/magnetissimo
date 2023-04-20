@@ -14,7 +14,7 @@ defmodule MagnetissimoWeb.Router do
   end
 
   pipeline :api do
-    plug(:accepts, ["json"])
+    plug(:accepts, ["json", "xml"])
   end
 
   scope "/", MagnetissimoWeb do
@@ -25,6 +25,7 @@ defmodule MagnetissimoWeb.Router do
   scope "/api", MagnetissimoWeb do
     pipe_through(:api)
 
+    get("/", TorrentsController, :latest_torznab)
     get("/search-torznab/:search_term", TorrentsController, :search_torznab)
     get("/search/:search_term", TorrentsController, :search)
     get("/latest", TorrentsController, :latest)

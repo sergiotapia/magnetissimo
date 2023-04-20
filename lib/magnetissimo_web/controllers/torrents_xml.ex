@@ -1,6 +1,24 @@
 defmodule MagnetissimoWeb.TorrentsXML do
   alias Magnetissimo.Torrents.Torrent
 
+  def latest_torznab(%{torrents: torrents}) do
+    torrents_xml =
+      torrents
+      |> Enum.map(fn torrent ->
+        data(torrent)
+      end)
+      |> Enum.join()
+
+    """
+    <?xml version="1.0" encoding="UTF-8" ?>
+    <rss version="1.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:torznab="http://torznab.com/schemas/2015/feed">
+      <channel>
+        #{torrents_xml}
+      </channel>
+    </rss>
+    """
+  end
+
   def search_torznab(%{torrents: torrents}) do
     torrents_xml =
       torrents

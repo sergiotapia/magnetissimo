@@ -56,10 +56,10 @@ defmodule Magnetissimo.Torrents do
   @spec search_torrents(binary()) :: [Torrent.t()]
   def search_torrents(search_term) do
     crawlers = [
-      Leetx,
-      Nyaa,
-      TorrentDownloads,
-      Yts
+      # Leetx,
+      # Nyaa,
+      # TorrentDownloads,
+      # Yts
     ]
 
     Task.async_stream(

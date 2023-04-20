@@ -1,6 +1,10 @@
 defmodule MagnetissimoWeb.TorrentsJSON do
   alias Magnetissimo.Torrents.Torrent
 
+  def ok do
+    %{data: %{status: "ok"}}
+  end
+
   @doc """
   Renders a list of Torrents.
   """
