@@ -23,8 +23,7 @@ defmodule MagnetissimoWeb.HomeLive do
   @impl true
   def handle_info({:update, opts}, socket) do
     params = merge_and_sanitize_params(socket, opts)
-    query_params = URI.encode_query(params)
-    path = "/?#{query_params}"
+    path = ~p"/?#{params}"
     {:noreply, push_patch(socket, to: path, replace: true)}
   end
 
