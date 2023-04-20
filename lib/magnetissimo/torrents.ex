@@ -348,17 +348,42 @@ defmodule Magnetissimo.Torrents do
       [%Torrent{}, ...]
 
   """
-  @spec list_torrents() :: [Torrent.t()]
-  def list_torrents do
-    q =
-      from(t in Torrent,
-        preload: [:source, :category],
-        order_by: [desc: t.published_at],
-        limit: 50
-      )
+  def list_torrents(opts) do
+    query = from(t in Torrent) |> filter(opts)
 
-    Repo.all(q)
+    query
+    |> sort(opts)
+    |> Repo.all()
+    |> Repo.preload([:category, :source])
   end
+
+  defp sort(query, %{sort_dir: sort_dir, sort_by: sort_by})
+       when sort_dir in [:asc, :desc] and
+              sort_by in [:name, :size_in_bytes, :seeders, :leechers] do
+    order_by(query, {^sort_dir, ^sort_by})
+  end
+
+  defp sort(query, _opts), do: query
+
+  defp filter(query, opts) do
+    query
+    |> filter_by_source_id(opts)
+    |> filter_by_name(opts)
+  end
+
+  defp filter_by_source_id(query, %{source_id: source_id}) when is_binary(source_id) do
+    where(query, source_id: ^source_id)
+  end
+
+  defp filter_by_source_id(query, _opts), do: query
+
+  defp filter_by_name(query, %{name: name}) when is_binary(name) and name != "" do
+    query_string = "%#{name}%"
+
+    where(query, [t], ilike(t.name, ^query_string) or ilike(t.description, ^query_string))
+  end
+
+  defp filter_by_name(query, _opts), do: query
 
   @doc """
   Gets a single torrent.

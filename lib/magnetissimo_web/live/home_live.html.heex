@@ -1,13 +1,6 @@
 <h1 class="mb-4 text-lg font-extrabold tracking-tight">Search the seas.</h1>
-<.simple_form :let={f} for={%{}} as={:search} phx-change="search" phx-submit="submit">
-  <.input
-    phx_debounce="300"
-    field={f[:search_term]}
-    value={@search_term}
-    placeholder="Search for any torrent by name."
-    class="p-5 mt-0 tracking-tight border-0 bg-neutral-100 rounded-xl sm:text-base placeholder:text-neutral-400"
-  />
-</.simple_form>
+
+<.live_component module={MagnetissimoWeb.FilterComponent} id="filter" filter={@filter} />
 
 <hr class="my-8 border-black/10" />
 
