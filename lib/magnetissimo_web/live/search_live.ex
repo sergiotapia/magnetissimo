@@ -21,7 +21,7 @@ defmodule MagnetissimoWeb.SearchLive do
     url = URI.parse(uri) |> URI.to_string()
 
     filter_opts = %{
-      search: params["search"] || ""
+      search: params["filter"]["search"] || ""
     }
 
     socket =
