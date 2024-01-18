@@ -46,7 +46,6 @@ defmodule Magnetissimo.Torrents.Torrent do
       :name,
       :slug,
       :published_at,
-      :description,
       :canonical_url,
       :magnet_url,
       :magnet_hash,

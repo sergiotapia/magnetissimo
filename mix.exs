@@ -55,7 +55,9 @@ defmodule Magnetissimo.MixProject do
       {:req, "~> 0.4.8"},
       {:size, "~> 0.1.1"},
       {:earmark, "~> 1.4"},
-      {:html_sanitize_ex, "~> 1.4"}
+      {:html_sanitize_ex, "~> 1.4"},
+      {:sweet_xml, "~> 0.7.4"},
+      {:timex, "~> 3.7"}
     ]
   end
 
