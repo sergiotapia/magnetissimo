@@ -2,6 +2,7 @@ defmodule Magnetissimo.Torrents.Torrent do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Magnetissimo.Helpers
   alias Magnetissimo.Torrents.Category
   alias Magnetissimo.Torrents.Source
 
@@ -54,5 +55,6 @@ defmodule Magnetissimo.Torrents.Torrent do
       :category_id,
       :source_id
     ])
+    |> Helpers.slugify()
   end
 end

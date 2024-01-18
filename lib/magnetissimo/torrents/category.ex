@@ -2,6 +2,7 @@ defmodule Magnetissimo.Torrents.Category do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Magnetissimo.Helpers
   alias Magnetissimo.Torrents.Torrent
 
   schema "categories" do
@@ -19,5 +20,6 @@ defmodule Magnetissimo.Torrents.Category do
     category
     |> cast(attrs, [:name, :slug])
     |> validate_required([:name, :slug])
+    |> Helpers.slugify()
   end
 end

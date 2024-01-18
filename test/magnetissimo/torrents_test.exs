@@ -25,7 +25,7 @@ defmodule Magnetissimo.TorrentsTest do
 
       assert {:ok, %Category{} = category} = Torrents.create_category(valid_attrs)
       assert category.name == "some name"
-      assert category.slug == "some slug"
+      assert category.slug == "some-name"
     end
 
     test "create_category/1 with invalid data returns error changeset" do
@@ -38,7 +38,7 @@ defmodule Magnetissimo.TorrentsTest do
 
       assert {:ok, %Category{} = category} = Torrents.update_category(category, update_attrs)
       assert category.name == "some updated name"
-      assert category.slug == "some updated slug"
+      assert category.slug == "some-updated-name"
     end
 
     test "update_category/2 with invalid data returns error changeset" do
@@ -82,7 +82,7 @@ defmodule Magnetissimo.TorrentsTest do
       assert {:ok, %Source{} = source} = Torrents.create_source(valid_attrs)
       assert source.name == "some name"
       assert source.url == "some url"
-      assert source.slug == "some slug"
+      assert source.slug == "some-name"
     end
 
     test "create_source/1 with invalid data returns error changeset" do
@@ -101,7 +101,7 @@ defmodule Magnetissimo.TorrentsTest do
       assert {:ok, %Source{} = source} = Torrents.update_source(source, update_attrs)
       assert source.name == "some updated name"
       assert source.url == "some updated url"
-      assert source.slug == "some updated slug"
+      assert source.slug == "some-updated-name"
     end
 
     test "update_source/2 with invalid data returns error changeset" do
@@ -169,7 +169,7 @@ defmodule Magnetissimo.TorrentsTest do
       assert {:ok, %Torrent{} = torrent} = Torrents.create_torrent(valid_attrs)
       assert torrent.name == "some name"
       assert torrent.description == "some description"
-      assert torrent.slug == "some slug"
+      assert torrent.slug == "some-name"
       assert torrent.published_at == ~U[2024-01-17 00:11:00.000000Z]
       assert torrent.canonical_url == "some canonical_url"
       assert torrent.magnet_url == "some magnet_url"
@@ -202,7 +202,7 @@ defmodule Magnetissimo.TorrentsTest do
       assert {:ok, %Torrent{} = torrent} = Torrents.update_torrent(torrent, update_attrs)
       assert torrent.name == "some updated name"
       assert torrent.description == "some updated description"
-      assert torrent.slug == "some updated slug"
+      assert torrent.slug == "some-updated-name"
       assert torrent.published_at == ~U[2024-01-18 00:11:00.000000Z]
       assert torrent.canonical_url == "some updated canonical_url"
       assert torrent.magnet_url == "some updated magnet_url"

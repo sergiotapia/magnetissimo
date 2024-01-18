@@ -2,6 +2,7 @@ defmodule Magnetissimo.Torrents.Source do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias Magnetissimo.Helpers
   alias Magnetissimo.Torrents.Torrent
 
   schema "sources" do
@@ -19,5 +20,6 @@ defmodule Magnetissimo.Torrents.Source do
     source
     |> cast(attrs, [:name, :slug, :url])
     |> validate_required([:name, :slug, :url])
+    |> Helpers.slugify()
   end
 end
