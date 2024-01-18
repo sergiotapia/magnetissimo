@@ -44,10 +44,22 @@
           </th>
         </tr>
       </thead>
-      <tbody>
-        <%= for torrent <- @torrents do %>
-          <.torrent_result_item id={"torrent-result-#{torrent.id}"} torrent={torrent} />
-        <% end %>
+      <tbody
+        id="torrents"
+        phx-update="stream"
+        phx-viewport-top={@page > 1 && "prev-page"}
+        phx-viewport-bottom={!@end_of_timeline? && "next-page"}
+        phx-page-loading
+        class={[
+          if(@end_of_timeline?, do: "pb-10", else: "pb-[calc(200vh)]"),
+          if(@page == 1, do: "pt-10", else: "pt-[calc(200vh)]")
+        ]}
+      >
+        <.torrent_result_item
+          :for={{dom_id, torrent} <- @streams.torrents}
+          id={dom_id}
+          torrent={torrent}
+        />
       </tbody>
     </table>
   </div>

@@ -252,37 +252,66 @@ defmodule Magnetissimo.Torrents do
       [%Torrent{}, ...]
 
   """
-  def search_torrents(search_term) do
-    case Cachex.get(:cache, search_term) do
-      {:ok, nil} ->
-        [
-          Magnetissimo.Crawlers.Leetx,
-          Magnetissimo.Crawlers.TorrentDownloads,
-          Magnetissimo.Crawlers.Yts
-        ]
-        |> Task.async_stream(
-          fn crawler_module ->
-            crawler_module.search(search_term)
-          end,
-          ordered: false,
-          timeout: :infinity
-        )
-        |> Stream.run()
+  def search_torrents(filter_opts: filter_opts, offset: offset, limit: limit) do
+    if filter_opts[:search] != "" do
+      search_term = filter_opts[:search]
 
-        Cachex.put(:cache, search_term, search_term, ttl: :timer.hours(1))
+      case Cachex.get(:cache, search_term) do
+        {:ok, nil} ->
+          [
+            Magnetissimo.Crawlers.Leetx,
+            Magnetissimo.Crawlers.TorrentDownloads,
+            Magnetissimo.Crawlers.Yts
+          ]
+          |> Task.async_stream(
+            fn crawler_module ->
+              crawler_module.search(search_term)
+            end,
+            ordered: false,
+            timeout: :infinity
+          )
+          |> Stream.run()
 
-      {:ok, search_term} ->
-        Logger.info("Cache (1hr) hit for search_term: `#{search_term}`. Skipping crawler search.")
+          Cachex.put(:cache, search_term, search_term, ttl: :timer.hours(1))
+
+        {:ok, search_term} ->
+          Logger.info(
+            "Cache (1hr) hit for search_term: `#{search_term}`. Skipping crawler search."
+          )
+      end
     end
 
     query =
       from(t in Torrent,
-        where: like(t.name, ^"%#{search_term}%") or like(t.description, ^"%#{search_term}%"),
+        as: :torrent,
         order_by: [desc: t.published_at],
+        where: ^filter_where(filter_opts),
+        offset: ^offset,
+        limit: ^limit,
         preload: [:source, :category]
       )
 
     Repo.all(query)
+  end
+
+  def filter_where(params) do
+    Enum.reduce(params, dynamic(true), fn
+      {:search, ""}, dynamic ->
+        dynamic
+
+      {:search, search_term}, dynamic ->
+        search_term = "%#{search_term}%"
+
+        dynamic(
+          [torrent: t],
+          (^dynamic and like(t.name, ^"%#{search_term}%")) or
+            like(t.description, ^"%#{search_term}%")
+        )
+
+      {_, _}, dynamic ->
+        # Not a where parameter
+        dynamic
+    end)
   end
 
   @doc """
