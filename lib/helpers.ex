@@ -37,7 +37,7 @@ defmodule Magnetissimo.Helpers do
 
   def slugify(changeset) do
     case changeset do
-      %Ecto.Changeset{valid?: true, changes: %{name: name}} ->
+      %Ecto.Changeset{valid?: true, changes: %{name: name}} when is_binary(name) ->
         slug = Slug.slugify(name, separator: "-")
 
         changeset
