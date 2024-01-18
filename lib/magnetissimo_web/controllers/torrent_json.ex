@@ -4,7 +4,7 @@ defmodule MagnetissimoWeb.TorrentJSON do
   @doc """
   Renders a list of Torrents.
   """
-  def latest(%{torrents: torrents}) do
+  def index(%{torrents: torrents}) do
     %{data: for(torrent <- torrents, do: data(torrent))}
   end
 

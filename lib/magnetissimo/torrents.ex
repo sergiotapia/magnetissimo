@@ -269,7 +269,7 @@ defmodule Magnetissimo.Torrents do
 
     query =
       from(t in Torrent,
-        where: ilike(t.name, ^"%#{search_term}%") or ilike(t.description, ^"%#{search_term}%"),
+        where: like(t.name, ^"%#{search_term}%") or like(t.description, ^"%#{search_term}%"),
         order_by: [desc: t.published_at],
         preload: [:source, :category]
       )

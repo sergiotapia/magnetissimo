@@ -28,6 +28,10 @@ defmodule MagnetissimoWeb.Router do
 
     get("/latest.json", TorrentController, :latest)
     get("/latest.xml", TorrentController, :latest_torznab)
+
+    get("/search.json", TorrentController, :search)
+    get("/search.xml", TorrentController, :search_torznab)
+
     # get("/latest-tor", TorrentsController, :latest_torznab)
     # get("/search-torznab/:search_term", TorrentsController, :search_torznab)
     # get("/search/:search_term", TorrentsController, :search)
