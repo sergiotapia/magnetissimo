@@ -9,7 +9,7 @@ import Config
 
 config :magnetissimo,
   ecto_repos: [Magnetissimo.Repo],
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime_usec]
 
 # Configures the endpoint
 config :magnetissimo, MagnetissimoWeb.Endpoint,

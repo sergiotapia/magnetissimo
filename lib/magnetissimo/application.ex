@@ -11,8 +11,7 @@ defmodule Magnetissimo.Application do
       MagnetissimoWeb.Telemetry,
       Magnetissimo.Repo,
       {Ecto.Migrator,
-        repos: Application.fetch_env!(:magnetissimo, :ecto_repos),
-        skip: skip_migrations?()},
+       repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Magnetissimo.PubSub},
       # Start the Finch HTTP client for sending emails
