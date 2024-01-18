@@ -230,11 +230,49 @@ defmodule Magnetissimo.Torrents do
       [%Torrent{}, ...]
 
   """
-  def list_torrents do
+  def list_torrents(limit \\ 50) do
     query =
       from t in Torrent,
         order_by: [desc: t.published_at],
+        limit: ^limit,
         preload: [:category, :source]
+
+    Repo.all(query)
+  end
+
+  @doc """
+  Returns a list of torrents from the database by performing
+  an ilike match against a Torrent's name and description.
+
+  ## Examples
+
+      iex> search_torrents("x265")
+      [%Torrent{}, ...]
+
+  """
+  def search_torrents(search_term) do
+    crawlers = [
+      Magnetissimo.Crawlers.Leetx,
+      Magnetissimo.Crawlers.TorrentDownloads,
+      Magnetissimo.Crawlers.Yts
+    ]
+
+    Task.async_stream(
+      crawlers,
+      fn crawler_module ->
+        crawler_module.search(search_term)
+      end,
+      ordered: false,
+      timeout: :infinity
+    )
+    |> Stream.run()
+
+    query =
+      from(t in Torrent,
+        where: ilike(t.name, ^"%#{search_term}%") or ilike(t.description, ^"%#{search_term}%"),
+        order_by: [desc: t.published_at],
+        preload: [:source, :category]
+      )
 
     Repo.all(query)
   end

@@ -9,6 +9,7 @@ defmodule Magnetissimo.Torrents.Category do
     field :name, :string
     field :slug, :string
     field :alternative_names, {:array, :string}
+    field :newznab_category_id, :string
 
     has_many :torrents, Torrent
 
@@ -18,7 +19,7 @@ defmodule Magnetissimo.Torrents.Category do
   @doc false
   def changeset(category, attrs) do
     category
-    |> cast(attrs, [:name, :slug, :alternative_names])
+    |> cast(attrs, [:name, :slug, :alternative_names, :newznab_category_id])
     |> Helpers.slugify()
     |> validate_required([:name, :slug])
   end

@@ -18,9 +18,9 @@ defmodule Magnetissimo.Application do
       {Finch, name: Magnetissimo.Finch},
       # Start a worker by calling: Magnetissimo.Worker.start_link(arg)
       # {Magnetissimo.Worker, arg},
-      Magnetissimo.Genservers.Leetx,
-      Magnetissimo.Genservers.Yts,
-      Magnetissimo.Genservers.TorrentDownloads,
+      # Magnetissimo.Genservers.Leetx,
+      # Magnetissimo.Genservers.Yts,
+      # Magnetissimo.Genservers.TorrentDownloads,
       # Start to serve requests, typically the last entry
       MagnetissimoWeb.Endpoint
     ]

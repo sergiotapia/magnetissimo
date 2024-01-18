@@ -41,30 +41,43 @@ if Enum.empty?(existing_sources) do
   Torrents.create_category(%{
     parent_id: anime_category.id,
     name: "Anime - Music Video",
-    alternative_names: ["Anime - Anime Music Video"]
+    alternative_names: ["Anime - Anime Music Video"],
+    newznab_category_id: "5070"
   })
 
   Torrents.create_category(%{
     parent_id: anime_category.id,
     name: "Anime - English-translated",
-    alternative_names: ["Anime"]
+    alternative_names: ["Anime"],
+    newznab_category_id: "5070"
   })
 
   Torrents.create_category(%{
     parent_id: anime_category.id,
     name: "Anime - Non-English translated",
-    alternative_names: ["Anime - Non-English-translated"]
+    alternative_names: ["Anime - Non-English-translated"],
+    newznab_category_id: "5070"
   })
 
-  Torrents.create_category(%{parent_id: anime_category.id, name: "Anime - Raw"})
+  Torrents.create_category(%{
+    parent_id: anime_category.id,
+    name: "Anime - Raw",
+    newznab_category_id: "5070"
+  })
 
   {:ok, audio_category} = Torrents.create_category(%{name: "Audio"})
-  Torrents.create_category(%{parent_id: audio_category.id, name: "Audio - Lossless"})
+
+  Torrents.create_category(%{
+    parent_id: audio_category.id,
+    name: "Audio - Lossless",
+    newznab_category_id: "3000"
+  })
 
   Torrents.create_category(%{
     parent_id: audio_category.id,
     name: "Audio - Lossy",
-    alternative_names: ["Music"]
+    alternative_names: ["Music"],
+    newznab_category_id: "3000"
   })
 
   {:ok, books_category} = Torrents.create_category(%{name: "Books"})
@@ -72,19 +85,22 @@ if Enum.empty?(existing_sources) do
   Torrents.create_category(%{
     parent_id: books_category.id,
     name: "Books - English-translated",
-    alternative_names: ["Literature - English-translated", "Books", "Ebooks", "e-books", "ebook"]
+    alternative_names: ["Literature - English-translated", "Books", "Ebooks", "e-books", "ebook"],
+    newznab_category_id: "7000"
   })
 
   Torrents.create_category(%{
     parent_id: books_category.id,
     name: "Books - Non-English translated",
-    alternative_names: ["Literature - Non-English-translated"]
+    alternative_names: ["Literature - Non-English-translated"],
+    newznab_category_id: "7000"
   })
 
   Torrents.create_category(%{
     parent_id: books_category.id,
     name: "Books - Raw",
-    alternative_names: ["Literature - Raw"]
+    alternative_names: ["Literature - Raw"],
+    newznab_category_id: "7000"
   })
 
   {:ok, video_category} = Torrents.create_category(%{name: "Video"})
@@ -98,25 +114,29 @@ if Enum.empty?(existing_sources) do
       "Live Action - Idol/Promotional Video",
       "Live Action - Non-English-translated",
       "Movies"
-    ]
+    ],
+    newznab_category_id: "2040,2045,2050,2060"
   })
 
   Torrents.create_category(%{
     parent_id: video_category.id,
     name: "Video - Television",
-    alternative_names: ["TV Shows", "TV", "television", "Television", "TV - Other"]
+    alternative_names: ["TV Shows", "TV", "television", "Television", "TV - Other"],
+    newznab_category_id: "5000,5020,5030,5040,5045,5050,5060"
   })
 
   Torrents.create_category(%{
     parent_id: video_category.id,
     name: "Video - Documentaries",
-    alternative_names: ["Documentaries", "Documentary"]
+    alternative_names: ["Documentaries", "Documentary"],
+    newznab_category_id: "5080"
   })
 
   Torrents.create_category(%{
     parent_id: video_category.id,
     name: "Video - XXX",
-    alternative_names: ["XXX"]
+    alternative_names: ["XXX"],
+    newznab_category_id: "6000,6010,6020,6030,6040,6050,6070"
   })
 
   {:ok, images_category} = Torrents.create_category(%{name: "Images"})
@@ -124,13 +144,15 @@ if Enum.empty?(existing_sources) do
   Torrents.create_category(%{
     parent_id: images_category.id,
     name: "Images - Graphics",
-    alternative_names: ["Pictures - Graphics"]
+    alternative_names: ["Pictures - Graphics"],
+    newznab_category_id: "8000"
   })
 
   Torrents.create_category(%{
     parent_id: images_category.id,
     name: "Images - Photos",
-    alternative_names: ["Pictures - Photos"]
+    alternative_names: ["Pictures - Photos"],
+    newznab_category_id: "8000"
   })
 
   {:ok, software_category} = Torrents.create_category(%{name: "Software"})
@@ -146,16 +168,18 @@ if Enum.empty?(existing_sources) do
       "Apps",
       "Apple",
       "Other operating systems"
-    ]
+    ],
+    newznab_category_id: "4000,4010,4020,2030,4040,4050,4060,4070"
   })
 
   Torrents.create_category(%{
     parent_id: software_category.id,
     name: "Software - Games",
-    alternative_names: ["Games"]
+    alternative_names: ["Games"],
+    newznab_category_id: "4000,4010,4020,2030,4040,4050,4060,4070"
   })
 
-  {:ok, other_category} = Torrents.create_category(%{name: "Other"})
+  {:ok, other_category} = Torrents.create_category(%{name: "Other", newznab_category_id: "8000"})
 
   {:ok, _} =
     Torrents.create_torrent(%{
