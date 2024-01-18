@@ -3,6 +3,9 @@ defmodule Magnetissimo.Crawlers.Yts do
 
   alias Magnetissimo.Torrents
 
+  @doc """
+  Fetches the latest torrents from the list_movies.json endpoint.
+  """
   def crawl_latest() do
     Logger.info("[YTS] Importing latest torrents.")
 
@@ -14,35 +17,23 @@ defmodule Magnetissimo.Crawlers.Yts do
     end)
   end
 
-  # @spec fast_search(binary()) :: :ok
-  # def fast_search(search_term) do
-  #   search(search_term)
-  # end
+  @doc """
+  Performs a search on YTS and ingests the first 50 results
+  to the database.
+  """
+  def search(search_term) do
+    Logger.info("[YTS] Searching for: #{search_term}")
 
-  # def search(search_term) do
-  #   Logger.info("[YTS] Fetching search results page.")
-  #   category = Torrents.get_category_by_name_or_alias!("Movies")
-  #   source = Torrents.get_source_by_name!("YTS")
+    search_term = URI.encode(search_term)
 
-  #   search_term = search_term |> String.replace(" ", "+")
+    json =
+      Req.get!("https://yts.mx/api/v2/list_movies.json?query_term=#{search_term}&limit=50").body
 
-  #   %{status_code: 200, body: body} =
-  #     HTTPoison.get!("https://yts.mx/api/v2/list_movies.json?query_term=#{search_term}&limit=50")
-
-  #   json = Jason.decode!(body)
-
-  #   case json["data"]["movies"] do
-  #     nil ->
-  #       Logger.error("[YTS] No results for search term: #{search_term}")
-  #       Logger.error(json)
-
-  #     movies ->
-  #       movies
-  #       |> Enum.map(&parse_torrent_json(&1, category, source))
-  #       |> List.flatten()
-  #       |> Enum.each(&Torrents.create_torrent_for_source(&1, source.name))
-  #   end
-  # end
+    json["data"]["movies"]
+    |> Enum.each(fn torrent_json ->
+      ingest_torrent_json(torrent_json)
+    end)
+  end
 
   defp ingest_torrent_json(torrent_json) do
     category = Torrents.get_category_by_name_or_alias!("Movies")
