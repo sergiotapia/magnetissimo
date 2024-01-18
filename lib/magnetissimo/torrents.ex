@@ -231,7 +231,37 @@ defmodule Magnetissimo.Torrents do
 
   """
   def list_torrents do
-    Repo.all(Torrent) |> Repo.preload([:category, :source])
+    query =
+      from t in Torrent,
+        order_by: [desc: t.published_at],
+        preload: [:category, :source]
+
+    Repo.all(query)
+  end
+
+  @doc """
+  Returns a list of crawler statistics for every source
+  in the database. How many torrents we've indexed per source.
+
+  ## Examples
+
+      iex> list_crawler_statistics()
+      [
+        {"1337x", 200},
+        {"rarbg", 123},
+        {"yts", 39}
+      ]
+  """
+  def list_crawler_statistics do
+    query =
+      from(t in Torrent,
+        inner_join: source in assoc(t, :source),
+        group_by: [source.name, source.id],
+        order_by: [asc: source.name],
+        select: {source.name, count(t.id)}
+      )
+
+    Repo.all(query)
   end
 
   @doc """
