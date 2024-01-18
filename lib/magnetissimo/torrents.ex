@@ -231,7 +231,7 @@ defmodule Magnetissimo.Torrents do
 
   """
   def list_torrents do
-    Repo.all(Torrent)
+    Repo.all(Torrent) |> Repo.preload([:category, :source])
   end
 
   @doc """
@@ -248,7 +248,7 @@ defmodule Magnetissimo.Torrents do
       ** (Ecto.NoResultsError)
 
   """
-  def get_torrent!(id), do: Repo.get!(Torrent, id)
+  def get_torrent!(id), do: Repo.get!(Torrent, id) |> Repo.preload([:category, :source])
 
   @doc """
   Creates a torrent.

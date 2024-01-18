@@ -1,4 +1,4 @@
-defmodule Magnetissimo.Leetx do
+defmodule Magnetissimo.Crawlers.Leetx do
   require Logger
 
   alias Magnetissimo.Helpers

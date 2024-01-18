@@ -87,6 +87,12 @@ defmodule MagnetissimoWeb do
       import MagnetissimoWeb.CoreComponents
       import MagnetissimoWeb.Gettext
 
+      # Custom Magnetissimo components
+      import MagnetissimoWeb.Components.Torrents
+
+      # Custom Web Helper functions
+      import MagnetissimoWeb.Helpers
+
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS
 

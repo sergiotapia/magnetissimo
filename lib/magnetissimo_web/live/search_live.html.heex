@@ -1,0 +1,33 @@
+<h1 class="text-3xl font-bold mb-10">Magnetissimo - Latest Torrents</h1>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+  <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+      <tr>
+        <th scope="col" class="px-6 py-3">
+          Name
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Filesize
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Seeds
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Peers
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Download
+        </th>
+        <th scope="col" class="px-6 py-3">
+          Source
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <%= for torrent <- @torrents do %>
+        <.torrent_result_item id={"torrent-result-#{torrent.id}"} torrent={torrent} />
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -52,7 +52,8 @@ defmodule Magnetissimo.MixProject do
       {:plug_cowboy, "~> 2.5"},
       {:slugify, "~> 1.3"},
       {:floki, "~> 0.35.2"},
-      {:req, "~> 0.4.8"}
+      {:req, "~> 0.4.8"},
+      {:size, "~> 0.1.1"}
     ]
   end
 

@@ -15,9 +15,12 @@ defmodule MagnetissimoWeb.Router do
   end
 
   scope "/", MagnetissimoWeb do
-    pipe_through :browser
+    pipe_through [:browser]
 
-    get "/", PageController, :home
+    live_session :default do
+      live "/", SearchLive
+      live "/torrents/:id/:slug", TorrentLive
+    end
   end
 
   # Other scopes may use custom stacks.
