@@ -2,6 +2,8 @@ defmodule Magnetissimo.Torrents do
   @moduledoc """
   The Torrents context.
   """
+  require Cachex
+  require Logger
 
   import Ecto.Query, warn: false
   alias Magnetissimo.Repo
@@ -251,21 +253,27 @@ defmodule Magnetissimo.Torrents do
 
   """
   def search_torrents(search_term) do
-    crawlers = [
-      Magnetissimo.Crawlers.Leetx,
-      Magnetissimo.Crawlers.TorrentDownloads,
-      Magnetissimo.Crawlers.Yts
-    ]
+    case Cachex.get(:cache, search_term) do
+      {:ok, nil} ->
+        [
+          Magnetissimo.Crawlers.Leetx,
+          Magnetissimo.Crawlers.TorrentDownloads,
+          Magnetissimo.Crawlers.Yts
+        ]
+        |> Task.async_stream(
+          fn crawler_module ->
+            crawler_module.search(search_term)
+          end,
+          ordered: false,
+          timeout: :infinity
+        )
+        |> Stream.run()
 
-    Task.async_stream(
-      crawlers,
-      fn crawler_module ->
-        crawler_module.search(search_term)
-      end,
-      ordered: false,
-      timeout: :infinity
-    )
-    |> Stream.run()
+        Cachex.put(:cache, search_term, search_term, ttl: :timer.hours(1))
+
+      {:ok, search_term} ->
+        Logger.info("Cache (1hr) hit for search_term: `#{search_term}`. Skipping crawler search.")
+    end
 
     query =
       from(t in Torrent,

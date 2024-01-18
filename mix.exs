@@ -58,7 +58,8 @@ defmodule Magnetissimo.MixProject do
       {:html_sanitize_ex, "~> 1.4"},
       {:sweet_xml, "~> 0.7.4"},
       {:timex, "~> 3.7"},
-      {:html_entities, "~> 0.5.2"}
+      {:html_entities, "~> 0.5.2"},
+      {:cachex, "~> 3.6"}
     ]
   end
 

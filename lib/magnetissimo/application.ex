@@ -16,6 +16,7 @@ defmodule Magnetissimo.Application do
       {Phoenix.PubSub, name: Magnetissimo.PubSub},
       # Start the Finch HTTP client for sending emails
       {Finch, name: Magnetissimo.Finch},
+      {Cachex, name: :cache},
       # Start a worker by calling: Magnetissimo.Worker.start_link(arg)
       # {Magnetissimo.Worker, arg},
       # Magnetissimo.Genservers.Leetx,
