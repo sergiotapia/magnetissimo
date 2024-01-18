@@ -37,6 +37,25 @@ defmodule Magnetissimo.Torrents do
   """
   def get_category!(id), do: Repo.get!(Category, id)
 
+  def get_category_by_name_or_alias!(alias_name) do
+    query =
+      from(c in Category,
+        where:
+          ^alias_name in c.alternative_names or
+            c.name == ^alias_name,
+        select: c,
+        limit: 1
+      )
+
+    case Repo.one(query) do
+      nil ->
+        Repo.one!(from(c in Category, where: c.name == "Other"))
+
+      category ->
+        category
+    end
+  end
+
   @doc """
   Creates a category.
 
@@ -132,6 +151,8 @@ defmodule Magnetissimo.Torrents do
 
   """
   def get_source!(id), do: Repo.get!(Source, id)
+
+  def get_source_by_name!(name), do: Repo.get_by!(Source, name: name)
 
   @doc """
   Creates a source.

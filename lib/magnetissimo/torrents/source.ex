@@ -19,7 +19,7 @@ defmodule Magnetissimo.Torrents.Source do
   def changeset(source, attrs) do
     source
     |> cast(attrs, [:name, :slug, :url])
-    |> validate_required([:name, :slug, :url])
     |> Helpers.slugify()
+    |> validate_required([:name, :slug, :url])
   end
 end

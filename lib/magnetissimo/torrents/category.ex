@@ -19,7 +19,7 @@ defmodule Magnetissimo.Torrents.Category do
   def changeset(category, attrs) do
     category
     |> cast(attrs, [:name, :slug])
-    |> validate_required([:name, :slug])
     |> Helpers.slugify()
+    |> validate_required([:name, :slug])
   end
 end

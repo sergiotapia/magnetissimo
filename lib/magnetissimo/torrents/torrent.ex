@@ -41,6 +41,7 @@ defmodule Magnetissimo.Torrents.Torrent do
       :category_id,
       :source_id
     ])
+    |> Helpers.slugify()
     |> validate_required([
       :name,
       :slug,
@@ -55,6 +56,5 @@ defmodule Magnetissimo.Torrents.Torrent do
       :category_id,
       :source_id
     ])
-    |> Helpers.slugify()
   end
 end
