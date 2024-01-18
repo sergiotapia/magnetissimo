@@ -19,6 +19,7 @@ defmodule Magnetissimo.Application do
       # Start a worker by calling: Magnetissimo.Worker.start_link(arg)
       # {Magnetissimo.Worker, arg},
       Magnetissimo.Genservers.Leetx,
+      Magnetissimo.Genservers.Yts,
       # Start to serve requests, typically the last entry
       MagnetissimoWeb.Endpoint
     ]
