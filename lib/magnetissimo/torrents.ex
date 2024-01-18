@@ -286,7 +286,7 @@ defmodule Magnetissimo.Torrents do
     query =
       from(t in Torrent,
         as: :torrent,
-        order_by: [desc: t.published_at],
+        order_by: [desc: t.seeders],
         where: ^filter_where(filter_opts),
         offset: ^offset,
         limit: ^limit,
