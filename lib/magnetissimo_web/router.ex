@@ -31,10 +31,6 @@ defmodule MagnetissimoWeb.Router do
 
     get("/search.json", TorrentController, :search)
     get("/search.xml", TorrentController, :search_torznab)
-
-    # get("/latest-tor", TorrentsController, :latest_torznab)
-    # get("/search-torznab/:search_term", TorrentsController, :search_torznab)
-    # get("/search/:search_term", TorrentsController, :search)
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

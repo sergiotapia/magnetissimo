@@ -22,10 +22,12 @@ defmodule MagnetissimoWeb.Components.Torrents do
             <%= @torrent.category.name %>
           </span>
           <span>
-            <%= format_date(@torrent.inserted_at) %>
-          </span>
-          <span>
             <%= @torrent.source.name %>
+          </span>
+        </div>
+        <div>
+          <span>
+            <%= format_date(@torrent.inserted_at) %>
           </span>
         </div>
       </td>

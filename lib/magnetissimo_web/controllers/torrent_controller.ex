@@ -18,13 +18,11 @@ defmodule MagnetissimoWeb.TorrentController do
     render(conn, :index, torrents: torrents)
   end
 
-  # Torznab API handlers.
+  def search_torznab(conn, %{"search_term" => search_term} = _params) do
+    torrents = Torrents.search_torrents(search_term)
 
-  # def search_torznab(conn, %{"search_term" => search_term} = _params) do
-  #   torrents = Torrents.search_torrents(search_term)
-
-  #   conn
-  #   |> put_resp_content_type("text/xml")
-  #   |> render("search_torznab.xml", torrents: torrents)
-  # end
+    conn
+    |> put_resp_content_type("text/xml")
+    |> render("search_torznab.xml", torrents: torrents)
+  end
 end
