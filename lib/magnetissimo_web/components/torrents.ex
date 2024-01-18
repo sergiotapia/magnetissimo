@@ -11,7 +11,7 @@ defmodule MagnetissimoWeb.Components.Torrents do
     ~H"""
     <tr
       id={@id}
-      class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
+      class="bg-white dark:text-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
     >
       <td class="px-6 py-4">
         <.link navigate={~p"/torrents/#{@torrent.id}/#{@torrent.slug}"} class="font-bold">
@@ -53,7 +53,7 @@ defmodule MagnetissimoWeb.Components.Torrents do
           href={@torrent.canonical_url}
           target="_blank"
           title="Visit the canonical url for this torrent."
-          class="text-blue-500 hover:underline"
+          class="text-blue-500 dark:text-blue-200 hover:underline"
         >
           <%= @torrent.source.name %>
         </.link>

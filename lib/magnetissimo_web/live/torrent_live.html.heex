@@ -1,4 +1,4 @@
-<h1 class="text-3xl font-bold mb-10">
+<h1 class="text-3xl font-bold mb-10 dark:text-white">
   <.link navigate={~p"/"}>
     <.icon name="hero-arrow-left-circle w-10 h-10 animate" />
   </.link>
@@ -41,7 +41,7 @@
   <h2 class="text-xs font-bold px-6 py-4 text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
     Description (from source)
   </h2>
-  <div class="px-6 py-10">
+  <div class="px-6 py-10 dark:text-white">
     <%= if @torrent.description do %>
       <%= @torrent.description
       |> HtmlSanitizeEx.markdown_html()
