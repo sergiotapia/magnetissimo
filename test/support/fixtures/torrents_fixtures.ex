@@ -12,7 +12,8 @@ defmodule Magnetissimo.TorrentsFixtures do
       attrs
       |> Enum.into(%{
         name: "some name",
-        slug: "some slug"
+        slug: "some slug",
+        alternative_names: ["some alternative name"]
       })
       |> Magnetissimo.Torrents.create_category()
 
@@ -59,6 +60,10 @@ defmodule Magnetissimo.TorrentsFixtures do
         source_id: source.id
       })
       |> Magnetissimo.Torrents.create_torrent()
+
+    torrent =
+      torrent
+      |> Magnetissimo.Repo.preload([:category, :source])
 
     torrent
   end

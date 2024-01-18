@@ -6,7 +6,7 @@ defmodule MagnetissimoWeb.SearchLive do
       socket
       |> assign(
         :page_title,
-        "Magnetissimo"
+        "Search for torrents"
       )
       |> assign(
         :torrents,

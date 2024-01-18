@@ -38,13 +38,13 @@ defmodule MagnetissimoWeb.Components.Torrents do
       <td class="px-6 py-4">
         <%= @torrent.leechers %>
       </td>
-      <td class="px-6 py-4 text-right">
-        <a
-          href={@torrent.magnet_url}
+      <td class="px-6 py-4">
+        <.link
+          href={{:magnet, @torrent.magnet_url}}
           class="font-medium text-blue-600 dark:text-blue-500 hover:underline"
         >
           <img src="/images/magnet.svg" class="h-5 w-5" />
-        </a>
+        </.link>
       </td>
       <td class="px-6 py-4 text-right">
         <.link

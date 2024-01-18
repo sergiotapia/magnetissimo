@@ -8,10 +8,7 @@ defmodule MagnetissimoWeb.TorrentLive do
 
     socket =
       socket
-      |> assign(
-        :page_title,
-        "Magnetissimo - #{torrent.name}"
-      )
+      |> assign(:page_title, torrent.name)
       |> assign(:torrent, torrent)
 
     {:ok, socket}

@@ -20,6 +20,16 @@ defmodule Magnetissimo.TorrentsTest do
       assert Torrents.get_category!(category.id) == category
     end
 
+    test "get_category_by_name_or_alias!/1 returns the category with name" do
+      category = category_fixture(%{name: "Donut"})
+      assert Torrents.get_category_by_name_or_alias!("Donut") == category
+    end
+
+    test "get_category_by_name_or_alias!/1 returns the category with alias" do
+      category = category_fixture(%{alternative_names: ["donut", "biscuit"]})
+      assert Torrents.get_category_by_name_or_alias!("biscuit") == category
+    end
+
     test "create_category/1 with valid data creates a category" do
       valid_attrs = %{name: "some name", slug: "some slug"}
 
