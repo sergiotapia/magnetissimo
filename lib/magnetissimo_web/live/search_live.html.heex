@@ -21,6 +21,27 @@
   </div>
 
   <div class="lg:w-4/5 w-5/5 relative overflow-x-auto shadow-md sm:rounded-lg">
+    <.form
+      :let={f}
+      for={%{}}
+      as={:filter}
+      phx-change="filter"
+      class="flex flex-col flex-1relative"
+      id="collection-filter-form"
+    >
+      <div class="mb-4">
+        <.input
+          field={f[:search]}
+          type="text"
+          name="filter[search]"
+          label="Search"
+          value={@filters.search}
+          phx-debounce="400"
+          placeholder="Try searching for `av1`"
+        />
+      </div>
+    </.form>
+
     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-white">
       <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
         <tr>

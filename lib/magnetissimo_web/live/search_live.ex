@@ -72,6 +72,18 @@ defmodule MagnetissimoWeb.SearchLive do
     end
   end
 
+  def handle_event("filter", params, socket) do
+    search = params["filter"]["search"] || ""
+
+    filter_opts = %{search: search}
+
+    socket =
+      socket
+      |> assign(:filters, filter_opts)
+
+    {:noreply, push_patch(socket, to: ~p"/?#{filter_opts}")}
+  end
+
   def handle_event("next-page", _, socket) do
     {:noreply, paginate_torrents(socket, socket.assigns.page + 1)}
   end

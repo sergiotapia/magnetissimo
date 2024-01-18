@@ -258,12 +258,14 @@ defmodule Magnetissimo.Torrents do
 
       case Cachex.get(:cache, search_term) do
         {:ok, nil} ->
-          [
+          crawlers = [
             Magnetissimo.Crawlers.Leetx,
             Magnetissimo.Crawlers.TorrentDownloads,
             Magnetissimo.Crawlers.Yts
           ]
-          |> Task.async_stream(
+
+          Task.async_stream(
+            crawlers,
             fn crawler_module ->
               crawler_module.search(search_term)
             end,

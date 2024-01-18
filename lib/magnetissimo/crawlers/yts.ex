@@ -11,7 +11,7 @@ defmodule Magnetissimo.Crawlers.Yts do
 
     json = Req.get!("https://yts.mx/api/v2/list_movies.json").body
 
-    json["data"]["movies"]
+    (json["data"]["movies"] || [])
     |> Enum.each(fn torrent_json ->
       ingest_torrent_json(torrent_json)
     end)
@@ -29,7 +29,7 @@ defmodule Magnetissimo.Crawlers.Yts do
     json =
       Req.get!("https://yts.mx/api/v2/list_movies.json?query_term=#{search_term}&limit=50").body
 
-    json["data"]["movies"]
+    (json["data"]["movies"] || [])
     |> Enum.each(fn torrent_json ->
       ingest_torrent_json(torrent_json)
     end)
