@@ -4,17 +4,13 @@ defmodule MagnetissimoWeb.TorrentController do
   alias Magnetissimo.Torrents
 
   def latest(conn, _params) do
-    IO.inspect("HERE =====")
-    torrents = Torrents.list_torrents(50)
-    render(conn, :latest, torrents: torrents)
+    render(conn, :latest, torrents: Torrents.list_torrents(50))
   end
 
   def latest_torznab(conn, _params) do
-    torrents = Torrents.list_torrents(50)
-
     conn
     |> put_resp_content_type("text/xml")
-    |> render("latest_torznab.xml", torrents: torrents)
+    |> render("latest_torznab.xml", torrents: Torrents.list_torrents(50))
   end
 
   # Torznab API handlers.
