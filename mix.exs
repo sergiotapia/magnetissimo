@@ -53,7 +53,9 @@ defmodule Magnetissimo.MixProject do
       {:slugify, "~> 1.3"},
       {:floki, "~> 0.35.2"},
       {:req, "~> 0.4.8"},
-      {:size, "~> 0.1.1"}
+      {:size, "~> 0.1.1"},
+      {:earmark, "~> 1.4"},
+      {:html_sanitize_ex, "~> 1.4"}
     ]
   end
 
