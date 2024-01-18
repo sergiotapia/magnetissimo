@@ -1,14 +1,14 @@
 # Magnetissimo
 
-![https://i.imgur.com/J6eB3mp.png](https://i.imgur.com/J6eB3mp.png)
+[![https://i.imgur.com/J6eB3mp.png](https://i.imgur.com/J6eB3mp.png)](https://discord.gg/CFtGUaW)
 
 Magnetissimo is a self-hosted web application that indexes all
 popular torrent sites and saves the magnet links to a sqlite database
 file.
 
-![image](https://user-images.githubusercontent.com/686715/231510383-cc0e8f00-0cf7-4990-8933-4185a69e4f0e.png)
+![image](https://github.com/sergiotapia/magnetissimo/assets/686715/4c711e19-9783-4da5-b8d8-95cf940b26b8)
 
-![image](https://user-images.githubusercontent.com/686715/231512138-879737fc-02a9-43d0-a609-292a4fae6b2b.png)
+![image](https://github.com/sergiotapia/magnetissimo/assets/686715/e82bcf25-c38b-4450-ba99-e112c0bd063d)
 
 ### Goals:
 
@@ -20,13 +20,15 @@ file.
 - Easy to understand source code. Special care is taken to keep code lean and understandable.
 - Low resource usage.
 
+### Community
+
+Want to talk about Magnetissimo or suggest features? We have an official Discord server.
+
+[Click to join our official Discord server](https://discord.gg/CFtGUaW)
+
 ### Usage Guide:
 
-We want to explain how to run Magnetissimo on:
-
-- Windows
-- Linux
-- Mac
+TODO
 
 ### API
 
@@ -113,9 +115,3 @@ mix ecto.reset
 # Run the app in local dev mode.
 iex -S mix phx.server
 ```
-
-### Community
-
-Want to talk about Magnetissimo or suggest features? We have an official Discord server.
-
-[Click to join our official Discord server](https://discord.gg/CFtGUaW)
