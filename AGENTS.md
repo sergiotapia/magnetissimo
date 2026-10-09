@@ -164,6 +164,7 @@ custom classes must fully style the input
 - You **must** use `Ecto.Changeset.get_field(changeset, :field)` to access changeset fields
 - Fields which are set programmatically, such as `user_id`, must not be listed in `cast` calls or similar for security purposes. Instead they must be explicitly set when creating the struct
 - **Always** invoke `mix ecto.gen.migration migration_name_using_underscores` when generating migration files, so the correct timestamp and conventions are applied
+- Primary keys are plain integer ids, for every table. Do **not** introduce `:binary_id`, UUIDs, nanoid or the `ecto_identifier` dependency, and never pass `--binary-id` to a generator. Ecto's default `"id" INTEGER PRIMARY KEY AUTOINCREMENT` is required here: on SQLite the integer primary key *is* the rowid, which is what the `torrents_search` FTS5 index joins on, and it is also what makes the ported 2.0.0 schema's string keys go away
 <!-- phoenix:ecto-end -->
 
 <!-- phoenix:html-start -->
