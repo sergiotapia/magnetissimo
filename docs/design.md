@@ -73,6 +73,9 @@ SVG. None of the artwork requires JavaScript.
   as a cropped, transparent WebP at `priv/static/images/wordmark.webp`.
   It sits above the search input, scales to the available width up to 640px,
   and retains the accessible heading name "Magnetissimo" through its alt text.
+- The **favicon** reuses the wordmark's cobalt-chrome M on an ice tile:
+  `priv/static/images/favicon.png` at 64px, with 16/32/48px variants in
+  `priv/static/favicon.ico` for the browser fallback.
 - The **orb** is a pearl: a blurred conic gradient turning slowly under fixed
   radial highlights. Its starting angle and a small hue shift come from a
   seed (the counts on the home page, the infohash on a torrent page).
