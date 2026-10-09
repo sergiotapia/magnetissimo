@@ -31,6 +31,10 @@ config :logger, level: :warning
 # `Req.Test.stub(Magnetissimo.Crawlers.Yts, fn conn -> ... end)`.
 config :magnetissimo, Magnetissimo.Crawlers.Yts, plug: {Req.Test, Magnetissimo.Crawlers.Yts}
 
+# Both Nyaa sites share one RSS engine, so one stub covers either feed.
+config :magnetissimo, Magnetissimo.Crawlers.Nyaa.Feed,
+  plug: {Req.Test, Magnetissimo.Crawlers.Nyaa.Feed}
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

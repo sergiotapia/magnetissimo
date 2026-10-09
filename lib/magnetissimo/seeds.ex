@@ -17,6 +17,7 @@ defmodule Magnetissimo.Seeds do
 
   @sources [
     {"Nyaa.si", "https://nyaa.si"},
+    {"Sukebei", "https://sukebei.nyaa.si"},
     {"TorrentDownloads", "https://torrentdownloads.pro"},
     # yts.mx stopped resolving; yts.gg is the live site, and the crawler talks
     # to movies-api.accel.li, the API base URL the site itself advertises.
@@ -31,7 +32,7 @@ defmodule Magnetissimo.Seeds do
        {"Anime - Music Video", ["Anime - Anime Music Video"]},
        {"Anime - English-translated", ["Anime"]},
        {"Anime - Non-English translated", ["Anime - Non-English-translated"]},
-       {"Anime - Raw", []}
+       {"Anime - Raw", ["Art - Anime"]}
      ]},
     {"Audio",
      [
@@ -43,7 +44,7 @@ defmodule Magnetissimo.Seeds do
        {"Books - English-translated",
         ["Literature - English-translated", "Books", "Ebooks", "e-books", "ebook"]},
        {"Books - Non-English translated", ["Literature - Non-English-translated"]},
-       {"Books - Raw", ["Literature - Raw"]}
+       {"Books - Raw", ["Literature - Raw", "Art - Manga", "Art - Doujinshi"]}
      ]},
     {"Video",
      [
@@ -57,18 +58,18 @@ defmodule Magnetissimo.Seeds do
         ]},
        {"Video - Television", ["TV Shows", "TV", "television", "Television", "TV - Other"]},
        {"Video - Documentaries", ["Documentaries", "Documentary"]},
-       {"Video - XXX", ["XXX"]}
+       {"Video - XXX", ["XXX", "Real Life - Videos"]}
      ]},
     {"Images",
      [
-       {"Images - Graphics", ["Pictures - Graphics"]},
-       {"Images - Photos", ["Pictures - Photos"]}
+       {"Images - Graphics", ["Pictures - Graphics", "Art - Pictures"]},
+       {"Images - Photos", ["Pictures - Photos", "Real Life - Pictures"]}
      ]},
     {"Software",
      [
        {"Software - Applications",
         ["Software", "Mac", "Linux", "Windows", "Apps", "Apple", "Other operating systems"]},
-       {"Software - Games", ["Games"]}
+       {"Software - Games", ["Games", "Art - Games"]}
      ]},
     {Category.fallback(), []}
   ]

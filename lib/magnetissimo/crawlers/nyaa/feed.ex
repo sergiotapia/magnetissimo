@@ -1,0 +1,240 @@
+defmodule Magnetissimo.Crawlers.Nyaa.Feed do
+  @moduledoc """
+  The crawler Nyaa.si and Sukebei share.
+
+  Both sites run the same software and publish the same RSS shape, so only
+  three things differ: the feed URL, the site's own tracker and the source row
+  a torrent is filed under. Those are passed in as a keyword list; the two
+  callers are `Magnetissimo.Crawlers.Nyaa` and `Magnetissimo.Crawlers.Sukebei`.
+
+  The feed is a small, machine-generated document with no real description in
+  it, so only the fields the index needs are read out: title, canonical page,
+  infohash, category, size, swarm and upload time. The magnet URI is built
+  here, because the feed carries only the infohash.
+
+  The fields are pulled from the raw item with fixed patterns rather than an
+  XML parser: item titles carry arbitrary UTF-8, and xmerl rejects that input.
+  """
+
+  require Logger
+
+  alias Magnetissimo.Torrents
+
+  @user_agent "Magnetissimo/0.1"
+
+  # Every Nyaa magnet carries the site's own tracker first and these four
+  # public ones after it.
+  @trackers [
+    "udp://open.stealth.si:80/announce",
+    "udp://tracker.opentrackr.org:1337/announce",
+    "udp://exodus.desync.com:6969/announce",
+    "udp://tracker.torrent.eu.org:451/announce"
+  ]
+
+  @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
+
+  @units %{
+    "B" => 1,
+    "KiB" => 1024,
+    "MiB" => 1024 ** 2,
+    "GiB" => 1024 ** 3,
+    "TiB" => 1024 ** 4
+  }
+
+  @doc """
+  Crawls the feed in `site` and indexes every item.
+
+  `site` needs `:source` (the `sources.name` row), `:rss_url` and `:tracker`.
+  Never raises: a dead site, a failed request or an item that is not the shape
+  we expect is logged or skipped, because the scheduler that calls this would
+  otherwise turn a site outage into a restart loop.
+  """
+  @spec crawl_latest(keyword()) :: :ok
+  def crawl_latest(site) do
+    case fetch(site[:rss_url]) do
+      {:ok, body} ->
+        {inserted, known} = index(body, site)
+
+        Logger.info(
+          "[#{site[:source]}] indexed #{inserted} new torrents, ignored #{known} already known"
+        )
+
+      {:error, reason} ->
+        Logger.error("[#{site[:source]}] crawl failed: #{inspect(reason)}")
+    end
+  end
+
+  defp fetch(url) do
+    # No retries: the crawl comes back in five minutes, so retrying only holds
+    # a process open while a mirror is down.
+    options =
+      Application.get_env(:magnetissimo, __MODULE__, []) ++
+        [headers: [user_agent: @user_agent], retry: false]
+
+    case Req.get(url, options) do
+      {:ok, %{status: 200, body: body}} -> {:ok, body}
+      {:ok, %{status: status}} -> {:error, {:http_status, status}}
+      {:error, reason} -> {:error, reason}
+    end
+  end
+
+  defp index(body, site) do
+    source_id = Torrents.get_source_by_name!(site[:source]).id
+
+    body
+    |> items()
+    |> Enum.reduce({0, 0}, fn item, totals ->
+      add(totals, insert(item, site, source_id))
+    end)
+  end
+
+  defp items(body) do
+    ~r/<item>(.*?)<\/item>/s
+    |> Regex.scan(body, capture: :all_but_first)
+    |> Enum.map(&hd/1)
+  end
+
+  defp insert(item, site, source_id) do
+    case torrent_attrs(item, site, source_id) do
+      nil -> {0, 0}
+      attrs -> insert_torrent(attrs, site)
+    end
+  end
+
+  defp insert_torrent(attrs, site) do
+    case Torrents.create_torrent(attrs) do
+      {:ok, _torrent} ->
+        {1, 0}
+
+      {:error, changeset} ->
+        # A source republishing a torrent it already listed is the normal
+        # case, not a fault. Anything else means our own attrs are wrong
+        # and the torrent is being dropped silently, which should be
+        # visible.
+        unless Keyword.has_key?(changeset.errors, :magnet_hash) do
+          Logger.warning("[#{site[:source]}] skipped #{attrs.name}: #{inspect(changeset.errors)}")
+        end
+
+        {0, 1}
+    end
+  end
+
+  defp add({inserted, known}, {more_inserted, more_known}) do
+    {inserted + more_inserted, known + more_known}
+  end
+
+  # An item missing a field we cannot invent, or carrying a size or date we
+  # cannot parse, is dropped rather than crashing the crawl.
+  defp torrent_attrs(item, site, source_id) do
+    with name when is_binary(name) <- field(item, "title"),
+         hash when is_binary(hash) <- field(item, "nyaa:infoHash"),
+         canonical_url when is_binary(canonical_url) <- guid(item),
+         category when is_binary(category) <- field(item, "nyaa:category"),
+         size when is_integer(size) <- size_to_bytes(field(item, "nyaa:size")),
+         %DateTime{} = published_at <- published_at(field(item, "pubDate")) do
+      name = unescape(name)
+      hash = String.downcase(hash)
+
+      %{
+        name: name,
+        canonical_url: canonical_url,
+        published_at: published_at,
+        leechers: integer_field(item, "nyaa:leechers"),
+        seeders: integer_field(item, "nyaa:seeders"),
+        size_in_bytes: size,
+        magnet_hash: hash,
+        magnet_url: magnet_url(site[:tracker], hash, name),
+        category_id: Torrents.get_category_by_name_or_alias!(category).id,
+        source_id: source_id
+      }
+    else
+      _ -> nil
+    end
+  end
+
+  defp field(item, name) do
+    case Regex.run(~r/<#{name}>([^<]*)<\/#{name}>/, item) do
+      [_, value] -> value
+      nil -> nil
+    end
+  end
+
+  defp guid(item) do
+    case Regex.run(~r/<guid[^>]*>([^<]*)<\/guid>/, item) do
+      [_, value] -> value
+      nil -> nil
+    end
+  end
+
+  defp integer_field(item, name), do: to_integer(field(item, name))
+
+  defp to_integer(nil), do: 0
+
+  defp to_integer(value) do
+    case Integer.parse(value) do
+      {int, _rest} -> int
+      :error -> 0
+    end
+  end
+
+  defp size_to_bytes(nil), do: nil
+
+  defp size_to_bytes(size) do
+    with [_, value, unit] <- Regex.run(~r/^([\d.]+) (\w+)$/, String.trim(size)),
+         {number, ""} <- Float.parse(value),
+         multiplier when is_integer(multiplier) <- @units[unit] do
+      round(number * multiplier)
+    else
+      _ -> nil
+    end
+  end
+
+  # Fri, 09 Oct 2026 23:24:24 -0000. The feed is always UTC, and only this
+  # fixed shape needs to parse, so the standard date parsers (which do not
+  # cover RFC 1123) are not pulled in for it.
+  defp published_at(nil), do: nil
+
+  defp published_at(raw) do
+    with [_, day, month, year, hour, minute, second] <-
+           Regex.run(~r/(\d{1,2}) (\w{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2})/, raw),
+         {:ok, date} <- Date.new(to_integer(year), month_number(month), to_integer(day)),
+         {:ok, time} <- Time.new(to_integer(hour), to_integer(minute), to_integer(second)) do
+      DateTime.new!(date, time, "Etc/UTC")
+    else
+      _ -> nil
+    end
+  end
+
+  defp month_number(month) do
+    case Enum.find_index(@months, &(&1 == month)) do
+      nil -> 0
+      index -> index + 1
+    end
+  end
+
+  defp unescape(text) do
+    text
+    |> String.replace("&lt;", "<")
+    |> String.replace("&gt;", ">")
+    |> String.replace("&quot;", "\"")
+    |> String.replace("&apos;", "'")
+    |> String.replace("&#39;", "'")
+    |> String.replace("&amp;", "&")
+    |> decode_numeric()
+  end
+
+  defp decode_numeric(text) do
+    Regex.replace(~r/&#(\d+);/, text, fn _, code ->
+      case Integer.parse(code) do
+        {n, ""} when n in 1..0x10FFFF -> <<n::utf8>>
+        _ -> "&#" <> code <> ";"
+      end
+    end)
+  end
+
+  defp magnet_url(tracker, hash, name) do
+    trackers = Enum.map_join([tracker | @trackers], "&tr=", &URI.encode_www_form/1)
+
+    "magnet:?xt=urn:btih:#{hash}&dn=#{URI.encode_www_form(name)}&tr=#{trackers}"
+  end
+end

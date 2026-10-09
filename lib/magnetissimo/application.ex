@@ -15,7 +15,18 @@ defmodule Magnetissimo.Application do
       {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Magnetissimo.PubSub},
       # One scheduler per crawl source. Add the next source to this list.
-      {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Yts},
+      # The scheduler module is the same for each, so each needs its own id.
+      Supervisor.child_spec({Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Yts},
+        id: :yts_scheduler
+      ),
+      Supervisor.child_spec(
+        {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Nyaa},
+        id: :nyaa_scheduler
+      ),
+      Supervisor.child_spec(
+        {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Sukebei},
+        id: :sukebei_scheduler
+      ),
       # Start to serve requests, typically the last entry
       MagnetissimoWeb.Endpoint
     ]

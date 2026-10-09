@@ -24,6 +24,6 @@ defmodule Magnetissimo.SeedsTest do
     Seeds.run()
 
     assert Torrents.list_sources() |> Enum.map(& &1.name) |> Enum.sort() ==
-             ["1337x", "Nyaa.si", "TorrentDownloads", "YTS"]
+             ["1337x", "Nyaa.si", "Sukebei", "TorrentDownloads", "YTS"]
   end
 end
