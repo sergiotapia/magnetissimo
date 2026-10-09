@@ -44,15 +44,15 @@ defmodule MagnetissimoWeb.HomeLive do
     {:noreply, load_results(socket, q, category, page_param(params["page"]))}
   end
 
-  # Typing patches the URL and searches the local index only. Asking the source
-  # on every keystroke is what made the 2.0.0 app hit four sites per debounced
-  # character; only an explicit submit reaches out.
+  # Typing patches the URL and, once the reader pauses, reaches out to the
+  # sources. `phx-debounce` on the input is what keeps that to one lookup per
+  # pause rather than one per keystroke; pressing enter cancels the pending
+  # timer and takes the immediate `submit` path instead.
   @impl true
-  def handle_event("search", %{"q" => q}, socket) do
-    {:noreply, push_patch(socket, to: index_path(q, socket.assigns.category))}
-  end
+  def handle_event("search", %{"q" => q}, socket), do: lookup(socket, q)
+  def handle_event("submit", %{"q" => q}, socket), do: lookup(socket, q)
 
-  def handle_event("submit", %{"q" => q}, socket) do
+  defp lookup(socket, q) do
     q = String.trim(q)
 
     {:noreply,
@@ -64,8 +64,9 @@ defmodule MagnetissimoWeb.HomeLive do
 
   @impl true
   def handle_info({:source_search, term, :updated}, socket) do
-    # A batch for a term the reader has already moved on from is dropped. The
-    # rows are in the index either way, so the next search finds them.
+    # A batch for a term the reader has already moved on from is dropped, so a
+    # slow lookup for an earlier term cannot redraw the list under a newer one.
+    # The rows are in the index either way, so the next search finds them.
     socket = if term == socket.assigns.q, do: reload_results(socket), else: socket
 
     {:noreply, socket}
@@ -74,7 +75,9 @@ defmodule MagnetissimoWeb.HomeLive do
   def handle_info({:source_search, _term, :done}, socket), do: {:noreply, socket}
 
   # The lookup task runs every source in turn, so its exit is the last word on
-  # the term, whatever each source turned up.
+  # the term, whatever each source turned up. A task whose pid is no longer the
+  # current one belongs to a term the reader has moved on from, so its exit
+  # neither clears the in-flight state nor reloads the list.
   def handle_info({:DOWN, _ref, :process, pid, _reason}, socket) do
     socket =
       if pid == socket.assigns.search_task do
@@ -334,7 +337,7 @@ defmodule MagnetissimoWeb.HomeLive do
                     autocomplete="off"
                     spellcheck="false"
                     autofocus
-                    phx-debounce="200"
+                    phx-debounce="400"
                     placeholder="Search the index…"
                     class="w-full min-w-0 bg-transparent py-2 text-lg font-semibold text-ink-900 outline-none sm:text-xl"
                   />
