@@ -1,4 +1,37 @@
-This is a web application written using the Phoenix web framework.
+# Magnetissimo
+
+A self-hosted torrent indexer: crawl torrent sites, extract magnet links, store
+them, serve a no-JavaScript LiveView UI plus a JSON API that Sonarr and Radarr
+consume.
+
+This is a rewrite of the legacy app at `~/Work/magnetissimo-old`. Read
+`legacy-project.md` in that repo before changing behavior — it describes what
+the old app does, how the crawlers work, and which quirks are deliberate. The
+old app is a reference for intent, not for code: it is Elixir 1.14 / Phoenix 1.7
+/ Postgres, and this one is Phoenix 1.8 / LiveView 1.2 / SQLite.
+
+Tool versions are pinned in `.mise.toml` (Elixir 1.20.4 / OTP 29.1.1). Run
+`mise install` once, then `mix setup`.
+
+## Git workflow
+
+Commit early and often, locally. There is no remote yet, so the commit log is
+the only history of how this got built. An uncommitted working tree is lost
+history.
+
+- One logical change per commit. Commit as soon as a step works — a migration, a
+  crawler, a passing test — even if the feature around it is unfinished.
+- Do not hold work back until it is finished or pretty. A messy honest step is
+  better than one large opaque commit at the end.
+- `git add -A` is fine here; there is no unrelated churn to worry about.
+- Run `mix precommit` before committing when the change touches Elixir. If it
+  fails for a reason unrelated to your change, commit anyway and say so in the
+  body.
+- Message format: imperative subject under 72 characters, blank line, then a
+  short body explaining *why* when the subject doesn't already cover it.
+- Never `--amend` or rebase or force-push a commit that already exists. Add a
+  follow-up commit instead. The course corrections are part of the history.
+- Never squash.
 
 ## Project guidelines
 
