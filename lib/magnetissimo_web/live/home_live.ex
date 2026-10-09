@@ -194,8 +194,14 @@ defmodule MagnetissimoWeb.HomeLive do
               <.sparkle class="top-8 right-10 hidden size-7 text-cobalt-200 sm:block" />
               <.sparkle class="top-24 right-28 hidden size-3 text-lilac [animation-delay:1.4s] sm:block" />
 
-              <h1 class="chrome-text w-fit pb-2 font-display text-[clamp(2.5rem,7vw,5.5rem)] leading-none font-semibold tracking-tight">
-                Magnetissimo
+              <h1 id="site-wordmark" class="w-full max-w-[640px]">
+                <img
+                  src={~p"/images/wordmark.webp"}
+                  alt="Magnetissimo"
+                  width="1549"
+                  height="257"
+                  class="h-auto w-full"
+                />
               </h1>
 
               <.form

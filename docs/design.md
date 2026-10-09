@@ -28,8 +28,8 @@ draining or wrong; never use either for decoration.
 
 Four faces, all OFL, served from `priv/static/fonts`:
 
-- **Jura** (`font-display`) — the chrome title, panel titles, nav, button
-  labels. Uppercase and tracked wide everywhere except the title.
+- **Jura** (`font-display`) — panel titles, nav and button labels.
+  Uppercase and tracked wide.
 - **Quicksand** (`font-sans`, the body default) — torrent names, copy, spec
   rows. Weight 500 by default, 600–700 for values.
 - **Silkscreen** (`font-pixel`) — the tiny caption layer (`.label`): column
@@ -47,7 +47,6 @@ All in `app.css`:
   24px radius, soft cobalt shadow. `.panel-hot` lifts it on hover.
 - `.panel-title` — the glossy title bar: Jura uppercase over a split
   white-to-ice gradient, the Aqua toolbar.
-- `.chrome-text` — brushed chrome lettering for the big title.
 - `.gel` — the Aqua lozenge: cobalt gradient with a white gloss on the top
   half. Primary buttons, the magnet link, the active chip.
 - `.pill` — frosted secondary button and chip.
@@ -67,8 +66,13 @@ disc, the wave chart and the hexdump. Formatting in `MagnetissimoWeb.Format`.
 
 ## Art
 
-Nothing is an image file, and nothing needs JavaScript.
+The wordmark is a local image; the remaining artwork is CSS or server-rendered
+SVG. None of the artwork requires JavaScript.
 
+- The **wordmark** is Cobalt Chrome, generated with `gpt-image-2` and stored
+  as a cropped, transparent WebP at `priv/static/images/wordmark.webp`.
+  It sits above the search input, scales to the available width up to 640px,
+  and retains the accessible heading name "Magnetissimo" through its alt text.
 - The **orb** is a pearl: a blurred conic gradient turning slowly under fixed
   radial highlights. Its starting angle and a small hue shift come from a
   seed (the counts on the home page, the infohash on a torrent page).

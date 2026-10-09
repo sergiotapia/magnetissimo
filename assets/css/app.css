@@ -284,23 +284,6 @@
    Type helpers.
    --------------------------------------------------------------------------- */
 
-/* Brushed chrome lettering for the big title. */
-.chrome-text {
-  background: linear-gradient(
-    180deg,
-    #1f3fd1 0%,
-    #4f7bff 38%,
-    #c4d5ff 50%,
-    #2f5bff 54%,
-    #7fa2ff 78%,
-    #e2eaff 100%
-  );
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 1px 0 white) drop-shadow(0 10px 18px rgb(47 91 255 / 0.25));
-}
-
 .label {
   font-family: var(--font-pixel);
   font-size: 0.56rem;
