@@ -10,6 +10,10 @@ defmodule Magnetissimo.Crawlers.Yts do
   its trackers are built here rather than at render time. `yts.mx`, the host the
   2.0.0 app crawled, no longer resolves; `movies-api.accel.li` is the base URL
   YTS now advertises in its own responses.
+
+  Two ways in: `crawl_latest/0` for the newest page, and `search/2`, which
+  reaches the rest of the catalogue on demand for a term someone actually
+  searched for.
   """
 
   require Logger
@@ -45,9 +49,9 @@ defmodule Magnetissimo.Crawlers.Yts do
   """
   @spec crawl_latest() :: :ok
   def crawl_latest do
-    case fetch_movies() do
+    case fetch_movies(limit: @limit, sort_by: "date_added") do
       {:ok, movies} ->
-        {inserted, known} = index(movies)
+        {inserted, known} = index(movies, nil, nil)
         Logger.info("[YTS] indexed #{inserted} new torrents, ignored #{known} already known")
 
       {:error, reason} ->
@@ -55,13 +59,50 @@ defmodule Magnetissimo.Crawlers.Yts do
     end
   end
 
-  defp fetch_movies do
-    # No retries: the scheduler comes back in five minutes, so retrying here
-    # only holds the process open while a mirror is down.
+  @doc """
+  Looks one term up on the API and indexes whatever comes back.
+
+  The index only ever holds the newest page of the site, so anything older has
+  never been crawled and a local search cannot find it. This is how a search
+  reaches the rest of the catalogue without crawling it: hits are written to
+  the index and are ordinary, searchable results from then on.
+
+  `opts[:notify]` is a pid that receives `{:yts_search, term, :updated}` after
+  each movie that added something and `{:yts_search, term, :done}` once the
+  term is finished, so a caller can show results as they land. A term that
+  matched only torrents already indexed sends no `:updated`.
+
+  Never raises, matching `crawl_latest/0`.
+  """
+  @spec search(String.t(), keyword()) :: :ok
+  def search(term, opts \\ []) do
+    notify = Keyword.get(opts, :notify)
+
+    case fetch_movies(limit: @limit, query_term: term) do
+      {:ok, movies} ->
+        {inserted, known} = index(movies, notify, term)
+
+        Logger.info(
+          "[YTS] search #{inspect(term)}: #{inserted} new torrents, #{known} already known"
+        )
+
+      {:error, reason} ->
+        Logger.error("[YTS] search #{inspect(term)} failed: #{inspect(reason)}")
+    end
+
+    # Sent on every path, so a caller waiting on this term is never left
+    # waiting because the API was down or the answer was wholly duplicate.
+    notify(notify, term, :done)
+  end
+
+  defp fetch_movies(params) do
+    # No retries: the crawl comes back in five minutes and a search is a
+    # one-shot question, so retrying here only holds a process open while a
+    # mirror is down.
     options =
       Application.get_env(:magnetissimo, __MODULE__, []) ++
         [
-          params: [limit: @limit, sort_by: "date_added"],
+          params: params,
           headers: [user_agent: @user_agent],
           retry: false
         ]
@@ -76,13 +117,37 @@ defmodule Magnetissimo.Crawlers.Yts do
   defp movies(%{"data" => %{"movies" => movies}}) when is_list(movies), do: {:ok, movies}
   defp movies(_body), do: {:error, :unexpected_response}
 
-  defp index(movies) do
+  defp index(movies, notify, term) do
     category_id = Torrents.get_category_by_name_or_alias!(@category_name).id
     source_id = Torrents.get_source_by_name!(@source_name).id
 
-    movies
-    |> Enum.flat_map(&torrent_attrs(&1, category_id, source_id))
+    Enum.reduce(movies, {0, 0}, fn movie, totals ->
+      counts = index_movie(movie, category_id, source_id)
+
+      # Only a movie that added something is worth reporting: a page of
+      # nothing but duplicates would redraw the caller's results for nothing.
+      if elem(counts, 0) > 0, do: notify(notify, term, :updated)
+
+      add(totals, counts)
+    end)
+  end
+
+  defp index_movie(movie, category_id, source_id) do
+    movie
+    |> torrent_attrs(category_id, source_id)
     |> Enum.reduce({0, 0}, &insert/2)
+  end
+
+  defp add({inserted, known}, {more_inserted, more_known}) do
+    {inserted + more_inserted, known + more_known}
+  end
+
+  defp notify(nil, _term, _status), do: :ok
+
+  defp notify(pid, term, status) do
+    # `send/2` returns the message; `crawl_latest/0` and `search/2` promise `:ok`.
+    _ = send(pid, {:yts_search, term, status})
+    :ok
   end
 
   defp insert(attrs, {inserted, known}) do
