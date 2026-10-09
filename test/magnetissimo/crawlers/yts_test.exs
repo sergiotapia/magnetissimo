@@ -1,5 +1,8 @@
 defmodule Magnetissimo.Crawlers.YtsTest do
-  use Magnetissimo.DataCase, async: true
+  # Not async: SQLite has a single writer and the sandbox holds a write
+  # transaction for the whole test, so two tests that both write cannot run at
+  # the same time however long the busy timeout is.
+  use Magnetissimo.DataCase, async: false
 
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Torrents
