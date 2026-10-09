@@ -35,7 +35,9 @@ history.
 
 ## Project guidelines
 
-- Use `mix precommit` alias when you are done with all changes and fix any pending issues
+- Use `mix precommit` alias when you are done with all changes and fix any pending issues. It runs, in order: `compile --warnings-as-errors`, `deps.unlock --unused`, `format`, `credo --strict`, `ex_dna`, `reach.check --arch`, `dialyzer`, `test`
+- Fix what a check finds instead of disabling it. If a check is wrong for one line, disable it on that line with a reason (`# credo:disable-for-next-line Check.Name because …`)
+- Configuration lives in `.credo.exs`, `.ex_dna.exs`, and `.reach.exs`. The reach rules are architecture: the domain never calls `MagnetissimoWeb`, web code never touches `Repo` or `Ecto.Query` directly, all HTTP goes through `Req` (never `HTTPoison`, `Tesla`, `:httpc`, or raw `Finch`), nothing shells out or opens a port, no atoms are built from input, and output goes through `Logger`, not `IO.puts`
 - Use the already included and available `:req` (`Req`) library for HTTP requests, **avoid** `:httpoison`, `:tesla`, and `:httpc`. Req is included by default and is the preferred HTTP client for Phoenix apps
 
 ### Phoenix v1.8 guidelines

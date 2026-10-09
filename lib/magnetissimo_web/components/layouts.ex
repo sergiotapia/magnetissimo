@@ -1,7 +1,11 @@
 defmodule MagnetissimoWeb.Layouts do
   @moduledoc """
-  This module holds layouts and related functionality
-  used by your application.
+  Page layouts.
+
+  `root.html.heex` (embedded from `layouts/`) is the HTML skeleton: the CSRF
+  meta tag, `app.css` and `app.js`. `app/1` is the header and content frame
+  every page renders inside, and `flash_group/1` shows flash messages plus the
+  client- and server-error notices.
   """
   use MagnetissimoWeb, :html
 

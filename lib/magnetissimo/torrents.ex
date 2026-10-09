@@ -164,16 +164,11 @@ defmodule Magnetissimo.Torrents do
   a search box needs.
   """
   def match_query(term) when is_binary(term) do
-    case term |> String.split(~r/\s+/, trim: true) |> Enum.map(&quote_token/1) do
-      [] ->
-        nil
+    tokens = term |> String.split(~r/\s+/, trim: true) |> Enum.map(&quote_token/1)
 
-      [token] ->
-        token <> "*"
-
-      tokens ->
-        {last, rest} = List.pop_at(tokens, -1)
-        Enum.join(rest ++ [last <> "*"], " ")
+    case tokens do
+      [] -> nil
+      _ -> tokens |> List.update_at(-1, &(&1 <> "*")) |> Enum.join(" ")
     end
   end
 

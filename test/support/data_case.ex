@@ -1,20 +1,13 @@
 defmodule Magnetissimo.DataCase do
   @moduledoc """
-  This module defines the setup for tests requiring
-  access to the application's data layer.
-
-  You may define functions here to be used as helpers in
-  your tests.
-
-  Finally, if the test case interacts with the database,
-  we enable the SQL sandbox, so changes done to the database
-  are reverted at the end of every test. If you are using
-  PostgreSQL, you can even run database tests asynchronously
-  by setting `use Magnetissimo.DataCase, async: true`, although
-  this option is not recommended for other databases.
+  The case for tests that touch the database. Each test runs in its own SQL
+  sandbox, shared with other processes when the test isn't async, so every
+  change rolls back when the test ends.
   """
 
   use ExUnit.CaseTemplate
+
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
@@ -36,16 +29,16 @@ defmodule Magnetissimo.DataCase do
   Sets up the sandbox based on the test tags.
   """
   def setup_sandbox(tags) do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(Magnetissimo.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    pid = Sandbox.start_owner!(Magnetissimo.Repo, shared: not tags[:async])
+    on_exit(fn -> Sandbox.stop_owner(pid) end)
   end
 
   @doc """
   A helper that transforms changeset errors into a map of messages.
 
-      assert {:error, changeset} = Accounts.create_user(%{password: "short"})
-      assert "password is too short" in errors_on(changeset).password
-      assert %{password: ["password is too short"]} = errors_on(changeset)
+      assert {:error, changeset} = Torrents.create_torrent(%{magnet_hash: "nope"})
+      assert "must be a 40-character lowercase hex BitTorrent v1 infohash" in
+               errors_on(changeset).magnet_hash
 
   """
   def errors_on(changeset) do

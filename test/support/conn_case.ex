@@ -1,18 +1,8 @@
 defmodule MagnetissimoWeb.ConnCase do
   @moduledoc """
-  This module defines the test case to be used by
-  tests that require setting up a connection.
-
-  Such tests rely on `Phoenix.ConnTest` and also
-  import other functionality to make it easier
-  to build common data structures and query the data layer.
-
-  Finally, if the test case interacts with the database,
-  we enable the SQL sandbox, so changes done to the database
-  are reverted at the end of every test. If you are using
-  PostgreSQL, you can even run database tests asynchronously
-  by setting `use MagnetissimoWeb.ConnCase, async: true`, although
-  this option is not recommended for other databases.
+  The case for tests that go through the router: each test gets a `conn`, and
+  its own SQL sandbox (shared when the test isn't async), so database changes
+  roll back when it ends.
   """
 
   use ExUnit.CaseTemplate

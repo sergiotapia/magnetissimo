@@ -75,23 +75,19 @@ defmodule Magnetissimo.Seeds do
   Inserts the sources and the category tree. Safe to run repeatedly.
   """
   def run do
-    for {name, url} <- @sources do
-      upsert_source(name, url)
-    end
-
-    for {parent_name, children} <- @categories do
-      parent = upsert_category(parent_name, nil)
-
-      for {child_name, aliases} <- children do
-        category = upsert_category(child_name, parent.id)
-
-        for alias_name <- aliases do
-          upsert_alias(alias_name, category)
-        end
-      end
-    end
-
+    Enum.each(@sources, fn {name, url} -> upsert_source(name, url) end)
+    Enum.each(@categories, &upsert_category_tree/1)
     :ok
+  end
+
+  defp upsert_category_tree({parent_name, children}) do
+    parent = upsert_category(parent_name, nil)
+    Enum.each(children, &upsert_child_category(&1, parent))
+  end
+
+  defp upsert_child_category({child_name, aliases}, parent) do
+    category = upsert_category(child_name, parent.id)
+    Enum.each(aliases, &upsert_alias(&1, category))
   end
 
   defp upsert_source(name, url) do

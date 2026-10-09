@@ -88,8 +88,8 @@ defmodule MagnetissimoWeb do
       import MagnetissimoWeb.CoreComponents
 
       # Common modules used in templates
-      alias Phoenix.LiveView.JS
       alias MagnetissimoWeb.Layouts
+      alias Phoenix.LiveView.JS
 
       # Routes generation with the ~p sigil
       unquote(verified_routes())

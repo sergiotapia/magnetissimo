@@ -1,8 +1,7 @@
 defmodule MagnetissimoWeb.PageHTML do
   @moduledoc """
-  This module contains pages rendered by PageController.
-
-  See the `page_html` directory for all templates available.
+  Renders the pages served by `MagnetissimoWeb.PageController` from the
+  templates in `page_html/`.
   """
   use MagnetissimoWeb, :html
 
