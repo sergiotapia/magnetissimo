@@ -22,6 +22,7 @@ defmodule Magnetissimo.Torrents.Category do
     field :name, :string
 
     belongs_to :parent_category, __MODULE__, foreign_key: :parent_id
+    has_many :children, __MODULE__, foreign_key: :parent_id
     has_many :category_aliases, CategoryAlias
     has_many :torrents, Torrent
 

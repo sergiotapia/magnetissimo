@@ -46,6 +46,40 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
+  Returns the top-level categories with their children, both ordered by name.
+
+  "Other" has no children, so it comes back as a childless parent: it is the
+  one category a torrent can be filed under directly.
+  """
+  def list_category_tree do
+    children = from(c in Category, order_by: [asc: c.name])
+
+    Repo.all(
+      from c in Category,
+        where: is_nil(c.parent_id),
+        order_by: [asc: c.name],
+        preload: [children: ^children]
+    )
+  end
+
+  @doc """
+  Gets a single category.
+
+  Raises `Ecto.NoResultsError` if the category does not exist.
+  """
+  def get_category!(id), do: Repo.get!(Category, id)
+
+  @doc "Returns `%{category_id => torrent_count}` for every category with torrents."
+  def count_torrents_by_category do
+    Repo.all(
+      from t in Torrent,
+        group_by: t.category_id,
+        select: {t.category_id, count(t.id)}
+    )
+    |> Map.new()
+  end
+
+  @doc """
   Resolves a site's own category wording to a canonical category.
 
   Aliases win over names, then the canonical name is matched, then `"Other"`.
@@ -81,14 +115,39 @@ defmodule Magnetissimo.Torrents do
 
   ## Torrents
 
-  @doc "Returns the most recently published torrents."
-  def list_latest_torrents(limit \\ @latest_limit) do
-    Repo.all(
+  @doc """
+  Returns the most recently published torrents.
+
+  ## Options
+
+    * `:limit` - how many to return, 50 by default
+    * `:category_id` - only torrents filed under this category
+
+  """
+  def list_latest_torrents(opts \\ []) do
+    limit = Keyword.get(opts, :limit, @latest_limit)
+
+    query =
       from t in Torrent,
-        order_by: [desc: t.published_at],
+        order_by: [desc: t.published_at, desc: t.id],
         limit: ^limit,
         preload: [:source, :category]
-    )
+
+    query =
+      case Keyword.fetch(opts, :category_id) do
+        {:ok, category_id} -> where(query, [t], t.category_id == ^category_id)
+        :error -> query
+      end
+
+    Repo.all(query)
+  end
+
+  @doc "Returns how many torrents are indexed."
+  def count_torrents, do: Repo.aggregate(Torrent, :count)
+
+  @doc "Returns when the newest torrent was published, or `nil` for an empty index."
+  def latest_published_at do
+    Repo.one(from t in Torrent, select: max(t.published_at))
   end
 
   @doc """
@@ -131,16 +190,31 @@ defmodule Magnetissimo.Torrents do
 
   A name match outranks a description match ten to one, so a title beats a plot
   summary that happens to mention the same word. Returns `[]` for blank input.
+
+  Takes the same options as `list_latest_torrents/1`. With a `:category_id`
+  the index is asked for more rows than the limit before filtering, so a
+  category that rarely wins on relevance still fills a page.
   """
-  def search_torrents(term, limit \\ @search_limit) do
+  def search_torrents(term, opts \\ []) do
+    limit = Keyword.get(opts, :limit, @search_limit)
+
     case match_query(term) do
       nil ->
         []
 
       match ->
         match
-        |> matching_torrent_ids(limit)
+        |> matching_torrent_ids(limit, Keyword.has_key?(opts, :category_id))
         |> load_torrents_in_order()
+        |> filter_by_category(opts)
+        |> Enum.take(limit)
+    end
+  end
+
+  defp filter_by_category(torrents, opts) do
+    case Keyword.fetch(opts, :category_id) do
+      {:ok, category_id} -> Enum.filter(torrents, &(&1.category_id == category_id))
+      :error -> torrents
     end
   end
 
@@ -176,7 +250,9 @@ defmodule Magnetissimo.Torrents do
 
   defp quote_token(token), do: ~s("#{String.replace(token, "\"", "\"\"")}")
 
-  defp matching_torrent_ids(match, limit) do
+  defp matching_torrent_ids(match, limit, filtered?) do
+    limit = if filtered?, do: limit * 4, else: limit
+
     # bm25's weights must be literals: 10x for name, 1x for description.
     sql = """
     SELECT rowid
