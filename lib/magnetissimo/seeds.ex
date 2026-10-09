@@ -18,7 +18,9 @@ defmodule Magnetissimo.Seeds do
   @sources [
     {"Nyaa.si", "https://nyaa.si"},
     {"TorrentDownloads", "https://torrentdownloads.pro"},
-    {"YTS", "https://yts.mx/"},
+    # yts.mx stopped resolving; yts.gg is the live site, and the crawler talks
+    # to movies-api.accel.li, the API base URL the site itself advertises.
+    {"YTS", "https://yts.gg/"},
     {"1337x", "https://www.1337x.to"}
   ]
 
