@@ -18,6 +18,7 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
 
   require Logger
 
+  alias Magnetissimo.Crawlers.Rss
   alias Magnetissimo.Torrents
 
   @user_agent "Magnetissimo/0.1"
@@ -124,59 +125,18 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   end
 
   defp index(body, site) do
-    source_id = Torrents.get_source_by_name!(site[:source]).id
-
-    body
-    |> items()
-    |> Enum.reduce({0, 0}, fn item, totals ->
-      add(totals, insert(item, site, source_id))
-    end)
-  end
-
-  defp items(body) do
-    ~r/<item>(.*?)<\/item>/s
-    |> Regex.scan(body, capture: :all_but_first)
-    |> Enum.map(&hd/1)
-  end
-
-  defp insert(item, site, source_id) do
-    case torrent_attrs(item, site, source_id) do
-      nil -> {0, 0}
-      attrs -> insert_torrent(attrs, site)
-    end
-  end
-
-  defp insert_torrent(attrs, site) do
-    case Torrents.create_torrent(attrs) do
-      {:ok, _torrent} ->
-        {1, 0}
-
-      {:error, changeset} ->
-        # A source republishing a torrent it already listed is the normal
-        # case, not a fault. Anything else means our own attrs are wrong
-        # and the torrent is being dropped silently, which should be
-        # visible.
-        unless Keyword.has_key?(changeset.errors, :magnet_hash) do
-          Logger.warning("[#{site[:source]}] skipped #{attrs.name}: #{inspect(changeset.errors)}")
-        end
-
-        {0, 1}
-    end
-  end
-
-  defp add({inserted, known}, {more_inserted, more_known}) do
-    {inserted + more_inserted, known + more_known}
+    Rss.index(body, site[:source], fn item, source_id -> torrent_attrs(item, site, source_id) end)
   end
 
   # An item missing a field we cannot invent, or carrying a size or date we
   # cannot parse, is dropped rather than crashing the crawl.
   defp torrent_attrs(item, site, source_id) do
-    with name when is_binary(name) <- field(item, "title"),
-         hash when is_binary(hash) <- field(item, "nyaa:infoHash"),
+    with name when is_binary(name) <- Rss.field(item, "title"),
+         hash when is_binary(hash) <- Rss.field(item, "nyaa:infoHash"),
          canonical_url when is_binary(canonical_url) <- guid(item),
-         category when is_binary(category) <- field(item, "nyaa:category"),
-         size when is_integer(size) <- size_to_bytes(field(item, "nyaa:size")),
-         %DateTime{} = published_at <- published_at(field(item, "pubDate")) do
+         category when is_binary(category) <- Rss.field(item, "nyaa:category"),
+         size when is_integer(size) <- size_to_bytes(Rss.field(item, "nyaa:size")),
+         %DateTime{} = published_at <- published_at(Rss.field(item, "pubDate")) do
       name = unescape(name)
       hash = String.downcase(hash)
 
@@ -184,8 +144,8 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
         name: name,
         canonical_url: canonical_url,
         published_at: published_at,
-        leechers: integer_field(item, "nyaa:leechers"),
-        seeders: integer_field(item, "nyaa:seeders"),
+        leechers: Rss.integer_field(item, "nyaa:leechers"),
+        seeders: Rss.integer_field(item, "nyaa:seeders"),
         size_in_bytes: size,
         magnet_hash: hash,
         magnet_url: magnet_url(site[:tracker], hash, name),
@@ -197,28 +157,10 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
     end
   end
 
-  defp field(item, name) do
-    case Regex.run(~r/<#{name}>([^<]*)<\/#{name}>/, item) do
-      [_, value] -> value
-      nil -> nil
-    end
-  end
-
   defp guid(item) do
     case Regex.run(~r/<guid[^>]*>([^<]*)<\/guid>/, item) do
       [_, value] -> value
       nil -> nil
-    end
-  end
-
-  defp integer_field(item, name), do: to_integer(field(item, name))
-
-  defp to_integer(nil), do: 0
-
-  defp to_integer(value) do
-    case Integer.parse(value) do
-      {int, _rest} -> int
-      :error -> 0
     end
   end
 
@@ -242,8 +184,9 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   defp published_at(raw) do
     with [_, day, month, year, hour, minute, second] <-
            Regex.run(~r/(\d{1,2}) (\w{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2})/, raw),
-         {:ok, date} <- Date.new(to_integer(year), month_number(month), to_integer(day)),
-         {:ok, time} <- Time.new(to_integer(hour), to_integer(minute), to_integer(second)) do
+         {:ok, date} <- Date.new(Rss.to_integer(year), month_number(month), Rss.to_integer(day)),
+         {:ok, time} <-
+           Time.new(Rss.to_integer(hour), Rss.to_integer(minute), Rss.to_integer(second)) do
       DateTime.new!(date, time, "Etc/UTC")
     else
       _ -> nil

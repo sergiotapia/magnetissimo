@@ -18,6 +18,7 @@ defmodule Magnetissimo.Crawlers.Yts do
 
   require Logger
 
+  alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Torrents
 
   @api_url "https://movies-api.accel.li/api/v2/list_movies.json"
@@ -25,20 +26,6 @@ defmodule Magnetissimo.Crawlers.Yts do
   @category_name "Movies"
   @limit 50
   @user_agent "Magnetissimo/0.1"
-
-  # YTS ships no magnet link, only the infohash, so a client has no tracker to
-  # announce to without this list. Carried over from the 2.0.0 app unchanged.
-  @trackers [
-    "udp://tracker.opentrackr.org:1337/announce",
-    "udp://open.tracker.cl:1337/announce",
-    "udp://9.rarbg.me:2970/announce",
-    "udp://p4p.arenabg.com:1337/announce",
-    "udp://tracker.torrent.eu.org:451/announce",
-    "udp://tracker.dler.org:6969/announce",
-    "udp://open.stealth.si:80/announce",
-    "udp://ipv4.tracker.harry.lu:80/announce",
-    "https://opentracker.i2p.rocks:443/announce"
-  ]
 
   @doc """
   Fetches the newest movies and indexes every quality variant under them.
@@ -192,7 +179,7 @@ defmodule Magnetissimo.Crawlers.Yts do
           seeders: torrent["seeds"],
           size_in_bytes: torrent["size_bytes"],
           magnet_hash: hash,
-          magnet_url: magnet_url(hash, name),
+          magnet_url: Magnet.url(hash, name),
           category_id: category_id,
           source_id: source_id
         }
@@ -200,11 +187,5 @@ defmodule Magnetissimo.Crawlers.Yts do
     else
       _ -> []
     end
-  end
-
-  defp magnet_url(hash, name) do
-    trackers = Enum.map_join(@trackers, "&tr=", &URI.encode_www_form/1)
-
-    "magnet:?xt=urn:btih:#{hash}&dn=#{URI.encode_www_form(name)}&tr=#{trackers}"
   end
 end
