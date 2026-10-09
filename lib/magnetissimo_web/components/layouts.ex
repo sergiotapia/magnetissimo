@@ -80,7 +80,7 @@ defmodule MagnetissimoWeb.Layouts do
     ~H"""
     <.link
       id={@id}
-      class="focus-ring shrink-0 rounded-full px-2 py-1.5 font-display text-[0.7rem] font-bold tracking-[0.08em] text-ink-700 uppercase transition hover:bg-white hover:text-cobalt-600 hover:shadow-[0_4px_12px_-6px_rgba(47,91,255,0.5)] sm:px-5 sm:text-sm sm:tracking-[0.2em]"
+      class="focus-ring shrink-0 rounded-full px-2 py-1.5 font-display text-[0.7rem] font-bold tracking-[0.08em] text-ink-700 uppercase transition hover:bg-white hover:text-iris-600 hover:shadow-[0_4px_12px_-6px_rgba(115,84,238,0.45)] sm:px-5 sm:text-sm sm:tracking-[0.2em]"
       {@rest}
     >
       {render_slot(@inner_block)}
