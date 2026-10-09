@@ -136,18 +136,14 @@ defmodule MagnetissimoWeb.HomeLive do
               </div>
             </.form>
 
-            <p id="status-line" class="mt-4 pl-5 text-sm text-ink-500">
-              <%= cond do %>
-                <% @q != "" -> %>
-                  <span class="font-bold text-cobalt-600">{@count}</span>
-                  {if @count == 1, do: "match", else: "matches"} for
-                  <span class="font-bold text-ink-900">“{@q}”</span>
-                  <span :if={@category}>in {short_category(@category.name)}</span>
-                <% @category -> %>
-                  Showing
-                  <span class="font-bold text-cobalt-600">{short_category(@category.name)}</span>
-                <% true -> %>
-                  Type to search, or pick a category below.
+            <p :if={@q != "" or !@category} id="status-line" class="mt-4 pl-5 text-sm text-ink-500">
+              <%= if @q != "" do %>
+                <span class="font-bold text-cobalt-600">{@count}</span>
+                {if @count == 1, do: "match", else: "matches"} for
+                <span class="font-bold text-ink-900">“{@q}”</span>
+                <span :if={@category}>in {@category.name}</span>
+              <% else %>
+                Type to search, or pick a category below.
               <% end %>
             </p>
           </div>
