@@ -57,7 +57,7 @@ defmodule MagnetissimoWeb.TorrentLive do
 
             <div class="relative border-frost-300/70 p-6 max-sm:border-t sm:border-l md:border-t md:border-l-0">
               <div class="label mb-3">Aura</div>
-              <.sparkle class="top-10 right-10 size-4 text-iris-400" />
+              <.sparkle class="top-10 right-10 size-4 text-azure-400" />
               <.orb
                 id={"orb-#{@torrent.id}"}
                 seed={@torrent.magnet_hash}

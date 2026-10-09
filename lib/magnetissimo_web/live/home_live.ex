@@ -191,8 +191,8 @@ defmodule MagnetissimoWeb.HomeLive do
             </div>
 
             <div class="relative p-6 sm:p-10">
-              <.sparkle class="top-8 right-10 hidden size-7 text-butter sm:block" />
-              <.sparkle class="top-24 right-28 hidden size-3 text-blush [animation-delay:1.4s] sm:block" />
+              <.sparkle class="top-8 right-10 hidden size-7 text-white sm:block" />
+              <.sparkle class="top-24 right-28 hidden size-3 text-aqua [animation-delay:1.4s] sm:block" />
 
               <h1 id="site-wordmark" class="w-full max-w-[640px]">
                 <img
@@ -216,7 +216,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 <input :if={@category} type="hidden" name="category" value={@category.id} />
                 <label for="q" class="sr-only">Search the index</label>
                 <div class="well flex items-center gap-2 rounded-full p-1.5 pl-5 transition focus-within:shadow-[inset_0_2px_4px_rgba(31,63,209,0.12),0_0_0_3px_rgba(79,123,255,0.35)]">
-                  <.icon name="hero-magnifying-glass" class="size-5 shrink-0 text-iris-500" />
+                  <.icon name="hero-magnifying-glass" class="size-5 shrink-0 text-azure-500" />
                   <input
                     type="text"
                     id="q"
@@ -240,7 +240,7 @@ defmodule MagnetissimoWeb.HomeLive do
 
               <p :if={@q != "" or !@category} id="status-line" class="mt-4 pl-5 text-sm text-ink-500">
                 <%= if @q != "" do %>
-                  <span class="font-bold text-iris-600">{@count}</span>
+                  <span class="font-bold text-azure-600">{@count}</span>
                   {if @count == 1, do: "match", else: "matches"} for
                   <span class="font-bold text-ink-900">“{@q}”</span>
                   <span :if={@category}>in {@category.name}</span>
@@ -256,7 +256,7 @@ defmodule MagnetissimoWeb.HomeLive do
               <div class="ticker text-sm text-ink-700" aria-hidden="true">
                 <div>
                   <span :for={name <- @ticker ++ @ticker} class="pr-10">
-                    <span class="mr-3 text-iris-400">✦</span>{name}
+                    <span class="mr-3 text-azure-400">✦</span>{name}
                   </span>
                 </div>
               </div>
@@ -296,7 +296,7 @@ defmodule MagnetissimoWeb.HomeLive do
                   <h2 class="text-sm leading-snug font-semibold text-ink-900">
                     <.link
                       navigate={~p"/torrents/#{torrent}"}
-                      class="focus-ring block truncate transition group-hover:text-iris-600"
+                      class="focus-ring block truncate transition group-hover:text-azure-600"
                       title={torrent.name}
                     >
                       {torrent.name}

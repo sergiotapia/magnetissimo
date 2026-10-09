@@ -75,8 +75,9 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Theme. Soft-core Y2K: lavender haze, grape ink, iris gel, bubblegum,
-   butter and aqua. Gel pens, frosted lip gloss, the Grape iMac.
+   Theme. Corporate Y2K: an overexposed glass atrium under fluorescent strips.
+   Cyan-white light, azure glass, steel, and a navy-suit ink. No warm colours
+   except the leecher red.
    --------------------------------------------------------------------------- */
 
 @theme {
@@ -86,36 +87,36 @@
   --font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
   /* Backgrounds, from the page down to the deepest well. */
-  --color-frost-50: #fdf8ff;
-  --color-frost-100: #f8effc;
-  --color-frost-200: #efe1f7;
-  --color-frost-300: #e2cdee;
+  --color-frost-50: #f4fafc;
+  --color-frost-100: #e7f3f7;
+  --color-frost-200: #d4e9f0;
+  --color-frost-300: #b9d8e4;
 
   /* Text. */
-  --color-ink-900: #2a1840;
-  --color-ink-700: #4f3670;
-  --color-ink-500: #86709f;
-  --color-ink-300: #c3b1d6;
+  --color-ink-900: #0d2132;
+  --color-ink-700: #2a506c;
+  --color-ink-500: #5a7f95;
+  --color-ink-300: #9bbccb;
 
-  /* The gel: periwinkle going grape. */
-  --color-iris-700: #5b3fd0;
-  --color-iris-600: #7354ee;
-  --color-iris-500: #8f74ff;
-  --color-iris-400: #b19dff;
-  --color-iris-200: #dcd1ff;
-  --color-iris-100: #efe9ff;
+  /* The glass: floor-tile azure down to briefcase blue. */
+  --color-azure-700: #1d5a88;
+  --color-azure-600: #2a73a8;
+  --color-azure-500: #4892c2;
+  --color-azure-400: #72b3d5;
+  --color-azure-200: #b5dbeb;
+  --color-azure-100: #dcf0f7;
 
-  --color-blush: #ff9fd2;
-  --color-butter: #ffe48f;
-  --color-mint: #12b39a;
-  --color-mint-soft: #c8f3ea;
-  --color-bubble: #f2468f;
-  --color-bubble-soft: #ffd6ea;
+  /* The ceiling glow, the second stop of every gradient. */
+  --color-aqua: #8fd9ea;
+  --color-mint: #11a07c;
+  --color-mint-soft: #c6efe2;
+  --color-bubble: #e04a64;
+  --color-bubble-soft: #fbd9df;
 
   --radius-panel: 1.5rem;
 
-  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 20px 40px -24px rgb(91 63 208 / 0.30), 0 2px 6px -2px rgb(91 63 208 / 0.10);
-  --shadow-float-lg: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 28px 56px -24px rgb(91 63 208 / 0.40), 0 2px 8px -2px rgb(91 63 208 / 0.14);
+  --shadow-float: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 20px 40px -24px rgb(29 90 136 / 0.28), 0 2px 6px -2px rgb(29 90 136 / 0.10);
+  --shadow-float-lg: 0 1px 0 rgb(255 255 255 / 0.9) inset, 0 28px 56px -24px rgb(29 90 136 / 0.38), 0 2px 8px -2px rgb(29 90 136 / 0.14);
 
   --animate-ticker: ticker 40s linear infinite;
   --animate-rise: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
@@ -152,26 +153,27 @@
 }
 
 /* ---------------------------------------------------------------------------
-   Base. A lavender haze with bubblegum, periwinkle and butter blooms and the
-   speaker rings from the PS2 posters, fixed behind everything.
+   Base. A blown-out atrium: white light pouring in at the top, a cyan glow
+   off to the right, the blue floor at the bottom, fluorescent strips on the
+   ceiling and the speaker rings from the PS2 posters, fixed behind
+   everything.
    --------------------------------------------------------------------------- */
 
 @layer base {
   html {
     background: var(--color-frost-100);
     color-scheme: light;
-    scrollbar-color: var(--color-iris-200) var(--color-frost-100);
+    scrollbar-color: var(--color-azure-200) var(--color-frost-100);
   }
 
   body {
     position: relative;
     background-color: var(--color-frost-100);
     background-image:
-      radial-gradient(ellipse 60% 45% at 8% 0%, rgb(255 159 210 / 0.30), transparent 70%),
-      radial-gradient(ellipse 55% 50% at 95% 8%, rgb(177 157 255 / 0.36), transparent 70%),
-      radial-gradient(ellipse 45% 40% at 70% 60%, rgb(168 220 255 / 0.18), transparent 70%),
-      radial-gradient(ellipse 70% 50% at 30% 105%, rgb(255 228 143 / 0.34), transparent 70%),
-      linear-gradient(180deg, #fdf6ff 0%, #f6ecfc 55%, #f1e6fa 100%);
+      radial-gradient(ellipse 40% 50% at 100% 0%, rgb(255 255 255 / 0.95), transparent 70%),
+      radial-gradient(ellipse 70% 45% at 45% 55%, rgb(244 250 252 / 0.85), transparent 70%),
+      radial-gradient(ellipse 90% 45% at 30% 110%, rgb(114 179 213 / 0.45), transparent 70%),
+      linear-gradient(180deg, #bfe1ed 0%, #e2f1f6 50%, #cfe6ef 100%);
     background-attachment: fixed;
     color: var(--color-ink-900);
     font-family: var(--font-sans);
@@ -180,7 +182,7 @@
   }
 
   ::selection {
-    background: var(--color-iris-200);
+    background: var(--color-azure-200);
     color: var(--color-ink-900);
   }
 
@@ -206,7 +208,7 @@
   border-radius: 9999px;
   background: repeating-radial-gradient(
     circle,
-    rgb(143 116 255 / 0.11) 0 1px,
+    rgb(72 146 194 / 0.12) 0 1px,
     transparent 1px 22px
   );
   mask-image: radial-gradient(circle, #000 30%, transparent 70%);
@@ -215,11 +217,31 @@
 .sky::before { width: 60rem; height: 60rem; top: -26rem; right: -22rem; }
 .sky::after { width: 46rem; height: 46rem; bottom: -22rem; left: -18rem; }
 
+/* Fluorescent strips across the ceiling, fading out towards the middle of
+   the page and towards the walls. */
+.ceiling {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 70vh;
+  background: repeating-linear-gradient(
+    180deg,
+    transparent 0 54px,
+    rgb(255 255 255 / 0.95) 54px 58px,
+    transparent 58px 96px
+  );
+  filter: drop-shadow(0 0 6px rgb(255 255 255 / 0.9));
+  mask-image:
+    linear-gradient(to bottom, #000 0%, rgb(0 0 0 / 0.6) 40%, transparent 100%),
+    linear-gradient(to right, transparent 4%, #000 22%, #000 78%, transparent 96%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
 /* A four-point sparkle. */
 .sparkle {
   position: absolute;
   color: white;
-  filter: drop-shadow(0 0 6px rgb(255 159 210 / 0.85));
+  filter: drop-shadow(0 0 6px rgb(114 179 213 / 0.95));
   animation: var(--animate-twinkle);
 }
 
@@ -278,9 +300,9 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--color-ink-700);
-  border-bottom: 1px solid rgb(226 205 238 / 0.7);
+  border-bottom: 1px solid rgb(185 216 228 / 0.7);
   background:
-    linear-gradient(180deg, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.4) 50%, rgb(239 233 255 / 0.55) 51%, rgb(248 239 252 / 0.2) 100%);
+    linear-gradient(180deg, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.4) 50%, rgb(220 240 247 / 0.6) 51%, rgb(231 243 247 / 0.2) 100%);
 }
 
 /* ---------------------------------------------------------------------------
@@ -302,7 +324,7 @@
   align-items: baseline;
   gap: 0.75rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgb(226 205 238 / 0.6);
+  border-bottom: 1px solid rgb(185 216 228 / 0.6);
 }
 
 .spec-row:last-child { border-bottom: 0; }
@@ -310,7 +332,7 @@
 .spec-row > .leader {
   height: 2px;
   transform: translateY(-0.25em);
-  background-image: radial-gradient(circle, var(--color-iris-200) 1px, transparent 1.5px);
+  background-image: radial-gradient(circle, var(--color-azure-200) 1px, transparent 1.5px);
   background-size: 6px 2px;
 }
 
@@ -320,13 +342,13 @@
   isolation: isolate;
   border-radius: 9999px;
   color: white;
-  background: linear-gradient(180deg, #c3b0ff 0%, #8f74ff 50%, #6a48e6 100%);
-  border: 1px solid #5b3fd0;
+  background: linear-gradient(180deg, #a6dcef 0%, #4892c2 50%, #2a73a8 100%);
+  border: 1px solid #1d5a88;
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.6) inset,
-    0 -2px 6px rgb(255 159 210 / 0.55) inset,
-    0 8px 18px -8px rgb(91 63 208 / 0.65);
-  text-shadow: 0 1px 1px rgb(42 24 64 / 0.35);
+    0 -2px 6px rgb(143 217 234 / 0.7) inset,
+    0 8px 18px -8px rgb(29 90 136 / 0.65);
+  text-shadow: 0 1px 1px rgb(13 33 50 / 0.4);
   transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
 }
 
@@ -344,8 +366,8 @@
   transform: translateY(-1px);
   box-shadow:
     0 1px 0 rgb(255 255 255 / 0.6) inset,
-    0 -2px 6px rgb(255 159 210 / 0.55) inset,
-    0 12px 24px -8px rgb(91 63 208 / 0.7);
+    0 -2px 6px rgb(143 217 234 / 0.7) inset,
+    0 12px 24px -8px rgb(29 90 136 / 0.7);
 }
 
 .gel:active { transform: translateY(1px); filter: brightness(0.96); }
@@ -353,23 +375,23 @@
 /* The frosted pill, for secondary buttons and chips. */
 .pill {
   border-radius: 9999px;
-  background: linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(248 239 252 / 0.8));
+  background: linear-gradient(180deg, rgb(255 255 255 / 0.95), rgb(231 243 247 / 0.8));
   border: 1px solid var(--color-frost-300);
-  box-shadow: 0 1px 0 white inset, 0 2px 4px -2px rgb(91 63 208 / 0.2);
+  box-shadow: 0 1px 0 white inset, 0 2px 4px -2px rgb(29 90 136 / 0.2);
   color: var(--color-ink-700);
   transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
 }
 
 .pill:hover {
-  border-color: var(--color-iris-400);
-  color: var(--color-iris-700);
-  box-shadow: 0 1px 0 white inset, 0 6px 14px -6px rgb(143 116 255 / 0.5);
+  border-color: var(--color-azure-400);
+  color: var(--color-azure-700);
+  box-shadow: 0 1px 0 white inset, 0 6px 14px -6px rgb(72 146 194 / 0.5);
 }
 
 /* A recessed well, for the search field and progress tracks. */
 .well {
-  background: linear-gradient(180deg, rgb(239 225 247 / 0.9), rgb(253 248 255 / 0.95));
-  box-shadow: inset 0 2px 4px rgb(91 63 208 / 0.12), inset 0 0 0 1px rgb(226 205 238 / 0.9);
+  background: linear-gradient(180deg, rgb(212 233 240 / 0.9), rgb(244 250 252 / 0.95));
+  box-shadow: inset 0 2px 4px rgb(29 90 136 / 0.12), inset 0 0 0 1px rgb(185 216 228 / 0.9);
 }
 
 /* A glossy filled bar, for sources and the swarm. */
@@ -377,8 +399,8 @@
   border-radius: 9999px;
   background:
     linear-gradient(180deg, rgb(255 255 255 / 0.55) 0 40%, transparent 41%),
-    linear-gradient(90deg, var(--color-iris-500), var(--color-blush));
-  box-shadow: 0 2px 6px -2px rgb(143 116 255 / 0.55);
+    linear-gradient(90deg, var(--color-azure-500), var(--color-aqua));
+  box-shadow: 0 2px 6px -2px rgb(72 146 194 / 0.55);
 }
 
 /* A pearl orb: an iridescent sphere whose colours turn under fixed highlights.
@@ -389,7 +411,7 @@
   overflow: hidden;
   isolation: isolate;
   filter: hue-rotate(var(--orb-hue, 0deg));
-  box-shadow: 0 22px 36px -18px rgb(91 63 208 / 0.55);
+  box-shadow: 0 22px 36px -18px rgb(29 90 136 / 0.55);
 }
 
 .orb::before {
@@ -399,7 +421,7 @@
   z-index: -1;
   background: conic-gradient(
     from var(--orb-turn, 0deg),
-    #dcd1ff, #8f74ff, #ffd6ea, #a8dcff, #ffffff, #ff9fd2, #ffe48f, #b19dff, #dcd1ff
+    #dcf0f7, #4892c2, #e7f3f7, #8fd9ea, #ffffff, #b5dbeb, #598cb5, #9dd3e5, #dcf0f7
   );
   filter: blur(6px);
   animation: var(--animate-orb);
@@ -414,7 +436,7 @@
     radial-gradient(circle at 32% 26%, white 0 7%, rgb(255 255 255 / 0.75) 12%, transparent 34%),
     radial-gradient(circle at 70% 82%, rgb(255 255 255 / 0.6), transparent 30%);
   box-shadow:
-    inset -12px -16px 28px rgb(91 63 208 / 0.38),
+    inset -12px -16px 28px rgb(29 90 136 / 0.4),
     inset 10px 12px 22px rgb(255 255 255 / 0.7);
 }
 
@@ -423,27 +445,27 @@
   border-radius: 9999px;
   background:
     radial-gradient(circle, var(--color-frost-100) 0 16%, var(--color-frost-300) 17% 20%, transparent 21%),
-    conic-gradient(#efe9ff, #b19dff, #a8dcff, #ffffff, #c8f3ea, #ffe48f, #ffd6ea, #efe9ff);
-  box-shadow: 0 0 0 1px rgb(226 205 238), 0 2px 6px -2px rgb(91 63 208 / 0.4);
+    conic-gradient(#dcf0f7, #9dd3e5, #ffffff, #b5dbeb, #8fd9ea, #ffffff, #c6e6f0, #dcf0f7);
+  box-shadow: 0 0 0 1px rgb(185 216 228), 0 2px 6px -2px rgb(29 90 136 / 0.4);
 }
 
 /* Focus ring. */
 .focus-ring:focus-visible {
-  outline: 2px solid var(--color-iris-500);
+  outline: 2px solid var(--color-azure-500);
   outline-offset: 3px;
   border-radius: 0.6rem;
 }
 
 /* Links in the body copy. */
 .link {
-  color: var(--color-iris-600);
+  color: var(--color-azure-600);
   text-decoration: underline;
-  text-decoration-color: rgb(115 84 238 / 0.3);
+  text-decoration-color: rgb(42 115 168 / 0.3);
   text-underline-offset: 3px;
 }
 
 .link:hover {
-  color: var(--color-iris-700);
+  color: var(--color-azure-700);
   text-decoration-color: currentColor;
 }
 

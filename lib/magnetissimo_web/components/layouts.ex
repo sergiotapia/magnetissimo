@@ -40,6 +40,7 @@ defmodule MagnetissimoWeb.Layouts do
   def app(assigns) do
     ~H"""
     <div class="sky" aria-hidden="true">
+      <div class="ceiling"></div>
       <.sparkle class="top-[14%] left-[6%] size-5" />
       <.sparkle class="top-[8%] right-[18%] size-3 [animation-delay:1.2s]" />
       <.sparkle class="top-[52%] right-[4%] size-6 [animation-delay:2.1s]" />
@@ -80,7 +81,7 @@ defmodule MagnetissimoWeb.Layouts do
     ~H"""
     <.link
       id={@id}
-      class="focus-ring shrink-0 rounded-full px-2 py-1.5 font-display text-[0.7rem] font-bold tracking-[0.08em] text-ink-700 uppercase transition hover:bg-white hover:text-iris-600 hover:shadow-[0_4px_12px_-6px_rgba(115,84,238,0.45)] sm:px-5 sm:text-sm sm:tracking-[0.2em]"
+      class="focus-ring shrink-0 rounded-full px-2 py-1.5 font-display text-[0.7rem] font-bold tracking-[0.08em] text-ink-700 uppercase transition hover:bg-white hover:text-azure-600 hover:shadow-[0_4px_12px_-6px_rgba(42,115,168,0.45)] sm:px-5 sm:text-sm sm:tracking-[0.2em]"
       {@rest}
     >
       {render_slot(@inner_block)}

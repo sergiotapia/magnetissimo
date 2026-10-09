@@ -64,7 +64,7 @@ defmodule MagnetissimoWeb.DossierComponents do
         :if={@count}
         class={[
           "ml-1.5 rounded-full px-1.5 py-px font-mono text-[0.65rem]",
-          if(@active, do: "bg-white/25", else: "bg-iris-100 text-iris-600")
+          if(@active, do: "bg-white/25", else: "bg-azure-100 text-azure-600")
         ]}
       >
         {@count}
@@ -117,7 +117,7 @@ defmodule MagnetissimoWeb.DossierComponents do
         aria-label={"#{@ratio}% seeders"}
       >
         <div
-          class="h-full rounded-full bg-linear-to-r from-mint to-[#7fe3d0]"
+          class="h-full rounded-full bg-linear-to-r from-mint to-[#5fd4b4]"
           style={"width: #{@ratio}%"}
         >
         </div>
@@ -136,7 +136,7 @@ defmodule MagnetissimoWeb.DossierComponents do
 
     ~H"""
     <span class="tracking-[0.2em]" aria-label={"#{@filled} of 5"}>
-      <span class="text-iris-500">{String.duplicate("✦", @filled)}</span><span class="text-frost-300">{String.duplicate(
+      <span class="text-azure-500">{String.duplicate("✦", @filled)}</span><span class="text-frost-300">{String.duplicate(
         "✦",
         5 - @filled
       )}</span>
@@ -162,8 +162,8 @@ defmodule MagnetissimoWeb.DossierComponents do
     <svg viewBox="0 0 12 12" class={@class} role="img" aria-label="infohash fingerprint">
       <defs>
         <linearGradient id={"fp-#{@hash}"} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="var(--color-iris-500)" />
-          <stop offset="1" stop-color="var(--color-blush)" />
+          <stop offset="0" stop-color="var(--color-azure-500)" />
+          <stop offset="1" stop-color="var(--color-aqua)" />
         </linearGradient>
       </defs>
       <rect
@@ -246,8 +246,8 @@ defmodule MagnetissimoWeb.DossierComponents do
     >
       <defs>
         <linearGradient id={"#{@id}-fill"} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="var(--color-iris-400)" stop-opacity="0.35" />
-          <stop offset="1" stop-color="var(--color-iris-400)" stop-opacity="0" />
+          <stop offset="0" stop-color="var(--color-azure-400)" stop-opacity="0.35" />
+          <stop offset="1" stop-color="var(--color-azure-400)" stop-opacity="0" />
         </linearGradient>
       </defs>
       <g class="animate-drift">
@@ -258,14 +258,14 @@ defmodule MagnetissimoWeb.DossierComponents do
         <path
           d="M0 24 C 15 4, 30 4, 45 24 S 75 44, 90 24 S 120 4, 135 24 S 165 44, 180 24 S 210 4, 225 24 S 255 44, 270 24 S 300 4, 315 24 S 345 44, 360 24"
           fill="none"
-          stroke="var(--color-iris-500)"
+          stroke="var(--color-azure-500)"
           stroke-width="1.4"
           stroke-linecap="round"
         />
         <path
           d="M0 24 C 10 40, 20 40, 30 24 S 50 8, 60 24 S 80 40, 90 24 S 110 8, 120 24 S 140 40, 150 24 S 170 8, 180 24 S 200 40, 210 24 S 230 8, 240 24 S 260 40, 270 24 S 290 8, 300 24 S 320 40, 330 24 S 350 8, 360 24"
           fill="none"
-          stroke="var(--color-blush)"
+          stroke="var(--color-aqua)"
           stroke-opacity="0.8"
           stroke-width="1"
           stroke-linecap="round"
