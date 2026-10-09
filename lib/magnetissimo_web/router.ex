@@ -17,13 +17,16 @@ defmodule MagnetissimoWeb.Router do
   scope "/", MagnetissimoWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive
+    live "/torrents/:id", TorrentLive
   end
 
-  # Other scopes may use custom stacks.
-  # scope "/api", MagnetissimoWeb do
-  #   pipe_through :api
-  # end
+  scope "/api", MagnetissimoWeb do
+    pipe_through :api
+
+    get "/latest", TorrentController, :latest
+    get "/search/:term", TorrentController, :search
+  end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development
   if Application.compile_env(:magnetissimo, :dev_routes) do

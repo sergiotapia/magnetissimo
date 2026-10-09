@@ -86,6 +86,8 @@ defmodule MagnetissimoWeb do
       import Phoenix.HTML
       # Core UI components
       import MagnetissimoWeb.CoreComponents
+      import MagnetissimoWeb.DossierComponents
+      import MagnetissimoWeb.Format
 
       # Common modules used in templates
       alias MagnetissimoWeb.Layouts

@@ -21,4 +21,369 @@
 /* Make LiveView wrapper divs transparent for layout */
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
-/* This file is for your main application CSS */
+/* ---------------------------------------------------------------------------
+   Fonts. Served from priv/static/fonts, see the LICENSE.md there.
+   --------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: "VT323";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/vt323.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Silkscreen";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/silkscreen.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Jura";
+  font-style: normal;
+  font-weight: 300 700;
+  font-display: swap;
+  src: url("/fonts/jura.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/spacemono.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Space Mono";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/spacemono-bold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Space Mono";
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/spacemono-italic.woff2") format("woff2");
+}
+
+/* ---------------------------------------------------------------------------
+   Theme. A CRT: near-black glass, one phosphor, one acid accent.
+   --------------------------------------------------------------------------- */
+
+@theme {
+  --font-display: "Jura", "Helvetica Neue", Arial, sans-serif;
+  --font-dossier: "VT323", "Courier New", monospace;
+  --font-pixel: "Silkscreen", "VT323", monospace;
+  --font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  --color-ink-950: #04050a;
+  --color-ink-900: #080b16;
+  --color-ink-800: #0d1222;
+  --color-ink-700: #141b33;
+
+  --color-phos-900: #1a2240;
+  --color-phos-700: #2f3f7a;
+  --color-phos-600: #4a66c4;
+  --color-phos-500: #6699ff;
+  --color-phos-300: #99ccff;
+  --color-phos-200: #bfdcff;
+  --color-phos-100: #e4f0ff;
+
+  --color-acid: #cccc33;
+  --color-acid-bright: #eeee66;
+  --color-rose: #ff6b9d;
+
+  --shadow-glow: 0 0 24px -6px rgb(102 153 255 / 0.55);
+  --shadow-glow-lg: 0 0 48px -8px rgb(102 153 255 / 0.65);
+
+  --animate-blink: blink 1.1s steps(2, start) infinite;
+  --animate-sweep: sweep 9s linear infinite;
+  --animate-drift: drift 14s linear infinite;
+  --animate-ticker: ticker 40s linear infinite;
+  --animate-pulse-glow: pulse-glow 3.2s ease-in-out infinite;
+  --animate-boot: boot 0.5s ease-out both;
+  --animate-rise: rise 0.45s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+
+  @keyframes blink {
+    to { visibility: hidden; }
+  }
+
+  @keyframes sweep {
+    0% { transform: translateY(-12vh); }
+    100% { transform: translateY(112vh); }
+  }
+
+  @keyframes drift {
+    from { transform: translateX(0); }
+    to { transform: translateX(-120px); }
+  }
+
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes boot {
+    from { opacity: 0; transform: scaleY(0.96); filter: brightness(2.2); }
+    to { opacity: 1; transform: scaleY(1); filter: brightness(1); }
+  }
+
+  @keyframes rise {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Base.
+   --------------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    background: var(--color-ink-950);
+    color-scheme: dark;
+    scrollbar-color: var(--color-phos-700) var(--color-ink-950);
+  }
+
+  body {
+    background-color: var(--color-ink-950);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -10%, rgb(102 153 255 / 0.14), transparent 60%),
+      radial-gradient(1px 1px at 20% 30%, rgb(153 204 255 / 0.35) 50%, transparent 51%),
+      radial-gradient(1px 1px at 70% 60%, rgb(153 204 255 / 0.25) 50%, transparent 51%),
+      radial-gradient(1px 1px at 40% 85%, rgb(153 204 255 / 0.3) 50%, transparent 51%),
+      radial-gradient(1px 1px at 85% 15%, rgb(153 204 255 / 0.3) 50%, transparent 51%);
+    background-size: 100% 100%, 900px 700px, 700px 900px, 800px 600px, 600px 800px;
+    color: var(--color-phos-200);
+    font-family: var(--font-mono);
+    min-height: 100dvh;
+  }
+
+  ::selection {
+    background: var(--color-phos-500);
+    color: var(--color-ink-950);
+  }
+
+  a { transition: color 150ms ease, text-shadow 150ms ease, opacity 150ms ease; }
+
+  input::placeholder { color: var(--color-phos-700); }
+}
+
+/* ---------------------------------------------------------------------------
+   The glass. Scanlines, a vignette and a slow refresh band over everything.
+   --------------------------------------------------------------------------- */
+
+.crt-scanlines,
+.crt-vignette,
+.crt-sweep {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.crt-scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.22) 0px,
+    rgb(0 0 0 / 0.22) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  mix-blend-mode: multiply;
+}
+
+.crt-vignette {
+  background: radial-gradient(ellipse 120% 90% at 50% 50%, transparent 55%, rgb(0 0 0 / 0.55) 100%);
+}
+
+.crt-sweep {
+  height: 12vh;
+  inset: auto 0;
+  top: 0;
+  background: linear-gradient(to bottom, transparent, rgb(153 204 255 / 0.045) 50%, transparent);
+  animation: var(--animate-sweep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-sweep { display: none; }
+  .animate-ticker, .animate-drift, .animate-sweep, .animate-pulse-glow,
+  .animate-boot, .animate-rise, .cursor::after { animation: none !important; }
+}
+
+/* A row of text that drifts left forever; the content is rendered twice so
+   the loop is seamless at -50%. */
+.ticker {
+  overflow: hidden;
+  white-space: nowrap;
+  mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+}
+
+.ticker > * {
+  display: inline-flex;
+  animation: var(--animate-ticker);
+}
+
+.ticker:hover > * { animation-play-state: paused; }
+
+/* ---------------------------------------------------------------------------
+   Panels: a bordered dossier box with brighter corner ticks.
+   --------------------------------------------------------------------------- */
+
+.panel {
+  --tick: 10px;
+  --tick-color: var(--color-phos-300);
+  position: relative;
+  background-color: rgb(8 11 22 / 0.82);
+  border: 1px solid rgb(102 153 255 / 0.32);
+  box-shadow:
+    inset 0 0 0 1px rgb(102 153 255 / 0.05),
+    inset 0 0 40px -20px rgb(102 153 255 / 0.25),
+    0 0 0 1px rgb(0 0 0 / 0.6);
+  background-image:
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color)),
+    linear-gradient(var(--tick-color), var(--tick-color));
+  background-repeat: no-repeat;
+  background-size:
+    var(--tick) 1px, 1px var(--tick),
+    var(--tick) 1px, 1px var(--tick),
+    var(--tick) 1px, 1px var(--tick),
+    var(--tick) 1px, 1px var(--tick);
+  background-position:
+    0 0, 0 0,
+    100% 0, 100% 0,
+    0 100%, 0 100%,
+    100% 100%, 100% 100%;
+  transition: border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.panel-hot:hover {
+  border-color: rgb(153 204 255 / 0.6);
+  box-shadow:
+    inset 0 0 0 1px rgb(102 153 255 / 0.08),
+    inset 0 0 40px -16px rgb(102 153 255 / 0.4),
+    var(--shadow-glow);
+}
+
+.panel-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid rgb(102 153 255 / 0.28);
+  font-family: var(--font-dossier);
+  font-size: 1.2rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-phos-200);
+  text-shadow: 0 0 8px rgb(153 204 255 / 0.55);
+  background: linear-gradient(to right, rgb(102 153 255 / 0.12), transparent 70%);
+}
+
+/* ---------------------------------------------------------------------------
+   Type helpers.
+   --------------------------------------------------------------------------- */
+
+@utility glow { text-shadow: 0 0 8px rgb(153 204 255 / 0.6), 0 0 2px rgb(228 240 255 / 0.4); }
+@utility glow-lg { text-shadow: 0 0 18px rgb(153 204 255 / 0.75), 0 0 4px rgb(228 240 255 / 0.55); }
+@utility glow-acid { text-shadow: 0 0 10px rgb(204 204 51 / 0.65); }
+@utility glow-rose { text-shadow: 0 0 10px rgb(255 107 157 / 0.6); }
+
+.label {
+  font-family: var(--font-pixel);
+  font-size: 0.56rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-phos-500);
+}
+
+.dossier {
+  font-family: var(--font-dossier);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* A label ...... value row, like the SUBJECT card. */
+.dossier-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px solid rgb(102 153 255 / 0.18);
+}
+
+.dossier-row:last-child { border-bottom: 0; }
+
+.dossier-row > .leader {
+  height: 1px;
+  transform: translateY(-0.2em);
+  background-image: linear-gradient(to right, rgb(102 153 255 / 0.5) 1px, transparent 1px);
+  background-size: 4px 1px;
+}
+
+/* Dotted screen, like a bitmap on glass. Put over any shape. */
+.raster {
+  mask-image: radial-gradient(circle, #000 42%, transparent 46%);
+  mask-size: 3px 3px;
+  -webkit-mask-image: radial-gradient(circle, #000 42%, transparent 46%);
+  -webkit-mask-size: 3px 3px;
+}
+
+.pixelated { image-rendering: pixelated; }
+
+/* Terminal cursor. */
+.cursor::after {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  height: 1em;
+  margin-left: 0.15em;
+  vertical-align: -0.15em;
+  background: var(--color-phos-300);
+  box-shadow: 0 0 10px rgb(153 204 255 / 0.9);
+  animation: var(--animate-blink);
+}
+
+/* Focus ring that reads on black. */
+.focus-phos:focus-visible {
+  outline: 1px solid var(--color-phos-300);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(102 153 255 / 0.2);
+}
+
+/* Links in the body copy. */
+.link {
+  color: var(--color-phos-300);
+  text-decoration: underline;
+  text-decoration-color: rgb(153 204 255 / 0.35);
+  text-underline-offset: 3px;
+}
+
+.link:hover {
+  color: var(--color-phos-100);
+  text-decoration-color: currentColor;
+  text-shadow: 0 0 8px rgb(153 204 255 / 0.7);
+}
+
+/* Progress top bar colour (see app.js). */
+.phx-loading * { cursor: progress; }

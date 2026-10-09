@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" shape-rendering="crispEdges">
+  <rect width="32" height="32" fill="#04050a"/>
+  <rect x="2" y="2" width="4" height="1" fill="#99ccff"/><rect x="2" y="2" width="1" height="4" fill="#99ccff"/>
+  <rect x="26" y="2" width="4" height="1" fill="#99ccff"/><rect x="29" y="2" width="1" height="4" fill="#99ccff"/>
+  <rect x="2" y="29" width="4" height="1" fill="#99ccff"/><rect x="2" y="26" width="1" height="4" fill="#99ccff"/>
+  <rect x="26" y="29" width="4" height="1" fill="#99ccff"/><rect x="29" y="26" width="1" height="4" fill="#99ccff"/>
+  <path d="M9 8h5v10a2 2 0 0 0 4 0V8h5v10a7 7 0 0 1-14 0z" fill="#6699ff"/>
+  <rect x="9" y="8" width="5" height="4" fill="#e4f0ff"/>
+  <rect x="18" y="8" width="5" height="4" fill="#e4f0ff"/>
+</svg>
