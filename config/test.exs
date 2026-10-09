@@ -26,6 +26,11 @@ config :swoosh, :api_client, false
 # Print only warnings and errors during test
 config :logger, level: :warning
 
+# Route the YTS crawler's HTTP through a `Req.Test` stub, so no test ever
+# reaches the network. Individual tests install the stub with
+# `Req.Test.stub(Magnetissimo.Crawlers.Yts, fn conn -> ... end)`.
+config :magnetissimo, Magnetissimo.Crawlers.Yts, plug: {Req.Test, Magnetissimo.Crawlers.Yts}
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

@@ -14,14 +14,17 @@ defmodule Magnetissimo.Application do
        repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Magnetissimo.PubSub},
-      # Start a worker by calling: Magnetissimo.Worker.start_link(arg)
-      # {Magnetissimo.Worker, arg},
+      # One scheduler per crawl source. Add the next source to this list.
+      {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Yts},
       # Start to serve requests, typically the last entry
       MagnetissimoWeb.Endpoint
     ]
 
     # See https://elixir.hexdocs.pm/Supervisor.html
-    # for other strategies and supported options
+    # for other strategies and supported options.
+    #
+    # A crawler that dies takes only its own scheduler with it, so one bad
+    # source cannot stop the others from crawling.
     opts = [strategy: :one_for_one, name: Magnetissimo.Supervisor]
     Supervisor.start_link(children, opts)
   end
