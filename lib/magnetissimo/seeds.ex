@@ -74,7 +74,8 @@ defmodule Magnetissimo.Seeds do
   ]
 
   @doc """
-  Inserts the sources and the category tree. Safe to run repeatedly.
+  Inserts the sources and the category tree, and refreshes a source `url` that
+  has moved. Safe to run repeatedly.
   """
   def run do
     Enum.each(@sources, fn {name, url} -> upsert_source(name, url) end)
@@ -93,8 +94,10 @@ defmodule Magnetissimo.Seeds do
   end
 
   defp upsert_source(name, url) do
-    Repo.get_by(Source, name: name) ||
-      Repo.insert!(Source.changeset(%Source{}, %{name: name, url: url}))
+    case Repo.get_by(Source, name: name) do
+      nil -> Repo.insert!(Source.changeset(%Source{}, %{name: name, url: url}))
+      source -> Repo.update!(Source.changeset(source, %{url: url}))
+    end
   end
 
   defp upsert_category(name, parent_id) do
