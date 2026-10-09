@@ -4,9 +4,8 @@ defmodule MagnetissimoWeb.Layouts do
 
   `root.html.heex` (embedded from `layouts/`) is the HTML skeleton: the CSRF
   meta tag, `app.css` and `app.js`. `app/1` is the frame every page renders
-  inside: the BIOS bar, the nav, the hex legend, the footer and the CRT glass
-  over everything. `flash_group/1` shows flash messages plus the client- and
-  server-error notices.
+  inside: the nav and the CRT glass over everything. `flash_group/1` shows
+  flash messages plus the client- and server-error notices.
   """
   use MagnetissimoWeb, :html
 
@@ -15,19 +14,6 @@ defmodule MagnetissimoWeb.Layouts do
   # skeleton of your application, namely HTML headers
   # and other static content.
   embed_templates "layouts/*"
-
-  @version Mix.Project.config()[:version]
-
-  # The legend at the top of the page is the palette, the way the Blue Flax
-  # poster prints its own hex codes in the margin.
-  @palette [
-    {"#04050A", "bg-ink-950"},
-    {"#6699FF", "bg-phos-500"},
-    {"#99CCFF", "bg-phos-300"},
-    {"#CCCC33", "bg-acid"},
-    {"#FF6B9D", "bg-rose"},
-    {"#E4F0FF", "bg-phos-100"}
-  ]
 
   @doc """
   Renders your app layout.
@@ -52,8 +38,6 @@ defmodule MagnetissimoWeb.Layouts do
   slot :inner_block, required: true
 
   def app(assigns) do
-    assigns = assign(assigns, version: @version, palette: @palette)
-
     ~H"""
     <div class="crt-scanlines" aria-hidden="true"></div>
     <div class="crt-vignette" aria-hidden="true"></div>
@@ -61,22 +45,9 @@ defmodule MagnetissimoWeb.Layouts do
 
     <div class="relative mx-auto flex min-h-dvh max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
       <header class="pt-4 sm:pt-6">
-        <%!-- BIOS line --%>
-        <div class="label flex flex-wrap items-center justify-between gap-x-6 gap-y-1 text-phos-500">
-          <span class="flex items-center gap-2">
-            <span class="inline-block size-1.5 animate-pulse-glow bg-acid shadow-[0_0_8px_#cccc33]"></span>
-            Magnetissimo (TM)
-          </span>
-          <span class="hidden sm:inline">Self-hosted index</span>
-          <span class="hidden md:inline">Research</span>
-          <span>Ver v{@version}</span>
-          <span class="hidden sm:inline">Port......4000</span>
-        </div>
-
-        <%!-- Nav --%>
         <nav
           id="nav"
-          class="dossier mt-3 flex items-center justify-between gap-2 border-y border-phos-500/30 py-1.5 text-xl sm:text-2xl"
+          class="dossier flex items-center justify-between gap-2 border-y border-phos-500/30 py-1.5 text-xl sm:text-2xl"
           aria-label="Primary"
         >
           <.nav_link navigate={~p"/"} id="nav-latest">Latest</.nav_link>
@@ -87,30 +58,11 @@ defmodule MagnetissimoWeb.Layouts do
             More+
           </.nav_link>
         </nav>
-
-        <%!-- Hex legend --%>
-        <div class="label mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-phos-700 sm:justify-between">
-          <span :for={{hex, class} <- @palette} class="flex items-center gap-1.5">
-            <span class={["inline-block size-2 border border-phos-700/60", class]}></span>
-            {hex}
-          </span>
-        </div>
       </header>
 
-      <main class="flex-1 py-6 sm:py-8">
+      <main class="flex-1 pt-6 pb-10 sm:pt-8 sm:pb-12">
         {render_slot(@inner_block)}
       </main>
-
-      <footer class="label mb-6 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-phos-500/30 pt-3 text-phos-700">
-        <span>All data on non-removable disk</span>
-        <span class="hidden sm:inline">No accounts · No tracking · No JavaScript required</span>
-        <span>
-          <a href={~p"/api/latest"} class="hover:text-phos-300">/api/latest</a>
-          <span class="mx-1">·</span>
-          <a href={~p"/api/search/1080p"} class="hover:text-phos-300">/api/search/:term</a>
-        </span>
-        <span>(c) {DateTime.utc_now().year} Magnetissimo</span>
-      </footer>
     </div>
 
     <.flash_group flash={@flash} />

@@ -7,8 +7,7 @@ without re-reading nine posters.
 
 ## Palette
 
-Printed in the header of every page, the way the Blue Flax poster prints its
-own hex codes in the margin. Defined as `@theme` tokens in `assets/css/app.css`.
+Defined as `@theme` tokens in `assets/css/app.css`.
 
 | Token | Hex | Use |
 |-------|-----|-----|
@@ -34,8 +33,8 @@ Four faces, all OFL, served from `priv/static/fonts`:
 - **VT323** (`font-dossier`) — dossier labels and values, panel titles, the
   search prompt, nav. Always uppercase with `.dossier`. This is the voice of
   the SUBJECT A-34 card.
-- **Silkscreen** (`font-pixel`) — the tiny caption layer (`.label`): the BIOS
-  line, column headers, chips, the hex legend. Under 10px, tracked wide.
+- **Silkscreen** (`font-pixel`) — the tiny caption layer (`.label`): column
+  headers, chips, stat captions. Under 10px, tracked wide.
 - **Space Mono** (`font-mono`, the body default) — torrent names, sizes,
   hashes, descriptions. The one face that has to stay readable at length.
 
