@@ -10,6 +10,7 @@ defmodule MagnetissimoWeb.HomeLive do
   """
   use MagnetissimoWeb, :live_view
 
+  alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Torrents
 
   @impl true
@@ -23,6 +24,8 @@ defmodule MagnetissimoWeb.HomeLive do
      |> assign(:total, Torrents.count_torrents())
      |> assign(:latest_at, Torrents.latest_published_at())
      |> assign(:ticker, Enum.map(Torrents.list_latest_torrents(limit: 8), & &1.name))
+     |> assign(:searching, nil)
+     |> assign(:search_task, nil)
      |> assign(:now, DateTime.utc_now())}
   end
 
@@ -30,36 +33,45 @@ defmodule MagnetissimoWeb.HomeLive do
   def handle_params(params, _uri, socket) do
     q = params |> Map.get("q", "") |> String.trim()
     category = lookup_category(params["category"], socket.assigns.tree)
-    opts = if category, do: [category_id: category.id], else: []
 
-    count =
-      if q == "",
-        do: Torrents.count_torrents(opts),
-        else: Torrents.count_search_torrents(q, opts)
+    # Patching to a different term abandons whatever the source was asked for.
+    socket = if socket.assigns.searching == q, do: socket, else: clear_search(socket)
 
-    pages = max(1, ceil(count / Torrents.per_page()))
-    page = min(page_param(params["page"]), pages)
+    {:noreply, load_results(socket, q, category, page_param(params["page"]))}
+  end
 
-    torrents =
-      if q == "",
-        do: Torrents.list_latest_torrents(opts ++ page_opts(page)),
-        else: Torrents.search_torrents(q, opts ++ page_opts(page))
+  # Typing patches the URL and searches the local index only. Asking the source
+  # on every keystroke is what made the 2.0.0 app hit four sites per debounced
+  # character; only an explicit submit reaches out.
+  @impl true
+  def handle_event("search", %{"q" => q}, socket) do
+    {:noreply, push_patch(socket, to: index_path(q, socket.assigns.category))}
+  end
+
+  def handle_event("submit", %{"q" => q}, socket) do
+    q = String.trim(q)
 
     {:noreply,
      socket
      |> assign(:q, q)
-     |> assign(:category, category)
-     |> assign(:page, page)
-     |> assign(:pages, pages)
-     |> assign(:count, count)
-     |> assign(:form, to_form(%{"q" => q}))
-     |> assign(:now, DateTime.utc_now())
-     |> stream(:torrents, torrents, reset: true)}
+     |> ask_source(q)
+     |> push_patch(to: index_path(q, socket.assigns.category))}
   end
 
   @impl true
-  def handle_event("search", %{"q" => q}, socket) do
-    {:noreply, push_patch(socket, to: index_path(q, socket.assigns.category))}
+  def handle_info({:yts_search, term, status}, socket) do
+    # A batch for a term the reader has already moved on from is dropped. The
+    # rows are in the index either way, so the next search finds them.
+    socket =
+      if term == socket.assigns.q do
+        # `:done` is the last word on this term, whatever it turned up.
+        socket = if status == :updated, do: socket, else: clear_search(socket)
+        reload_results(socket)
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   defp lookup_category(nil, _tree), do: nil
@@ -88,6 +100,59 @@ defmodule MagnetissimoWeb.HomeLive do
   defp page_opts(page) do
     [limit: Torrents.per_page(), offset: (page - 1) * Torrents.per_page()]
   end
+
+  # Everything the results panel shows is derived from the query, the category
+  # and the page, so a URL patch and a fresh batch of hits from the source both
+  # come through here.
+  defp load_results(socket, q, category, page) do
+    opts = if category, do: [category_id: category.id], else: []
+
+    count =
+      if q == "",
+        do: Torrents.count_torrents(opts),
+        else: Torrents.count_search_torrents(q, opts)
+
+    pages = max(1, ceil(count / Torrents.per_page()))
+    page = min(page, pages)
+
+    torrents =
+      if q == "",
+        do: Torrents.list_latest_torrents(opts ++ page_opts(page)),
+        else: Torrents.search_torrents(q, opts ++ page_opts(page))
+
+    socket
+    |> assign(:q, q)
+    |> assign(:category, category)
+    |> assign(:page, page)
+    |> assign(:pages, pages)
+    |> assign(:count, count)
+    |> assign(:form, to_form(%{"q" => q}))
+    |> assign(:now, DateTime.utc_now())
+    |> stream(:torrents, torrents, reset: true)
+  end
+
+  defp reload_results(socket) do
+    load_results(socket, socket.assigns.q, socket.assigns.category, socket.assigns.page)
+  end
+
+  # The source is asked in the background so the results already on screen stay
+  # interactive; the answer arrives as a `handle_info/2` message and reloads
+  # them. A term already in flight is not asked for twice.
+  #
+  # The lookup's pid is kept on the socket so the in-flight work is part of the
+  # socket's state, which is also what lets a test wait on it instead of
+  # sleeping.
+  defp ask_source(socket, q) do
+    if q == "" or not connected?(socket) or socket.assigns.searching == q do
+      socket
+    else
+      parent = self()
+      {:ok, pid} = Task.start(fn -> Yts.search(q, notify: parent) end)
+      assign(socket, searching: q, search_task: pid)
+    end
+  end
+
+  defp clear_search(socket), do: assign(socket, searching: nil, search_task: nil)
 
   defp index_path(q, category, page \\ 1) do
     params =
@@ -235,7 +300,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 action={~p"/"}
                 method="get"
                 phx-change="search"
-                phx-submit="search"
+                phx-submit="submit"
                 class="mt-8"
               >
                 <input :if={@category} type="hidden" name="category" value={@category.id} />
@@ -272,6 +337,17 @@ defmodule MagnetissimoWeb.HomeLive do
                 <% else %>
                   Type to search, or pick a category.
                 <% end %>
+              </p>
+
+              <p
+                :if={@searching}
+                id="source-search"
+                class="mt-3 flex items-center gap-2 pl-5 text-sm text-ink-500"
+              >
+                <span class="size-1.5 animate-pulse rounded-full bg-azure-400 motion-reduce:animate-none"></span>
+                <span>
+                  Asking the source for <span class="font-bold text-ink-900">“{@searching}”</span>
+                </span>
               </p>
             </div>
 
@@ -320,7 +396,7 @@ defmodule MagnetissimoWeb.HomeLive do
               <li
                 :for={{id, torrent} <- @streams.torrents}
                 id={id}
-                class="group grid gap-x-4 gap-y-2.5 rounded-2xl px-3.5 py-3 transition hover:bg-white/80 hover:shadow-[0_6px_16px_-10px_rgba(31,63,209,0.4)] md:grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem] md:items-center"
+                class="animate-rise group grid gap-x-4 gap-y-2.5 rounded-2xl px-3.5 py-3 transition hover:bg-white/80 hover:shadow-[0_6px_16px_-10px_rgba(31,63,209,0.4)] md:grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem] md:items-center"
               >
                 <div class="min-w-0">
                   <h2 class="text-sm leading-snug font-semibold text-ink-900">
