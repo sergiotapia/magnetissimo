@@ -17,6 +17,7 @@ defmodule Magnetissimo.Torrents do
 
   @latest_limit 50
   @search_limit 50
+  @per_page 25
 
   ## Sources
 
@@ -115,35 +116,44 @@ defmodule Magnetissimo.Torrents do
 
   ## Torrents
 
+  @doc "How many torrents a page of the UI holds."
+  def per_page, do: @per_page
+
   @doc """
   Returns the most recently published torrents.
 
   ## Options
 
     * `:limit` - how many to return, 50 by default
+    * `:offset` - skip this many, 0 by default, for paging
     * `:category_id` - only torrents filed under this category
 
   """
   def list_latest_torrents(opts \\ []) do
     limit = Keyword.get(opts, :limit, @latest_limit)
+    offset = Keyword.get(opts, :offset, 0)
 
     query =
       from t in Torrent,
         order_by: [desc: t.published_at, desc: t.id],
         limit: ^limit,
+        offset: ^offset,
         preload: [:source, :category]
 
-    query =
-      case Keyword.fetch(opts, :category_id) do
-        {:ok, category_id} -> where(query, [t], t.category_id == ^category_id)
-        :error -> query
-      end
-
-    Repo.all(query)
+    Repo.all(by_category(query, opts))
   end
 
-  @doc "Returns how many torrents are indexed."
-  def count_torrents, do: Repo.aggregate(Torrent, :count)
+  @doc "Returns how many torrents are indexed, or match `:category_id`."
+  def count_torrents(opts \\ []) do
+    Repo.aggregate(by_category(from(t in Torrent), opts), :count)
+  end
+
+  defp by_category(query, opts) do
+    case Keyword.fetch(opts, :category_id) do
+      {:ok, category_id} -> where(query, [t], t.category_id == ^category_id)
+      :error -> query
+    end
+  end
 
   @doc "Returns when the newest torrent was published, or `nil` for an empty index."
   def latest_published_at do
@@ -197,6 +207,7 @@ defmodule Magnetissimo.Torrents do
   """
   def search_torrents(term, opts \\ []) do
     limit = Keyword.get(opts, :limit, @search_limit)
+    offset = Keyword.get(opts, :offset, 0)
 
     case match_query(term) do
       nil ->
@@ -204,10 +215,42 @@ defmodule Magnetissimo.Torrents do
 
       match ->
         match
-        |> matching_torrent_ids(limit, Keyword.has_key?(opts, :category_id))
+        |> matching_torrent_ids(limit, offset, Keyword.has_key?(opts, :category_id))
         |> load_torrents_in_order()
         |> filter_by_category(opts)
-        |> Enum.take(limit)
+        |> Enum.slice(offset, limit)
+    end
+  end
+
+  @doc """
+  Returns how many torrents `search_torrents/2` matches, so the UI can page.
+
+  Takes the same `:category_id` option; blank input matches nothing rather
+  than everything.
+  """
+  def count_search_torrents(term, opts \\ []) do
+    case match_query(term) do
+      nil ->
+        0
+
+      match ->
+        {filter, params} =
+          case Keyword.fetch(opts, :category_id) do
+            {:ok, category_id} -> {"AND t.category_id = ?", [category_id]}
+            :error -> {"", []}
+          end
+
+        # The FTS table is named in full: an alias is not accepted by MATCH.
+        sql = """
+        SELECT count(*)
+        FROM torrents_search
+        JOIN torrents t ON t.id = torrents_search.rowid
+        WHERE torrents_search MATCH ?
+        #{filter}
+        """
+
+        %{rows: [[count]]} = Repo.query!(sql, [match | params])
+        count
     end
   end
 
@@ -250,8 +293,11 @@ defmodule Magnetissimo.Torrents do
 
   defp quote_token(token), do: ~s("#{String.replace(token, "\"", "\"\"")}")
 
-  defp matching_torrent_ids(match, limit, filtered?) do
-    limit = if filtered?, do: limit * 4, else: limit
+  defp matching_torrent_ids(match, limit, offset, filtered?) do
+    # A category filter is applied after the FTS rows come back, so the index
+    # is asked for every row up to this page (oversampled when filtering) and
+    # the page is sliced out afterwards.
+    limit = if filtered?, do: (offset + limit) * 4, else: offset + limit
 
     # bm25's weights must be literals: 10x for name, 1x for description.
     sql = """

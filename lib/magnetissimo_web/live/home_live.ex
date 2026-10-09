@@ -3,9 +3,10 @@ defmodule MagnetissimoWeb.HomeLive do
   The home page: search, category filter, per-source status and the
   latest magnets.
 
-  The URL is the state. Typing patches `?q=` and picking a category patches
-  `?category=`, and `handle_params/3` loads from those, so a search is a link
-  and the form still works as a plain GET without JavaScript.
+  The URL is the state. Typing patches `?q=`, picking a category patches
+  `?category=` and the pager patches `?page=`, and `handle_params/3` loads
+  from those, so a search is a link and the form still works as a plain GET
+  without JavaScript.
   """
   use MagnetissimoWeb, :live_view
 
@@ -31,16 +32,26 @@ defmodule MagnetissimoWeb.HomeLive do
     category = lookup_category(params["category"], socket.assigns.tree)
     opts = if category, do: [category_id: category.id], else: []
 
+    count =
+      if q == "",
+        do: Torrents.count_torrents(opts),
+        else: Torrents.count_search_torrents(q, opts)
+
+    pages = max(1, ceil(count / Torrents.per_page()))
+    page = min(page_param(params["page"]), pages)
+
     torrents =
       if q == "",
-        do: Torrents.list_latest_torrents(opts),
-        else: Torrents.search_torrents(q, opts)
+        do: Torrents.list_latest_torrents(opts ++ page_opts(page)),
+        else: Torrents.search_torrents(q, opts ++ page_opts(page))
 
     {:noreply,
      socket
      |> assign(:q, q)
      |> assign(:category, category)
-     |> assign(:count, length(torrents))
+     |> assign(:page, page)
+     |> assign(:pages, pages)
+     |> assign(:count, count)
      |> assign(:form, to_form(%{"q" => q}))
      |> assign(:now, DateTime.utc_now())
      |> stream(:torrents, torrents, reset: true)}
@@ -65,11 +76,25 @@ defmodule MagnetissimoWeb.HomeLive do
     end
   end
 
-  defp index_path(q, category) do
+  defp page_param(nil), do: 1
+
+  defp page_param(value) do
+    case Integer.parse(value) do
+      {page, ""} when page > 0 -> page
+      _ -> 1
+    end
+  end
+
+  defp page_opts(page) do
+    [limit: Torrents.per_page(), offset: (page - 1) * Torrents.per_page()]
+  end
+
+  defp index_path(q, category, page \\ 1) do
     params =
       []
       |> then(&if(String.trim(q) == "", do: &1, else: [{:q, q} | &1]))
       |> then(&if(category, do: [{:category, category.id} | &1], else: &1))
+      |> then(&if(page > 1, do: [{:page, page} | &1], else: &1))
 
     ~p"/?#{params}"
   end
@@ -266,7 +291,12 @@ defmodule MagnetissimoWeb.HomeLive do
           <section id="results" class="panel animate-rise [animation-delay:320ms] max-lg:order-3">
             <div class="panel-title">
               <span>{if @q == "", do: "Fresh magnets", else: "Search results"}</span>
-              <span class="label">{@count} {if @count == 1, do: "magnet", else: "magnets"}</span>
+              <span class="label">
+                {@count} {if @count == 1, do: "magnet", else: "magnets"}
+                <%= if @pages > 1 do %>
+                  · page {@page}/{@pages}
+                <% end %>
+              </span>
             </div>
 
             <div
@@ -331,6 +361,38 @@ defmodule MagnetissimoWeb.HomeLive do
                 </div>
               </li>
             </ol>
+
+            <div
+              :if={@pages > 1}
+              id="pagination"
+              class="flex items-center justify-between gap-3 border-t border-frost-300/70 px-5 py-3"
+            >
+              <.link
+                id="page-prev"
+                patch={index_path(@q, @category, @page - 1)}
+                aria-disabled={@page == 1 && "true"}
+                class={[
+                  "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",
+                  @page == 1 && "pointer-events-none opacity-40"
+                ]}
+              >
+                ← Prev
+              </.link>
+
+              <span class="label">page {@page} of {@pages}</span>
+
+              <.link
+                id="page-next"
+                patch={index_path(@q, @category, @page + 1)}
+                aria-disabled={@page == @pages && "true"}
+                class={[
+                  "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",
+                  @page == @pages && "pointer-events-none opacity-40"
+                ]}
+              >
+                Next →
+              </.link>
+            </div>
           </section>
         </div>
       </div>
