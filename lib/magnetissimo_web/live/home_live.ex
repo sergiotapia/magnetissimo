@@ -101,9 +101,6 @@ defmodule MagnetissimoWeb.HomeLive do
             <h1 class="chrome-text w-fit pb-2 font-display text-[clamp(2.75rem,11vw,6.25rem)] leading-none font-semibold tracking-tight">
               Magnetissimo
             </h1>
-            <p class="mt-3 max-w-xl text-base leading-relaxed text-ink-500 sm:text-lg">
-              A self-hosted torrent index. Crawls {length(@source_counts)} sources, remembers every magnet it sees, speaks JSON to Sonarr and Radarr.
-            </p>
 
             <.form
               for={@form}
