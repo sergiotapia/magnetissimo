@@ -1,11 +1,6 @@
-# Script for populating the database. You can run it as:
+# Populates the crawl sources and the canonical category tree.
 #
 #     mix run priv/repo/seeds.exs
 #
-# Inside the script, you can read and write to any of your
-# repositories directly:
-#
-#     Magnetissimo.Repo.insert!(%Magnetissimo.SomeSchema{})
-#
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+# Safe to run repeatedly. See Magnetissimo.Seeds for the data.
+Magnetissimo.Seeds.run()
