@@ -27,6 +27,10 @@ defmodule Magnetissimo.Application do
         {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Sukebei},
         id: :sukebei_scheduler
       ),
+      Supervisor.child_spec(
+        {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.TorrentDownloads},
+        id: :torrent_downloads_scheduler
+      ),
       # Start to serve requests, typically the last entry
       MagnetissimoWeb.Endpoint
     ]

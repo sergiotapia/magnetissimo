@@ -35,6 +35,10 @@ config :magnetissimo, Magnetissimo.Crawlers.Yts, plug: {Req.Test, Magnetissimo.C
 config :magnetissimo, Magnetissimo.Crawlers.Nyaa.Feed,
   plug: {Req.Test, Magnetissimo.Crawlers.Nyaa.Feed}
 
+# TorrentDownloads runs its own RSS parser, so it gets its own stub.
+config :magnetissimo, Magnetissimo.Crawlers.TorrentDownloads,
+  plug: {Req.Test, Magnetissimo.Crawlers.TorrentDownloads}
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

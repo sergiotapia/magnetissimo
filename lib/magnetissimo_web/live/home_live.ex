@@ -12,10 +12,11 @@ defmodule MagnetissimoWeb.HomeLive do
 
   alias Magnetissimo.Crawlers.Nyaa
   alias Magnetissimo.Crawlers.Sukebei
+  alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Torrents
 
-  @source_crawlers [Yts, Nyaa, Sukebei]
+  @source_crawlers [Yts, Nyaa, Sukebei, TorrentDownloads]
 
   @impl true
   def mount(_params, _session, socket) do

@@ -5,6 +5,7 @@ defmodule MagnetissimoWeb.HomeLiveTest do
   import Phoenix.LiveViewTest
 
   alias Magnetissimo.Crawlers.Nyaa.Feed
+  alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.TorrentsFixtures
   alias Magnetissimo.YtsFixtures
@@ -68,11 +69,13 @@ defmodule MagnetissimoWeb.HomeLiveTest do
 
   defp allow_sources(view) do
     Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
-    # The Nyaa sites are asked too; an empty feed stands in for them here.
+    # The feed-driven sources are asked too; an empty feed stands in for them.
     Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 200, "<rss></rss>") end)
+    Test.stub(TorrentDownloads, fn conn -> Plug.Conn.send_resp(conn, 200, "<rss></rss>") end)
 
     assert :ok = Test.allow(Yts, self(), view.pid)
     assert :ok = Test.allow(Feed, self(), view.pid)
+    assert :ok = Test.allow(TorrentDownloads, self(), view.pid)
   end
 
   # The lookup runs in its own process, which must finish before the test does:
