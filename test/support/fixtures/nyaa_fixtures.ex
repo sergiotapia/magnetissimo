@@ -84,4 +84,24 @@ defmodule Magnetissimo.NyaaFixtures do
     </rss>
     """
   end
+
+  @doc "A feed whose only item is small enough that Nyaa sizes it in raw bytes."
+  def bytes_size_rss_body do
+    """
+    <rss xmlns:nyaa="https://sukebei.nyaa.si/xmlns/nyaa" version="2.0">
+      <channel>
+        <item>
+          <title>Angel Club 06-12.zip</title>
+          <guid isPermaLink="true">https://sukebei.test/view/191</guid>
+          <pubDate>Thu, 16 Nov 2006 00:36:00 -0000</pubDate>
+          <nyaa:seeders>0</nyaa:seeders>
+          <nyaa:leechers>0</nyaa:leechers>
+          <nyaa:infoHash>#{@hash_lower}</nyaa:infoHash>
+          <nyaa:category>Art - Anime</nyaa:category>
+          <nyaa:size>0 Bytes</nyaa:size>
+        </item>
+      </channel>
+    </rss>
+    """
+  end
 end

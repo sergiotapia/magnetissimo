@@ -71,6 +71,17 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
     assert Torrents.count_torrents() == 0
   end
 
+  test "a file small enough to be sized in bytes is indexed, not dropped" do
+    stub(NyaaFixtures.bytes_size_rss_body())
+
+    assert :ok = Sukebei.crawl_latest()
+
+    assert [torrent] = Torrents.list_latest_torrents()
+    assert torrent.name == "Angel Club 06-12.zip"
+    assert torrent.size_in_bytes == 0
+    assert torrent.category.name == "Anime - Raw"
+  end
+
   test "a failing site is logged, not raised" do
     Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 503, "unavailable") end)
 

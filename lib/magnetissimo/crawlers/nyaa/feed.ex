@@ -34,6 +34,7 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
 
   @units %{
+    "Bytes" => 1,
     "B" => 1,
     "KiB" => 1024,
     "MiB" => 1024 ** 2,
