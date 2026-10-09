@@ -13,14 +13,19 @@ Built so far:
 - The data layer: `sources`, `categories`, `category_aliases`, `torrents`, and
   the `torrents_search` FTS5 index, with the seed taxonomy.
 - `Magnetissimo.Torrents`, the context over them.
-- Phoenix 1.8 on Bandit, plain Tailwind, light theme only.
+- Phoenix 1.8 on Bandit, plain Tailwind.
+- The UI: `HomeLive` (search, category filter, per-source status, latest
+  torrents) and `TorrentLive` (one torrent as a dossier). The look is a CRT
+  reading of the mood board in `docs/moodboard/`; `docs/design.md` is the
+  design system, read it before adding a page.
+- The JSON API, `GET /api/latest` and `GET /api/search/:term`, with the
+  2.0.0 field names.
+- Tests for the context, the LiveViews, the API and the formatting helpers.
 
 Not built yet — don't assume any of it exists:
 
 - Crawlers and the background jobs that run them.
-- The torrent list, search box, and detail page.
-- The JSON API and the Torznab endpoint for Sonarr and Radarr.
-- Tests. See [Tests](#tests).
+- The Torznab endpoint for Sonarr and Radarr.
 
 ## Environment
 
@@ -125,9 +130,13 @@ Read it before writing UI or Ecto code.
 - **Background work is jobs, not timers.** The old app ran one GenServer per
   source on a 5-minute `Process.send_after`, with no visibility and no backoff.
   Use Oban when the crawlers land.
-- **Light theme only.** Plain Tailwind. There is no theme layer, no dark mode,
-  and no component library — daisyUI was deliberately removed. Don't add one
-  back.
+- **One theme, and it is dark.** Plain Tailwind with the tokens in
+  `assets/css/app.css`; `docs/design.md` says what each one is for. There is
+  no light mode and no component library — daisyUI was deliberately removed.
+  Don't add one back.
+- **Database tests are `async: false`.** SQLite has one writer; two sandboxed
+  tests inserting at once fail with `Database busy`. Pure tests (formatting,
+  components) stay async.
 - **The FTS5 index is maintained by triggers, and the delete path is subtle.**
   The delete trigger must use FTS5's special `'delete'` command; a plain
   `INSERT` of the old values re-adds the tokens instead of removing them and
@@ -140,23 +149,26 @@ Read it before writing UI or Ecto code.
 
 ## Tests
 
-There are none yet. `mix precommit` currently reports "There are no tests to
-run". The scaffolding is in place and ready:
-`test/support/data_case.ex` (database tests, one SQL sandbox per test) and
-`test/support/conn_case.ex` (tests that go through the router).
+`test/support/data_case.ex` runs database tests in one SQL sandbox per test,
+`test/support/conn_case.ex` runs tests through the router, and
+`Magnetissimo.TorrentsFixtures` (`test/support/fixtures/`) seeds the taxonomy
+and inserts a torrent with sensible defaults.
 
-When tests land, they should cover the same ground the checks cannot:
+Tests cover the ground the checks cannot:
 
 | Change | Where |
 | --- | --- |
 | Context and schema logic | `test/magnetissimo/torrents_test.exs` |
-| The FTS5 index | `torrents_search` stays in sync on insert, update and delete, and `match_query/1` survives hostile input such as `ubuntu:24.04`, `x265-` and `*` |
+| The FTS5 index | `torrents_search` stays in sync on insert, update and delete, and `match_query/1` survives hostile input such as `ubuntu:24.04`, `x265-` and `*` (still to write) |
 | Crawlers | one file per source, parsing saved fixtures, never the live site |
-| LiveView UI | `test/magnetissimo_web/live/` |
+| LiveView UI | `test/magnetissimo_web/live/`, one file per LiveView |
+| The JSON API | `test/magnetissimo_web/controllers/` |
+| Formatting and components | `test/magnetissimo_web/format_test.exs`, `test/magnetissimo_web/components/` |
 
-Rules to follow when they do:
+Rules:
 
-- `async: true` unless the test touches global state.
+- `async: true` for pure tests; `async: false` for anything that writes to the
+  database, because SQLite has one writer.
 - **Never make real network calls.** Stub `Req` with
   `req_options: [plug: {Req.Test, name}]`.
 - Don't use `Process.sleep`; wait on messages or `:sys.get_state/1`.

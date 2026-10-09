@@ -1,10 +1,8 @@
 defmodule MagnetissimoWeb.TorrentController do
   @moduledoc """
-  The JSON API: the same two endpoints the 2.0.0 app exposed, so a Sonarr or
-  Radarr setup that pointed at it keeps working.
-
-      GET /api/latest
-      GET /api/search/:term
+  Keeps the two endpoints the 2.0.0 app exposed, `GET /api/latest` and
+  `GET /api/search/:term`, with the same field names, so a Sonarr or Radarr
+  pointed at the old app keeps working against this one.
   """
   use MagnetissimoWeb, :controller
 
