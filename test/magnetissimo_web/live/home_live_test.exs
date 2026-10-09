@@ -4,6 +4,7 @@ defmodule MagnetissimoWeb.HomeLiveTest do
 
   import Phoenix.LiveViewTest
 
+  alias Magnetissimo.Crawlers.Nyaa.Feed
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.TorrentsFixtures
   alias Magnetissimo.YtsFixtures
@@ -11,9 +12,12 @@ defmodule MagnetissimoWeb.HomeLiveTest do
   test "submitting a search asks the source, then shows what it found", %{conn: conn} do
     TorrentsFixtures.seed!()
     Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
+    # The Nyaa sites are asked too; an empty feed stands in for them here.
+    Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 200, "<rss></rss>") end)
 
     {:ok, view, _html} = live(conn, ~p"/")
     assert :ok = Req.Test.allow(Yts, self(), view.pid)
+    assert :ok = Req.Test.allow(Feed, self(), view.pid)
 
     html = view |> form("#search-form", q: "Fixture Movie") |> render_submit()
     assert html =~ "Asking the source"
@@ -43,7 +47,7 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     torrent = TorrentsFixtures.torrent_fixture(%{name: "Fall 2: Deadpoint (2026)"})
     refute has_element?(view, "#torrents-#{torrent.id}")
 
-    send(view.pid, {:yts_search, "Fall 2 Deadpoint", :done})
+    send(view.pid, {:source_search, "Fall 2 Deadpoint", :updated})
 
     assert has_element?(view, "#torrents-#{torrent.id}", "Fall 2: Deadpoint (2026)")
   end
@@ -58,7 +62,7 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     torrent = TorrentsFixtures.torrent_fixture(%{name: "Fall From Grace (2024)"})
     refute has_element?(view, "#torrents-#{torrent.id}")
 
-    send(view.pid, {:yts_search, "Deadpoint", :done})
+    send(view.pid, {:source_search, "Deadpoint", :updated})
 
     refute has_element?(view, "#torrents-#{torrent.id}")
   end

@@ -85,8 +85,8 @@ defmodule Magnetissimo.Crawlers.YtsTest do
 
     assert :ok = Yts.search("Fall 2 Deadpoint", notify: self())
 
-    assert_received {:yts_search, "Fall 2 Deadpoint", :updated}
-    assert_received {:yts_search, "Fall 2 Deadpoint", :done}
+    assert_received {:source_search, "Fall 2 Deadpoint", :updated}
+    assert_received {:source_search, "Fall 2 Deadpoint", :done}
 
     assert [first, second] = Torrents.list_latest_torrents()
     assert first.name == "Fixture Movie (2024)"
@@ -98,13 +98,13 @@ defmodule Magnetissimo.Crawlers.YtsTest do
     Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
 
     assert :ok = Yts.search("Fixture Movie", notify: self())
-    assert_received {:yts_search, _, :updated}
-    assert_received {:yts_search, _, :done}
+    assert_received {:source_search, _, :updated}
+    assert_received {:source_search, _, :done}
 
     assert :ok = Yts.search("Fixture Movie", notify: self())
 
-    refute_received {:yts_search, _, :updated}
-    assert_received {:yts_search, _, :done}
+    refute_received {:source_search, _, :updated}
+    assert_received {:source_search, _, :done}
   end
 
   test "a search that fails still reports done, so no caller waits forever" do
@@ -112,8 +112,8 @@ defmodule Magnetissimo.Crawlers.YtsTest do
 
     assert :ok = Yts.search("Fall 2 Deadpoint", notify: self())
 
-    refute_received {:yts_search, _, :updated}
-    assert_received {:yts_search, "Fall 2 Deadpoint", :done}
+    refute_received {:source_search, _, :updated}
+    assert_received {:source_search, "Fall 2 Deadpoint", :done}
   end
 
   defp stub_api do

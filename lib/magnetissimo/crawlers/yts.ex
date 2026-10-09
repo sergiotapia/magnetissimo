@@ -67,8 +67,8 @@ defmodule Magnetissimo.Crawlers.Yts do
   reaches the rest of the catalogue without crawling it: hits are written to
   the index and are ordinary, searchable results from then on.
 
-  `opts[:notify]` is a pid that receives `{:yts_search, term, :updated}` after
-  each movie that added something and `{:yts_search, term, :done}` once the
+  `opts[:notify]` is a pid that receives `{:source_search, term, :updated}` after
+  each movie that added something and `{:source_search, term, :done}` once the
   term is finished, so a caller can show results as they land. A term that
   matched only torrents already indexed sends no `:updated`.
 
@@ -146,7 +146,7 @@ defmodule Magnetissimo.Crawlers.Yts do
 
   defp notify(pid, term, status) do
     # `send/2` returns the message; `crawl_latest/0` and `search/2` promise `:ok`.
-    _ = send(pid, {:yts_search, term, status})
+    _ = send(pid, {:source_search, term, status})
     :ok
   end
 

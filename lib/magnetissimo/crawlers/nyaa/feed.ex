@@ -64,6 +64,50 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
     end
   end
 
+  @doc """
+  Looks one term up on the site and indexes whatever comes back.
+
+  The same feed serves search: a `q` parameter filters it server-side, so no
+  HTML is scraped for this. That keeps the two Nyaa crawlers to one parser.
+
+  `opts[:notify]` is a pid that receives `{:source_search, term, :updated}`
+  when the term added something and `{:source_search, term, :done}` once the
+  term is finished, so a caller can show results as they land. A term that
+  matched only torrents already indexed sends no `:updated`. Never raises.
+  """
+  @spec search(keyword(), String.t(), keyword()) :: :ok
+  def search(site, term, opts \\ []) do
+    notify = Keyword.get(opts, :notify)
+    url = site[:rss_url] <> "&q=" <> URI.encode_www_form(term)
+
+    case fetch(url) do
+      {:ok, body} ->
+        {inserted, known} = index(body, site)
+
+        if inserted > 0, do: notify(notify, term, :updated)
+
+        Logger.info(
+          "[#{site[:source]}] search #{inspect(term)}: #{inserted} new torrents, " <>
+            "#{known} already known"
+        )
+
+      {:error, reason} ->
+        Logger.error("[#{site[:source]}] search #{inspect(term)} failed: #{inspect(reason)}")
+    end
+
+    # Sent on every path, so a caller waiting on this term is never left
+    # waiting because the site was down or the answer was wholly duplicate.
+    notify(notify, term, :done)
+  end
+
+  defp notify(nil, _term, _status), do: :ok
+
+  defp notify(pid, term, status) do
+    # `send/2` returns the message; the public functions promise `:ok`.
+    _ = send(pid, {:source_search, term, status})
+    :ok
+  end
+
   defp fetch(url) do
     # No retries: the crawl comes back in five minutes, so retrying only holds
     # a process open while a mirror is down.

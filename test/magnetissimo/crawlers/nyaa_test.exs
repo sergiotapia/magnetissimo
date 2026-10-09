@@ -80,6 +80,32 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
     assert Torrents.count_torrents() == 0
   end
 
+  test "search asks the feed for the term and reports hits as they land" do
+    Req.Test.stub(Feed, fn conn ->
+      assert conn.query_string =~ "q=Fixture+Search"
+      Plug.Conn.send_resp(conn, 200, NyaaFixtures.rss_body())
+    end)
+
+    assert :ok = Nyaa.search("Fixture Search", notify: self())
+    assert_received {:source_search, "Fixture Search", :updated}
+    assert_received {:source_search, "Fixture Search", :done}
+    assert Torrents.count_torrents() == 2
+
+    # The same term again adds nothing, so it only reports done.
+    assert :ok = Nyaa.search("Fixture Search", notify: self())
+    refute_received {:source_search, _, :updated}
+    assert_received {:source_search, _, :done}
+  end
+
+  test "a search that fails still reports done, so no caller waits forever" do
+    Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 500, "nope") end)
+
+    assert :ok = Nyaa.search("Anything", notify: self())
+
+    refute_received {:source_search, _, :updated}
+    assert_received {:source_search, "Anything", :done}
+  end
+
   defp stub(body) do
     Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 200, body) end)
   end

@@ -10,8 +10,12 @@ defmodule MagnetissimoWeb.HomeLive do
   """
   use MagnetissimoWeb, :live_view
 
+  alias Magnetissimo.Crawlers.Nyaa
+  alias Magnetissimo.Crawlers.Sukebei
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Torrents
+
+  @source_crawlers [Yts, Nyaa, Sukebei]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -59,14 +63,22 @@ defmodule MagnetissimoWeb.HomeLive do
   end
 
   @impl true
-  def handle_info({:yts_search, term, status}, socket) do
+  def handle_info({:source_search, term, :updated}, socket) do
     # A batch for a term the reader has already moved on from is dropped. The
     # rows are in the index either way, so the next search finds them.
+    socket = if term == socket.assigns.q, do: reload_results(socket), else: socket
+
+    {:noreply, socket}
+  end
+
+  def handle_info({:source_search, _term, :done}, socket), do: {:noreply, socket}
+
+  # The lookup task runs every source in turn, so its exit is the last word on
+  # the term, whatever each source turned up.
+  def handle_info({:DOWN, _ref, :process, pid, _reason}, socket) do
     socket =
-      if term == socket.assigns.q do
-        # `:done` is the last word on this term, whatever it turned up.
-        socket = if status == :updated, do: socket, else: clear_search(socket)
-        reload_results(socket)
+      if pid == socket.assigns.search_task do
+        socket |> clear_search() |> reload_results()
       else
         socket
       end
@@ -135,11 +147,12 @@ defmodule MagnetissimoWeb.HomeLive do
     load_results(socket, socket.assigns.q, socket.assigns.category, socket.assigns.page)
   end
 
-  # The source is asked in the background so the results already on screen stay
-  # interactive; the answer arrives as a `handle_info/2` message and reloads
-  # them. A term already in flight is not asked for twice.
+  # Every source is asked in one background task, in turn, so the results on
+  # screen stay interactive and only one process writes to SQLite at a time.
+  # The answers arrive as `handle_info/2` messages and reload them. A term
+  # already in flight is not asked for twice.
   #
-  # The lookup's pid is kept on the socket so the in-flight work is part of the
+  # The task's pid is kept on the socket so the in-flight work is part of the
   # socket's state, which is also what lets a test wait on it instead of
   # sleeping.
   defp ask_source(socket, q) do
@@ -147,7 +160,13 @@ defmodule MagnetissimoWeb.HomeLive do
       socket
     else
       parent = self()
-      {:ok, pid} = Task.start(fn -> Yts.search(q, notify: parent) end)
+
+      {:ok, pid} =
+        Task.start(fn ->
+          Enum.each(@source_crawlers, & &1.search(q, notify: parent))
+        end)
+
+      Process.monitor(pid)
       assign(socket, searching: q, search_task: pid)
     end
   end
