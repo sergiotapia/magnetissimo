@@ -24,17 +24,16 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/magnetissimo"
 import topbar from "../vendor/topbar"
-import {Dither} from "./dither"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks, Dither},
+  hooks: {...colocatedHooks},
 })
 
 // Show progress bar on live navigation and form submits
-topbar.config({barColors: {0: "#6699ff", 1: "#e4f0ff"}, barThickness: 2, shadowColor: "rgba(102, 153, 255, .6)", shadowBlur: 8})
+topbar.config({barColors: {0: "#4f7bff", 1: "#b49cff"}, barThickness: 3, shadowColor: "rgba(47, 91, 255, .35)", shadowBlur: 6})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
 

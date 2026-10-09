@@ -1,24 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-ink-950">
+<html lang="en" class="bg-frost-100">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <meta name="theme-color" content="#04050a" />
+    <meta name="theme-color" content="#edf3fd" />
     <meta
       name="description"
       content="Magnetissimo: a self-hosted torrent indexer. Crawls, indexes and searches magnet links from your own machine."
     />
     <.live_title default="Magnetissimo" suffix=" · Magnetissimo" phx-no-format>{assigns[:page_title]}</.live_title>
     <link rel="icon" type="image/svg+xml" href={~p"/images/favicon.svg"} />
-    <link rel="preload" as="font" type="font/woff2" href={~p"/fonts/vt323.woff2"} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={~p"/fonts/quicksand.woff2"} crossorigin />
     <link rel="preload" as="font" type="font/woff2" href={~p"/fonts/jura.woff2"} crossorigin />
-    <link rel="preload" as="font" type="font/woff2" href={~p"/fonts/spacemono.woff2"} crossorigin />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href={~p"/fonts/silkscreen.woff2"}
+      crossorigin
+    />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
   </head>
-  <body class="bg-ink-950 text-phos-200 antialiased">
+  <body class="text-ink-900 antialiased">
     {@inner_content}
   </body>
 </html>

@@ -46,7 +46,7 @@ defmodule MagnetissimoWeb.Format do
   end
 
   @doc """
-  Zero-padded ordinal for dossier numbering: `001`, `042`, `1337`.
+  Zero-padded ordinal for torrent numbering: `001`, `042`, `1337`.
   """
   def ordinal(n) when is_integer(n), do: n |> Integer.to_string() |> String.pad_leading(3, "0")
 
@@ -72,7 +72,7 @@ defmodule MagnetissimoWeb.Format do
   end
 
   @doc """
-  A dossier date: `2026.10.09 20:25 UTC`.
+  A full date: `2026.10.09 20:25 UTC`.
   """
   def stamp(nil), do: "—"
 
@@ -92,7 +92,7 @@ defmodule MagnetissimoWeb.Format do
   end
 
   @doc """
-  Seed health as a 0–5 rating, the dossier's threat assessment.
+  Seed health as a 0–5 rating, shown as sparkles.
 
   Thresholds follow what users read as healthy: anything under ten seeders
   is a gamble, a thousand is a sure thing.

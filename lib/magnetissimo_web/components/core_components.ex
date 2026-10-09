@@ -65,14 +65,14 @@ defmodule MagnetissimoWeb.CoreComponents do
       {@rest}
     >
       <div class={[
-        "panel flex w-80 sm:w-96 max-w-80 sm:max-w-96 items-start gap-3 text-wrap p-4 font-mono text-sm",
-        @kind == :info && "text-phos-100",
-        @kind == :error && "text-rose [--tick-color:var(--color-rose)] border-rose/50"
+        "panel flex w-80 sm:w-96 max-w-80 sm:max-w-96 items-start gap-3 text-wrap p-4 text-sm",
+        @kind == :info && "text-ink-900",
+        @kind == :error && "text-bubble"
       ]}>
         <.icon :if={@kind == :info} name="hero-information-circle" class="size-5 shrink-0" />
         <.icon :if={@kind == :error} name="hero-exclamation-circle" class="size-5 shrink-0" />
         <div>
-          <p :if={@title} class="dossier text-lg leading-none glow">{@title}</p>
+          <p :if={@title} class="font-display font-bold tracking-wide">{@title}</p>
           <p>{msg}</p>
         </div>
         <div class="flex-1" />

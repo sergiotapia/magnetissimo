@@ -1,8 +1,8 @@
 defmodule MagnetissimoWeb.DossierComponents do
   @moduledoc """
-  The pieces the torrent pages are built from: the magnet glyph, category
-  chips, the swarm bar, a torrent's bitmap fingerprint, the dossier's signal
-  chart.
+  The pieces the torrent pages are built from: the magnet glyph, sparkles,
+  category chips, the swarm bar, health sparkles, a torrent's fingerprint,
+  the pearl orb, the CD and the wave chart.
 
   Everything here is markup only. Numbers come in already formatted or get
   formatted through `MagnetissimoWeb.Format`.
@@ -13,27 +13,36 @@ defmodule MagnetissimoWeb.DossierComponents do
   import MagnetissimoWeb.Format
 
   @doc """
-  A pixel magnet, the one icon heroicons doesn't have.
+  A rounded magnet, the one icon heroicons doesn't have.
   """
   attr :class, :any, default: "size-4"
 
   def magnet_icon(assigns) do
     ~H"""
-    <svg
-      viewBox="0 0 16 16"
-      class={@class}
-      fill="currentColor"
-      aria-hidden="true"
-      shape-rendering="crispEdges"
-    >
-      <path d="M2 5h4v4h1v1h2V9h1V5h4v5h-1v2h-1v1h-1v1H5v-1H4v-1H3v-2H2z" />
-      <path d="M2 1h4v4H2zM10 1h4v4h-4z" fill="var(--color-phos-100)" />
+    <svg viewBox="4 4.5 24 24" class={@class} fill="currentColor" aria-hidden="true">
+      <g transform="rotate(45 16 16.5)">
+        <path d="M9 13.2h5V18a2 2 0 0 0 4 0v-4.8h5V18a7 7 0 0 1-14 0z" />
+        <path d="M9 8h5v4.2H9zM18 8h5v4.2h-5z" fill-opacity="0.55" />
+      </g>
     </svg>
     """
   end
 
   @doc """
-  A category as a small bordered chip. Links when `patch` is given.
+  A four-point sparkle. Position it with `class`; it twinkles on its own.
+  """
+  attr :class, :any, required: true
+
+  def sparkle(assigns) do
+    ~H"""
+    <svg viewBox="0 0 24 24" class={["sparkle", @class]} fill="currentColor" aria-hidden="true">
+      <path d="M12 0c.6 6.2 5.8 11.4 12 12-6.2.6-11.4 5.8-12 12-.6-6.2-5.8-11.4-12-12C6.2 11.4 11.4 6.2 12 0z" />
+    </svg>
+    """
+  end
+
+  @doc """
+  A category as a small pill. Links when `patch` is given.
   """
   attr :name, :string, required: true
   attr :patch, :string, default: nil
@@ -46,12 +55,20 @@ defmodule MagnetissimoWeb.DossierComponents do
     <.link
       :if={@patch}
       patch={@patch}
-      class={[chip_classes(@active), "focus-phos"]}
+      class={[chip_classes(@active), "focus-ring"]}
       aria-current={@active && "true"}
       {@rest}
     >
       {short_category(@name)}
-      <span :if={@count} class="ml-1 opacity-60">{@count}</span>
+      <span
+        :if={@count}
+        class={[
+          "ml-1.5 rounded-full px-1.5 py-px font-mono text-[0.65rem]",
+          if(@active, do: "bg-white/25", else: "bg-cobalt-100 text-cobalt-600")
+        ]}
+      >
+        {@count}
+      </span>
     </.link>
     <span :if={!@patch} class={chip_classes(@active)} {@rest}>
       {short_category(@name)}
@@ -59,14 +76,12 @@ defmodule MagnetissimoWeb.DossierComponents do
     """
   end
 
-  defp chip_classes(active) do
-    [
-      "label inline-flex items-center whitespace-nowrap border px-1.5 py-1 leading-none transition",
-      if(active,
-        do: "border-acid bg-acid/15 text-acid-bright glow-acid",
-        else: "border-phos-700 text-phos-300 hover:border-phos-300 hover:text-phos-100"
-      )
-    ]
+  defp chip_classes(true) do
+    "gel inline-flex items-center whitespace-nowrap px-3 py-1 text-xs font-semibold leading-none"
+  end
+
+  defp chip_classes(_inactive) do
+    "pill inline-flex items-center whitespace-nowrap px-3 py-1 text-xs font-semibold leading-none"
   end
 
   @doc """
@@ -93,18 +108,26 @@ defmodule MagnetissimoWeb.DossierComponents do
     ~H"""
     <div class={["font-mono text-xs tabular-nums", @class]}>
       <div class="flex items-baseline justify-between gap-3">
-        <span class="text-acid glow-acid" title="seeders">▲ {number(@seeders)}</span>
-        <span class="text-rose/80" title="leechers">▼ {number(@leechers)}</span>
+        <span class="font-bold text-mint" title="seeders">▲ {number(@seeders)}</span>
+        <span class="text-bubble" title="leechers">▼ {number(@leechers)}</span>
       </div>
-      <div class="mt-1 h-1 w-full bg-rose/25" role="img" aria-label={"#{@ratio}% seeders"}>
-        <div class="h-full bg-acid shadow-[0_0_6px_#cccc33]" style={"width: #{@ratio}%"}></div>
+      <div
+        class="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-bubble-soft"
+        role="img"
+        aria-label={"#{@ratio}% seeders"}
+      >
+        <div
+          class="h-full rounded-full bg-linear-to-r from-mint to-[#5fe0b8]"
+          style={"width: #{@ratio}%"}
+        >
+        </div>
       </div>
     </div>
     """
   end
 
   @doc """
-  Threat assessment, the dossier way: health as stars out of five.
+  Swarm health as sparkles out of five.
   """
   attr :seeders, :integer, required: true
 
@@ -112,9 +135,9 @@ defmodule MagnetissimoWeb.DossierComponents do
     assigns = assign(assigns, :filled, health(assigns.seeders))
 
     ~H"""
-    <span class="tracking-widest" aria-label={"#{@filled} of 5"}>
-      <span class="text-acid glow-acid">{String.duplicate("★", @filled)}</span><span class="text-phos-700">{String.duplicate(
-        "★",
+    <span class="tracking-[0.2em]" aria-label={"#{@filled} of 5"}>
+      <span class="text-cobalt-500">{String.duplicate("✦", @filled)}</span><span class="text-frost-300">{String.duplicate(
+        "✦",
         5 - @filled
       )}</span>
     </span>
@@ -122,7 +145,8 @@ defmodule MagnetissimoWeb.DossierComponents do
   end
 
   @doc """
-  A torrent's fingerprint: its infohash drawn as a mirrored 12×12 bitmap.
+  A torrent's fingerprint: its infohash drawn as a mirrored 12×12 grid of
+  beads.
 
   The 40 hex characters are 160 bits; the left half of each row takes six and
   the right half mirrors them, so 72 bits in, and every hash gets its own
@@ -135,14 +159,22 @@ defmodule MagnetissimoWeb.DossierComponents do
     assigns = assign(assigns, :cells, fingerprint_cells(assigns.hash))
 
     ~H"""
-    <svg
-      viewBox="0 0 12 12"
-      class={[@class, "drop-shadow-[0_0_6px_rgba(153,204,255,0.8)]"]}
-      shape-rendering="crispEdges"
-      role="img"
-      aria-label="infohash fingerprint"
-    >
-      <rect :for={{x, y} <- @cells} x={x} y={y} width="1" height="1" fill="currentColor" />
+    <svg viewBox="0 0 12 12" class={@class} role="img" aria-label="infohash fingerprint">
+      <defs>
+        <linearGradient id={"fp-#{@hash}"} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="var(--color-cobalt-500)" />
+          <stop offset="1" stop-color="var(--color-lilac)" />
+        </linearGradient>
+      </defs>
+      <rect
+        :for={{x, y} <- @cells}
+        x={x + 0.08}
+        y={y + 0.08}
+        width="0.84"
+        height="0.84"
+        rx="0.32"
+        fill={"url(#fp-#{@hash})"}
+      />
     </svg>
     """
   end
@@ -163,8 +195,42 @@ defmodule MagnetissimoWeb.DossierComponents do
   end
 
   @doc """
-  The signal chart at the bottom of the dossier: a grid and two drifting
-  waves. Decoration, not data.
+  A pearl orb. The seed picks where its colours start and a small hue shift,
+  so the home page and each torrent get their own. Pure CSS.
+  """
+  attr :seed, :string, required: true
+  attr :class, :any, default: "size-28"
+  attr :rest, :global
+
+  def orb(assigns) do
+    hash = :erlang.phash2(assigns.seed, 3600)
+    assigns = assign(assigns, turn: rem(hash, 360), hue: div(hash, 360) * 6 - 30)
+
+    ~H"""
+    <div
+      class={["orb animate-float", @class]}
+      style={"--orb-turn: #{@turn}deg; --orb-hue: #{@hue}deg"}
+      aria-hidden="true"
+      {@rest}
+    >
+    </div>
+    """
+  end
+
+  @doc """
+  A CD that spins, for the now-playing ticker.
+  """
+  attr :class, :any, default: "size-6"
+
+  def disc(assigns) do
+    ~H"""
+    <span class={["disc animate-spin-slow inline-block shrink-0", @class]} aria-hidden="true"></span>
+    """
+  end
+
+  @doc """
+  Two soft waves drifting under a panel, like a stereo's visualiser.
+  Decoration, not data.
   """
   attr :class, :any, default: "h-16 w-full"
   attr :id, :string, required: true
@@ -175,35 +241,34 @@ defmodule MagnetissimoWeb.DossierComponents do
       id={@id}
       viewBox="0 0 240 48"
       preserveAspectRatio="none"
-      class={["text-phos-500", @class]}
+      class={@class}
       aria-hidden="true"
     >
       <defs>
-        <pattern id={"#{@id}-grid"} width="8" height="8" patternUnits="userSpaceOnUse">
-          <path
-            d="M8 0H0V8"
-            fill="none"
-            stroke="currentColor"
-            stroke-opacity="0.35"
-            stroke-width="0.5"
-          />
-        </pattern>
+        <linearGradient id={"#{@id}-fill"} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="var(--color-cobalt-400)" stop-opacity="0.35" />
+          <stop offset="1" stop-color="var(--color-cobalt-400)" stop-opacity="0" />
+        </linearGradient>
       </defs>
-      <rect width="240" height="48" fill={"url(##{@id}-grid)"} />
       <g class="animate-drift">
+        <path
+          d="M0 24 C 15 4, 30 4, 45 24 S 75 44, 90 24 S 120 4, 135 24 S 165 44, 180 24 S 210 4, 225 24 S 255 44, 270 24 S 300 4, 315 24 S 345 44, 360 24 V48 H0 Z"
+          fill={"url(##{@id}-fill)"}
+        />
         <path
           d="M0 24 C 15 4, 30 4, 45 24 S 75 44, 90 24 S 120 4, 135 24 S 165 44, 180 24 S 210 4, 225 24 S 255 44, 270 24 S 300 4, 315 24 S 345 44, 360 24"
           fill="none"
-          stroke="var(--color-phos-300)"
-          stroke-width="1.2"
-          style="filter: drop-shadow(0 0 2px rgba(153,204,255,.9))"
+          stroke="var(--color-cobalt-500)"
+          stroke-width="1.4"
+          stroke-linecap="round"
         />
         <path
           d="M0 24 C 10 40, 20 40, 30 24 S 50 8, 60 24 S 80 40, 90 24 S 110 8, 120 24 S 140 40, 150 24 S 170 8, 180 24 S 200 40, 210 24 S 230 8, 240 24 S 260 40, 270 24 S 290 8, 300 24 S 320 40, 330 24 S 350 8, 360 24"
           fill="none"
-          stroke="var(--color-phos-100)"
-          stroke-opacity="0.6"
-          stroke-width="0.8"
+          stroke="var(--color-lilac)"
+          stroke-opacity="0.8"
+          stroke-width="1"
+          stroke-linecap="round"
         />
       </g>
     </svg>
@@ -211,14 +276,17 @@ defmodule MagnetissimoWeb.DossierComponents do
   end
 
   @doc """
-  A row of hex, the way the dossier prints raw memory under the chart.
+  The infohash in groups of four, small and quiet under the fingerprint.
   """
   attr :hash, :string, required: true
   attr :class, :any, default: nil
 
   def hexdump(assigns) do
     ~H"""
-    <div class={["dossier flex flex-wrap gap-x-3 text-phos-600 text-base leading-tight", @class]}>
+    <div class={[
+      "flex flex-wrap gap-x-2 font-mono text-[0.7rem] leading-relaxed text-ink-300",
+      @class
+    ]}>
       <span :for={group <- hash_groups(@hash)}>{group}</span>
     </div>
     """

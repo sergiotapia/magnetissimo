@@ -4,7 +4,7 @@ defmodule MagnetissimoWeb.Layouts do
 
   `root.html.heex` (embedded from `layouts/`) is the HTML skeleton: the CSRF
   meta tag, `app.css` and `app.js`. `app/1` is the frame every page renders
-  inside: the nav and the CRT glass over everything. `flash_group/1` shows
+  inside: the sky, the nav and the content. `flash_group/1` shows
   flash messages plus the client- and server-error notices.
   """
   use MagnetissimoWeb, :html
@@ -39,15 +39,18 @@ defmodule MagnetissimoWeb.Layouts do
 
   def app(assigns) do
     ~H"""
-    <div class="crt-scanlines" aria-hidden="true"></div>
-    <div class="crt-vignette" aria-hidden="true"></div>
-    <div class="crt-sweep" aria-hidden="true"></div>
+    <div class="sky" aria-hidden="true">
+      <.sparkle class="top-[14%] left-[6%] size-5" />
+      <.sparkle class="top-[8%] right-[18%] size-3 [animation-delay:1.2s]" />
+      <.sparkle class="top-[52%] right-[4%] size-6 [animation-delay:2.1s]" />
+      <.sparkle class="bottom-[12%] left-[10%] size-4 [animation-delay:0.6s]" />
+    </div>
 
-    <div class="relative mx-auto flex min-h-dvh max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+    <div class="relative z-10 mx-auto flex min-h-dvh max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
       <header class="pt-4 sm:pt-6">
         <nav
           id="nav"
-          class="dossier flex items-center justify-between gap-2 border-y border-phos-500/30 py-1.5 text-xl sm:text-2xl"
+          class="panel flex items-center justify-between gap-0.5 overflow-x-auto px-1.5 py-1.5 sm:px-3"
           aria-label="Primary"
         >
           <.nav_link navigate={~p"/"} id="nav-latest">Latest</.nav_link>
@@ -77,7 +80,7 @@ defmodule MagnetissimoWeb.Layouts do
     ~H"""
     <.link
       id={@id}
-      class="focus-phos px-1 text-phos-300 hover:text-phos-100 hover:glow sm:px-3"
+      class="focus-ring shrink-0 rounded-full px-2 py-1.5 font-display text-[0.7rem] font-bold tracking-[0.08em] text-ink-700 uppercase transition hover:bg-white hover:text-cobalt-600 hover:shadow-[0_4px_12px_-6px_rgba(47,91,255,0.5)] sm:px-5 sm:text-sm sm:tracking-[0.2em]"
       {@rest}
     >
       {render_slot(@inner_block)}

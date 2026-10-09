@@ -1,7 +1,7 @@
 defmodule MagnetissimoWeb.TorrentLive do
   @moduledoc """
-  One torrent as a subject dossier: fingerprint, the facts in rows, the
-  magnet, and whatever the source said about it.
+  One torrent: fingerprint, orb, the facts in rows, the magnet, and
+  whatever the source said about it.
   """
   use MagnetissimoWeb, :live_view
 
@@ -22,142 +22,135 @@ defmodule MagnetissimoWeb.TorrentLive do
   def render(assigns) do
     ~H"""
     <Layouts.app flash={@flash}>
-      <nav class="label mb-3 flex items-center gap-2 text-phos-500" aria-label="Breadcrumb">
-        <.link navigate={~p"/"} class="hover:text-phos-300">Index</.link>
-        <span aria-hidden="true">/</span>
+      <nav
+        class="mb-4 flex flex-wrap items-center gap-1.5 text-xs font-semibold"
+        aria-label="Breadcrumb"
+      >
+        <.link navigate={~p"/"} class="pill focus-ring px-3 py-1">Index</.link>
+        <span class="text-ink-300" aria-hidden="true">›</span>
         <.link
           navigate={~p"/?#{[category: @torrent.category_id]}"}
-          class="hover:text-phos-300"
+          class="pill focus-ring px-3 py-1"
         >
           {@torrent.category.name}
         </.link>
-        <span aria-hidden="true">/</span>
-        <span class="text-phos-300">Subject {ordinal(@torrent.id)}</span>
+        <span class="text-ink-300" aria-hidden="true">›</span>
+        <span class="px-1 font-mono text-ink-500">No. {ordinal(@torrent.id)}</span>
       </nav>
 
-      <article id={"torrent-#{@torrent.id}"} class="panel animate-boot">
+      <article id={"torrent-#{@torrent.id}"} class="panel animate-rise">
         <header class="panel-title">
-          <span>Subject {ordinal(@torrent.id)}</span>
-          <span class="flex items-center gap-2">
-            <span class="label hidden text-phos-500 sm:inline">{@torrent.source.name}</span>
-            <span class="flex h-3 w-6 items-center border border-phos-300 p-px" aria-hidden="true">
-              <span class="h-full bg-phos-300" style={"width: #{health(@torrent.seeders) * 20}%"}></span>
-            </span>
-          </span>
+          <span>No. {ordinal(@torrent.id)}</span>
+          <span class="label hidden sm:inline">{@torrent.source.name}</span>
         </header>
 
-        <div class="grid gap-px bg-phos-500/20 md:grid-cols-[18rem_1fr]">
-          <%!-- Left: fingerprint and visual --%>
-          <div class="grid gap-px bg-phos-500/20 sm:grid-cols-2 md:grid-cols-1">
-            <div class="bg-ink-900/95 p-5">
-              <div class="label mb-3 text-phos-500">Fingerprint</div>
-              <div class="relative mx-auto w-fit border border-phos-500/30 p-4">
-                <span class="absolute -top-px -left-px size-3 border-t border-l border-phos-300"></span>
-                <span class="absolute -top-px -right-px size-3 border-t border-r border-phos-300"></span>
-                <span class="absolute -bottom-px -left-px size-3 border-b border-l border-phos-300"></span>
-                <span class="absolute -bottom-px -right-px size-3 border-r border-b border-phos-300"></span>
-                <.fingerprint hash={@torrent.magnet_hash} class="size-32 text-phos-300" />
+        <div class="grid md:grid-cols-[18rem_1fr]">
+          <%!-- Left: fingerprint and orb --%>
+          <div class="grid border-frost-300/70 bg-white/35 sm:grid-cols-2 md:grid-cols-1 md:border-r">
+            <div class="p-6">
+              <div class="label mb-3">Fingerprint</div>
+              <div class="well mx-auto w-fit rounded-3xl p-4">
+                <.fingerprint hash={@torrent.magnet_hash} class="size-32" />
               </div>
               <.hexdump hash={@torrent.magnet_hash} class="mt-4 justify-center" />
             </div>
 
-            <div class="bg-ink-900/95 p-5">
-              <div class="label mb-3 text-phos-500">Visual</div>
-              <canvas
+            <div class="relative border-frost-300/70 p-6 max-sm:border-t sm:border-l md:border-t md:border-l-0">
+              <div class="label mb-3">Aura</div>
+              <.sparkle class="top-10 right-10 size-4 text-cobalt-400" />
+              <.orb
                 id={"orb-#{@torrent.id}"}
-                phx-hook="Dither"
-                phx-update="ignore"
-                data-seed={@torrent.magnet_hash}
-                class="pixelated mx-auto block size-40 drop-shadow-[0_0_14px_rgba(102,153,255,0.6)]"
-                aria-hidden="true"
-              ></canvas>
+                seed={@torrent.magnet_hash}
+                class="mx-auto my-2 size-36"
+              />
             </div>
           </div>
 
           <%!-- Right: the facts --%>
-          <div class="bg-ink-900/95 p-5 sm:p-6">
-            <h1 class="font-mono text-lg leading-snug text-phos-100 glow sm:text-2xl">
+          <div class="p-6 sm:p-8">
+            <h1 class="text-xl leading-snug font-bold break-words text-ink-900 sm:text-2xl">
               {@torrent.name}
             </h1>
 
-            <dl class="dossier mt-5 text-xl">
-              <div class="dossier-row">
-                <dt class="text-phos-500">Incept date</dt>
+            <dl class="mt-6 text-sm sm:text-base">
+              <div class="spec-row">
+                <dt class="text-ink-500">Added</dt>
                 <span class="leader"></span>
-                <dd class="text-phos-100" title={stamp(@torrent.published_at)}>
+                <dd class="text-right font-semibold text-ink-900" title={stamp(@torrent.published_at)}>
                   {stamp(@torrent.published_at)}
-                  <span class="text-phos-500">· {ago(@torrent.published_at, @now)}</span>
+                  <span class="font-medium text-ink-500">· {ago(@torrent.published_at, @now)}</span>
                 </dd>
               </div>
-              <div class="dossier-row">
-                <dt class="text-phos-500">Function</dt>
+              <div class="spec-row">
+                <dt class="text-ink-500">Category</dt>
                 <span class="leader"></span>
                 <dd>
                   <.link
                     navigate={~p"/?#{[category: @torrent.category_id]}"}
-                    class="text-phos-100 hover:glow"
+                    class="link font-semibold"
                   >
                     {@torrent.category.name}
                   </.link>
                 </dd>
               </div>
-              <div class="dossier-row">
-                <dt class="text-phos-500">Source</dt>
+              <div class="spec-row">
+                <dt class="text-ink-500">Source</dt>
                 <span class="leader"></span>
                 <dd>
-                  <a href={@torrent.canonical_url} class="text-phos-100 hover:glow" rel="noopener">
+                  <a href={@torrent.canonical_url} class="link font-semibold" rel="noopener">
                     {@torrent.source.name} ↗
                   </a>
                 </dd>
               </div>
-              <div class="dossier-row">
-                <dt class="text-phos-500">Size</dt>
+              <div class="spec-row">
+                <dt class="text-ink-500">Size</dt>
                 <span class="leader"></span>
-                <dd class="text-phos-100 tabular-nums">
+                <dd class="text-right font-semibold text-ink-900 tabular-nums">
                   {bytes(@torrent.size_in_bytes)}
-                  <span class="text-phos-500">· {number(@torrent.size_in_bytes)} B</span>
+                  <span class="font-mono text-xs font-normal text-ink-500">
+                    · {number(@torrent.size_in_bytes)} B
+                  </span>
                 </dd>
               </div>
-              <div class="dossier-row">
-                <dt class="text-phos-500">Seeders</dt>
+              <div class="spec-row">
+                <dt class="text-ink-500">Seeders</dt>
                 <span class="leader"></span>
-                <dd class="text-acid tabular-nums glow-acid">{number(@torrent.seeders)}</dd>
+                <dd class="font-bold text-mint tabular-nums">{number(@torrent.seeders)}</dd>
               </div>
-              <div class="dossier-row">
-                <dt class="text-phos-500">Leechers</dt>
+              <div class="spec-row">
+                <dt class="text-ink-500">Leechers</dt>
                 <span class="leader"></span>
-                <dd class="text-rose tabular-nums">{number(@torrent.leechers)}</dd>
+                <dd class="font-bold text-bubble tabular-nums">{number(@torrent.leechers)}</dd>
               </div>
-              <div class="dossier-row">
-                <dt class="text-phos-500">Threat assessment</dt>
+              <div class="spec-row">
+                <dt class="text-ink-500">Health</dt>
                 <span class="leader"></span>
                 <dd><.stars seeders={@torrent.seeders} /></dd>
               </div>
-              <div class="dossier-row">
-                <dt class="text-phos-500">Infohash</dt>
+              <div class="spec-row">
+                <dt class="text-ink-500">Infohash</dt>
                 <span class="leader"></span>
-                <dd class="font-mono text-xs break-all text-phos-200 normal-case tracking-normal sm:text-sm">
+                <dd class="font-mono text-xs break-all text-ink-700 sm:text-sm">
                   {@torrent.magnet_hash}
                 </dd>
               </div>
             </dl>
 
-            <.swarm seeders={@torrent.seeders} leechers={@torrent.leechers} class="mt-5" />
+            <.swarm seeders={@torrent.seeders} leechers={@torrent.leechers} class="mt-6" />
 
-            <div class="mt-6 flex flex-wrap items-center gap-3">
+            <div class="mt-8 flex flex-wrap items-center gap-3">
               <a
                 id="magnet-link"
                 href={@torrent.magnet_url}
-                class="dossier focus-phos group inline-flex items-center gap-3 border border-phos-300 bg-phos-500/15 px-5 py-2.5 text-2xl text-phos-100 shadow-glow transition hover:bg-phos-500/30 hover:shadow-glow-lg"
+                class="gel focus-ring inline-flex items-center gap-2.5 px-6 py-3 font-display text-sm font-bold tracking-[0.15em] uppercase"
               >
-                <.magnet_icon class="size-6 text-phos-300 transition group-hover:text-phos-100" />
-                Acquire magnet
+                <.magnet_icon class="size-5" /> Get magnet
               </a>
               <a
                 id="source-link"
                 href={@torrent.canonical_url}
                 rel="noopener"
-                class="dossier focus-phos inline-flex items-center gap-2 border border-phos-700 px-4 py-2.5 text-xl text-phos-300 transition hover:border-phos-300 hover:text-phos-100"
+                class="pill focus-ring inline-flex items-center gap-2 px-5 py-3 font-display text-sm font-bold tracking-[0.15em] uppercase"
               >
                 View on {@torrent.source.name}
               </a>
@@ -166,27 +159,24 @@ defmodule MagnetissimoWeb.TorrentLive do
         </div>
 
         <%!-- Description --%>
-        <div class="border-t border-phos-500/20 p-5 sm:p-6">
-          <div class="label mb-2 text-phos-500">Notes from source</div>
+        <div class="border-t border-frost-300/70 p-6 sm:p-8">
+          <div class="label mb-2">Description</div>
           <p
             :if={@torrent.description}
-            class="max-w-3xl font-mono text-sm leading-relaxed text-phos-200 whitespace-pre-line"
+            class="max-w-3xl text-sm leading-relaxed whitespace-pre-line text-ink-700"
           >
             {@torrent.description}
           </p>
-          <p :if={!@torrent.description} class="dossier text-xl text-phos-700">
-            No description on file
+          <p :if={!@torrent.description} class="text-sm text-ink-300">
+            The source didn't say anything about this one.
           </p>
         </div>
 
-        <.signal id="subject-signal" class="h-14 w-full border-t border-phos-500/30" />
+        <.signal id="subject-signal" class="h-14 w-full" />
       </article>
 
-      <div class="mt-4 flex justify-between">
-        <.link
-          navigate={~p"/"}
-          class="dossier focus-phos text-xl text-phos-300 hover:text-phos-100 hover:glow"
-        >
+      <div class="mt-5">
+        <.link navigate={~p"/"} class="pill focus-ring inline-flex px-4 py-2 text-sm font-semibold">
           ← Back to the index
         </.link>
       </div>
