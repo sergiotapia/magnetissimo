@@ -20,7 +20,7 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   test "indexes every item, decoding entities and downcasing the hash" do
     stub(NyaaFixtures.rss_body())
 
-    assert :ok = Crawlers.crawl_latest(Nyaa)
+    assert {:ok, %{inserted: 2}} = Crawlers.search(Nyaa, "Fixture")
 
     assert [newest, older] = Torrents.list_latest_torrents()
 
@@ -46,19 +46,10 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
     assert older.size_in_bytes == round(700.5 * 1024 ** 2)
   end
 
-  test "crawling the same feed again adds nothing" do
-    stub(NyaaFixtures.rss_body())
-
-    assert :ok = Crawlers.crawl_latest(Nyaa)
-    assert :ok = Crawlers.crawl_latest(Nyaa)
-
-    assert Torrents.count_torrents() == 2
-  end
-
   test "sukebei files items under its own source, category and tracker" do
     stub(NyaaFixtures.sukebei_rss_body())
 
-    assert :ok = Crawlers.crawl_latest(Sukebei)
+    assert {:ok, %{inserted: 1}} = Crawlers.search(Sukebei, "Fixture")
 
     assert [torrent] = Torrents.list_latest_torrents()
     assert torrent.source.name == "Sukebei"
@@ -69,29 +60,20 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   test "an item with no usable date or size is skipped, not crashed on" do
     stub(NyaaFixtures.malformed_rss_body())
 
-    assert :ok = Crawlers.crawl_latest(Nyaa)
+    assert {:ok, %{found: 0}} = Crawlers.search(Nyaa, "Fixture")
     assert Torrents.count_torrents() == 0
   end
 
   test "a file small enough to be sized in bytes is indexed, not dropped" do
     stub(NyaaFixtures.bytes_size_rss_body())
 
-    assert :ok = Crawlers.crawl_latest(Sukebei)
+    assert {:ok, %{inserted: 1}} = Crawlers.search(Sukebei, "Angel Club")
 
     assert [torrent] = Torrents.list_latest_torrents()
     assert torrent.name == "Angel Club 06-12.zip"
     assert torrent.size_in_bytes == 0
     # "Art - Anime": hentai, which the 2.0 mapping filed with work-safe anime.
     assert category(torrent) == "XXX"
-  end
-
-  test "a failing site is logged, not raised" do
-    Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 503, "unavailable") end)
-
-    log = ExUnit.CaptureLog.capture_log(fn -> assert :ok = Crawlers.crawl_latest(Nyaa) end)
-
-    assert log =~ "crawl failed"
-    assert Torrents.count_torrents() == 0
   end
 
   test "search asks the feed for the term and makes its hits findable by it" do

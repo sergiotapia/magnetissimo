@@ -42,18 +42,12 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   }
 
   @doc """
-  Fetches the newest items on the site in `site`.
+  Looks one term up on the site in `site`, the keyword list
+  `Magnetissimo.Crawlers.Nyaa.Site` builds.
 
-  `site` is the keyword list `Magnetissimo.Crawlers.Nyaa.Site` builds.
-  """
-  @spec latest(keyword()) :: {:ok, [map()]} | {:error, term()}
-  def latest(site), do: fetch_attrs(site[:rss_url], site)
-
-  @doc """
-  Looks one term up on the site.
-
-  The same feed serves search: a `q` parameter filters it server-side, so no
-  HTML is scraped for this. That keeps the two Nyaa crawlers to one parser.
+  The site's RSS feed serves search: a `q` parameter filters it server-side,
+  so no HTML is scraped for this. That keeps the two Nyaa crawlers to one
+  parser.
   """
   @spec search(keyword(), String.t()) :: {:ok, [map()]} | {:error, term()}
   def search(site, term) do
@@ -67,8 +61,8 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   end
 
   defp fetch(url) do
-    # No retries: the crawl comes back in five minutes, so retrying only holds
-    # a process open while a mirror is down.
+    # No retries: a search is a one-shot question, so retrying only holds a
+    # process open while a mirror is down.
     options =
       Application.get_env(:magnetissimo, __MODULE__, []) ++
         [headers: [user_agent: @user_agent], retry: false]

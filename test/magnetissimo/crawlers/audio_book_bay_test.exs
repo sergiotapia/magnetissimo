@@ -19,14 +19,15 @@ defmodule Magnetissimo.Crawlers.AudioBookBayTest do
     :ok
   end
 
-  test "indexes each book in the feed from its own page" do
+  test "indexes each book in the results from its own page" do
     serve(%{
-      "/feed/" => AudioBookBayFixtures.feed_body(),
+      "/" => AudioBookBayFixtures.search_body(),
       @mila => AudioBookBayFixtures.chasing_mila_body(),
       @king => AudioBookBayFixtures.king_zero_body()
     })
 
-    assert :ok = Crawlers.crawl_latest(AudioBookBay)
+    assert {:ok, %{inserted: 2, found: 2}} = Crawlers.search(AudioBookBay, "Fixture Book")
+    assert_received {:asked, "/", %{"s" => "Fixture Book"}}
 
     assert [mila, king] = Torrents.list_latest_torrents()
 
@@ -37,8 +38,8 @@ defmodule Magnetissimo.Crawlers.AudioBookBayTest do
     assert Taxonomy.fetch!(mila.category_id).name == "Audio/Audiobook"
     assert mila.size_in_bytes == round(686.36 * 1024 ** 2)
     assert mila.seeders == 0
-    # 04:11:21 +0200 is 02:11:21 UTC.
-    assert DateTime.to_unix(mila.published_at) == DateTime.to_unix(~U[2026-10-10 02:11:21Z])
+    # The results say the day it was posted and no time.
+    assert DateTime.to_unix(mila.published_at) == DateTime.to_unix(~U[2026-10-08 00:00:00Z])
 
     assert mila.description ==
              "Written by Charlotte Engel · Read by Lizzie Munro · M4B · 128 Kbps · " <>
@@ -52,25 +53,10 @@ defmodule Magnetissimo.Crawlers.AudioBookBayTest do
 
     assert king.name == "King Zero: Bond’s Return & More - Charlie Higson"
     assert king.size_in_bytes == round(1.25 * 1024 ** 3)
+    assert DateTime.to_unix(king.published_at) == DateTime.to_unix(~U[2024-01-30 00:00:00Z])
   end
 
-  test "a page already indexed is not fetched again" do
-    serve(%{
-      "/feed/" => AudioBookBayFixtures.feed_body(),
-      @mila => AudioBookBayFixtures.chasing_mila_body(),
-      @king => AudioBookBayFixtures.king_zero_body()
-    })
-
-    assert :ok = Crawlers.crawl_latest(AudioBookBay)
-    assert_asked(["/feed/", @king, @mila])
-
-    assert :ok = Crawlers.crawl_latest(AudioBookBay)
-    assert_asked(["/feed/"])
-
-    assert Torrents.count_torrents() == 2
-  end
-
-  test "search stamps a hit with the day it was posted" do
+  test "a book already indexed is still a hit for the term, without fetching its page" do
     serve(%{
       "/" => AudioBookBayFixtures.search_body(),
       @mila => AudioBookBayFixtures.chasing_mila_body(),
@@ -78,42 +64,25 @@ defmodule Magnetissimo.Crawlers.AudioBookBayTest do
     })
 
     assert {:ok, %{inserted: 2, found: 2}} = Crawlers.search(AudioBookBay, "Fixture Book")
-    assert_received {:asked, "/", %{"s" => "Fixture Book"}}
+    assert_asked(["/", @king, @mila])
 
-    assert [mila, king] = Torrents.list_latest_torrents()
-    assert DateTime.to_unix(mila.published_at) == DateTime.to_unix(~U[2026-10-08 00:00:00Z])
-    assert DateTime.to_unix(king.published_at) == DateTime.to_unix(~U[2024-01-30 00:00:00Z])
-  end
-
-  test "a book already indexed is still a hit for the term, without fetching its page" do
-    serve(%{
-      "/feed/" => AudioBookBayFixtures.feed_body(),
-      "/" => AudioBookBayFixtures.search_body(),
-      @mila => AudioBookBayFixtures.chasing_mila_body(),
-      @king => AudioBookBayFixtures.king_zero_body()
-    })
-
-    assert :ok = Crawlers.crawl_latest(AudioBookBay)
-    assert_asked(["/feed/", @king, @mila])
-
-    assert {:ok, %{inserted: 0, found: 2}} = Crawlers.search(AudioBookBay, "Fixture Book")
+    assert {:ok, %{inserted: 0, found: 2}} = Crawlers.search(AudioBookBay, "Other Words")
     assert_asked(["/"])
 
-    assert [_, _] = Torrents.search_torrents("Fixture Book")
+    assert [_, _] = Torrents.search_torrents("Other Words")
   end
 
   test "a search fetches pages for only its top five new results" do
     new_books = for n <- 1..7, do: "/abss/book-#{n}/"
 
     serve(%{
-      "/feed/" => AudioBookBayFixtures.feed_body(),
       "/" => AudioBookBayFixtures.search_body(new_books ++ [@mila, @king]),
       @mila => AudioBookBayFixtures.chasing_mila_body(),
       @king => AudioBookBayFixtures.king_zero_body()
     })
 
-    assert :ok = Crawlers.crawl_latest(AudioBookBay)
-    assert_asked(["/feed/", @king, @mila])
+    %{ids: [_, _]} =
+      Torrents.index_torrents([indexed_attrs(@mila, "a"), indexed_attrs(@king, "b")])
 
     # The new books' pages are missing, so they are skipped; what matters is
     # which were asked for. The two already indexed, ranked last, still count.
@@ -126,14 +95,14 @@ defmodule Magnetissimo.Crawlers.AudioBookBayTest do
 
   test "a page with no infohash, or one that fails, costs only that book" do
     serve(%{
-      "/feed/" => AudioBookBayFixtures.feed_body(),
+      "/" => AudioBookBayFixtures.search_body(),
       @mila => AudioBookBayFixtures.no_hash_body(),
       @king => 500
     })
 
     log =
       ExUnit.CaptureLog.capture_log(fn ->
-        assert :ok = Crawlers.crawl_latest(AudioBookBay)
+        assert {:ok, %{found: 0}} = Crawlers.search(AudioBookBay, "Fixture Book")
       end)
 
     assert log =~ "skipped https://audiobookbay.lu#{@mila}: :no_infohash_or_size"
@@ -147,24 +116,28 @@ defmodule Magnetissimo.Crawlers.AudioBookBayTest do
     assert {:ok, %{inserted: 0, found: 0}} = Crawlers.search(AudioBookBay, "Nothing")
   end
 
-  test "a failing feed is logged, not raised" do
-    serve(%{"/feed/" => 503})
-
-    log =
-      ExUnit.CaptureLog.capture_log(fn ->
-        assert :ok = Crawlers.crawl_latest(AudioBookBay)
-      end)
-
-    assert log =~ "crawl failed"
-    assert Torrents.count_torrents() == 0
-  end
-
   test "a search that fails says why" do
     serve(%{"/" => 500})
 
     ExUnit.CaptureLog.capture_log(fn ->
       assert {:error, {:http_status, 500}} = Crawlers.search(AudioBookBay, "Anything")
     end)
+  end
+
+  # A torrent as an earlier search would have indexed it from `path`.
+  defp indexed_attrs(path, hash_char) do
+    hash = String.duplicate(hash_char, 40)
+
+    %{
+      name: path,
+      canonical_url: "https://audiobookbay.lu" <> path,
+      published_at: DateTime.utc_now(),
+      size_in_bytes: 1_000,
+      magnet_hash: hash,
+      magnet_url: "magnet:?xt=urn:btih:" <> hash,
+      category_id: Taxonomy.id!("Audio/Audiobook"),
+      source_id: Torrents.get_source_by_name!("AudioBookBay").id
+    }
   end
 
   # Answers each path with its body, or with its status for an integer, and

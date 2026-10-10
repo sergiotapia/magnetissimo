@@ -19,7 +19,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   test "indexes one torrent per quality variant, with the hashes downcased" do
     stub_api()
 
-    assert :ok = Crawlers.crawl_latest(Yts)
+    assert {:ok, %{inserted: 2}} = Crawlers.search(Yts, "Fixture Movie")
 
     assert [first, second] = Torrents.list_latest_torrents()
 
@@ -42,27 +42,6 @@ defmodule Magnetissimo.Crawlers.YtsTest do
     assert second.magnet_hash == String.downcase(YtsFixtures.hash_720p())
   end
 
-  test "a crawl the site answers is recorded as the last crawl, even with nothing new" do
-    stub_api()
-    assert Torrents.last_crawled_at() == nil
-
-    assert :ok = Crawlers.crawl_latest(Yts)
-    first = Torrents.last_crawled_at()
-    assert %DateTime{} = first
-
-    assert :ok = Crawlers.crawl_latest(Yts)
-    assert DateTime.compare(Torrents.last_crawled_at(), first) == :gt
-  end
-
-  test "crawling the same page again adds nothing" do
-    stub_api()
-
-    assert :ok = Crawlers.crawl_latest(Yts)
-    assert :ok = Crawlers.crawl_latest(Yts)
-
-    assert Torrents.count_torrents() == 2
-  end
-
   test "an entry with no usable upload time is dropped rather than crashed on" do
     Req.Test.stub(Yts, fn conn ->
       Req.Test.json(conn, %{
@@ -78,18 +57,8 @@ defmodule Magnetissimo.Crawlers.YtsTest do
       })
     end)
 
-    assert :ok = Crawlers.crawl_latest(Yts)
+    assert {:ok, %{found: 0}} = Crawlers.search(Yts, "Broken")
     assert Torrents.count_torrents() == 0
-  end
-
-  test "a failing API is logged, not raised" do
-    Req.Test.stub(Yts, fn conn -> Plug.Conn.send_resp(conn, 503, "unavailable") end)
-
-    log = ExUnit.CaptureLog.capture_log(fn -> assert :ok = Crawlers.crawl_latest(Yts) end)
-
-    assert log =~ "crawl failed"
-    assert Torrents.count_torrents() == 0
-    assert Torrents.last_crawled_at() == nil
   end
 
   test "search indexes the API's hits and makes them findable by the term" do
@@ -127,7 +96,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   test "a torrent filed under Other takes the category a later source knows" do
     other = Taxonomy.other_id()
     stub_api()
-    {:ok, [attrs | _]} = Yts.latest()
+    {:ok, [attrs | _]} = Yts.search("Fixture Movie")
 
     # As TorrentDownloads' search would file it, with no category to go on.
     %{ids: [id]} = Torrents.index_torrents([%{attrs | category_id: other}])
@@ -158,7 +127,6 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   defp stub_api do
     Req.Test.stub(Yts, fn conn ->
       assert conn.query_string =~ "limit=50"
-      assert conn.query_string =~ "sort_by=date_added"
 
       Req.Test.json(conn, YtsFixtures.api_response())
     end)

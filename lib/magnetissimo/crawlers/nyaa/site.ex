@@ -29,10 +29,6 @@ defmodule Magnetissimo.Crawlers.Nyaa.Site do
       @impl true
       def categories, do: @site[:categories]
 
-      @doc "Fetches the newest items."
-      @impl true
-      def latest, do: Feed.latest(@site)
-
       @doc "Looks one term up on the site."
       @impl true
       def search(term), do: Feed.search(@site, term)

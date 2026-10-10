@@ -20,9 +20,6 @@ defmodule Magnetissimo.SlowCrawler do
   def categories, do: FastCrawler.categories()
 
   @impl true
-  def latest, do: {:ok, []}
-
-  @impl true
   def search(term) do
     case Application.get_env(:magnetissimo, :crawler_test_pid) do
       nil -> :ok

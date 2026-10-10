@@ -2,24 +2,21 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   @moduledoc """
   Crawls AudioBookBay, a WordPress site of audiobook torrents.
 
-  No listing on the site carries an infohash. The feed, the front page and the
-  search results name a page per book, and only that page has the hash, its
-  trackers and the size. So every crawl is one listing request and then one
-  request per book. A page already in the index is not fetched again: its
-  torrent is handed back as it was stored, so a search still records it as a
-  hit for the term.
+  No listing on the site carries an infohash. The search results name a page
+  per book, and only that page has the hash, its trackers and the size. So
+  every search is one request for the results and then one per book. A page
+  already in the index is not fetched again: its torrent is handed back as it
+  was stored, so the search still records it as a hit for the term.
 
   The site drops every connection from an address that sends it a burst: about
   sixty requests in ten minutes, a run of them five at a time, was enough to be
   shut out. So pages are fetched at most `@max_concurrency` at a time, each
-  task pausing `@page_delay` after its request, and a search fetches pages for
-  only its top `@search_pages` results. Search is the one to watch: a reader
+  task pausing `@page_delay` after its request, and only the top
+  `@search_pages` results have their pages fetched. It adds up: a reader
   typing a term asks for every prefix of it.
 
-  The two listings differ in what they say about time. `latest/0` reads the
-  RSS feed, whose `pubDate` is exact. `search/1` reads the HTML search
-  results, which give a day and no time, so a hit found that way is stamped
-  midnight UTC of that day. Search results come back by relevance, not date,
+  The search results give the day a book was posted and no time, so a hit is
+  stamped midnight UTC of that day. They come back by relevance, not date,
   and only the first page is read.
 
   The site shows no swarm anywhere, so `seeders` and `leechers` stay 0. Its
@@ -42,8 +39,8 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
 
   # Hardcoded on purpose, with no config to override it. AudioBookBay moves
   # between domains every so often (it has been .se, .is, .li, .fi and more);
-  # .lu is the one it answers on as of October 2026. A crawl that starts
-  # failing with DNS or connection errors most likely means it moved again:
+  # .lu is the one it answers on as of October 2026. Searches that start
+  # failing with DNS or connection errors most likely mean it moved again:
   # change it here, and the source's url in `Magnetissimo.Seeds` with it.
   @base_url "https://audiobookbay.lu"
   @source_name "AudioBookBay"
@@ -61,7 +58,7 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   # The page says "MBs" and "GBs"; Prowlarr reads them as binary units too.
   @units %{"KBs" => 1024, "MBs" => 1024 ** 2, "GBs" => 1024 ** 3, "TBs" => 1024 ** 4}
 
-  # The fields of an indexed torrent a crawl hands back for a page it skips.
+  # The fields of an indexed torrent a search hands back for a page it skips.
   @indexed_fields [
     :name,
     :description,
@@ -80,14 +77,6 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   @impl true
   def categories, do: @categories
 
-  @doc "Fetches the books in the RSS feed, the newest nine or so."
-  @impl true
-  def latest do
-    with {:ok, body} <- fetch(@base_url <> "/feed/", receive_timeout: 15_000) do
-      body |> Rss.items() |> Enum.flat_map(&feed_entry/1) |> books(:all)
-    end
-  end
-
   @doc """
   Looks one term up on the site's search, first page only.
 
@@ -101,18 +90,7 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   @impl true
   def search(term) do
     with {:ok, body} <- fetch(@base_url <> "/", params: [s: term]) do
-      body |> listing_entries() |> books(@search_pages)
-    end
-  end
-
-  # The feed's links are absolute, and could name another of the site's
-  # domains; only the path is kept, on the domain this crawler talks to.
-  defp feed_entry(item) do
-    with link when is_binary(link) <- Rss.field(item, "link"),
-         %DateTime{} = published_at <- Rss.published_at(Rss.field(item, "pubDate")) do
-      [%{url: canonical_url(link), published_at: published_at}]
-    else
-      _ -> []
+      body |> listing_entries() |> books()
     end
   end
 
@@ -134,20 +112,19 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
     end)
   end
 
-  defp canonical_url(link), do: @base_url <> URI.parse(link).path
+  defp canonical_url(path), do: @base_url <> URI.parse(path).path
 
-  # `pages` caps how many book pages are fetched, or is `:all` for no cap.
-  defp books(entries, pages) do
+  defp books(entries) do
     source_id = Torrents.get_source_by_name!(@source_name).id
     entries = Enum.uniq_by(entries, & &1.url)
     indexed = Torrents.torrents_by_canonical_url(Enum.map(entries, & &1.url))
 
     {known, unknown} = Enum.split_with(entries, &Map.has_key?(indexed, &1.url))
-    unknown = if pages == :all, do: unknown, else: Enum.take(unknown, pages)
+    unknown = Enum.take(unknown, @search_pages)
     delay = page_delay()
 
-    # Pages that time out are dropped like ones that fail; the next crawl or
-    # search asks for them again.
+    # Pages that time out are dropped like ones that fail; the next search
+    # asks for them again.
     fetched =
       unknown
       |> Task.async_stream(&book(&1, source_id, delay),
@@ -273,9 +250,8 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   end
 
   defp fetch(url, options) do
-    # No retries: the crawl comes back in five minutes and a search is a
-    # one-shot question, so retrying only holds a process open while the site
-    # is down.
+    # No retries: a search is a one-shot question, so retrying only holds a
+    # process open while the site is down, and adds to the burst it shuts out.
     options =
       Keyword.merge(
         [headers: [user_agent: @user_agent], retry: false, receive_timeout: @page_timeout],

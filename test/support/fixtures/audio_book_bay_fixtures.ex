@@ -1,16 +1,13 @@
-# A synthetic RSS feed is bound to look like the other crawlers' ones; this
-# one shares no data or parsing with them.
-# ex_dna:disable-for-this-file
 defmodule Magnetissimo.AudioBookBayFixtures do
   @moduledoc """
-  Synthetic AudioBookBay pages for tests: the feed, the search results and a
-  book's own page.
+  Synthetic AudioBookBay pages for tests: the search results and a book's own
+  page.
 
-  Shaped after the real site. Load-bearing details: the feed's links are
-  absolute and its dates carry an offset; a search result says the day it was
-  posted and no time; a book's title carries HTML entities; the infohash, size
-  and trackers sit in a table under the book, and the `Announce URL:` label
-  cell has a style attribute the `Tracker:` ones do not.
+  Shaped after the real site. Load-bearing details: a search result says the
+  day it was posted and no time; a book's title carries HTML entities; the
+  infohash, size and trackers sit in a table under the book, and the
+  `Announce URL:` label cell has a style attribute the `Tracker:` ones do
+  not.
   """
 
   @hash_upper "23B1D853D891217222EF24852BF7FF5323E062E6"
@@ -18,33 +15,6 @@ defmodule Magnetissimo.AudioBookBayFixtures do
 
   def hash_upper, do: @hash_upper
   def other_hash, do: @other_hash
-
-  @doc "A feed with two books, the first stamped at a non-UTC offset."
-  def feed_body do
-    """
-    <?xml version="1.0" encoding="UTF-8"?>
-    <rss version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
-    <channel>
-      <title>AudioBook Bay (ABB)</title>
-      <link>https://audiobookbay.lu</link>
-      <pubDate>Sat, 10 Oct 2026 03:18:49 +0000</pubDate>
-        <item>
-        <title>Chasing Mila - Charlotte Engel</title>
-        <link>https://audiobookbay.lu/abss/chasing-mila-charlotte-engel/</link>
-        <pubDate>Sat, 10 Oct 2026 04:11:21 +0200</pubDate>
-        <category><![CDATA[Adults]]></category>
-        <category><![CDATA[Crime]]></category>
-      </item>
-        <item>
-        <title>King Zero - Charlie Higson</title>
-        <link>https://audiobookbay.lu/abss/king-zero-charlie-higson/</link>
-        <pubDate>Fri, 09 Oct 2026 21:08:30 +0000</pubDate>
-        <category><![CDATA[Action]]></category>
-      </item>
-    </channel>
-    </rss>
-    """
-  end
 
   @doc "A page of search results with two books."
   def search_body do

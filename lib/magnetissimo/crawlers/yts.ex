@@ -10,10 +10,6 @@ defmodule Magnetissimo.Crawlers.Yts do
   its trackers are built here rather than at render time. `yts.mx`, the host the
   2.0.0 app crawled, no longer resolves; `movies-api.accel.li` is the base URL
   YTS now advertises in its own responses.
-
-  Two ways in: `latest/0` for the newest page, and `search/1`, which reaches
-  the rest of the catalogue on demand for a term someone actually searched
-  for.
   """
 
   @behaviour Magnetissimo.Crawlers.Crawler
@@ -46,10 +42,6 @@ defmodule Magnetissimo.Crawlers.Yts do
   @impl true
   def categories, do: @categories
 
-  @doc "Fetches the newest movies, one torrent per quality variant."
-  @impl true
-  def latest, do: fetch_attrs(limit: @limit, sort_by: "date_added")
-
   @doc "Looks one term up on the API, one torrent per quality variant."
   @impl true
   def search(term), do: fetch_attrs(limit: @limit, query_term: term)
@@ -63,9 +55,8 @@ defmodule Magnetissimo.Crawlers.Yts do
   end
 
   defp fetch_movies(params) do
-    # No retries: the crawl comes back in five minutes and a search is a
-    # one-shot question, so retrying here only holds a process open while a
-    # mirror is down.
+    # No retries: a search is a one-shot question, so retrying here only
+    # holds a process open while a mirror is down.
     options =
       Application.get_env(:magnetissimo, __MODULE__, []) ++
         [

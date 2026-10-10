@@ -2,11 +2,11 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   @moduledoc """
   Crawls torrentdownloads.pro through its RSS feed.
 
-  One feed serves both directions: `type=today` for the newest torrents and
-  `type=search` for a term. The feed is machine generated and already carries
-  everything the index needs — title, canonical page, infohash, category, size,
-  swarm and upload time — so the HTML search page is never scraped. That page
-  lists no infohash, and reading it would mean a second request per result.
+  The feed answers a search with `type=search`. It is machine generated and
+  already carries everything the index needs — title, canonical page,
+  infohash, category, size, swarm and upload time — so the HTML search page is
+  never scraped. That page lists no infohash, and reading it would mean a
+  second request per result.
 
   The fields are pulled out with fixed patterns rather than an XML parser, the
   same way the Nyaa feed is read. Titles are raw UTF-8 with only the entities
@@ -69,10 +69,6 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   @impl true
   def categories, do: @categories
 
-  @doc "Fetches today's newest torrents."
-  @impl true
-  def latest, do: fetch_attrs(type: "today")
-
   @doc """
   Looks one term up on the feed, once per category.
 
@@ -120,32 +116,31 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     end
   end
 
-  defp search_category(term, nil), do: fetch_attrs([type: "search", search: term], nil, 5_000)
+  defp search_category(term, nil), do: fetch_attrs([type: "search", search: term], nil)
 
   defp search_category(term, cid) do
     params = [type: "search", search: term, cid: cid]
-    fetch_attrs(params, Map.fetch!(@category_ids, cid), 5_000)
+    fetch_attrs(params, Map.fetch!(@category_ids, cid))
   end
 
   # `category` stands in for an item that names none, which only an answer
   # already narrowed to one category can vouch for.
-  defp fetch_attrs(params, category \\ nil, receive_timeout \\ 15_000) do
-    with {:ok, body} <- fetch(params, receive_timeout) do
+  defp fetch_attrs(params, category) do
+    with {:ok, body} <- fetch(params) do
       {:ok, Rss.attrs(body, @source_name, &torrent_attrs(&1, &2, category))}
     end
   end
 
-  defp fetch(params, receive_timeout) do
-    # No retries: the crawl comes back in five minutes and a search is a
-    # one-shot question, so retrying only holds a process open while a mirror
-    # is down.
+  defp fetch(params) do
+    # No retries: a search is a one-shot question, so retrying only holds a
+    # process open while a mirror is down.
     options =
       Application.get_env(:magnetissimo, __MODULE__, []) ++
         [
           params: params,
           headers: [user_agent: @user_agent],
           retry: false,
-          receive_timeout: receive_timeout
+          receive_timeout: 5_000
         ]
 
     case Req.get(@base_url <> @feed_path, options) do

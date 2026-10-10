@@ -3,9 +3,9 @@ defmodule Magnetissimo.Crawlers do
   Runs crawlers and indexes what they return.
 
   Every crawler implements `Magnetissimo.Crawlers.Crawler`: it fetches and
-  parses, and this module writes. Both entry points never raise on a site
-  being down or answering badly, because the scheduler and the source search
-  that call them would otherwise turn an outage into a crash loop.
+  parses, and this module writes. `search/2` never raises on a site being
+  down or answering badly; it says why, for `Magnetissimo.SourceSearch` to
+  show.
   """
 
   require Logger
@@ -24,31 +24,6 @@ defmodule Magnetissimo.Crawlers do
   def all, do: @crawlers
 
   @doc """
-  Fetches the newest torrents from `crawler`'s site and indexes them.
-
-  A crawl the site answered is recorded as the source's last crawl, even when
-  it brought nothing new. A failed one is not, so a source that keeps failing
-  shows its last crawl getting older.
-  """
-  @spec crawl_latest(module()) :: :ok
-  def crawl_latest(crawler) do
-    source = crawler.source_name()
-
-    case crawler.latest() do
-      {:ok, attrs} ->
-        %{inserted: inserted, ids: ids} = index(source, attrs)
-        :ok = Torrents.mark_source_crawled(source)
-
-        Logger.info(
-          "[#{source}] indexed #{inserted} new torrents, refreshed #{length(ids) - inserted}"
-        )
-
-      {:error, reason} ->
-        Logger.error("[#{source}] crawl failed: #{inspect(reason)}")
-    end
-  end
-
-  @doc """
   Asks `crawler`'s site to search for `term`, indexes the hits and records
   them as matches for the term.
 
@@ -62,7 +37,7 @@ defmodule Magnetissimo.Crawlers do
 
     case crawler.search(term) do
       {:ok, attrs} ->
-        %{inserted: inserted, ids: ids} = index(source, attrs, search_term: term)
+        %{inserted: inserted, ids: ids} = index(source, attrs, term)
 
         Logger.info("[#{source}] search #{inspect(term)}: #{length(ids)} found, #{inserted} new")
         {:ok, %{inserted: inserted, found: length(ids)}}
@@ -73,8 +48,8 @@ defmodule Magnetissimo.Crawlers do
     end
   end
 
-  defp index(source, attrs, opts \\ []) do
-    result = Torrents.index_torrents(attrs, opts)
+  defp index(source, attrs, term) do
+    result = Torrents.index_torrents(attrs, search_term: term)
 
     # Attrs that fail validation mean the crawler is building them wrong, and
     # the torrent is being dropped silently unless it is logged.

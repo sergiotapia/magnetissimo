@@ -16,9 +16,13 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
   end
 
   test "indexes every item, converting the offset to UTC and downcasing the hash" do
-    stub(TorrentDownloadsFixtures.rss_body())
+    # Every category's answer carries the same two items, which index once.
+    Req.Test.stub(TorrentDownloads, fn conn ->
+      assert %{"type" => "search"} = Plug.Conn.fetch_query_params(conn).query_params
+      Plug.Conn.send_resp(conn, 200, TorrentDownloadsFixtures.rss_body())
+    end)
 
-    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
+    assert {:ok, %{inserted: 2, found: 2}} = Crawlers.search(TorrentDownloads, "Fixture")
 
     assert [newest, older] = Torrents.list_latest_torrents()
 
@@ -56,37 +60,16 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
       )
 
     stub(body)
-    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
+    assert {:ok, %{inserted: 2}} = Crawlers.search(TorrentDownloads, "Fixture")
 
     assert [_newest, older] = Torrents.list_latest_torrents()
     assert older.name == "Fire & Ice &lt;3 é - VM 18 [FLAC 24-44]"
   end
 
-  test "crawling the same feed again adds nothing" do
-    stub(TorrentDownloadsFixtures.rss_body())
-
-    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
-    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
-
-    assert Torrents.count_torrents() == 2
-  end
-
   test "an item with no usable date is skipped, not crashed on" do
     stub(TorrentDownloadsFixtures.malformed_rss_body())
 
-    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
-    assert Torrents.count_torrents() == 0
-  end
-
-  test "a failing site is logged, not raised" do
-    Req.Test.stub(TorrentDownloads, fn conn -> Plug.Conn.send_resp(conn, 503, "unavailable") end)
-
-    log =
-      ExUnit.CaptureLog.capture_log(fn ->
-        assert :ok = Crawlers.crawl_latest(TorrentDownloads)
-      end)
-
-    assert log =~ "crawl failed"
+    assert {:ok, %{found: 0}} = Crawlers.search(TorrentDownloads, "Fixture")
     assert Torrents.count_torrents() == 0
   end
 
@@ -169,7 +152,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
       )
 
     stub(body)
-    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
+    assert {:ok, %{inserted: 2}} = Crawlers.search(TorrentDownloads, "Fixture")
 
     assert [newest, _older] = Torrents.list_latest_torrents()
     assert newest.seeders == 0

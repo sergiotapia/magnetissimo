@@ -22,9 +22,6 @@ defmodule Magnetissimo.FastCrawler do
   def categories, do: Categories.mapping!(source_name(), %{}, fallback: "Other")
 
   @impl true
-  def latest, do: {:ok, []}
-
-  @impl true
   def search(term) do
     report(term)
 
