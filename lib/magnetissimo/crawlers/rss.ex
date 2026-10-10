@@ -3,17 +3,14 @@ defmodule Magnetissimo.Crawlers.Rss do
   The mechanics every RSS-driven crawl shares.
 
   Nyaa and TorrentDownloads both publish a feed of `<item>` entries and both
-  file one torrent per entry, so pulling the items out, reading a plain field,
-  parsing an integer, and logging what a crawl inserted or skipped are the same
-  on both. What differs per site — field names, size and date formats, magnet
-  construction — stays in that site's own module, which passes only its
-  item-to-attrs function in here.
+  file one torrent per entry, so pulling the items out, reading a plain field
+  and parsing an integer are the same on both. What differs per site — field
+  names, size and date formats, magnet construction — stays in that site's own
+  module, which passes only its item-to-attrs function in here.
 
   The fields are read with fixed patterns rather than an XML parser, because
   item titles carry arbitrary UTF-8 and xmerl rejects that input.
   """
-
-  require Logger
 
   alias Magnetissimo.Torrents
 
@@ -50,49 +47,17 @@ defmodule Magnetissimo.Crawlers.Rss do
   end
 
   @doc """
-  Inserts one torrent per item, building attrs with `attrs_fun.(item, source_id)`.
+  Builds attrs for every item with `attrs_fun.(item, source_id)`.
 
-  `attrs_fun` returns `nil` for an item that cannot be filed, which is skipped
-  and not counted. Returns `{inserted, skipped}`, where a skipped torrent is one
-  the source republished or one our own attrs were wrong for.
+  `attrs_fun` returns `nil` for an item that cannot be filed, which is left
+  out.
   """
-  @spec index(String.t(), String.t(), (String.t(), integer() -> map() | nil)) ::
-          {non_neg_integer(), non_neg_integer()}
-  def index(body, source_name, attrs_fun) do
+  @spec attrs(String.t(), String.t(), (String.t(), integer() -> map() | nil)) :: [map()]
+  def attrs(body, source_name, attrs_fun) do
     source_id = Torrents.get_source_by_name!(source_name).id
 
     body
     |> items()
-    |> Enum.reduce({0, 0}, fn item, totals ->
-      add(totals, insert(item, source_name, source_id, attrs_fun))
-    end)
-  end
-
-  defp insert(item, source_name, source_id, attrs_fun) do
-    case attrs_fun.(item, source_id) do
-      nil -> {0, 0}
-      attrs -> insert_torrent(attrs, source_name)
-    end
-  end
-
-  defp insert_torrent(attrs, source_name) do
-    case Torrents.create_torrent(attrs) do
-      {:ok, _torrent} ->
-        {1, 0}
-
-      {:error, changeset} ->
-        # A source republishing a torrent it already listed is the normal case,
-        # not a fault. Anything else means our own attrs are wrong and the
-        # torrent is being dropped silently, which should be visible.
-        unless Keyword.has_key?(changeset.errors, :magnet_hash) do
-          Logger.warning("[#{source_name}] skipped #{attrs.name}: #{inspect(changeset.errors)}")
-        end
-
-        {0, 1}
-    end
-  end
-
-  defp add({inserted, skipped}, {more_inserted, more_skipped}) do
-    {inserted + more_inserted, skipped + more_skipped}
+    |> Enum.flat_map(&List.wrap(attrs_fun.(&1, source_id)))
   end
 end

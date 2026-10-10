@@ -3,6 +3,7 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   # transaction for the whole test.
   use Magnetissimo.DataCase, async: false
 
+  alias Magnetissimo.Crawlers
   alias Magnetissimo.Crawlers.Nyaa
   alias Magnetissimo.Crawlers.Nyaa.Feed
   alias Magnetissimo.Crawlers.Sukebei
@@ -18,7 +19,7 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   test "indexes every item, decoding entities and downcasing the hash" do
     stub(NyaaFixtures.rss_body())
 
-    assert :ok = Nyaa.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Nyaa)
 
     assert [newest, older] = Torrents.list_latest_torrents()
 
@@ -47,8 +48,8 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   test "crawling the same feed again adds nothing" do
     stub(NyaaFixtures.rss_body())
 
-    assert :ok = Nyaa.crawl_latest()
-    assert :ok = Nyaa.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Nyaa)
+    assert :ok = Crawlers.crawl_latest(Nyaa)
 
     assert Torrents.count_torrents() == 2
   end
@@ -56,7 +57,7 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   test "sukebei files items under its own source, category and tracker" do
     stub(NyaaFixtures.sukebei_rss_body())
 
-    assert :ok = Sukebei.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Sukebei)
 
     assert [torrent] = Torrents.list_latest_torrents()
     assert torrent.source.name == "Sukebei"
@@ -67,14 +68,14 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   test "an item with no usable date or size is skipped, not crashed on" do
     stub(NyaaFixtures.malformed_rss_body())
 
-    assert :ok = Nyaa.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Nyaa)
     assert Torrents.count_torrents() == 0
   end
 
   test "a file small enough to be sized in bytes is indexed, not dropped" do
     stub(NyaaFixtures.bytes_size_rss_body())
 
-    assert :ok = Sukebei.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Sukebei)
 
     assert [torrent] = Torrents.list_latest_torrents()
     assert torrent.name == "Angel Club 06-12.zip"
@@ -85,36 +86,37 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   test "a failing site is logged, not raised" do
     Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 503, "unavailable") end)
 
-    log = ExUnit.CaptureLog.capture_log(fn -> assert :ok = Nyaa.crawl_latest() end)
+    log = ExUnit.CaptureLog.capture_log(fn -> assert :ok = Crawlers.crawl_latest(Nyaa) end)
 
     assert log =~ "crawl failed"
     assert Torrents.count_torrents() == 0
   end
 
-  test "search asks the feed for the term and reports hits as they land" do
+  test "search asks the feed for the term and makes its hits findable by it" do
     Req.Test.stub(Feed, fn conn ->
       assert conn.query_string =~ "q=Fixture+Search"
       Plug.Conn.send_resp(conn, 200, NyaaFixtures.rss_body())
     end)
 
-    assert :ok = Nyaa.search("Fixture Search", notify: self())
-    assert_received {:source_search, "Fixture Search", :updated}
-    assert_received {:source_search, "Fixture Search", :done}
+    assert {:ok, %{inserted: 2, found: 2}} = Crawlers.search(Nyaa, "Fixture Search")
     assert Torrents.count_torrents() == 2
 
-    # The same term again adds nothing, so it only reports done.
-    assert :ok = Nyaa.search("Fixture Search", notify: self())
-    refute_received {:source_search, _, :updated}
-    assert_received {:source_search, _, :done}
+    # Neither name says "fixture search"; the site matched them, so we do too.
+    assert Torrents.count_search_torrents("fixture search") == 2
+
+    # The same term again finds the same torrents and adds nothing.
+    assert {:ok, %{inserted: 0, found: 2}} = Crawlers.search(Nyaa, "Fixture Search")
   end
 
-  test "a search that fails still reports done, so no caller waits forever" do
+  test "a search that fails says why" do
     Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 500, "nope") end)
 
-    assert :ok = Nyaa.search("Anything", notify: self())
+    log =
+      ExUnit.CaptureLog.capture_log(fn ->
+        assert {:error, {:http_status, 500}} = Crawlers.search(Nyaa, "Anything")
+      end)
 
-    refute_received {:source_search, _, :updated}
-    assert_received {:source_search, "Anything", :done}
+    assert log =~ "failed"
   end
 
   defp stub(body) do

@@ -4,6 +4,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   # the same time however long the busy timeout is.
   use Magnetissimo.DataCase, async: false
 
+  alias Magnetissimo.Crawlers
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Torrents
   alias Magnetissimo.TorrentsFixtures
@@ -17,7 +18,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   test "indexes one torrent per quality variant, with the hashes downcased" do
     stub_api()
 
-    assert :ok = Yts.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Yts)
 
     assert [first, second] = Torrents.list_latest_torrents()
 
@@ -43,8 +44,8 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   test "crawling the same page again adds nothing" do
     stub_api()
 
-    assert :ok = Yts.crawl_latest()
-    assert :ok = Yts.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Yts)
+    assert :ok = Crawlers.crawl_latest(Yts)
 
     assert Torrents.count_torrents() == 2
   end
@@ -64,56 +65,57 @@ defmodule Magnetissimo.Crawlers.YtsTest do
       })
     end)
 
-    assert :ok = Yts.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(Yts)
     assert Torrents.count_torrents() == 0
   end
 
   test "a failing API is logged, not raised" do
     Req.Test.stub(Yts, fn conn -> Plug.Conn.send_resp(conn, 503, "unavailable") end)
 
-    log = ExUnit.CaptureLog.capture_log(fn -> assert :ok = Yts.crawl_latest() end)
+    log = ExUnit.CaptureLog.capture_log(fn -> assert :ok = Crawlers.crawl_latest(Yts) end)
 
     assert log =~ "crawl failed"
     assert Torrents.count_torrents() == 0
   end
 
-  test "search indexes the API's hits and reports a movie as it lands" do
+  test "search indexes the API's hits and makes them findable by the term" do
     Req.Test.stub(Yts, fn conn ->
       assert conn.query_string =~ "query_term=Fall+2+Deadpoint"
       Req.Test.json(conn, YtsFixtures.api_response())
     end)
 
-    assert :ok = Yts.search("Fall 2 Deadpoint", notify: self())
-
-    assert_received {:source_search, "Fall 2 Deadpoint", :updated}
-    assert_received {:source_search, "Fall 2 Deadpoint", :done}
+    assert {:ok, %{inserted: 2, found: 2}} = Crawlers.search(Yts, "Fall 2 Deadpoint")
 
     assert [first, second] = Torrents.list_latest_torrents()
     assert first.name == "Fixture Movie (2024)"
     assert first.magnet_hash == String.downcase(YtsFixtures.hash_1080p())
     assert second.magnet_hash == String.downcase(YtsFixtures.hash_720p())
+
+    assert Torrents.count_search_torrents("fall 2 deadpoint") == 2
   end
 
-  test "search reports no update for a term that is already indexed" do
+  test "search refreshes the swarm of a torrent already indexed" do
     Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
+    assert {:ok, %{inserted: 2}} = Crawlers.search(Yts, "Fixture Movie")
 
-    assert :ok = Yts.search("Fixture Movie", notify: self())
-    assert_received {:source_search, _, :updated}
-    assert_received {:source_search, _, :done}
+    fresher =
+      update_in(YtsFixtures.api_response(), ["data", "movies", Access.all(), "torrents"], fn ts ->
+        Enum.map(ts, &Map.merge(&1, %{"seeds" => 999, "peers" => 7}))
+      end)
 
-    assert :ok = Yts.search("Fixture Movie", notify: self())
+    Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, fresher) end)
+    assert {:ok, %{inserted: 0, found: 2}} = Crawlers.search(Yts, "Fixture Movie")
 
-    refute_received {:source_search, _, :updated}
-    assert_received {:source_search, _, :done}
+    assert Enum.map(Torrents.list_latest_torrents(), &{&1.seeders, &1.leechers}) ==
+             [{999, 7}, {999, 7}]
   end
 
-  test "a search that fails still reports done, so no caller waits forever" do
+  test "a search that fails says why" do
     Req.Test.stub(Yts, fn conn -> Plug.Conn.send_resp(conn, 500, "nope") end)
 
-    assert :ok = Yts.search("Fall 2 Deadpoint", notify: self())
-
-    refute_received {:source_search, _, :updated}
-    assert_received {:source_search, "Fall 2 Deadpoint", :done}
+    ExUnit.CaptureLog.capture_log(fn ->
+      assert {:error, _reason} = Crawlers.search(Yts, "Fall 2 Deadpoint")
+    end)
   end
 
   defp stub_api do

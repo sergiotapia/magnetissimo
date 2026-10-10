@@ -7,33 +7,28 @@ defmodule Magnetissimo.Application do
 
   @impl true
   def start(_type, _args) do
-    children = [
-      MagnetissimoWeb.Telemetry,
-      Magnetissimo.Repo,
-      {Ecto.Migrator,
-       repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
-      {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
-      {Phoenix.PubSub, name: Magnetissimo.PubSub},
-      # One scheduler per crawl source. Add the next source to this list.
-      # The scheduler module is the same for each, so each needs its own id.
-      Supervisor.child_spec({Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Yts},
-        id: :yts_scheduler
-      ),
-      Supervisor.child_spec(
-        {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Nyaa},
-        id: :nyaa_scheduler
-      ),
-      Supervisor.child_spec(
-        {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.Sukebei},
-        id: :sukebei_scheduler
-      ),
-      Supervisor.child_spec(
-        {Magnetissimo.Crawlers.Scheduler, crawler: Magnetissimo.Crawlers.TorrentDownloads},
-        id: :torrent_downloads_scheduler
-      ),
-      # Start to serve requests, typically the last entry
-      MagnetissimoWeb.Endpoint
-    ]
+    # One scheduler per crawl source. The scheduler module is the same for
+    # each, so each needs its own id.
+    schedulers =
+      for crawler <- Magnetissimo.Crawlers.all() do
+        Supervisor.child_spec({Magnetissimo.Crawlers.Scheduler, crawler: crawler},
+          id: {Magnetissimo.Crawlers.Scheduler, crawler}
+        )
+      end
+
+    # Flattened, so the schedulers sit in the middle of the list.
+    children =
+      List.flatten([
+        MagnetissimoWeb.Telemetry,
+        Magnetissimo.Repo,
+        {Ecto.Migrator,
+         repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
+        {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
+        {Phoenix.PubSub, name: Magnetissimo.PubSub},
+        schedulers,
+        # Start to serve requests, typically the last entry
+        MagnetissimoWeb.Endpoint
+      ])
 
     # See https://elixir.hexdocs.pm/Supervisor.html
     # for other strategies and supported options.

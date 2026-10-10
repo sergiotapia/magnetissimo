@@ -16,8 +16,6 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   XML parser: item titles carry arbitrary UTF-8, and xmerl rejects that input.
   """
 
-  require Logger
-
   alias Magnetissimo.Crawlers.Rss
   alias Magnetissimo.Torrents
 
@@ -44,70 +42,28 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   }
 
   @doc """
-  Crawls the feed in `site` and indexes every item.
+  Fetches the newest items on the site in `site`.
 
   `site` needs `:source` (the `sources.name` row), `:rss_url` and `:tracker`.
-  Never raises: a dead site, a failed request or an item that is not the shape
-  we expect is logged or skipped, because the scheduler that calls this would
-  otherwise turn a site outage into a restart loop.
   """
-  @spec crawl_latest(keyword()) :: :ok
-  def crawl_latest(site) do
-    case fetch(site[:rss_url]) do
-      {:ok, body} ->
-        {inserted, known} = index(body, site)
-
-        Logger.info(
-          "[#{site[:source]}] indexed #{inserted} new torrents, ignored #{known} already known"
-        )
-
-      {:error, reason} ->
-        Logger.error("[#{site[:source]}] crawl failed: #{inspect(reason)}")
-    end
-  end
+  @spec latest(keyword()) :: {:ok, [map()]} | {:error, term()}
+  def latest(site), do: fetch_attrs(site[:rss_url], site)
 
   @doc """
-  Looks one term up on the site and indexes whatever comes back.
+  Looks one term up on the site.
 
   The same feed serves search: a `q` parameter filters it server-side, so no
   HTML is scraped for this. That keeps the two Nyaa crawlers to one parser.
-
-  `opts[:notify]` is a pid that receives `{:source_search, term, :updated}`
-  when the term added something and `{:source_search, term, :done}` once the
-  term is finished, so a caller can show results as they land. A term that
-  matched only torrents already indexed sends no `:updated`. Never raises.
   """
-  @spec search(keyword(), String.t(), keyword()) :: :ok
-  def search(site, term, opts \\ []) do
-    notify = Keyword.get(opts, :notify)
-    url = site[:rss_url] <> "&q=" <> URI.encode_www_form(term)
-
-    case fetch(url) do
-      {:ok, body} ->
-        {inserted, known} = index(body, site)
-
-        if inserted > 0, do: notify(notify, term, :updated)
-
-        Logger.info(
-          "[#{site[:source]}] search #{inspect(term)}: #{inserted} new torrents, " <>
-            "#{known} already known"
-        )
-
-      {:error, reason} ->
-        Logger.error("[#{site[:source]}] search #{inspect(term)} failed: #{inspect(reason)}")
-    end
-
-    # Sent on every path, so a caller waiting on this term is never left
-    # waiting because the site was down or the answer was wholly duplicate.
-    notify(notify, term, :done)
+  @spec search(keyword(), String.t()) :: {:ok, [map()]} | {:error, term()}
+  def search(site, term) do
+    fetch_attrs(site[:rss_url] <> "&q=" <> URI.encode_www_form(term), site)
   end
 
-  defp notify(nil, _term, _status), do: :ok
-
-  defp notify(pid, term, status) do
-    # `send/2` returns the message; the public functions promise `:ok`.
-    _ = send(pid, {:source_search, term, status})
-    :ok
+  defp fetch_attrs(url, site) do
+    with {:ok, body} <- fetch(url) do
+      {:ok, Rss.attrs(body, site[:source], &torrent_attrs(&1, site, &2))}
+    end
   end
 
   defp fetch(url) do
@@ -122,10 +78,6 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
       {:ok, %{status: status}} -> {:error, {:http_status, status}}
       {:error, reason} -> {:error, reason}
     end
-  end
-
-  defp index(body, site) do
-    Rss.index(body, site[:source], fn item, source_id -> torrent_attrs(item, site, source_id) end)
   end
 
   # An item missing a field we cannot invent, or carrying a size or date we

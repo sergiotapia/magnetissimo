@@ -10,13 +10,8 @@ defmodule MagnetissimoWeb.HomeLive do
   """
   use MagnetissimoWeb, :live_view
 
-  alias Magnetissimo.Crawlers.Nyaa
-  alias Magnetissimo.Crawlers.Sukebei
-  alias Magnetissimo.Crawlers.TorrentDownloads
-  alias Magnetissimo.Crawlers.Yts
+  alias Magnetissimo.Crawlers
   alias Magnetissimo.Torrents
-
-  @source_crawlers [Yts, Nyaa, Sukebei, TorrentDownloads]
 
   @impl true
   def mount(_params, _session, socket) do
@@ -167,13 +162,19 @@ defmodule MagnetissimoWeb.HomeLive do
 
       {:ok, pid} =
         Task.start(fn ->
-          Enum.each(@source_crawlers, & &1.search(q, notify: parent))
+          Enum.each(Crawlers.all(), &notify_found(Crawlers.search(&1, q), parent, q))
         end)
 
       Process.monitor(pid)
       assign(socket, searching: q, search_task: pid)
     end
   end
+
+  defp notify_found({:ok, %{found: found}}, parent, q) when found > 0 do
+    send(parent, {:source_search, q, :updated})
+  end
+
+  defp notify_found(_result, _parent, _q), do: :ok
 
   defp clear_search(socket), do: assign(socket, searching: nil, search_task: nil)
 

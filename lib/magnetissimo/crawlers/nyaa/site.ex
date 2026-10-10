@@ -9,17 +9,22 @@ defmodule Magnetissimo.Crawlers.Nyaa.Site do
 
   defmacro __using__(site) do
     quote location: :keep, bind_quoted: [site: site] do
+      @behaviour Magnetissimo.Crawlers.Crawler
+
       alias Magnetissimo.Crawlers.Nyaa.Feed
 
       @site site
 
-      @doc "Fetches the newest items and indexes them."
-      @spec crawl_latest() :: :ok
-      def crawl_latest, do: Feed.crawl_latest(@site)
+      @impl true
+      def source_name, do: @site[:source]
 
-      @doc "Looks one term up on the site and indexes whatever comes back."
-      @spec search(String.t(), keyword()) :: :ok
-      def search(term, opts \\ []), do: Feed.search(@site, term, opts)
+      @doc "Fetches the newest items."
+      @impl true
+      def latest, do: Feed.latest(@site)
+
+      @doc "Looks one term up on the site."
+      @impl true
+      def search(term), do: Feed.search(@site, term)
     end
   end
 end

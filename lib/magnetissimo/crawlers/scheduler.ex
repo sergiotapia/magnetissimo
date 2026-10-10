@@ -9,10 +9,12 @@ defmodule Magnetissimo.Crawlers.Scheduler do
 
   use GenServer
 
+  alias Magnetissimo.Crawlers
+
   @interval :timer.minutes(5)
 
   @doc """
-  Starts a scheduler for `opts[:crawler]`, a module exporting `crawl_latest/0`.
+  Starts a scheduler for `opts[:crawler]`, a `Magnetissimo.Crawlers.Crawler`.
 
   `opts[:interval]` overrides the five minute default, in milliseconds.
   """
@@ -30,7 +32,7 @@ defmodule Magnetissimo.Crawlers.Scheduler do
 
   @impl true
   def handle_info(:crawl, state) do
-    state.crawler.crawl_latest()
+    :ok = Crawlers.crawl_latest(state.crawler)
     schedule(state.interval)
 
     {:noreply, state}

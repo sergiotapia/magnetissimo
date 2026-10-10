@@ -17,7 +17,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   from the shared public tracker list, as the YTS crawler does.
   """
 
-  require Logger
+  @behaviour Magnetissimo.Crawlers.Crawler
 
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Crawlers.Rss
@@ -30,74 +30,26 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
 
   @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
 
-  @doc """
-  Fetches today's newest torrents and indexes them.
+  @impl true
+  def source_name, do: @source_name
 
-  Never raises. A dead site, a failed request or an item that is not the shape
-  we expect is logged or skipped, because the scheduler that calls this would
-  otherwise turn a site outage into a restart loop.
-  """
-  @spec crawl_latest() :: :ok
-  def crawl_latest do
-    case fetch(type: "today") do
-      {:ok, body} ->
-        {inserted, known} = index(body)
-
-        Logger.info(
-          "[#{@source_name}] indexed #{inserted} new torrents, ignored #{known} already known"
-        )
-
-      {:error, reason} ->
-        Logger.error("[#{@source_name}] crawl failed: #{inspect(reason)}")
-    end
-  end
+  @doc "Fetches today's newest torrents."
+  @impl true
+  def latest, do: fetch_attrs(type: "today")
 
   @doc """
-  Looks one term up on the feed and indexes whatever comes back.
-
-  The index only ever holds the newest page of the site, so anything older has
-  never been crawled and a local search cannot find it. This is how a search
-  reaches the rest of the catalogue without crawling it: hits are written to
-  the index and are ordinary, searchable results from then on.
+  Looks one term up on the feed.
 
   The feed has no category for a search hit, so those are filed under `"Other"`
   rather than guessed at from the search page's icons.
-
-  `opts[:notify]` is a pid that receives `{:source_search, term, :updated}` when
-  the term added something and `{:source_search, term, :done}` once the term is
-  finished, so a caller can show results as they land. A term that matched only
-  torrents already indexed sends no `:updated`. Never raises.
   """
-  @spec search(String.t(), keyword()) :: :ok
-  def search(term, opts \\ []) do
-    notify = Keyword.get(opts, :notify)
+  @impl true
+  def search(term), do: fetch_attrs(type: "search", search: term)
 
-    case fetch(type: "search", search: term) do
-      {:ok, body} ->
-        {inserted, known} = index(body)
-
-        if inserted > 0, do: notify(notify, term, :updated)
-
-        Logger.info(
-          "[#{@source_name}] search #{inspect(term)}: #{inserted} new torrents, " <>
-            "#{known} already known"
-        )
-
-      {:error, reason} ->
-        Logger.error("[#{@source_name}] search #{inspect(term)} failed: #{inspect(reason)}")
+  defp fetch_attrs(params) do
+    with {:ok, body} <- fetch(params) do
+      {:ok, Rss.attrs(body, @source_name, &torrent_attrs/2)}
     end
-
-    # Sent on every path, so a caller waiting on this term is never left
-    # waiting because the site was down or the answer was wholly duplicate.
-    notify(notify, term, :done)
-  end
-
-  defp notify(nil, _term, _status), do: :ok
-
-  defp notify(pid, term, status) do
-    # `send/2` returns the message; the public functions promise `:ok`.
-    _ = send(pid, {:source_search, term, status})
-    :ok
   end
 
   defp fetch(params) do
@@ -115,10 +67,6 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     end
   end
 
-  defp index(body) do
-    Rss.index(body, @source_name, &torrent_attrs/2)
-  end
-
   # An item missing a field we cannot invent, or carrying a date we cannot
   # parse, is dropped rather than crashing the crawl. The feed's link is
   # relative to the site root, and the site redirects to `www`.
@@ -133,8 +81,8 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
         name: name,
         canonical_url: @base_url <> path,
         published_at: published_at,
-        leechers: Rss.integer_field(item, "leechers"),
-        seeders: Rss.integer_field(item, "seeders"),
+        leechers: swarm(item, "leechers"),
+        seeders: swarm(item, "seeders"),
         size_in_bytes: Rss.integer_field(item, "size"),
         magnet_hash: hash,
         magnet_url: Magnet.url(hash, name),
@@ -143,6 +91,17 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
       }
     else
       _ -> nil
+    end
+  end
+
+  # The feed reports a swarm it does not know as 2^24 - 1 rather than leaving
+  # it out, and taken at face value that is the best-seeded torrent there is.
+  @unknown_swarm 16_777_215
+
+  defp swarm(item, field) do
+    case Rss.integer_field(item, field) do
+      @unknown_swarm -> 0
+      count -> count
     end
   end
 

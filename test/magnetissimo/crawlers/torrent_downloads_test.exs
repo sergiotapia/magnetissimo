@@ -3,6 +3,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
   # transaction for the whole test.
   use Magnetissimo.DataCase, async: false
 
+  alias Magnetissimo.Crawlers
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.TorrentDownloadsFixtures
   alias Magnetissimo.Torrents
@@ -16,7 +17,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
   test "indexes every item, converting the offset to UTC and downcasing the hash" do
     stub(TorrentDownloadsFixtures.rss_body())
 
-    assert :ok = TorrentDownloads.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
 
     assert [newest, older] = Torrents.list_latest_torrents()
 
@@ -48,8 +49,8 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
   test "crawling the same feed again adds nothing" do
     stub(TorrentDownloadsFixtures.rss_body())
 
-    assert :ok = TorrentDownloads.crawl_latest()
-    assert :ok = TorrentDownloads.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
+    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
 
     assert Torrents.count_torrents() == 2
   end
@@ -57,14 +58,17 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
   test "an item with no usable date is skipped, not crashed on" do
     stub(TorrentDownloadsFixtures.malformed_rss_body())
 
-    assert :ok = TorrentDownloads.crawl_latest()
+    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
     assert Torrents.count_torrents() == 0
   end
 
   test "a failing site is logged, not raised" do
     Req.Test.stub(TorrentDownloads, fn conn -> Plug.Conn.send_resp(conn, 503, "unavailable") end)
 
-    log = ExUnit.CaptureLog.capture_log(fn -> assert :ok = TorrentDownloads.crawl_latest() end)
+    log =
+      ExUnit.CaptureLog.capture_log(fn ->
+        assert :ok = Crawlers.crawl_latest(TorrentDownloads)
+      end)
 
     assert log =~ "crawl failed"
     assert Torrents.count_torrents() == 0
@@ -77,26 +81,36 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
       Plug.Conn.send_resp(conn, 200, TorrentDownloadsFixtures.search_rss_body())
     end)
 
-    assert :ok = TorrentDownloads.search("Fixture Search", notify: self())
-    assert_received {:source_search, "Fixture Search", :updated}
-    assert_received {:source_search, "Fixture Search", :done}
+    assert {:ok, %{inserted: 1, found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
 
     assert [torrent] = Torrents.list_latest_torrents()
     assert torrent.category.name == "Other"
 
-    # The same term again adds nothing, so it only reports done.
-    assert :ok = TorrentDownloads.search("Fixture Search", notify: self())
-    refute_received {:source_search, _, :updated}
-    assert_received {:source_search, _, :done}
+    # The same term again finds the same torrent and adds nothing.
+    assert {:ok, %{inserted: 0, found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
   end
 
-  test "a search that fails still reports done, so no caller waits forever" do
+  test "a swarm the feed does not know is indexed as none, not as the biggest" do
+    body =
+      String.replace(
+        TorrentDownloadsFixtures.rss_body(),
+        "<seeders>6</seeders>",
+        "<seeders>16777215</seeders>"
+      )
+
+    stub(body)
+    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
+
+    assert [newest, _older] = Torrents.list_latest_torrents()
+    assert newest.seeders == 0
+  end
+
+  test "a search that fails says why" do
     Req.Test.stub(TorrentDownloads, fn conn -> Plug.Conn.send_resp(conn, 500, "nope") end)
 
-    assert :ok = TorrentDownloads.search("Anything", notify: self())
-
-    refute_received {:source_search, _, :updated}
-    assert_received {:source_search, "Anything", :done}
+    ExUnit.CaptureLog.capture_log(fn ->
+      assert {:error, {:http_status, 500}} = Crawlers.search(TorrentDownloads, "Anything")
+    end)
   end
 
   defp stub(body) do

@@ -184,6 +184,82 @@ defmodule Magnetissimo.Torrents do
     |> Repo.insert()
   end
 
+  @doc """
+  Indexes a batch of torrents as one source handed them back, in one
+  transaction.
+
+  A torrent not yet indexed is inserted. One already indexed, matched by
+  `magnet_hash`, keeps everything it has except its swarm: `seeders` and
+  `leechers` take the fresh numbers, so a torrent a search or crawl sees again
+  stops showing the swarm it had on the day it was first found.
+
+  Attrs that fail `Torrent.changeset/2` are not indexed; they come back in
+  `:rejected` with their errors, for the caller to log.
+
+  Returns `%{ids: ids, inserted: count, rejected: [{attrs, errors}]}`, where
+  `ids` holds every valid torrent in the batch, new or already indexed, in the
+  order given.
+  """
+  def index_torrents(attrs_list) do
+    {valid, rejected} =
+      Enum.reduce(attrs_list, {[], []}, fn attrs, {valid, rejected} ->
+        case Torrent.changeset(%Torrent{}, attrs) do
+          %{valid?: true} = changeset -> {[row(changeset) | valid], rejected}
+          changeset -> {valid, [{attrs, changeset.errors} | rejected]}
+        end
+      end)
+
+    # One statement cannot upsert the same row twice, so a batch that lists a
+    # hash twice keeps the first.
+    rows = valid |> Enum.reverse() |> Enum.uniq_by(& &1.magnet_hash)
+    {:ok, {ids, inserted}} = Repo.transact(fn -> {:ok, upsert(rows)} end)
+
+    %{ids: ids, inserted: inserted, rejected: Enum.reverse(rejected)}
+  end
+
+  @indexed_fields [
+    :name,
+    :description,
+    :canonical_url,
+    :published_at,
+    :leechers,
+    :seeders,
+    :size_in_bytes,
+    :magnet_hash,
+    :magnet_url,
+    :category_id,
+    :source_id
+  ]
+
+  defp row(changeset) do
+    now = DateTime.utc_now()
+
+    changeset
+    |> Ecto.Changeset.apply_changes()
+    |> Map.take(@indexed_fields)
+    # A source that sends no swarm numbers sends nil, and the columns are NOT NULL.
+    |> Map.update!(:seeders, &(&1 || 0))
+    |> Map.update!(:leechers, &(&1 || 0))
+    |> Map.merge(%{inserted_at: now, updated_at: now})
+  end
+
+  defp upsert([]), do: {[], 0}
+
+  defp upsert(rows) do
+    hashes = Enum.map(rows, & &1.magnet_hash)
+    known = Repo.all(from t in Torrent, where: t.magnet_hash in ^hashes, select: t.magnet_hash)
+
+    {_count, returned} =
+      Repo.insert_all(Torrent, rows,
+        on_conflict: {:replace, [:seeders, :leechers, :updated_at]},
+        conflict_target: :magnet_hash,
+        returning: [:id, :magnet_hash]
+      )
+
+    id_by_hash = Map.new(returned, &{&1.magnet_hash, &1.id})
+    {Enum.map(hashes, &Map.fetch!(id_by_hash, &1)), length(hashes) - length(known)}
+  end
+
   @doc "Returns `{source_name, torrent_count}` for every source."
   def count_torrents_by_source do
     Repo.all(
