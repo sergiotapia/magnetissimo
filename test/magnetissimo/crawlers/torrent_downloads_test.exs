@@ -90,20 +90,74 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
     assert Torrents.count_torrents() == 0
   end
 
-  test "search asks the feed for the term and files the uncategorised hit under Other" do
+  test "search asks once per category, and a hit keeps its categorised copy" do
+    test = self()
+
     Req.Test.stub(TorrentDownloads, fn conn ->
-      assert conn.query_string =~ "type=search"
-      assert conn.query_string =~ "search=Fixture+Search"
-      Plug.Conn.send_resp(conn, 200, TorrentDownloadsFixtures.search_rss_body())
+      params = Plug.Conn.fetch_query_params(conn).query_params
+      assert %{"type" => "search", "search" => "Fixture Search"} = params
+      send(test, {:asked, params["cid"]})
+
+      # The unnarrowed search leaves the hit's category out; the one narrowed
+      # to Software names it.
+      body =
+        case params["cid"] do
+          nil -> TorrentDownloadsFixtures.search_rss_body()
+          "7" -> categorised(TorrentDownloadsFixtures.search_rss_body(), "Software")
+          _other -> "<rss><channel></channel></rss>"
+        end
+
+      Plug.Conn.send_resp(conn, 200, body)
     end)
 
     assert {:ok, %{inserted: 1, found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
 
     assert [torrent] = Torrents.list_latest_torrents()
-    assert category(torrent) == "Other"
+    assert category(torrent) == "PC"
 
-    # The same term again finds the same torrent and adds nothing.
-    assert {:ok, %{inserted: 0, found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
+    # Every category on the site's menu, and the unnarrowed search ("").
+    asked =
+      for _ <- 1..9 do
+        assert_received {:asked, cid}
+        to_string(cid)
+      end
+
+    assert Enum.sort(asked) == ["", "1", "2", "3", "4", "5", "7", "8", "9"]
+  end
+
+  test "a hit a narrowed search leaves blank takes the category it was narrowed to" do
+    Req.Test.stub(TorrentDownloads, fn conn ->
+      body =
+        case Plug.Conn.fetch_query_params(conn).query_params["cid"] do
+          "3" -> TorrentDownloadsFixtures.search_rss_body()
+          _other -> "<rss><channel></channel></rss>"
+        end
+
+      Plug.Conn.send_resp(conn, 200, body)
+    end)
+
+    assert {:ok, %{found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
+    assert [torrent] = Torrents.list_latest_torrents()
+    assert category(torrent) == "PC/Games"
+  end
+
+  test "a search the feed answers only in part still answers, and says so" do
+    Req.Test.stub(TorrentDownloads, fn conn ->
+      case Plug.Conn.fetch_query_params(conn).query_params["cid"] do
+        "3" -> Plug.Conn.send_resp(conn, 500, "nope")
+        nil -> Plug.Conn.send_resp(conn, 200, TorrentDownloadsFixtures.search_rss_body())
+        _other -> Plug.Conn.send_resp(conn, 200, "<rss><channel></channel></rss>")
+      end
+    end)
+
+    log =
+      ExUnit.CaptureLog.capture_log(fn ->
+        assert {:ok, %{found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
+      end)
+
+    assert log =~ "partly failed"
+    assert [torrent] = Torrents.list_latest_torrents()
+    assert category(torrent) == "Other"
   end
 
   test "a swarm the feed does not know is indexed as none, not as the biggest" do
@@ -130,6 +184,14 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
   end
 
   defp category(torrent), do: Taxonomy.fetch!(torrent.category_id).name
+
+  defp categorised(body, category) do
+    String.replace(
+      body,
+      "<category><![CDATA[]]></category>",
+      "<category><![CDATA[#{category}]]></category>"
+    )
+  end
 
   defp stub(body) do
     Req.Test.stub(TorrentDownloads, fn conn -> Plug.Conn.send_resp(conn, 200, body) end)

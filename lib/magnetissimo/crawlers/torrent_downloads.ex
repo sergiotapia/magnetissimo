@@ -20,6 +20,8 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
 
   @behaviour Magnetissimo.Crawlers.Crawler
 
+  require Logger
+
   alias Magnetissimo.Crawlers.Categories
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Crawlers.Rss
@@ -50,6 +52,19 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
                 fallback: "Other"
               )
 
+  # The site's own category ids, from its menu. Asked with a `cid`, the
+  # search feed returns only that category and names it on every item.
+  @category_ids %{
+    1 => "Anime",
+    2 => "Books",
+    3 => "Games",
+    4 => "Movies",
+    5 => "Music",
+    7 => "Software",
+    8 => "TV Shows",
+    9 => "Other"
+  }
+
   @impl true
   def source_name, do: @source_name
 
@@ -61,28 +76,79 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   def latest, do: fetch_attrs(type: "today")
 
   @doc """
-  Looks one term up on the feed.
+  Looks one term up on the feed, once per category.
 
-  The feed has no category for a search hit, so those are filed under Other
-  rather than guessed at from the search page's icons. A later crawl of the
-  latest feed, or another source, re-files one it knows better.
+  Asked for a term alone, the feed leaves the category out of nearly every
+  hit: 47 of 50 for "wolfenstein" came back blank, though the site files
+  them all under Games. Asked with a category id, it names the category on
+  every hit. So the term is asked once per category, which also returns up
+  to 50 hits per category rather than 50 in all, and once with no category,
+  which catches a hit filed somewhere the site's menu does not list. A hit
+  that comes back twice keeps its categorised copy.
+
+  The requests go one after another. The site answers 503 to most of nine
+  requests sent at once, and to some of three, but serves them in turn about
+  as fast as in parallel: some 8 seconds for an uncached term, much less for
+  one its CDN has cached. Each request gets 5 seconds, so a stuck one cannot
+  hold the source past `Magnetissimo.SourceSearch`'s timeout.
+
+  Answers as long as one of the requests did; the ones that failed are
+  logged.
   """
   @impl true
-  def search(term), do: fetch_attrs(type: "search", search: term)
+  def search(term) do
+    # The unnarrowed search is asked first and merged last, so that a hit's
+    # categorised copy is the one kept.
+    results =
+      [nil | Enum.sort(Map.keys(@category_ids))]
+      |> Enum.map(&search_category(term, &1))
+      |> Enum.reverse()
 
-  defp fetch_attrs(params) do
-    with {:ok, body} <- fetch(params) do
-      {:ok, Rss.attrs(body, @source_name, &torrent_attrs/2)}
+    case Enum.split_with(results, &match?({:ok, _}, &1)) do
+      {[], [error | _]} ->
+        error
+
+      {answers, failures} ->
+        for {:error, reason} <- failures do
+          Logger.warning(
+            "[#{@source_name}] search #{inspect(term)} partly failed: #{inspect(reason)}"
+          )
+        end
+
+        attrs =
+          answers |> Enum.flat_map(fn {:ok, attrs} -> attrs end) |> Enum.uniq_by(& &1.magnet_hash)
+
+        {:ok, attrs}
     end
   end
 
-  defp fetch(params) do
+  defp search_category(term, nil), do: fetch_attrs([type: "search", search: term], nil, 5_000)
+
+  defp search_category(term, cid) do
+    params = [type: "search", search: term, cid: cid]
+    fetch_attrs(params, Map.fetch!(@category_ids, cid), 5_000)
+  end
+
+  # `category` stands in for an item that names none, which only an answer
+  # already narrowed to one category can vouch for.
+  defp fetch_attrs(params, category \\ nil, receive_timeout \\ 15_000) do
+    with {:ok, body} <- fetch(params, receive_timeout) do
+      {:ok, Rss.attrs(body, @source_name, &torrent_attrs(&1, &2, category))}
+    end
+  end
+
+  defp fetch(params, receive_timeout) do
     # No retries: the crawl comes back in five minutes and a search is a
     # one-shot question, so retrying only holds a process open while a mirror
     # is down.
     options =
       Application.get_env(:magnetissimo, __MODULE__, []) ++
-        [params: params, headers: [user_agent: @user_agent], retry: false]
+        [
+          params: params,
+          headers: [user_agent: @user_agent],
+          retry: false,
+          receive_timeout: receive_timeout
+        ]
 
     case Req.get(@base_url <> @feed_path, options) do
       {:ok, %{status: 200, body: body}} -> {:ok, body}
@@ -94,7 +160,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   # An item missing a field we cannot invent, or carrying a date we cannot
   # parse, is dropped rather than crashing the crawl. The feed's link is
   # relative to the site root, and the site redirects to `www`.
-  defp torrent_attrs(item, source_id) do
+  defp torrent_attrs(item, source_id, category) do
     with title when is_binary(title) <- Rss.field(item, "title"),
          path when is_binary(path) <- Rss.field(item, "link"),
          hash when is_binary(hash) <- Rss.field(item, "info_hash"),
@@ -111,7 +177,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
         size_in_bytes: Rss.integer_field(item, "size"),
         magnet_hash: hash,
         magnet_url: Magnet.url(hash, name),
-        category_id: Categories.resolve(@categories, category(item)),
+        category_id: Categories.resolve(@categories, category(item, category)),
         source_id: source_id
       }
     else
@@ -130,11 +196,12 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     end
   end
 
-  # The category is CDATA, and empty on a search hit, which takes the fallback.
-  defp category(item) do
+  # The category is CDATA, and empty on most hits of an unnarrowed search,
+  # which take the category the request was narrowed to, or the fallback.
+  defp category(item, narrowed_to) do
     case Regex.run(~r/<category><!\[CDATA\[(.*?)\]\]><\/category>/, item, capture: :all_but_first) do
-      [value] -> value
-      nil -> ""
+      [value] when value != "" -> value
+      _none -> narrowed_to
     end
   end
 
