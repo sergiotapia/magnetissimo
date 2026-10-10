@@ -20,6 +20,8 @@ defmodule Magnetissimo.Seeds do
     # challenge, and finds shows through IMDb's title suggestions.
     {"EZTV", "https://eztvx.to"},
     {"Nyaa.si", "https://nyaa.si"},
+    # The crawler hardcodes the domain too; the site moves every so often.
+    {"OxTorrent", "https://ww1.oxtorrent.run"},
     {"Sukebei", "https://sukebei.nyaa.si"},
     # The crawler asks apibay.org, the API the site's own pages are built from.
     {"The Pirate Bay", "https://thepiratebay.org"},

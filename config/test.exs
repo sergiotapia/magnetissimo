@@ -54,6 +54,11 @@ config :magnetissimo, Magnetissimo.Crawlers.ThePirateBay,
 # answers both, routing on the host.
 config :magnetissimo, Magnetissimo.Crawlers.Eztv, plug: {Req.Test, Magnetissimo.Crawlers.Eztv}
 
+# OxTorrent reads its search results and then a page per release, from one
+# stub that routes on the path.
+config :magnetissimo, Magnetissimo.Crawlers.OxTorrent,
+  plug: {Req.Test, Magnetissimo.Crawlers.OxTorrent}
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

@@ -8,6 +8,7 @@ defmodule Magnetissimo.Crawlers.CategoriesTest do
   alias Magnetissimo.Crawlers.Categories
   alias Magnetissimo.Crawlers.Eztv
   alias Magnetissimo.Crawlers.Nyaa
+  alias Magnetissimo.Crawlers.OxTorrent
   alias Magnetissimo.Crawlers.Sukebei
   alias Magnetissimo.Crawlers.ThePirateBay
   alias Magnetissimo.Crawlers.TorrentDownloads
@@ -20,13 +21,16 @@ defmodule Magnetissimo.Crawlers.CategoriesTest do
   # the YTS API lists, and the ids The Pirate Bay's main.js names. EZTV has no
   # categories, only TV, so the resolutions its release names carry stand in.
   # AudioBookBay's categories are genres of audiobook, which all file under
-  # its fallback, so it maps none. When a site adds one,
-  # it belongs here and in the crawler's mapping.
+  # its fallback, so it maps none. OxTorrent's are the titles of the type
+  # column in its search results. When a site adds one, it belongs here and
+  # in the crawler's mapping.
   @site_categories %{
     AudioBookBay => [],
     Eztv => ~w(480p 720p 1080p 2160p),
     Nyaa => ~w(1_0 1_1 1_2 1_3 1_4 2_0 2_1 2_2 3_0 3_1 3_2 3_3 4_0 4_1 4_2 4_3 4_4
                5_0 5_1 5_2 6_0 6_1 6_2),
+    OxTorrent => ~w(Films Séries Animes Sports Musiques Ebooks Livres Logiciels Jeux-PC
+                    Jeux-Consoles Vidéos),
     Sukebei => ~w(1_0 1_1 1_2 1_3 1_4 1_5 2_0 2_1 2_2),
     ThePirateBay => ~w(100 101 102 103 104 199 200 201 202 203 204 205 206 207 208 209
                        210 211 212 299 300 301 302 303 304 305 306 399 400 401 402

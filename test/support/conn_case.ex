@@ -10,6 +10,7 @@ defmodule MagnetissimoWeb.ConnCase do
   alias Magnetissimo.Crawlers.AudioBookBay
   alias Magnetissimo.Crawlers.Eztv
   alias Magnetissimo.Crawlers.Nyaa.Feed
+  alias Magnetissimo.Crawlers.OxTorrent
   alias Magnetissimo.Crawlers.ThePirateBay
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
@@ -64,6 +65,7 @@ defmodule MagnetissimoWeb.ConnCase do
     Test.stub(ThePirateBay, &Test.json(&1, []))
     # IMDb suggesting no show means EZTV is never asked.
     Test.stub(Eztv, &Test.json(&1, %{}))
+    Test.stub(OxTorrent, &Conn.send_resp(&1, 200, "<html></html>"))
 
     previous = Application.get_env(:magnetissimo, SourceSearch)
     Application.put_env(:magnetissimo, SourceSearch, ttl: 0)

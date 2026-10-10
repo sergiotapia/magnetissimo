@@ -22,7 +22,7 @@ Built so far:
 - The JSON API, `GET /api/latest` and `GET /api/search/:term`, with the
   2.0.0 field names.
 - Crawlers for YTS, Nyaa.si, Sukebei, TorrentDownloads, AudioBookBay, The
-  Pirate Bay and EZTV, asked only when someone searches, through
+  Pirate Bay, EZTV and OxTorrent, asked only when someone searches, through
   `Magnetissimo.SourceSearch`.
 - Tests for the context, the LiveViews, the API and the formatting helpers.
 
