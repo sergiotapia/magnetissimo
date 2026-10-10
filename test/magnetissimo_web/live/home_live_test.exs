@@ -7,7 +7,6 @@ defmodule MagnetissimoWeb.HomeLiveTest do
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.SourceSearch
-  alias Magnetissimo.Torrents
   alias Magnetissimo.TorrentsFixtures
   alias Magnetissimo.YtsFixtures
 
@@ -125,16 +124,6 @@ defmodule MagnetissimoWeb.HomeLiveTest do
 
     assert html =~ "Deadpoint (2026)"
     refute html =~ "source-status"
-  end
-
-  test "the status panel shows when the sources were last crawled", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/")
-    assert has_element?(view, "#last-crawl", "—")
-
-    :ok = Torrents.mark_source_crawled("YTS", DateTime.add(DateTime.utc_now(), -3, :minute))
-
-    {:ok, view, _html} = live(conn, ~p"/")
-    assert has_element?(view, "#last-crawl", "3m ago")
   end
 
   describe "column headers" do

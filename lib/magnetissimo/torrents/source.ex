@@ -1,6 +1,6 @@
 defmodule Magnetissimo.Torrents.Source do
   @moduledoc """
-  A site we crawl torrents from.
+  A site whose own search we ask for torrents.
   """
 
   use Ecto.Schema
@@ -11,7 +11,6 @@ defmodule Magnetissimo.Torrents.Source do
   schema "sources" do
     field :name, :string
     field :url, :string
-    field :last_crawled_at, :utc_datetime_usec
 
     has_many :torrents, Torrent
 
