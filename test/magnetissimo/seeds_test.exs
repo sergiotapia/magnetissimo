@@ -26,4 +26,20 @@ defmodule Magnetissimo.SeedsTest do
     assert Torrents.list_sources() |> Enum.map(& &1.name) |> Enum.sort() ==
              ["1337x", "Nyaa.si", "Sukebei", "TorrentDownloads", "YTS"]
   end
+
+  test "every category Sukebei files under resolves to a real category" do
+    Seeds.run()
+
+    for {site, ours} <- [
+          {"Art - Anime", "Anime - Raw"},
+          {"Art - Doujinshi", "Books - Raw"},
+          {"Art - Manga", "Books - Raw"},
+          {"Art - Games", "Software - Games"},
+          {"Art - Pictures", "Images - Graphics"},
+          {"Real Life - Photobooks / Pictures", "Images - Photos"},
+          {"Real Life - Videos", "Video - XXX"}
+        ] do
+      assert Torrents.get_category_by_name_or_alias!(site).name == ours
+    end
+  end
 end

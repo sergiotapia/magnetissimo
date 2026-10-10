@@ -63,7 +63,9 @@ defmodule Magnetissimo.Seeds do
     {"Images",
      [
        {"Images - Graphics", ["Pictures - Graphics", "Art - Pictures"]},
-       {"Images - Photos", ["Pictures - Photos", "Real Life - Pictures"]}
+       # Sukebei files photobooks as "Real Life - Photobooks / Pictures".
+       {"Images - Photos",
+        ["Pictures - Photos", "Real Life - Pictures", "Real Life - Photobooks / Pictures"]}
      ]},
     {"Software",
      [
