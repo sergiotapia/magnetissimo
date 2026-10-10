@@ -67,6 +67,8 @@ defmodule Magnetissimo.Crawlers.Yts do
   end
 
   defp movies(%{"data" => %{"movies" => movies}}) when is_list(movies), do: {:ok, movies}
+  # With nothing to list, the API leaves the `movies` key out rather than sending [].
+  defp movies(%{"data" => %{"movie_count" => 0}}), do: {:ok, []}
   defp movies(_body), do: {:error, :unexpected_response}
 
   defp torrent_attrs(movie, category_id, source_id) do

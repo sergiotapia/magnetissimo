@@ -118,6 +118,12 @@ defmodule Magnetissimo.Crawlers.YtsTest do
     end)
   end
 
+  test "a search with no matches is an empty answer, not a failure" do
+    Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.empty_response()) end)
+
+    assert {:ok, %{inserted: 0, found: 0}} = Crawlers.search(Yts, "xqzvbnm")
+  end
+
   defp stub_api do
     Req.Test.stub(Yts, fn conn ->
       assert conn.query_string =~ "limit=50"

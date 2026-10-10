@@ -54,6 +54,7 @@ defmodule Magnetissimo.YtsFixtures do
     }
   end
 
-  @doc "An envelope the API sends when a term matched nothing."
-  def empty_response, do: %{"status" => "ok", "data" => %{"movies" => []}}
+  @doc "What the API sends when a term matched nothing: no `movies` key at all."
+  def empty_response,
+    do: %{"status" => "ok", "data" => %{"movie_count" => 0, "limit" => 50, "page_number" => 1}}
 end
