@@ -11,7 +11,7 @@ defmodule MagnetissimoWeb.HomeLive do
   those, so a search is a link and the form still works as a plain GET
   without JavaScript.
 
-  `?q=` is read as a `Magnetissimo.Torrents.Query`, so it can hold phrases,
+  `?q=` is read as a `Magnetissimo.Torrents.Query`, so it can hold quoted text,
   exclusions, alternatives and patterns.
 
   A search answers twice. The index answers at once, and at the same moment
@@ -566,7 +566,7 @@ defmodule MagnetissimoWeb.HomeLive do
 
       <div class="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
         <p id="refine-help" class="text-xs leading-relaxed text-ink-500">
-          In the search box: <code class="font-mono text-ink-700">"exact phrase"</code>
+          In the search box: <code class="font-mono text-ink-700">"exact text"</code>
           · <code class="font-mono text-ink-700">-word</code>
           to exclude · <code class="font-mono text-ink-700">this|that</code>
           · <code class="font-mono text-ink-700">s01e*</code>

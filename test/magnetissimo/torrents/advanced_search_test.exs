@@ -99,27 +99,36 @@ defmodule Magnetissimo.Torrents.AdvancedSearchTest do
   # Each case is {what it shows, query, options, labels expected}. `{:all_but,
   # labels}` is every torrent in the corpus except those.
   @cases [
-    # Phrases are whole words, in order and next to each other, across any
-    # separator a name uses.
-    {"a quoted word is a whole word", ~s("dune"), [], @dune -- [:dunes]},
-    {"a phrase crosses dots", ~s("part two"), [], [:dune_uhd, :dune_web, :dune_cam]},
-    {"a phrase keeps its order", ~s("two part"), [], []},
-    {"a phrase keeps its words together", ~s("dune two"), [], []},
-    {"a phrase matches a description", ~s("cabin in the woods"), [], [:cabin_woods, :cabin]},
-    {"a phrase in titles only", ~s("cabin in the woods"), [scope: :name], [:cabin_woods]},
-    {"quotes in a name are punctuation", ~s("weird al"), [], [:weird_al]},
-    {"a hyphen in a phrase is any separator", ~s("web-dl"), [],
+    # Quotes match exactly what is between them, punctuation and spaces and
+    # all, ignoring only case and accents.
+    {"quotes keep brackets", ~s("[ani]"), [], [:rilakkuma]},
+    {"quotes keep a dot", ~s("h.264"), [], [:dune_web]},
+    {"quotes keep a space", ~s("h 264"), [], [:prophecy3, :seinfeld_s05e16]},
+    {"quotes keep a hyphen", ~s("web-dl"), [],
      [:dune_web, :prophecy3, :prophecy4, :seinfeld_s05e16, :el_camino, :rilakkuma]},
-    {"a phrase ignores accents", ~s("pokemon"), [], [:pikachu]},
-    {"a phrase in an unspaced script", ~s("進撃の巨人"), [], [:shingeki]},
-    {"part of an unspaced phrase", ~s("巨人"), [], [:shingeki]},
-    {"a short unspaced phrase", ~s("拉拉"), [], [:rilakkuma]},
-    {"a quoted fragment is not a prefix", ~s("s05e1"), [], []},
-    {"a short word in a phrase is whole", ~s("toy story 4"), [], [:toy4]},
-    {"an unclosed phrase", ~s(dune "part two), [], [:dune_uhd, :dune_web, :dune_cam]},
-    {"curly quotes", "“part two”", [], [:dune_uhd, :dune_web, :dune_cam]},
-    {"a quoted short word is not typed yet", ~s(up "4"), [], []},
-    {"an empty phrase finds nothing", ~s(""), [], []},
+    {"a hyphen is not a dot", ~s("web.dl"), [], []},
+    {"a space is not a dot", ~s("part two"), [], [:dune_uhd, :dune_cam]},
+    {"a dot is not a space", ~s("part.two"), [], [:dune_web]},
+    {"quoted text keeps its order", ~s("two part"), [], []},
+    {"quoted text keeps its words together", ~s("dune two"), [], []},
+    {"quoted text matches inside a word", ~s("s05e1"), [],
+     [:seinfeld_s05e11, :seinfeld_s05e16, :bb_s05e13, :bb_s05e14]},
+    {"a quoted word is a substring too", ~s("dune"), [], @dune},
+    {"quoted text across a dash and brackets", ~s("x265-megusta"), [],
+     [:dune_uhd, :seinfeld_s05e11]},
+    {"quoted text with parentheses", ~s|"(2018)"|, [], [:cabin]},
+    {"quoted text in a description", ~s("cabin in the woods"), [], [:cabin]},
+    {"quoted text in titles only", ~s("cabin in the woods"), [scope: :name], []},
+    {"quotes in a name are characters like any other", ~s("weird al"), [], [:weird_al]},
+    {"quoted text ignores case and accents", ~s("POKEMON"), [], [:pikachu]},
+    {"quoted text in an unspaced script", ~s("進撃の巨人"), [], [:shingeki]},
+    {"short quoted text in an unspaced script", ~s("巨人"), [], [:shingeki]},
+    {"short quoted text", ~s("拉拉"), [], [:rilakkuma]},
+    {"a short quoted number", ~s(up "4"), [], [:up]},
+    {"dots in a name are not spaces", ~s("toy story 4"), [], []},
+    {"an unclosed quote", ~s(dune "part two), [], [:dune_uhd, :dune_cam]},
+    {"curly quotes", "“part two”", [], [:dune_uhd, :dune_cam]},
+    {"empty quotes find nothing", ~s(""), [], []},
 
     # Exclusions remove whole words, so "-cam" keeps El Camino and HDCAM.
     {"an exclusion is a whole word", "dune -cam", [], @dune -- [:dune_cam]},
@@ -133,7 +142,8 @@ defmodule Magnetissimo.Torrents.AdvancedSearchTest do
      @seinfeld -- [:seinfeld_s05e11]},
     {"an excluded word with a hyphen is a phrase", "seinfeld -web-dl", [],
      @seinfeld -- [:seinfeld_s05e16]},
-    {"an excluded phrase", ~s(seinfeld -"web dl"), [], @seinfeld -- [:seinfeld_s05e16]},
+    {"an excluded quote", ~s(seinfeld -"web-dl"), [], @seinfeld -- [:seinfeld_s05e16]},
+    {"an excluded quote is exact too", ~s(seinfeld -"web dl"), [], @seinfeld},
     {"a lone dash is not an exclusion", "seinfeld - x265", [], [:seinfeld_s05e11]},
     {"two dashes are one", "seinfeld --x265", [], @seinfeld -- [:seinfeld_s05e11]},
     {"a substring can survive its whole word's exclusion", "dune -dune", [], [:dunes]},
@@ -155,8 +165,8 @@ defmodule Magnetissimo.Torrents.AdvancedSearchTest do
     {"alternatives as the whole query", "dune|seinfeld", [], @dune ++ @seinfeld},
     {"a bar binds tighter than a space", "dune|seinfeld 1080p", [],
      [:dune_web, :prophecy3, :seinfeld_s05e11, :seinfeld_s05e16]},
-    {"a phrase as an alternative", ~s("part two"|prophecy), [],
-     [:dune_uhd, :dune_web, :dune_cam, :prophecy3, :prophecy4]},
+    {"a quote as an alternative", ~s("part two"|prophecy), [],
+     [:dune_uhd, :dune_cam, :prophecy3, :prophecy4]},
     {"a bar next to an exclusion is ignored", "dune 2160p|-cam", [], [:dune_uhd, :prophecy4]},
     {"stray bars", "| dune |", [], @dune},
     {"episodes as alternatives", "s05e13|s05e14", [], [:bb_s05e13, :bb_s05e14]},
@@ -204,7 +214,7 @@ defmodule Magnetissimo.Torrents.AdvancedSearchTest do
     {"titles and descriptions", "couple", [], [:cabin]},
 
     # Everything at once.
-    {"phrase, alternative, exclusion and prefix", ~s("part two" 2160p|1080p -cam -x26*), [],
+    {"quote, alternative, exclusion and prefix", ~s("part.two" 2160p|1080p -cam -x26*), [],
      [:dune_web]},
     {"alternatives of exclusions do not exist", ~s(dune -cam|-hdcam), [],
      @dune -- [:dune_cam, :dune_hdcam]}
@@ -320,7 +330,7 @@ defmodule Magnetissimo.Torrents.AdvancedSearchTest do
       assert :duna not in found(context, "dune -dublado")
     end
 
-    test "do not stand in for a phrase or a pattern", context do
+    test "do not stand in for quoted text or a pattern", context do
       assert :duna not in found(context, ~s("dune"))
       assert :duna not in found(context, "dune*")
     end

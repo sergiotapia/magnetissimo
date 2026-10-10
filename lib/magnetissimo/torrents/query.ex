@@ -1,15 +1,16 @@
 defmodule Magnetissimo.Torrents.Query do
   @moduledoc """
-  What a reader typed into the search box, read as a query: words, phrases,
-  exclusions, alternatives and patterns.
+  What a reader typed into the search box, read as a query: words, quoted
+  text, exclusions, alternatives and patterns.
 
     * `dune part two` finds all three words, each anywhere, as a plain search
       always has.
-    * `"part two"` is a phrase: whole words, in that order, next to each other,
-      across whatever separates them in a name ("Dune.Part.Two"). A phrase of
-      one word is that whole word, so `"dune"` does not find "Dunes".
+    * `"[ToonsHub]"` is exactly what is between the quotes, brackets, spaces
+      and all, ignoring only case and accents. People expect quotes to mean
+      precisely that, even though it means `"part two"` does not find
+      "Dune.Part.Two"; unquoted, it does.
     * `-cam` excludes the whole word, so it leaves "El Camino" and "HDCAM"
-      alone. `-"web dl"` excludes a phrase and `-*cam` a pattern.
+      alone. `-"web-dl"` excludes that exact text and `-*cam` a pattern.
     * `2160p|4k` is either. A bar binds tighter than the space between words,
       so `dune 2160p|4k remux` is dune, either resolution, and remux.
     * `s05e1*` is a pattern, where a star is any run of characters. One the
@@ -36,7 +37,7 @@ defmodule Magnetissimo.Torrents.Query do
   alias Magnetissimo.Torrents.Search
 
   @typedoc """
-  One thing to match: plain words as typed, a phrase's inner text, or a
+  One thing to match: plain words as typed, the text between quotes, or a
   pattern with its stars.
   """
   @type atom_ :: {:words, String.t()} | {:phrase, String.t()} | {:wildcard, String.t()}

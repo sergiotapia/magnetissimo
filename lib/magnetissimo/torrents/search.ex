@@ -24,16 +24,18 @@ defmodule Magnetissimo.Torrents.Search do
   after every text match.
 
   The operators a `Magnetissimo.Torrents.Query` holds are matched in two
-  steps. The words the query needs outright, including a phrase's words and a
-  pattern's longer pieces, are searched as above: that finds a superset of the
+  steps. The words the query needs outright, including the longer words of
+  quoted text and of a pattern, are searched as above: that finds a superset of the
   answer and ranks it. Each operator then narrows it with a condition of its
   own, chosen so that what it means survives how names are written:
 
-    * A phrase goes to `torrents_words`, whose words are split the way the
-      phrase is, so `"part two"` is "Part.Two" but not "Party Two" or "Two
-      Part". In a script without spaces the index holds one long word, so
-      there its words are substrings.
-    * An exclusion is a whole word or a phrase, never a substring.
+    * Quoted text is those exact characters, punctuation and spaces
+      included: `"[ToonsHub]"` needs the brackets, and `"part two"` does not
+      find "Part.Two". The trigram index answers it as a substring, ignoring
+      case and accents.
+    * An unquoted exclusion is a whole word, or for `-web-dl` the words it
+      spells side by side across any separator, in `torrents_words`. It is
+      never a substring.
     * A pattern that ends a word with a star is a prefix query on
       `torrents_words`. Any other is a GLOB on the lowercased text, which,
       unlike the indexes, does not fold accents or non-ASCII case.
@@ -154,7 +156,7 @@ defmodule Magnetissimo.Torrents.Search do
 
   # The driver finds and scores the candidates; `strict/2` then holds them to
   # every operator. It searches every word the query must match outright
-  # (plain words, a phrase's words, a pattern's longer pieces) as plain
+  # (plain words, and the longer words of quoted text and patterns) as plain
   # tokens, which finds a superset of what the operators allow and lets bm25
   # rank it. A query of nothing but alternatives and exclusions has no such
   # words, and starts from every torrent.
@@ -163,12 +165,11 @@ defmodule Magnetissimo.Torrents.Search do
   end
 
   defp driver_tokens({:words, text}), do: tokens(text)
-  # A short token in an unspaced script is matched against names only here,
-  # but against descriptions too by the operators, so it could narrow too far.
-  defp driver_tokens({:phrase, text}), do: Enum.reject(tokens(text), &match?({:substring, _}, &1))
-  # A trigram is a substring, which takes in any pattern it is part of; a
-  # whole word would not.
-  defp driver_tokens({:wildcard, text}), do: Enum.filter(tokens(text), &match?({:trigram, _}, &1))
+  # A trigram is a substring, which takes in any quoted text or pattern it is
+  # part of; a whole word would not.
+  defp driver_tokens({kind, text}) when kind in [:phrase, :wildcard] do
+    Enum.filter(tokens(text), &match?({:trigram, _}, &1))
+  end
 
   defp driver([], _typing?, _scope), do: {"SELECT id, 0.0 AS score FROM torrents", []}
   defp driver(tokens, typing?, scope), do: text_matches(tokens, typing?, scope)
@@ -265,7 +266,7 @@ defmodule Magnetissimo.Torrents.Search do
 
   ## The operators
 
-  # Everything the driver cannot say: phrases, patterns, alternatives and
+  # Everything the driver cannot say: quoted text, patterns, alternatives and
   # exclusions. Plain words need nothing here, since the driver or a source
   # hit already answered for them.
   defp strict(%Query{clauses: clauses, excludes: excludes}, scope) do
@@ -291,7 +292,7 @@ defmodule Magnetissimo.Torrents.Search do
     text |> tokens() |> Enum.map(&token_condition(&1, scope)) |> all()
   end
 
-  defp atom_condition({:phrase, text}, scope), do: phrase_condition(text, scope)
+  defp atom_condition({:phrase, text}, scope), do: literal_condition(text, scope)
   defp atom_condition({:wildcard, text}, scope), do: wildcard_condition(text, scope)
 
   # An excluded word is a whole word, not a substring, or "-cam" would take
@@ -304,7 +305,17 @@ defmodule Magnetissimo.Torrents.Search do
   defp token_condition({:word, token}, scope), do: in_index("torrents_words", token, scope)
   defp token_condition({:substring, token}, scope), do: contains(token, scope)
 
-  # The word index splits a name the way `tokens/1` splits the phrase, so a
+  # Quoted text is exactly those characters, punctuation and spaces and all.
+  # The trigram index holds every character, so it answers that as a
+  # substring, ignoring case and accents as it always does. Text too short
+  # for a trigram is compared lowercased, which folds only ASCII.
+  defp literal_condition(text, scope) do
+    if String.length(text) >= 3,
+      do: in_fts("torrents_search", quote_fts(text), scope),
+      else: contains(text, scope)
+  end
+
+  # The word index splits a name the way `tokens/1` splits the text, so a
   # phrase there is its words in order, across any separator. A script
   # written without spaces is one long word to that index, and its words are
   # matched as substrings instead, which loses their order.

@@ -29,7 +29,7 @@ what you looked for.
   `Spider.Man.2002`, `toy story 4` matches the `4`, and a fragment of a
   Japanese title matches without any spaces to split on. Better-seeded
   copies rank first among near-identical names.
-- **Search operators** that no source has: phrases, exclusions,
+- **Search operators** that no source has: exact text, exclusions,
   alternatives and wildcards, plus size, seeder and age limits. See
   [Searching](#searching).
 - **Works without JavaScript.** Searching, filtering, sorting and paging are
@@ -162,7 +162,7 @@ The search box takes plain words, as any search does, and these:
 | Type | Finds |
 | --- | --- |
 | `dune part two` | All three words, anywhere in the name or description. |
-| `"part two"` | Those whole words, in that order, side by side: `Dune.Part.Two`, not `Party Two`. |
+| `"[ToonsHub]"` | Exactly what is between the quotes, brackets and spaces included, ignoring case and accents. `"part two"` does not find `Dune.Part.Two`: leave the quotes off for that. |
 | `dune -cam` | Dune, without the whole word `cam`. `El Camino` and `HDCAM` stay. |
 | `dune -*cam` | Dune, without `cam` anywhere in a word, so `HDCAM` goes too. |
 | `dune 2160p\|4k` | Dune in either resolution. A bar binds tighter than a space. |
