@@ -25,6 +25,10 @@ defmodule Magnetissimo.Application do
          repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
         {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
         {Phoenix.PubSub, name: Magnetissimo.PubSub},
+        # Each source a search asks runs as its own task under this supervisor,
+        # so a source that crashes takes only its own answer with it.
+        {Task.Supervisor, name: Magnetissimo.SourceSearch.TaskSupervisor},
+        Magnetissimo.SourceSearch,
         schedulers,
         # Start to serve requests, typically the last entry
         MagnetissimoWeb.Endpoint
