@@ -6,11 +6,6 @@ them in SQLite, and serves them through a LiveView UI and a JSON API.
 Phoenix 1.8, LiveView 1.2, Ecto on SQLite with FTS5, Req, Bandit, and
 hand-written Tailwind 4.
 
-It is a rewrite of the 2.0.0 app at `~/Work/magnetissimo-old` (Elixir 1.14,
-Phoenix 1.7, Postgres). Read `legacy-project.md` in that repo before changing
-behaviour. Use it to understand what the app was for, and don't copy its
-code.
-
 `README.md` is for users and `CONTRIBUTING.md` is for human contributors.
 This file covers what you need to change the code without breaking it.
 
@@ -52,7 +47,7 @@ it.
 | `lib/magnetissimo_web/search_filters.ex` | The refine fields (names only, size, seeders, age), read from and written to the URL. |
 | `lib/magnetissimo_web/live/torrent_live.ex` | One torrent's detail page. |
 | `lib/magnetissimo_web/controllers/torznab_*.ex` | The Torznab API at `GET /api?t=…` for Sonarr, Radarr, Lidarr, Prowlarr and the book managers: request parsing, XML, controller. |
-| `lib/magnetissimo_web/controllers/torrent_*.ex` | `GET /api/latest` and `GET /api/search/:term`, keeping the 2.0.0 field names. |
+| `lib/magnetissimo_web/controllers/torrent_*.ex` | `GET /api/latest` and `GET /api/search/:term`, with frozen field names. |
 | `lib/magnetissimo_web/components/dossier_components.ex` | Art and data components: orb, fingerprint, swarm bar, chips. |
 | `lib/magnetissimo_web/format.ex` | Sizes in binary units, counts, ages, hashes. |
 | `lib/magnetissimo_web/theme.ex`, `controllers/theme_controller.ex` | The `theme` cookie (light, dark, or follow the system) and the no-JS `GET /theme/:mode`. |
@@ -119,8 +114,7 @@ Breaking any of these causes bugs that tests may not catch:
   secret beside the database, and accepts any host. Don't add a required
   env var, `force_ssl`, or a fixed `check_origin`. Homelab installs run on
   plain `http://<lan-ip>:4000`. See "Releasing" in `CONTRIBUTING.md`.
-- **JSON API field names are frozen** to the 2.0.0 shape, because scripts
-  depend on them. Sonarr, Radarr and the rest can't read JSON; they use the
+- **JSON API field names are frozen**, because scripts depend on them. Sonarr, Radarr and the rest can't read JSON; they use the
   Torznab API.
 - **Torznab output says everything in several places on purpose.** Each
   client reads a different element (see `MagnetissimoWeb.TorznabXML`), so
@@ -202,8 +196,7 @@ unless asked.
   an unrelated reason, commit anyway and say so in the body.
 - Write an imperative subject under 72 characters that says what the change
   gets you (`Crawl OxTorrent, a page per release`). Add a body explaining
-  *why* when the subject doesn't cover it, and say what 2.0.0 did if you
-  replaced it.
+  *why* when the subject doesn't cover it.
 
 ## UI
 
