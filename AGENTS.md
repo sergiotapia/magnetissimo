@@ -34,7 +34,8 @@ it.
 | Path | What it is |
 | --- | --- |
 | `lib/magnetissimo/torrents.ex` | The context: list, count, `index_torrents/2`, `search_torrents/2`. |
-| `lib/magnetissimo/torrents/search.ex` | Tokenizes free text, routes each token to an FTS5 index, ranks the results. |
+| `lib/magnetissimo/torrents/query.ex` | Reads the search box's operators (`"phrase"`, `-word`, `a\|b`, `s01e*`), and `remote_terms/1`, the plain words the sites are asked. |
+| `lib/magnetissimo/torrents/search.ex` | Tokenizes free text, routes each token to an FTS5 index, holds the results to a query's operators, ranks them. |
 | `lib/magnetissimo/taxonomy.ex` | The Torznab category list, in code. `category_id` is a Torznab number. |
 | `lib/magnetissimo/source_search.ex` | A GenServer that asks every crawler at once, dedupes in-flight terms (in any word order), caches answered terms for 15 minutes, gives up after 20s, and broadcasts on PubSub. |
 | `lib/magnetissimo/crawlers.ex` | `all/0`, plus `search/2`, which runs one crawler and indexes its result. |
@@ -47,7 +48,8 @@ it.
 | `lib/magnetissimo/release.ex` | `migrate/0`: migrations then seeds, on one connection. Release boot and `bin/migrate` both call it. |
 | `config/runtime.exs` | Production env: `DATABASE_PATH`, generated `SECRET_KEY_BASE`, optional `PHX_HOST`, `check_origin: :conn`. |
 | `Dockerfile`, `compose.yaml`, `.github/workflows/docker.yml` | The image (debian-slim, runs as `nobody`, data in `/data`), the homelab compose file, and multi-arch publishing to `ghcr.io/sergiotapia/magnetissimo`. |
-| `lib/magnetissimo_web/live/home_live.ex` | Search, category and source filters, sorting, paging, live source status. |
+| `lib/magnetissimo_web/live/home_live.ex` | Search, category and source filters, refine fields, sorting, paging, live source status. |
+| `lib/magnetissimo_web/search_filters.ex` | The refine fields (names only, size, seeders, age), read from and written to the URL. |
 | `lib/magnetissimo_web/live/torrent_live.ex` | One torrent's detail page. |
 | `lib/magnetissimo_web/controllers/torznab_*.ex` | The Torznab API at `GET /api?t=…` for Sonarr, Radarr, Lidarr, Prowlarr and the book managers: request parsing, XML, controller. |
 | `lib/magnetissimo_web/controllers/torrent_*.ex` | `GET /api/latest` and `GET /api/search/:term`, keeping the 2.0.0 field names. |
@@ -93,6 +95,11 @@ Breaking any of these causes bugs that tests may not catch:
 - **Never pass raw user text to FTS5 `MATCH`.** Go through
   `Torrents.search_torrents/2`, where `Torrents.Search` tokenizes the text
   and quotes each token.
+- **Sites are asked plain words only.** A `Torrents.Query`'s operators are
+  applied to the index. `SourceSearch` gets `Query.remote_terms/1`, never the
+  query text. Torznab and the JSON API pass plain text, which
+  `search_torrents/2` reads with `Query.plain/1`, so a title's `-` or `"` is
+  never an operator.
 - **FTS5 triggers delete with the `'delete'` command.** After touching that
   schema, run
   `insert into torrents_search(torrents_search) values('integrity-check')`.
@@ -103,7 +110,8 @@ Breaking any of these causes bugs that tests may not catch:
   `mix ecto.rollback --all && mix ecto.migrate`. Create migration files with
   `mix ecto.gen.migration name_with_underscores`, and never hand-name them.
 - **The URL is the page state.** `?q`, `?category`, `?sources` (slugs),
-  `?sort`, `?dir` and `?page` are all read in `handle_params/3`. Every
+  the refine fields (`?in`, `?min_size`, … in `SearchFilters`), `?sort`,
+  `?dir` and `?page` are all read in `handle_params/3`. Every
   control is a link or a GET form, so the page works without JavaScript.
 - **A release needs no setup.** It migrates and seeds on boot
   (`Release.migrate/0`, called in `Application.start/2` before the Repo's

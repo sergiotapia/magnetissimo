@@ -29,6 +29,9 @@ what you looked for.
   `Spider.Man.2002`, `toy story 4` matches the `4`, and a fragment of a
   Japanese title matches without any spaces to split on. Better-seeded
   copies rank first among near-identical names.
+- **Search operators** that no source has: phrases, exclusions,
+  alternatives and wildcards, plus size, seeder and age limits. See
+  [Searching](#searching).
 - **Works without JavaScript.** Searching, filtering, sorting and paging are
   all links and plain GET forms. With JavaScript on, results stream in live.
 - **A Torznab indexer** for Sonarr, Radarr, Lidarr, Prowlarr and the book
@@ -151,6 +154,34 @@ mix phx.server
 Then open [localhost:4000](http://localhost:4000). In development the
 database starts with a few dozen demo torrents to look at.
 Search for something and the real sources start filling the index.
+
+## Searching
+
+The search box takes plain words, as any search does, and these:
+
+| Type | Finds |
+| --- | --- |
+| `dune part two` | All three words, anywhere in the name or description. |
+| `"part two"` | Those whole words, in that order, side by side: `Dune.Part.Two`, not `Party Two`. |
+| `dune -cam` | Dune, without the whole word `cam`. `El Camino` and `HDCAM` stay. |
+| `dune -*cam` | Dune, without `cam` anywhere in a word, so `HDCAM` goes too. |
+| `dune 2160p\|4k` | Dune in either resolution. A bar binds tighter than a space. |
+| `seinfeld s05e1*` | Any word starting with `s05e1`. A star in the middle, `s0*e14`, matches anything between. |
+
+Under the search box, **Refine** limits the results to names only, a size
+(`2 GB`, `700 MB`; binary units, as the sites use, and a bare number is GB),
+a number of seeders, or an age (`12h`, `7d`, `2w`, `3mo`, `1y`; a bare number
+is days). These filters also apply to the latest list when the search box is
+empty.
+
+The sites themselves only understand plain words, so they are never sent the
+operators. They are asked the words you typed, without exclusions or
+wildcards, and once for each alternative (`dune 2160p` and `dune 4k`), up to
+three searches. Magnetissimo applies everything else to what they return.
+Changing a filter or an exclusion asks no site again.
+
+Torznab apps and the JSON API search plain text: there, `-` and `"` are
+just part of a title.
 
 ## Sonarr, Radarr and the book managers
 

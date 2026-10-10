@@ -5,20 +5,31 @@ defmodule MagnetissimoWeb.HomeLive do
 
   The URL is the state. Typing patches `?q=`, picking a category patches
   `?category=`, toggling sources patches `?sources=` (their slugs, comma
-  separated), a column header patches `?sort=` and `?dir=`, and the pager
-  patches `?page=`. `handle_params/3` loads from those, so a search is a link
-  and the form still works as a plain GET without JavaScript.
+  separated), the refine fields patch theirs (see
+  `MagnetissimoWeb.SearchFilters`), a column header patches `?sort=` and
+  `?dir=`, and the pager patches `?page=`. `handle_params/3` loads from
+  those, so a search is a link and the form still works as a plain GET
+  without JavaScript.
+
+  `?q=` is read as a `Magnetissimo.Torrents.Query`, so it can hold phrases,
+  exclusions, alternatives and patterns.
 
   A search answers twice. The index answers at once, and at the same moment
   every source's own search is asked through `Magnetissimo.SourceSearch`.
-  Each source's hits are indexed as they land, the page is reloaded from the
-  index, and the rows that were not there before slide in.
+  The sources are asked plain words, `Query.remote_terms/1`: one search for
+  most queries, one per alternative for a query with a few, none for one of
+  exclusions only. The page follows every one of them, and shows each source
+  as one status across them. Each source's hits are indexed as they land, the
+  page is reloaded from the index, and the rows that were not there before
+  slide in.
   """
   use MagnetissimoWeb, :live_view
 
   alias Magnetissimo.SourceSearch
   alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
+  alias Magnetissimo.Torrents.Query
+  alias MagnetissimoWeb.SearchFilters
 
   # The columns a header sorts by, each with the way its first click orders
   # it: names A to Z, the biggest and best seeded first, the youngest first.
@@ -33,7 +44,8 @@ defmodule MagnetissimoWeb.HomeLive do
      |> assign(:source_list, Torrents.list_sources())
      |> assign_index_stats()
      |> assign(:ticker, Enum.map(Torrents.list_latest_torrents(limit: 8), & &1.name))
-     |> assign(:source_key, nil)
+     |> assign(:source_keys, [])
+     |> assign(:source_statuses, %{})
      |> assign(:sources, %{})
      |> assign(:shown_ids, MapSet.new())
      |> assign(:arrived, :all)
@@ -42,72 +54,136 @@ defmodule MagnetissimoWeb.HomeLive do
 
   @impl true
   def handle_params(params, _uri, socket) do
-    q = params |> Map.get("q", "") |> String.trim()
-    category = lookup_category(params["category"])
-    sources = lookup_sources(params["sources"], socket.assigns.source_list)
-    sort = lookup_sort(params["sort"], params["dir"])
+    q = params |> Map.get("q", "") |> param_text() |> String.trim()
+
+    here = %{
+      q: q,
+      category: lookup_category(params["category"]),
+      sources: lookup_sources(params["sources"], socket.assigns.source_list),
+      sort: lookup_sort(params["sort"], params["dir"]),
+      filters: SearchFilters.from_params(params)
+    }
+
+    query = Query.parse(q)
 
     # The sources are asked before the index is read, so whatever a source
     # indexed before its status was read here is already in the first load.
     {:noreply,
      socket
-     |> follow_sources(q)
-     |> load_results(q, category, sources, sort, page_param(params["page"]))
+     |> assign(:query, query)
+     |> follow_sources(query)
+     |> load_results(here, page_param(params["page"]))
      |> assign(:arrived, :all)}
   end
+
+  # A crafted URL can repeat a param as `q[]=`, which arrives as a list.
+  defp param_text(text) when is_binary(text), do: text
+  defp param_text(_other), do: ""
 
   # Typing patches the URL once the reader pauses: `phx-debounce` on the
   # input keeps that to one patch per pause rather than one per keystroke,
   # and pressing enter takes the immediate `submit` path instead. Either way
   # `handle_params/3` does the searching.
   @impl true
-  def handle_event(event, %{"q" => q}, socket) when event in ["search", "submit"] do
-    %{category: category, source_filter: sources, sort: sort} = socket.assigns
-    {:noreply, push_patch(socket, to: index_path(String.trim(q), category, sources, sort))}
+  # The refine fields are in the same form, so a change to any of them comes
+  # through here too, and goes back to the first page.
+  def handle_event(event, %{"q" => q} = params, socket) when event in ["search", "submit"] do
+    here = %{
+      socket.assigns.here
+      | q: String.trim(q),
+        filters: SearchFilters.from_params(params)
+    }
+
+    {:noreply, push_patch(socket, to: index_path(here))}
   end
 
-  # A source's answer is only applied to the term it was asked for. One for a
+  # A source's answer is only applied to the terms it was asked for. One for a
   # term the reader has moved on from can still be in the mailbox after the
   # unsubscribe, and must not redraw the list under the newer term.
   @impl true
-  def handle_info({:source_search, key, source, status}, %{assigns: %{source_key: key}} = socket) do
-    socket = update(socket, :sources, &Map.put(&1, source, status))
+  def handle_info({:source_search, key, source, status}, socket) do
+    if key in socket.assigns.source_keys do
+      socket = put_statuses(socket, key, &Map.put(&1, source, status))
 
-    socket =
-      case status do
-        {:done, %{found: found}} when found > 0 -> reload_with_arrivals(socket)
-        _nothing_new -> socket
-      end
+      socket =
+        case status do
+          {:done, %{found: found}} when found > 0 -> reload_with_arrivals(socket)
+          _nothing_new -> socket
+        end
 
-    {:noreply, socket}
-  end
-
-  def handle_info({:source_search_done, key, statuses}, %{assigns: %{source_key: key}} = socket) do
-    {:noreply, assign(socket, :sources, statuses)}
-  end
-
-  def handle_info({:source_search, _key, _source, _status}, socket), do: {:noreply, socket}
-  def handle_info({:source_search_done, _key, _statuses}, socket), do: {:noreply, socket}
-
-  # Moves the subscription to the sources' answers for `q`, and asks for it.
-  # The first, disconnected render cannot receive answers, so it asks nothing.
-  defp follow_sources(socket, q) do
-    key = SourceSearch.key(q)
-    previous = socket.assigns.source_key
-
-    if not connected?(socket) or key == previous do
-      socket
+      {:noreply, socket}
     else
-      if previous, do: SourceSearch.unsubscribe(previous)
-      ask_sources(socket, q, key)
+      {:noreply, socket}
     end
   end
 
-  defp ask_sources(socket, _q, ""), do: assign(socket, source_key: nil, sources: %{})
+  def handle_info({:source_search_done, key, statuses}, socket) do
+    if key in socket.assigns.source_keys,
+      do: {:noreply, put_statuses(socket, key, fn _ -> statuses end)},
+      else: {:noreply, socket}
+  end
 
-  defp ask_sources(socket, q, key) do
-    :ok = SourceSearch.subscribe(key)
-    assign(socket, source_key: key, sources: SourceSearch.request(q))
+  # Moves the subscriptions to the sources' answers for `query`'s remote
+  # terms, and asks for them. The first, disconnected render cannot receive
+  # answers, so it asks nothing.
+  defp follow_sources(socket, query) do
+    terms = query |> Query.remote_terms() |> Enum.uniq_by(&SourceSearch.key/1)
+    keys = Enum.map(terms, &SourceSearch.key/1)
+    previous = socket.assigns.source_keys
+
+    if not connected?(socket) or keys == previous do
+      socket
+    else
+      for key <- previous -- keys, do: SourceSearch.unsubscribe(key)
+      for key <- keys -- previous, do: :ok = SourceSearch.subscribe(key)
+
+      statuses = Map.new(terms, &{SourceSearch.key(&1), SourceSearch.request(&1)})
+
+      socket
+      |> assign(:source_keys, keys)
+      |> assign(:source_statuses, statuses)
+      |> assign(:sources, merge_statuses(statuses))
+    end
+  end
+
+  defp put_statuses(socket, key, fun) do
+    statuses = Map.update(socket.assigns.source_statuses, key, fun.(%{}), fun)
+
+    socket
+    |> assign(:source_statuses, statuses)
+    |> assign(:sources, merge_statuses(statuses))
+  end
+
+  # One status per source across every term it was asked: still asking while
+  # any search is, done with the counts added up once any answered, and
+  # failed only if every one did.
+  defp merge_statuses(by_key) do
+    by_key
+    |> Map.values()
+    |> Enum.flat_map(&Map.to_list/1)
+    |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+    |> Map.new(fn {source, statuses} -> {source, merge_status(statuses)} end)
+  end
+
+  defp merge_status([status]), do: status
+
+  defp merge_status(statuses) do
+    done = for {:done, counts} <- statuses, do: counts
+
+    cond do
+      :searching in statuses ->
+        :searching
+
+      done != [] ->
+        {:done,
+         %{
+           found: done |> Enum.map(& &1.found) |> Enum.sum(),
+           inserted: done |> Enum.map(& &1.inserted) |> Enum.sum()
+         }}
+
+      true ->
+        hd(statuses)
+    end
   end
 
   # Any Torznab category can be filtered on, including one nothing is filed
@@ -193,16 +269,22 @@ defmodule MagnetissimoWeb.HomeLive do
 
   # Everything the results panel shows is derived from the query, the filters,
   # the sort and the page, so a URL patch and a fresh batch of hits from the
-  # source both come through here.
-  defp load_results(socket, q, category, sources, sort, page) do
+  # source both come through here. `here` is all of that but the page.
+  defp load_results(socket, here, page) do
+    %{q: q, category: category, sources: sources, sort: sort, filters: filters} = here
+    query = socket.assigns.query
+    now = DateTime.utc_now()
+    refine = SearchFilters.opts(filters, now)
+
     opts =
       [category_id: category && category.id, source_ids: Enum.map(sources, & &1.id)]
       |> Enum.reject(fn {_key, value} -> value in [nil, []] end)
+      |> Kernel.++(refine)
 
     count =
       if q == "",
         do: Torrents.count_torrents(opts),
-        else: Torrents.count_search_torrents(q, opts)
+        else: Torrents.count_search_torrents(query, opts)
 
     pages = max(1, ceil(count / Torrents.per_page()))
     page = min(page, pages)
@@ -210,33 +292,45 @@ defmodule MagnetissimoWeb.HomeLive do
     torrents =
       if q == "",
         do: Torrents.list_latest_torrents(opts ++ torrent_sort(sort) ++ page_opts(page)),
-        else: Torrents.search_torrents(q, opts ++ torrent_sort(sort) ++ page_opts(page))
+        else: Torrents.search_torrents(query, opts ++ torrent_sort(sort) ++ page_opts(page))
 
     socket
+    |> assign(:here, here)
     |> assign(:q, q)
     |> assign(:category, category)
     |> assign(:source_filter, sources)
     |> assign(:sort, sort)
+    |> assign(:filters, filters)
     |> assign(:page, page)
     |> assign(:pages, pages)
     |> assign(:count, count)
-    |> assign_filtered_away(q, category, sources, count)
+    |> assign_filtered_away(here, refine, count)
     |> assign(:form, to_form(%{"q" => q}))
-    |> assign(:now, DateTime.utc_now())
+    |> assign(:now, now)
     |> assign(:shown_ids, MapSet.new(torrents, & &1.id))
     |> stream(:torrents, torrents, reset: true)
   end
 
-  # With a filter on, every source is still asked, for every category, so the
-  # page says how much of each answer the filters are hiding: per source in
-  # its chip, and in total next to the match count.
-  defp assign_filtered_away(socket, "", _category, _sources, _count) do
+  # With a category or source filter on, every source is still asked, for
+  # every category, so the page says how much of each answer those filters
+  # are hiding: per source in its chip, and in total next to the match count.
+  # The refine fields narrow what is asked about, so they stay applied.
+  defp assign_filtered_away(socket, %{q: ""}, _refine, _count) do
     assign(socket, in_filter: nil, outside: 0)
   end
 
-  defp assign_filtered_away(socket, q, category, sources, count) do
-    in_filter = if category, do: Torrents.count_search_hits_by_source(q, category.id)
-    outside = if category || sources != [], do: Torrents.count_search_torrents(q) - count, else: 0
+  defp assign_filtered_away(socket, here, refine, count) do
+    %{category: category, sources: sources} = here
+    query = socket.assigns.query
+
+    in_filter =
+      if category,
+        do: Torrents.count_search_hits_by_source(Query.remote_terms(query), category.id)
+
+    outside =
+      if category || sources != [],
+        do: Torrents.count_search_torrents(query, refine) - count,
+        else: 0
 
     assign(socket, in_filter: in_filter, outside: outside)
   end
@@ -246,13 +340,13 @@ defmodule MagnetissimoWeb.HomeLive do
   # re-attaches every kept row, which would replay a row animation on all of
   # them, so the animation class goes only on the arrivals.
   defp reload_with_arrivals(socket) do
-    %{q: q, category: category, source_filter: sources, sort: sort, page: page} = socket.assigns
+    %{here: here, page: page} = socket.assigns
     before = socket.assigns.shown_ids
 
     arrived_before =
       if socket.assigns.arrived == :all, do: MapSet.new(), else: socket.assigns.arrived
 
-    socket = socket |> assign_index_stats() |> load_results(q, category, sources, sort, page)
+    socket = socket |> assign_index_stats() |> load_results(here, page)
 
     arrived =
       socket.assigns.shown_ids |> MapSet.difference(before) |> MapSet.union(arrived_before)
@@ -270,19 +364,27 @@ defmodule MagnetissimoWeb.HomeLive do
     |> assign(:total, Torrents.count_torrents())
   end
 
-  defp index_path(q, category, sources, sort, page \\ 1) do
-    {column, dir} = sort || {nil, nil}
+  # The page as it is, with `changes` made: any of the keys in `here`, and
+  # `:page`, which is otherwise the first.
+  defp index_path(here, changes \\ []) do
+    here = Map.merge(here, Map.new(changes))
+    %{q: q, category: category, sources: sources, filters: filters} = here
+    {column, dir} = here.sort || {nil, nil}
+    page = Map.get(here, :page, 1)
 
     params =
       Enum.reject(
         [
           q: if(String.trim(q) != "", do: q),
           category: category && category.id,
-          sources: if(sources != [], do: Enum.map_join(sources, ",", &source_slug(&1.name))),
-          sort: column,
-          dir: dir,
-          page: if(page > 1, do: page)
-        ],
+          sources: if(sources != [], do: Enum.map_join(sources, ",", &source_slug(&1.name)))
+        ] ++
+          SearchFilters.to_params(filters) ++
+          [
+            sort: column,
+            dir: dir,
+            page: if(page > 1, do: page)
+          ],
         fn {_key, value} -> is_nil(value) end
       )
 
@@ -406,6 +508,131 @@ defmodule MagnetissimoWeb.HomeLive do
   defp dir_word(:asc), do: "ascending"
   defp dir_word(:desc), do: "descending"
 
+  # The refine fields, in a disclosure under the search box. It opens itself
+  # when the URL holds any, and is otherwise left as the reader set it: the
+  # server does not know, so `open` is not patched back.
+  attr :filters, SearchFilters, required: true
+  attr :clear, :string, required: true, doc: "the page with no refine fields"
+
+  defp refine(assigns) do
+    ~H"""
+    <details
+      id="refine"
+      open={refine_open?(@filters)}
+      phx-mounted={JS.ignore_attributes(["open"])}
+      class="group/refine mt-3 pl-5"
+    >
+      <summary class="focus-ring inline-flex cursor-pointer list-none items-center gap-1.5 rounded text-sm font-semibold text-ink-500 transition hover:text-azure-600 [&::-webkit-details-marker]:hidden">
+        <.icon
+          name="hero-adjustments-horizontal-mini"
+          class="size-4 text-azure-500 transition group-open/refine:rotate-90"
+        /> Refine
+      </summary>
+
+      <div class="mt-3 grid gap-x-5 gap-y-3 sm:grid-cols-3">
+        <fieldset class="sm:col-span-3">
+          <legend class="label mb-1.5">Search in</legend>
+          <div class="flex flex-wrap gap-x-5 gap-y-1 text-sm font-semibold text-ink-700">
+            <label class="inline-flex items-center gap-2">
+              <input
+                type="radio"
+                name="in"
+                value=""
+                id="refine-in-all"
+                checked={@filters.scope == :all}
+                class="accent-azure-500"
+              /> Names and descriptions
+            </label>
+            <label class="inline-flex items-center gap-2">
+              <input
+                type="radio"
+                name="in"
+                value="title"
+                id="refine-in-title"
+                checked={@filters.scope == :name}
+                class="accent-azure-500"
+              /> Names only
+            </label>
+          </div>
+        </fieldset>
+
+        <.refine_pair
+          :for={{legend, fields} <- refine_fields()}
+          legend={legend}
+          fields={fields}
+          filters={@filters}
+        />
+      </div>
+
+      <div class="mt-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2">
+        <p id="refine-help" class="text-xs leading-relaxed text-ink-500">
+          In the search box: <code class="font-mono text-ink-700">"exact phrase"</code>
+          · <code class="font-mono text-ink-700">-word</code>
+          to exclude · <code class="font-mono text-ink-700">this|that</code>
+          · <code class="font-mono text-ink-700">s01e*</code>
+          for any ending
+        </p>
+        <.link
+          :if={refine_open?(@filters)}
+          patch={@clear}
+          id="clear-refine"
+          class="pill focus-ring px-2.5 py-1 text-[0.7rem] font-bold"
+        >
+          Clear refine ×
+        </.link>
+      </div>
+    </details>
+    """
+  end
+
+  attr :legend, :string, required: true
+  attr :fields, :list, required: true, doc: "`{name, label, placeholder}` for each field"
+  attr :filters, SearchFilters, required: true
+
+  defp refine_pair(assigns) do
+    ~H"""
+    <fieldset>
+      <legend class="label mb-1.5">{@legend}</legend>
+      <div class="grid grid-cols-2 gap-2">
+        <div :for={{name, label, placeholder} <- @fields}>
+          <label for={"refine-#{name}"} class="sr-only">{@legend} {label}</label>
+          <.input
+            type="text"
+            name={name}
+            id={"refine-#{name}"}
+            value={SearchFilters.value(@filters, name)}
+            placeholder={placeholder}
+            autocomplete="off"
+            spellcheck="false"
+            phx-debounce="400"
+            aria-invalid={SearchFilters.invalid?(@filters, name) && "true"}
+            aria-describedby={SearchFilters.invalid?(@filters, name) && "refine-#{name}-error"}
+            class="well w-full rounded-full px-3.5 py-1.5 text-sm font-semibold text-ink-900 outline-none placeholder:font-normal placeholder:text-ink-300 focus-visible:shadow-[0_0_0_3px_rgba(79,123,255,0.35)] aria-invalid:shadow-[0_0_0_2px_var(--color-bubble)]"
+          />
+          <p
+            :if={SearchFilters.invalid?(@filters, name)}
+            id={"refine-#{name}-error"}
+            class="mt-1 pl-3.5 text-xs text-ink-500"
+          >
+            Not understood, so ignored
+          </p>
+        </div>
+      </div>
+    </fieldset>
+    """
+  end
+
+  defp refine_fields do
+    [
+      {"Size", [{"min_size", "at least", "min, e.g. 2 GB"}, {"max_size", "at most", "max"}]},
+      {"Seeders", [{"min_seeders", "at least", "min"}, {"max_seeders", "at most", "max"}]},
+      {"Age", [{"max_age", "newer than", "newer, e.g. 7d"}, {"min_age", "older than", "older"}]}
+    ]
+  end
+
+  # Open when the URL holds a refine field, read or not.
+  defp refine_open?(filters), do: filters.scope != :all or filters.typed != %{}
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -447,7 +674,7 @@ defmodule MagnetissimoWeb.HomeLive do
               <span>Sources</span>
               <.link
                 :if={@source_filter != []}
-                patch={index_path(@q, @category, [], @sort)}
+                patch={index_path(@here, sources: [])}
                 id="clear-sources"
                 class="pill focus-ring px-2.5 py-1 font-sans text-[0.7rem] font-bold tracking-normal normal-case"
               >
@@ -460,12 +687,7 @@ defmodule MagnetissimoWeb.HomeLive do
               <li :for={source <- @source_list}>
                 <.link
                   patch={
-                    index_path(
-                      @q,
-                      @category,
-                      toggle_source(@source_filter, source, @source_list),
-                      @sort
-                    )
+                    index_path(@here, sources: toggle_source(@source_filter, source, @source_list))
                   }
                   id={"source-#{source_slug(source.name)}"}
                   aria-current={picked?(@source_filter, source.name) && "true"}
@@ -524,7 +746,7 @@ defmodule MagnetissimoWeb.HomeLive do
               <span>Categories</span>
               <.link
                 :if={@category}
-                patch={index_path(@q, nil, @source_filter, @sort)}
+                patch={index_path(@here, category: nil)}
                 id="clear-category"
                 class="pill focus-ring px-2.5 py-1 font-sans text-[0.7rem] font-bold tracking-normal normal-case"
               >
@@ -543,7 +765,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 <div class="mt-2 flex flex-wrap gap-1.5">
                   <%!-- The whole group: the top level and all of its children. --%>
                   <.link
-                    patch={index_path(@q, root, @source_filter, @sort)}
+                    patch={index_path(@here, category: root)}
                     id={"category-#{root.id}"}
                     aria-current={@category && @category.id == root.id && "true"}
                     class={[
@@ -566,7 +788,7 @@ defmodule MagnetissimoWeb.HomeLive do
                     :for={category <- children}
                     category={category}
                     short
-                    patch={index_path(@q, category, @source_filter, @sort)}
+                    patch={index_path(@here, category: category)}
                     active={@category && @category.id == category.id}
                     count={@category_counts[category.id]}
                     id={"category-#{category.id}"}
@@ -641,6 +863,8 @@ defmodule MagnetissimoWeb.HomeLive do
                     Go
                   </button>
                 </div>
+
+                <.refine filters={@filters} clear={index_path(@here, filters: %SearchFilters{})} />
               </.form>
 
               <p :if={@q != "" or !@category} id="status-line" class="mt-4 pl-5 text-sm text-ink-500">
@@ -652,10 +876,13 @@ defmodule MagnetissimoWeb.HomeLive do
                   <span :if={@source_filter != []} id="source-filter-line">
                     from {Enum.map_join(@source_filter, ", ", & &1.name)}
                   </span>
+                  <span :if={SearchFilters.active?(@filters)} id="refine-line">
+                    · {Enum.join(SearchFilters.summary(@filters), " · ")}
+                  </span>
                   <span :if={@outside > 0} id="filtered-away">
                     · {@outside} more outside the filter,
                     <.link
-                      patch={index_path(@q, nil, [], @sort)}
+                      patch={index_path(@here, category: nil, sources: [])}
                       id="show-all"
                       class="font-semibold text-azure-600 underline decoration-azure-200 underline-offset-2 transition hover:decoration-azure-500"
                     >
@@ -663,7 +890,15 @@ defmodule MagnetissimoWeb.HomeLive do
                     </.link>
                   </span>
                 <% else %>
-                  Type to search, or pick a category.
+                  <%= if SearchFilters.active?(@filters) do %>
+                    <span class="font-bold text-azure-600">{@count}</span>
+                    {if @count == 1, do: "magnet", else: "magnets"}
+                    <span id="refine-line">
+                      · {Enum.join(SearchFilters.summary(@filters), " · ")}
+                    </span>
+                  <% else %>
+                    Type to search, or pick a category.
+                  <% end %>
                 <% end %>
               </p>
 
@@ -744,14 +979,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 label={label}
                 title={title}
                 shown={shown_sort(@sort, @q)}
-                patch={
-                  index_path(
-                    @q,
-                    @category,
-                    @source_filter,
-                    sort_after_click(shown_sort(@sort, @q), column)
-                  )
-                }
+                patch={index_path(@here, sort: sort_after_click(shown_sort(@sort, @q), column))}
               />
               <span class="hidden text-right md:block" aria-hidden="true">Link</span>
             </div>
@@ -825,7 +1053,7 @@ defmodule MagnetissimoWeb.HomeLive do
             >
               <.link
                 id="page-prev"
-                patch={index_path(@q, @category, @source_filter, @sort, @page - 1)}
+                patch={index_path(@here, page: @page - 1)}
                 aria-disabled={@page == 1 && "true"}
                 class={[
                   "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",
@@ -839,7 +1067,7 @@ defmodule MagnetissimoWeb.HomeLive do
 
               <.link
                 id="page-next"
-                patch={index_path(@q, @category, @source_filter, @sort, @page + 1)}
+                patch={index_path(@here, page: @page + 1)}
                 aria-disabled={@page == @pages && "true"}
                 class={[
                   "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",

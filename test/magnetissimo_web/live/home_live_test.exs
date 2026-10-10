@@ -298,6 +298,136 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     end
   end
 
+  describe "operators and refine fields" do
+    setup do
+      now = DateTime.utc_now()
+      gib = 1024 * 1024 * 1024
+
+      for {name, size, seeders, days} <- [
+            {"Lima Film 2160p", 20 * gib, 900, 1},
+            {"Lima Film 1080p", 6 * gib, 40, 30},
+            {"Lima Film CAM", gib, 2, 400}
+          ] do
+        TorrentsFixtures.torrent_fixture(%{
+          name: name,
+          description: "A couple of lima beans.",
+          size_in_bytes: size,
+          seeders: seeders,
+          published_at: DateTime.add(now, -days, :day)
+        })
+      end
+
+      :ok
+    end
+
+    test "an exclusion narrows the list, and the sources are asked the plain words",
+         %{conn: conn} do
+      :ok = SourceSearch.subscribe("lima")
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "lima -cam"]}")
+      await_terms(view, ["lima"])
+
+      # The stub sources answer any search with their fixtures, which a source
+      # hit lets through: what matters is that the CAM is gone.
+      lima = view |> row_names() |> Enum.filter(&String.starts_with?(&1, "Lima"))
+      assert Enum.sort(lima) == ["Lima Film 1080p", "Lima Film 2160p"]
+      assert has_element?(view, "#source-status-yts[data-status=done]")
+    end
+
+    test "each alternative asks the sources, and every answer is followed", %{conn: conn} do
+      terms = ["lima 2160p", "lima 1080p"]
+      for term <- terms, do: :ok = SourceSearch.subscribe(term)
+
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "lima 2160p|1080p"]}")
+      assert has_element?(view, "#source-status-yts")
+      await_terms(view, terms)
+
+      assert Enum.sort(row_names(view)) == ["Lima Film 1080p", "Lima Film 2160p"]
+      refute has_element?(view, "#source-status li[data-status=searching]")
+    end
+
+    test "a query of exclusions only asks no one and lists everything else", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "-cam"]}")
+
+      refute has_element?(view, "#source-status")
+      assert Enum.sort(row_names(view)) == ["Lima Film 1080p", "Lima Film 2160p"]
+    end
+
+    test "refine fields filter the list and every link keeps them", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?#{[min_size: "5 GB", max_age: "60d"]}")
+
+      assert Enum.sort(row_names(view)) == ["Lima Film 1080p", "Lima Film 2160p"]
+      assert has_element?(view, "#refine[open]")
+      assert has_element?(view, "#refine-min_size[value='5 GB']")
+      assert has_element?(view, "#refine-line", "at least 5.0 GiB")
+
+      for link <- ["#sort-seeders", "#category-2000", "#source-yts"] do
+        assert has_element?(view, ~s(#{link}[href*="min_size=5+GB"][href*="max_age=60d"])),
+               "#{link} drops the refine fields"
+      end
+
+      view |> element("#clear-refine") |> render_click()
+      assert_patch(view, ~p"/")
+      assert Enum.sort(row_names(view)) == ["Lima Film 1080p", "Lima Film 2160p", "Lima Film CAM"]
+    end
+
+    test "changing a refine field patches the url, as typed", %{conn: conn} do
+      :ok = SourceSearch.subscribe("lima")
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "lima"]}")
+      refute has_element?(view, "#refine[open]")
+
+      view
+      |> form("#search-form", q: "lima", min_seeders: "10", in: "title")
+      |> render_change()
+
+      assert_patch(view, ~p"/?#{[q: "lima", in: "title", min_seeders: "10"]}")
+      assert Enum.sort(row_names(view)) == ["Lima Film 1080p", "Lima Film 2160p"]
+      await_terms(view, ["lima"])
+    end
+
+    test "names only leaves out matches in the description", %{conn: conn} do
+      :ok = SourceSearch.subscribe("couple")
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "couple", in: "title"]}")
+      assert row_names(view) == []
+      await_terms(view, ["couple"])
+
+      # The sources answered "couple" a moment ago, so they are not asked again.
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "couple"]}")
+      assert view |> row_names() |> Enum.count(&String.starts_with?(&1, "Lima")) == 3
+    end
+
+    test "a field that does not read is ignored and marked", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?#{[min_size: "huge", max_seeders: "100"]}")
+
+      assert has_element?(view, "#refine-min_size[aria-invalid=true][value=huge]")
+      refute has_element?(view, "#refine-max_seeders[aria-invalid]")
+      assert Enum.sort(row_names(view)) == ["Lima Film 1080p", "Lima Film CAM"]
+    end
+
+    test "the form still works as a plain GET without JavaScript", %{conn: conn} do
+      html = conn |> get(~p"/?#{[q: "lima", min_seeders: "100"]}") |> html_response(200)
+      doc = LazyHTML.from_document(html)
+
+      for name <- [
+            "q",
+            "in",
+            "min_size",
+            "max_size",
+            "min_seeders",
+            "max_seeders",
+            "max_age",
+            "min_age"
+          ] do
+        refute Enum.empty?(
+                 LazyHTML.query(doc, ~s(form#search-form[method=get] [name="#{name}"]))
+               ),
+               "the form has no #{name} field"
+      end
+
+      rows = doc |> LazyHTML.query("#torrents h2") |> Enum.map(&String.trim(LazyHTML.text(&1)))
+      assert Enum.sort(rows) == ["Lima Film 2160p"]
+    end
+  end
+
   defp row_names(view) do
     view
     |> render()
@@ -313,6 +443,18 @@ defmodule MagnetissimoWeb.HomeLiveTest do
   # The broadcast reaches this process and the view from the same handler in
   # SourceSearch, so once that handler is over and the view has worked through
   # its mailbox, the view has seen every answer.
+  # Like `await_sources/1`, for a page that asked the sources several terms.
+  defp await_terms(view, terms) do
+    for term <- terms do
+      key = SourceSearch.key(term)
+      assert_receive {:source_search_done, ^key, _statuses}, 2_000
+    end
+
+    _ = :sys.get_state(SourceSearch)
+    _ = :sys.get_state(view.pid)
+    :ok
+  end
+
   defp await_sources(view) do
     assert_receive {:source_search_done, _key, _statuses}, 2_000
     _ = :sys.get_state(SourceSearch)

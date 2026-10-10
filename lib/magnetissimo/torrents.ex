@@ -443,17 +443,25 @@ defmodule Magnetissimo.Torrents do
 
   @doc """
   Returns `%{source_name => count}`: how many of the torrents each source
-  returned for `term` are filed under `category_id` or one of its children.
+  returned for `term`, or for any of a list of terms, are filed under
+  `category_id` or one of its children. A torrent returned for two of the
+  terms counts once.
 
   A source that returned none in the category is left out. This is what lets
   the page say how much of a source's answer a category filter is hiding.
   """
-  def count_search_hits_by_source(term, category_id) do
+  def count_search_hits_by_source(term, category_id) when is_binary(term) do
+    count_search_hits_by_source([term], category_id)
+  end
+
+  def count_search_hits_by_source(terms, category_id) when is_list(terms) do
+    terms = Enum.map(terms, &Search.normalize/1)
+
     Repo.all(
       from h in SearchHit,
         join: t in assoc(h, :torrent),
         join: s in assoc(h, :source),
-        where: h.term == ^Search.normalize(term),
+        where: h.term in ^terms,
         where: t.category_id in ^Taxonomy.family_ids(category_id),
         group_by: s.name,
         select: {s.name, count(h.torrent_id, :distinct)}
