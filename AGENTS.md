@@ -1,8 +1,8 @@
 # Magnetissimo
 
 A self-hosted torrent indexer: ask torrent sites' own search when someone
-searches, extract magnet links, store them, serve a no-JavaScript LiveView UI plus a JSON API that Sonarr and Radarr
-consume.
+searches, extract magnet links, store them, serve a no-JavaScript LiveView UI
+plus a JSON API that Sonarr and Radarr consume.
 
 This is a rewrite of the legacy app at `~/Work/magnetissimo-old`. Read
 `legacy-project.md` in that repo before changing behavior — it describes what
