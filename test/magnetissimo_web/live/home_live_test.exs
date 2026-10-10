@@ -5,8 +5,10 @@ defmodule MagnetissimoWeb.HomeLiveTest do
   import Phoenix.LiveViewTest
 
   alias Magnetissimo.Crawlers.TorrentDownloads
+  alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.SourceSearch
   alias Magnetissimo.TorrentsFixtures
+  alias Magnetissimo.YtsFixtures
 
   setup :stub_sources
 
@@ -14,12 +16,25 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     local = TorrentsFixtures.torrent_fixture(%{name: "Fixture Movie Collection"})
     :ok = SourceSearch.subscribe("Fixture Movie")
 
+    # YTS holds its answer until the first page is on screen. Answering at
+    # once, it can land before that page is read, and then its hits are part
+    # of it rather than arrivals.
+    test = self()
+
+    Req.Test.stub(Yts, fn conn ->
+      send(test, {:yts_asked, self()})
+      assert_receive :answer, 2_000
+      Req.Test.json(conn, YtsFixtures.api_response())
+    end)
+
     {:ok, view, _html} = live(conn, ~p"/?#{[q: "Fixture Movie"]}")
 
     assert has_element?(view, "#torrents-#{local.id}")
     refute has_element?(view, "#torrents-#{local.id}[data-arrived]")
-    assert has_element?(view, "#source-status-yts")
+    assert has_element?(view, "#source-status-yts[data-status=searching]")
 
+    assert_receive {:yts_asked, yts}, 2_000
+    send(yts, :answer)
     await_sources(view)
 
     assert has_element?(view, "#source-status-yts[data-status=done]", "2 found · 2 new")
