@@ -19,9 +19,8 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   """
 
   alias Magnetissimo.Crawlers.Categories
+  alias Magnetissimo.Crawlers.Http
   alias Magnetissimo.Crawlers.Rss
-
-  @user_agent "Magnetissimo/0.1"
 
   # Every Nyaa magnet carries the site's own tracker first and these four
   # public ones after it.
@@ -60,19 +59,7 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
     end
   end
 
-  defp fetch(url) do
-    # No retries: a search is a one-shot question, so retrying only holds a
-    # process open while a mirror is down.
-    options =
-      Application.get_env(:magnetissimo, __MODULE__, []) ++
-        [headers: [user_agent: @user_agent], retry: false]
-
-    case Req.get(url, options) do
-      {:ok, %{status: 200, body: body}} -> {:ok, body}
-      {:ok, %{status: status}} -> {:error, {:http_status, status}}
-      {:error, reason} -> {:error, reason}
-    end
-  end
+  defp fetch(url), do: Http.get(url, Application.get_env(:magnetissimo, __MODULE__, []))
 
   # An item missing a field we cannot invent, or carrying a size or date we
   # cannot parse, is dropped rather than crashing the crawl.

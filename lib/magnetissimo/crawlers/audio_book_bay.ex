@@ -33,6 +33,7 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   require Logger
 
   alias Magnetissimo.Crawlers.Categories
+  alias Magnetissimo.Crawlers.Http
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Crawlers.Rss
   alias Magnetissimo.Torrents
@@ -44,7 +45,6 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   # change it here, and the source's url in `Magnetissimo.Seeds` with it.
   @base_url "https://audiobookbay.lu"
   @source_name "AudioBookBay"
-  @user_agent "Magnetissimo/0.1"
 
   # See the moduledoc: the site shuts out an address that sends a burst.
   @max_concurrency 2
@@ -250,19 +250,14 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   end
 
   defp fetch(url, options) do
-    # No retries: a search is a one-shot question, so retrying only holds a
-    # process open while the site is down, and adds to the burst it shuts out.
     options =
-      Keyword.merge(
-        [headers: [user_agent: @user_agent], retry: false, receive_timeout: @page_timeout],
-        options
-      ) ++ Keyword.delete(config(), :page_delay)
+      Keyword.merge([receive_timeout: @page_timeout], options) ++
+        Keyword.delete(config(), :page_delay)
 
-    case Req.get(url, options) do
-      {:ok, %{status: 200, body: body}} when is_binary(body) -> {:ok, body}
-      {:ok, %{status: 200}} -> {:error, :unexpected_response}
-      {:ok, %{status: status}} -> {:error, {:http_status, status}}
-      {:error, reason} -> {:error, reason}
+    case Http.get(url, options) do
+      {:ok, body} when is_binary(body) -> {:ok, body}
+      {:ok, _body} -> {:error, :unexpected_response}
+      error -> error
     end
   end
 

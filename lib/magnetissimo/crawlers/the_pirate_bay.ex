@@ -21,6 +21,7 @@ defmodule Magnetissimo.Crawlers.ThePirateBay do
   @behaviour Magnetissimo.Crawlers.Crawler
 
   alias Magnetissimo.Crawlers.Categories
+  alias Magnetissimo.Crawlers.Http
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Crawlers.Rss
   alias Magnetissimo.Torrents
@@ -28,7 +29,6 @@ defmodule Magnetissimo.Crawlers.ThePirateBay do
   @api_url "https://apibay.org/q.php"
   @site_url "https://thepiratebay.org"
   @source_name "The Pirate Bay"
-  @user_agent "Magnetissimo/0.1"
 
   # The site's category ids, as `main.js` names them, mapped the way Prowlarr's
   # `thepiratebay` indexer does. The hundreds are the top-level groups; a
@@ -115,21 +115,14 @@ defmodule Magnetissimo.Crawlers.ThePirateBay do
   end
 
   defp fetch_rows(params) do
-    # No retries: a search is a one-shot question, and apibay meets a burst
-    # with a 429 that a quick retry only prolongs.
-    options =
-      Application.get_env(:magnetissimo, __MODULE__, []) ++
-        [
-          params: params,
-          headers: [user_agent: @user_agent],
-          retry: false
-        ]
+    # apibay meets a burst with a 429, which `Http` does not retry: a quick
+    # retry only prolongs it.
+    options = [params: params] ++ Application.get_env(:magnetissimo, __MODULE__, [])
 
-    case Req.get(@api_url, options) do
-      {:ok, %{status: 200, body: rows}} when is_list(rows) -> {:ok, rows}
-      {:ok, %{status: 200}} -> {:error, :unexpected_response}
-      {:ok, %{status: status}} -> {:error, {:http_status, status}}
-      {:error, reason} -> {:error, reason}
+    case Http.get(@api_url, options) do
+      {:ok, rows} when is_list(rows) -> {:ok, rows}
+      {:ok, _body} -> {:error, :unexpected_response}
+      error -> error
     end
   end
 

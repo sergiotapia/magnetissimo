@@ -15,6 +15,7 @@ defmodule Magnetissimo.Crawlers.Yts do
   @behaviour Magnetissimo.Crawlers.Crawler
 
   alias Magnetissimo.Crawlers.Categories
+  alias Magnetissimo.Crawlers.Http
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Torrents
 
@@ -34,7 +35,6 @@ defmodule Magnetissimo.Crawlers.Yts do
                 fallback: "Movies"
               )
   @limit 50
-  @user_agent "Magnetissimo/0.1"
 
   @impl true
   def source_name, do: @source_name
@@ -55,21 +55,9 @@ defmodule Magnetissimo.Crawlers.Yts do
   end
 
   defp fetch_movies(params) do
-    # No retries: a search is a one-shot question, so retrying here only
-    # holds a process open while a mirror is down.
-    options =
-      Application.get_env(:magnetissimo, __MODULE__, []) ++
-        [
-          params: params,
-          headers: [user_agent: @user_agent],
-          retry: false
-        ]
+    options = [params: params] ++ Application.get_env(:magnetissimo, __MODULE__, [])
 
-    case Req.get(@api_url, options) do
-      {:ok, %{status: 200, body: body}} -> movies(body)
-      {:ok, %{status: status}} -> {:error, {:http_status, status}}
-      {:error, reason} -> {:error, reason}
-    end
+    with {:ok, body} <- Http.get(@api_url, options), do: movies(body)
   end
 
   defp movies(%{"data" => %{"movies" => movies}}) when is_list(movies), do: {:ok, movies}

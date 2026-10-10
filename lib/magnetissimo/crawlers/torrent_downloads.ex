@@ -23,13 +23,13 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   require Logger
 
   alias Magnetissimo.Crawlers.Categories
+  alias Magnetissimo.Crawlers.Http
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Crawlers.Rss
 
   @base_url "https://www.torrentdownloads.pro"
   @feed_path "/rss.xml"
   @source_name "TorrentDownloads"
-  @user_agent "Magnetissimo/0.1"
 
   # The feed names a category but gives no id, so the names are the keys.
   # These are Prowlarr's `torrentdownloads` mappings: the site's categories
@@ -132,22 +132,11 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   end
 
   defp fetch(params) do
-    # No retries: a search is a one-shot question, so retrying only holds a
-    # process open while a mirror is down.
     options =
       Application.get_env(:magnetissimo, __MODULE__, []) ++
-        [
-          params: params,
-          headers: [user_agent: @user_agent],
-          retry: false,
-          receive_timeout: 5_000
-        ]
+        [params: params, receive_timeout: 5_000]
 
-    case Req.get(@base_url <> @feed_path, options) do
-      {:ok, %{status: 200, body: body}} -> {:ok, body}
-      {:ok, %{status: status}} -> {:error, {:http_status, status}}
-      {:error, reason} -> {:error, reason}
-    end
+    Http.get(@base_url <> @feed_path, options)
   end
 
   # An item missing a field we cannot invent, or carrying a date we cannot
