@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/screenshot.webp" alt="The Magnetissimo home page: a search box under the chrome wordmark, source and category filters on the left, and the freshest magnets listed with size, swarm and age" width="820">
+  <img src="docs/demo.gif" alt="A search for x265 on the Magnetissimo home page: every source's status under the search box and the results listed with size, swarm and age. The theme switch in the nav turns the page from light to dark in a circle that grows from the button, then back to light" width="820">
 </p>
 
 ## What it does
