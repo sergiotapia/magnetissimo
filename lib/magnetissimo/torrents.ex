@@ -67,6 +67,8 @@ defmodule Magnetissimo.Torrents do
     * `:offset` - skip this many, 0 by default, for paging
     * `:category_id` - only torrents filed under this category or, for a
       top-level one, any of its children
+    * `:source_ids` - only torrents from one of these sources; an empty list
+      is no filter, not an empty result
     * `:sort` - a `t:Magnetissimo.Torrents.Search.sort/0`, such as
       `{:seeders, :desc}`, in place of newest first
 
@@ -77,7 +79,7 @@ defmodule Magnetissimo.Torrents do
 
     query = from t in Torrent, limit: ^limit, offset: ^offset, preload: [:source]
 
-    query |> by_category(opts) |> sorted(opts[:sort]) |> Repo.all()
+    query |> filtered(opts) |> sorted(opts[:sort]) |> Repo.all()
   end
 
   defp sorted(query, nil), do: order_by(query, [t], desc: t.published_at, desc: t.id)
@@ -90,15 +92,24 @@ defmodule Magnetissimo.Torrents do
     order_by(query, [t], [{^dir, field(t, ^field)}, desc: t.id])
   end
 
-  @doc "Returns how many torrents are indexed, or match `:category_id`."
+  @doc "Returns how many torrents are indexed, or match `:category_id` and `:source_ids`."
   def count_torrents(opts \\ []) do
-    Repo.aggregate(by_category(from(t in Torrent), opts), :count)
+    Repo.aggregate(filtered(from(t in Torrent), opts), :count)
   end
 
-  defp by_category(query, opts) do
-    case Keyword.fetch(opts, :category_id) do
-      {:ok, category_id} -> where(query, [t], t.category_id in ^Taxonomy.family_ids(category_id))
-      :error -> query
+  defp filtered(query, opts) do
+    query =
+      case Keyword.fetch(opts, :category_id) do
+        {:ok, category_id} ->
+          where(query, [t], t.category_id in ^Taxonomy.family_ids(category_id))
+
+        :error ->
+          query
+      end
+
+    case Keyword.get(opts, :source_ids, []) do
+      [] -> query
+      source_ids -> where(query, [t], t.source_id in ^source_ids)
     end
   end
 
@@ -279,8 +290,8 @@ defmodule Magnetissimo.Torrents do
   Returns `[]` for input with nothing to search for.
 
   Takes the same options as `list_latest_torrents/1`, where `:sort` replaces
-  best match first. The category filter and the page are applied in SQL, so a
-  page is always full while matches remain.
+  best match first. The category and source filters and the page are applied
+  in SQL, so a page is always full while matches remain.
   """
   def search_torrents(term, opts \\ []) do
     limit = Keyword.get(opts, :limit, @search_limit)
@@ -300,8 +311,8 @@ defmodule Magnetissimo.Torrents do
   @doc """
   Returns how many torrents `search_torrents/2` matches, so the UI can page.
 
-  Takes the same `:category_id` option; input with nothing to search for
-  matches nothing rather than everything.
+  Takes the same `:category_id` and `:source_ids` options; input with nothing
+  to search for matches nothing rather than everything.
   """
   def count_search_torrents(term, opts \\ []) do
     case search_query(term, opts, "count(*)", "") do
@@ -316,15 +327,7 @@ defmodule Magnetissimo.Torrents do
 
   defp search_query(term, opts, select, tail) when is_binary(term) do
     with {matches, params} <- Search.matches(term) do
-      {filter, filter_params} =
-        case Keyword.fetch(opts, :category_id) do
-          {:ok, category_id} ->
-            ids = Taxonomy.family_ids(category_id)
-            {"WHERE t.category_id IN (#{Enum.map_join(ids, ", ", fn _ -> "?" end)})", ids}
-
-          :error ->
-            {"", []}
-        end
+      {filter, filter_params} = search_filter(opts)
 
       sql = """
       WITH #{matches}
@@ -340,6 +343,29 @@ defmodule Magnetissimo.Torrents do
   end
 
   defp search_query(_term, _opts, _select, _tail), do: nil
+
+  defp search_filter(opts) do
+    category_ids =
+      case Keyword.fetch(opts, :category_id) do
+        {:ok, category_id} -> Taxonomy.family_ids(category_id)
+        :error -> []
+      end
+
+    conditions =
+      for {column, ids} <- [category_id: category_ids, source_id: opts[:source_ids] || []],
+          ids != [] do
+        {"t.#{column} IN (#{Enum.map_join(ids, ", ", fn _ -> "?" end)})", ids}
+      end
+
+    case conditions do
+      [] ->
+        {"", []}
+
+      _ ->
+        {"WHERE " <> Enum.map_join(conditions, " AND ", &elem(&1, 0)),
+         Enum.flat_map(conditions, &elem(&1, 1))}
+    end
+  end
 
   # The search returns ids in rank order; a single `where id in ^ids` query
   # would lose it, so the rows are re-sorted here.

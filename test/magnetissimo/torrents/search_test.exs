@@ -160,6 +160,29 @@ defmodule Magnetissimo.Torrents.SearchTest do
     assert Enum.map(Torrents.list_latest_torrents(uhd), & &1.name) == ["Delta Film UHD"]
   end
 
+  test "filtering by sources keeps any of them, and combines with a category" do
+    fixture("Echo Film", %{source: "YTS"})
+    fixture("Echo Show", %{source: "EZTV", category: "TV/HD"})
+    fixture("Echo Anime", %{source: "Nyaa.si", category: "TV/Anime"})
+
+    id = &Torrents.get_source_by_name!(&1).id
+
+    two = [source_ids: [id.("EZTV"), id.("Nyaa.si")]]
+    assert Enum.sort(names("echo", two)) == ["Echo Anime", "Echo Show"]
+    assert Torrents.count_search_torrents("echo", two) == 2
+    assert Torrents.count_torrents(two) == 2
+
+    one = [source_ids: [id.("YTS")]]
+    assert Enum.map(Torrents.list_latest_torrents(one), & &1.name) == ["Echo Film"]
+
+    both = [category_id: Taxonomy.id!("TV/Anime")] ++ two
+    assert names("echo", both) == ["Echo Anime"]
+    assert Torrents.count_search_torrents("echo", both) == 1
+
+    # No sources picked is no filter at all.
+    assert Torrents.count_search_torrents("echo", source_ids: []) == 3
+  end
+
   test "a search or the latest list can be sorted by a column, before paging" do
     now = DateTime.utc_now()
 
