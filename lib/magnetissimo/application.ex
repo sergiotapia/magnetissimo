@@ -7,38 +7,23 @@ defmodule Magnetissimo.Application do
 
   @impl true
   def start(_type, _args) do
-    # One scheduler per crawl source. The scheduler module is the same for
-    # each, so each needs its own id.
-    schedulers =
-      for crawler <- Magnetissimo.Crawlers.all() do
-        Supervisor.child_spec({Magnetissimo.Crawlers.Scheduler, crawler: crawler},
-          id: {Magnetissimo.Crawlers.Scheduler, crawler}
-        )
-      end
-
-    # Flattened, so the schedulers sit in the middle of the list.
-    children =
-      List.flatten([
-        MagnetissimoWeb.Telemetry,
-        Magnetissimo.Repo,
-        {Ecto.Migrator,
-         repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
-        {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
-        {Phoenix.PubSub, name: Magnetissimo.PubSub},
-        # Each source a search asks runs as its own task under this supervisor,
-        # so a source that crashes takes only its own answer with it.
-        {Task.Supervisor, name: Magnetissimo.SourceSearch.TaskSupervisor},
-        Magnetissimo.SourceSearch,
-        schedulers,
-        # Start to serve requests, typically the last entry
-        MagnetissimoWeb.Endpoint
-      ])
+    children = [
+      MagnetissimoWeb.Telemetry,
+      Magnetissimo.Repo,
+      {Ecto.Migrator,
+       repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
+      {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
+      {Phoenix.PubSub, name: Magnetissimo.PubSub},
+      # Each source a search asks runs as its own task under this supervisor,
+      # so a source that crashes takes only its own answer with it.
+      {Task.Supervisor, name: Magnetissimo.SourceSearch.TaskSupervisor},
+      Magnetissimo.SourceSearch,
+      # Start to serve requests, typically the last entry
+      MagnetissimoWeb.Endpoint
+    ]
 
     # See https://elixir.hexdocs.pm/Supervisor.html
     # for other strategies and supported options.
-    #
-    # A crawler that dies takes only its own scheduler with it, so one bad
-    # source cannot stop the others from crawling.
     opts = [strategy: :one_for_one, name: Magnetissimo.Supervisor]
     Supervisor.start_link(children, opts)
   end
