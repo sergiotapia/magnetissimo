@@ -107,7 +107,10 @@ defmodule Magnetissimo.Torrents.Search do
   defp text_matches(tokens) do
     trigrams = for {:trigram, t} <- tokens, do: t
     words = for {:word, t} <- tokens, do: t
-    substrings = for {:substring, t} <- tokens, do: t
+    # Lowercased to match `lower(name)`, as the FTS indexes ignore case too.
+    # SQLite's lower() folds only ASCII, which is all that a short token in
+    # an unspaced script can mix in ("a版").
+    substrings = for {:substring, t} <- tokens, do: String.downcase(t)
     # The token still being typed is a prefix, which only a word query needs:
     # a trigram phrase is already a substring match.
     prefix? = match?([{:word, _} | _], Enum.reverse(tokens))
@@ -122,7 +125,9 @@ defmodule Magnetissimo.Torrents.Search do
 
         true ->
           [first | rest] = substrings
-          {"SELECT id, 0.0 AS score FROM torrents WHERE instr(name, ?) > 0", [first], [], rest}
+
+          {"SELECT id, 0.0 AS score FROM torrents WHERE instr(lower(name), ?) > 0", [first], [],
+           rest}
       end
 
     {word_sql, word_params} =
@@ -137,7 +142,7 @@ defmodule Magnetissimo.Torrents.Search do
 
     substring_sql =
       Enum.map_join(substrings, "\n", fn _ ->
-        "AND rowid IN (SELECT id FROM torrents WHERE instr(name, ?) > 0)"
+        "AND rowid IN (SELECT id FROM torrents WHERE instr(lower(name), ?) > 0)"
       end)
 
     {Enum.join([base, word_sql, substring_sql], "\n"), base_params ++ word_params ++ substrings}

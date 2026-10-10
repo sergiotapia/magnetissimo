@@ -101,6 +101,23 @@ defmodule Magnetissimo.SourceSearchTest do
     end)
   end
 
+  test "a term a source failed on is not remembered, so it is asked again", %{term: term} do
+    configure(crawlers: [FastCrawler], ttl: :timer.minutes(1))
+    key = SourceSearch.key("fail #{term}")
+    :ok = SourceSearch.subscribe(key)
+
+    ExUnit.CaptureLog.capture_log(fn ->
+      SourceSearch.request(key)
+      assert_receive {:source_search_done, ^key, %{"YTS" => {:failed, :unavailable}}}
+
+      assert SourceSearch.request(key) == %{"YTS" => :searching}
+      assert_receive {:source_search_done, ^key, _}
+    end)
+
+    assert_received {:crawled, "YTS", ^key, _}
+    assert_received {:crawled, "YTS", ^key, _}
+  end
+
   test "a source that never answers is given up on and stopped", %{term: term} do
     configure(crawlers: [FastCrawler, SlowCrawler], ttl: 0, timeout: 100)
     key = SourceSearch.key(term)

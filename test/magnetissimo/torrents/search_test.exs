@@ -79,6 +79,12 @@ defmodule Magnetissimo.Torrents.SearchTest do
     assert names("撃の巨") == ["進撃の巨人 The Final Season"]
   end
 
+  test "a short substring ignores case like every other token" do
+    fixture("A版 Collection")
+
+    assert names("a版") == ["A版 Collection"]
+  end
+
   test "query syntax in the input is searched as text" do
     fixture("ubuntu-24.04-desktop-amd64.iso")
     fixture("Not Okay (2022)")

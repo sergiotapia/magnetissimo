@@ -12,9 +12,10 @@ defmodule Magnetissimo.SourceSearch do
       keeps SQLite's single writer free between them.
     * One term is searched once at a time, however many readers ask for it.
       A second reader typing the same thing joins the search in flight.
-    * A term searched in the last `:ttl` is not searched again; its hits are
-      already in the index. This is what keeps search-as-you-type from
-      hammering the sites when a reader backspaces and retypes.
+    * A term every source answered in the last `:ttl` is not searched again;
+      its hits are already in the index. This is what keeps search-as-you-type
+      from hammering the sites when a reader backspaces and retypes. A term a
+      source failed on is not remembered, so the next reader asks again.
     * A source that has not answered after `:timeout` is given up on.
 
   Readers `subscribe/1` to a term and then `request/1` it. They receive, on
@@ -236,12 +237,12 @@ defmodule Magnetissimo.SourceSearch do
     else
       :ok = broadcast(key, {:source_search_done, key, statuses})
 
-      %{
-        state
-        | tasks: tasks,
-          searches: Map.delete(state.searches, key),
-          recent: Map.put(state.recent, key, {now(), statuses})
-      }
+      recent =
+        if Enum.all?(statuses, &match?({_source, {:done, _}}, &1)),
+          do: Map.put(state.recent, key, {now(), statuses}),
+          else: state.recent
+
+      %{state | tasks: tasks, searches: Map.delete(state.searches, key), recent: recent}
     end
   end
 

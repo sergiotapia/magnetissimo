@@ -54,8 +54,7 @@ defmodule Magnetissimo.Crawlers do
 
     case crawler.search(term) do
       {:ok, attrs} ->
-        %{inserted: inserted, ids: ids} = index(source, attrs)
-        :ok = Torrents.record_search_hits(term, ids)
+        %{inserted: inserted, ids: ids} = index(source, attrs, search_term: term)
 
         Logger.info("[#{source}] search #{inspect(term)}: #{length(ids)} found, #{inserted} new")
         {:ok, %{inserted: inserted, found: length(ids)}}
@@ -66,8 +65,8 @@ defmodule Magnetissimo.Crawlers do
     end
   end
 
-  defp index(source, attrs) do
-    result = Torrents.index_torrents(attrs)
+  defp index(source, attrs, opts \\ []) do
+    result = Torrents.index_torrents(attrs, opts)
 
     # Attrs that fail validation mean the crawler is building them wrong, and
     # the torrent is being dropped silently unless it is logged.

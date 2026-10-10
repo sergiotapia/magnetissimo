@@ -196,11 +196,16 @@ defmodule Magnetissimo.Torrents do
   Attrs that fail `Torrent.changeset/2` are not indexed; they come back in
   `:rejected` with their errors, for the caller to log.
 
+  With `search_term: term`, the batch is also recorded as what a source
+  returned for `term` (see `record_search_hits/2`), in the same transaction:
+  a search given up on halfway can never leave the torrents indexed but not
+  findable by the term that found them.
+
   Returns `%{ids: ids, inserted: count, rejected: [{attrs, errors}]}`, where
   `ids` holds every valid torrent in the batch, new or already indexed, in the
   order given.
   """
-  def index_torrents(attrs_list) do
+  def index_torrents(attrs_list, opts \\ []) do
     {valid, rejected} =
       Enum.reduce(attrs_list, {[], []}, fn attrs, {valid, rejected} ->
         case Torrent.changeset(%Torrent{}, attrs) do
@@ -212,7 +217,13 @@ defmodule Magnetissimo.Torrents do
     # One statement cannot upsert the same row twice, so a batch that lists a
     # hash twice keeps the first.
     rows = valid |> Enum.reverse() |> Enum.uniq_by(& &1.magnet_hash)
-    {:ok, {ids, inserted}} = Repo.transact(fn -> {:ok, upsert(rows)} end)
+
+    {:ok, {ids, inserted}} =
+      Repo.transact(fn ->
+        {ids, inserted} = upsert(rows)
+        if term = opts[:search_term], do: insert_search_hits(term, ids)
+        {:ok, {ids, inserted}}
+      end)
 
     %{ids: ids, inserted: inserted, rejected: Enum.reverse(rejected)}
   end
@@ -249,14 +260,22 @@ defmodule Magnetissimo.Torrents do
     hashes = Enum.map(rows, & &1.magnet_hash)
     known = Repo.all(from t in Torrent, where: t.magnet_hash in ^hashes, select: t.magnet_hash)
 
-    {_count, returned} =
-      Repo.insert_all(Torrent, rows,
-        on_conflict: {:replace, [:seeders, :leechers, :updated_at]},
-        conflict_target: :magnet_hash,
-        returning: [:id, :magnet_hash]
-      )
+    # Chunked to stay well under SQLite's limit on bound parameters, 13 a row.
+    id_by_hash =
+      rows
+      |> Enum.chunk_every(500)
+      |> Enum.flat_map(fn chunk ->
+        {_count, returned} =
+          Repo.insert_all(Torrent, chunk,
+            on_conflict: {:replace, [:seeders, :leechers, :updated_at]},
+            conflict_target: :magnet_hash,
+            returning: [:id, :magnet_hash]
+          )
 
-    id_by_hash = Map.new(returned, &{&1.magnet_hash, &1.id})
+        returned
+      end)
+      |> Map.new(&{&1.magnet_hash, &1.id})
+
     {Enum.map(hashes, &Map.fetch!(id_by_hash, &1)), length(hashes) - length(known)}
   end
 
@@ -354,15 +373,21 @@ defmodule Magnetissimo.Torrents do
   search finds them by that term from now on. Already recorded pairs are kept
   as they are.
   """
-  def record_search_hits(_term, []), do: :ok
-
   def record_search_hits(term, torrent_ids) do
+    insert_search_hits(term, torrent_ids)
+  end
+
+  defp insert_search_hits(_term, []), do: :ok
+
+  defp insert_search_hits(term, torrent_ids) do
     term = Search.normalize(term)
     now = DateTime.utc_now()
 
-    rows = Enum.map(torrent_ids, &%{term: term, torrent_id: &1, inserted_at: now})
-    {_count, _} = Repo.insert_all(SearchHit, rows, on_conflict: :nothing)
-
-    :ok
+    torrent_ids
+    |> Enum.map(&%{term: term, torrent_id: &1, inserted_at: now})
+    |> Enum.chunk_every(5_000)
+    |> Enum.each(fn rows ->
+      {_count, _} = Repo.insert_all(SearchHit, rows, on_conflict: :nothing)
+    end)
   end
 end
