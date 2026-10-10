@@ -18,6 +18,15 @@
 @custom-variant phx-submit-loading (.phx-submit-loading&, .phx-submit-loading &);
 @custom-variant phx-change-loading (.phx-change-loading&, .phx-change-loading &);
 
+/* Dark: the reader picked it (`data-theme="dark"`, from the `theme` cookie),
+   or follows a system that prefers it. `MagnetissimoWeb.Theme` has the rest. */
+@custom-variant dark {
+  &:where([data-theme=dark], [data-theme=dark] *) { @slot; }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme=light]), :root:not([data-theme=light]) *) { @slot; }
+  }
+}
+
 /* Make LiveView wrapper divs transparent for layout */
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
@@ -77,7 +86,8 @@
 /* ---------------------------------------------------------------------------
    Theme. Corporate Y2K: an overexposed glass atrium under fluorescent strips.
    Cyan-white light, azure glass, steel, and a navy-suit ink. No warm colours
-   except the leecher red.
+   except the leecher red. Dark mode re-points these same tokens (see "After
+   hours" below), so a utility like `text-ink-900` is right in both.
    --------------------------------------------------------------------------- */
 
 @theme {
@@ -112,6 +122,9 @@
   --color-mint-soft: #c6efe2;
   --color-bubble: #e04a64;
   --color-bubble-soft: #fbd9df;
+
+  /* Lit glass, for hovers and tinted strips: white by day. */
+  --color-glass: #ffffff;
 
   --radius-panel: 1.5rem;
 
@@ -163,6 +176,46 @@
 }
 
 /* ---------------------------------------------------------------------------
+   After hours. The same atrium at 11pm: the skylight gone to midnight navy,
+   the fluorescent strips still burning cyan, the glass smoked, and the gel
+   buttons lit from inside like Bondi plastic on a desk at night. The ink and
+   frost scales swap ends, so text stays `ink` and surfaces stay `frost`.
+   --------------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    @variant dark {
+      --color-frost-50: #060f19;
+      --color-frost-100: #091522;
+      --color-frost-200: #142a40;
+      --color-frost-300: #21405c;
+
+      --color-ink-900: #e4f3fa;
+      --color-ink-700: #b3d2e1;
+      --color-ink-500: #7d9fb3;
+      --color-ink-300: #56798e;
+
+      --color-azure-700: #a9def4;
+      --color-azure-600: #6fc3ea;
+      --color-azure-500: #4ba6da;
+      --color-azure-400: #5aaedb;
+      --color-azure-200: #1e4a6a;
+      --color-azure-100: #10304a;
+
+      --color-mint: #34d6a6;
+      --color-mint-soft: #0e3b35;
+      --color-bubble: #ff6f88;
+      --color-bubble-soft: #45202c;
+
+      --color-glass: #1a3954;
+
+      --shadow-float: 0 1px 0 rgb(143 217 234 / 0.16) inset, 0 20px 40px -24px rgb(0 0 0 / 0.75), 0 2px 6px -2px rgb(0 0 0 / 0.4);
+      --shadow-float-lg: 0 1px 0 rgb(143 217 234 / 0.22) inset, 0 28px 56px -24px rgb(0 0 0 / 0.85), 0 0 32px -12px rgb(72 166 220 / 0.45);
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
    Base. A blown-out atrium: white light pouring in at the top, a cyan glow
    off to the right, the blue floor at the bottom, fluorescent strips on the
    ceiling and the speaker rings from the PS2 posters, fixed behind
@@ -174,6 +227,8 @@
     background: var(--color-frost-100);
     color-scheme: light;
     scrollbar-color: var(--color-azure-200) var(--color-frost-100);
+
+    @variant dark { color-scheme: dark; }
   }
 
   body {
@@ -189,6 +244,16 @@
     font-family: var(--font-sans);
     font-weight: 500;
     min-height: 100dvh;
+
+    /* Moonlight through the skylight, the floor still glowing blue. */
+    @variant dark {
+      background-color: #07131f;
+      background-image:
+        radial-gradient(ellipse 40% 50% at 100% 0%, rgb(143 217 234 / 0.2), transparent 70%),
+        radial-gradient(ellipse 70% 45% at 45% 55%, rgb(7 19 31 / 0.7), transparent 70%),
+        radial-gradient(ellipse 90% 45% at 30% 110%, rgb(42 115 168 / 0.45), transparent 70%),
+        linear-gradient(180deg, #0c2438 0%, #08151f 50%, #0a1d30 100%);
+    }
   }
 
   ::selection {
@@ -222,6 +287,10 @@
     transparent 1px 22px
   );
   mask-image: radial-gradient(circle, #000 30%, transparent 70%);
+
+  @variant dark {
+    background: repeating-radial-gradient(circle, rgb(114 179 213 / 0.1) 0 1px, transparent 1px 22px);
+  }
 }
 
 .sky::before { width: 60rem; height: 60rem; top: -26rem; right: -22rem; }
@@ -245,6 +314,17 @@
     linear-gradient(to right, transparent 4%, #000 22%, #000 78%, transparent 96%);
   mask-composite: intersect;
   -webkit-mask-composite: source-in;
+
+  /* The strips are the only lights left on. */
+  @variant dark {
+    background: repeating-linear-gradient(
+      180deg,
+      transparent 0 54px,
+      rgb(143 217 234 / 0.45) 54px 56px,
+      transparent 56px 96px
+    );
+    filter: drop-shadow(0 0 8px rgb(143 217 234 / 0.75));
+  }
 }
 
 /* A four-point sparkle. */
@@ -260,6 +340,8 @@
   .animate-orb, .animate-float, .sparkle, .orb::before, .ticker > * {
     animation: none !important;
   }
+
+  .theme-switch-thumb { transition: none !important; }
 }
 
 /* A row of text that drifts left forever; the content is rendered twice so
@@ -291,6 +373,12 @@
   backdrop-filter: blur(18px) saturate(1.3);
   -webkit-backdrop-filter: blur(18px) saturate(1.3);
   transition: box-shadow 250ms ease, transform 250ms ease;
+
+  /* Smoked glass with a cyan rim catching the strip lights. */
+  @variant dark {
+    background: linear-gradient(160deg, rgb(26 57 84 / 0.72), rgb(10 26 42 / 0.55));
+    border-color: rgb(143 217 234 / 0.16);
+  }
 }
 
 .panel-hot:hover {
@@ -310,9 +398,14 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--color-ink-700);
-  border-bottom: 1px solid rgb(185 216 228 / 0.7);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-frost-300) 70%, transparent);
   background:
     linear-gradient(180deg, rgb(255 255 255 / 0.95) 0%, rgb(255 255 255 / 0.4) 50%, rgb(220 240 247 / 0.6) 51%, rgb(231 243 247 / 0.2) 100%);
+
+  @variant dark {
+    background:
+      linear-gradient(180deg, rgb(143 217 234 / 0.13) 0%, rgb(143 217 234 / 0.04) 50%, rgb(7 19 31 / 0.25) 51%, rgb(7 19 31 / 0.05) 100%);
+  }
 }
 
 /* ---------------------------------------------------------------------------
@@ -334,7 +427,7 @@
   align-items: baseline;
   gap: 0.75rem;
   padding: 0.55rem 0;
-  border-bottom: 1px solid rgb(185 216 228 / 0.6);
+  border-bottom: 1px solid color-mix(in oklab, var(--color-frost-300) 60%, transparent);
 }
 
 .spec-row:last-child { border-bottom: 0; }
@@ -360,6 +453,16 @@
     0 8px 18px -8px rgb(29 90 136 / 0.65);
   text-shadow: 0 1px 1px rgb(13 33 50 / 0.4);
   transition: transform 150ms ease, box-shadow 150ms ease, filter 150ms ease;
+
+  /* Lit from inside. */
+  @variant dark {
+    border-color: #2f7ab2;
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.5) inset,
+      0 -2px 6px rgb(143 217 234 / 0.6) inset,
+      0 0 16px -4px rgb(72 166 220 / 0.6),
+      0 8px 18px -8px rgb(0 0 0 / 0.7);
+  }
 }
 
 .gel::after {
@@ -378,6 +481,14 @@
     0 1px 0 rgb(255 255 255 / 0.6) inset,
     0 -2px 6px rgb(143 217 234 / 0.7) inset,
     0 12px 24px -8px rgb(29 90 136 / 0.7);
+
+  @variant dark {
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.5) inset,
+      0 -2px 6px rgb(143 217 234 / 0.6) inset,
+      0 0 22px -2px rgb(72 166 220 / 0.75),
+      0 10px 22px -8px rgb(0 0 0 / 0.75);
+  }
 }
 
 .gel:active { transform: translateY(1px); filter: brightness(0.96); }
@@ -390,18 +501,34 @@
   box-shadow: 0 1px 0 white inset, 0 2px 4px -2px rgb(29 90 136 / 0.2);
   color: var(--color-ink-700);
   transition: border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+
+  @variant dark {
+    background: linear-gradient(180deg, rgb(38 72 102 / 0.9), rgb(16 36 56 / 0.9));
+    border-color: rgb(143 217 234 / 0.18);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.1) inset, 0 2px 4px -2px rgb(0 0 0 / 0.5);
+  }
 }
 
 .pill:hover {
   border-color: var(--color-azure-400);
   color: var(--color-azure-700);
   box-shadow: 0 1px 0 white inset, 0 6px 14px -6px rgb(72 146 194 / 0.5);
+
+  @variant dark {
+    border-color: var(--color-azure-400);
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.12) inset, 0 0 14px -4px rgb(72 166 220 / 0.7);
+  }
 }
 
 /* A recessed well, for the search field and progress tracks. */
 .well {
   background: linear-gradient(180deg, rgb(212 233 240 / 0.9), rgb(244 250 252 / 0.95));
   box-shadow: inset 0 2px 4px rgb(29 90 136 / 0.12), inset 0 0 0 1px rgb(185 216 228 / 0.9);
+
+  @variant dark {
+    background: linear-gradient(180deg, rgb(3 10 18 / 0.75), rgb(14 32 50 / 0.75));
+    box-shadow: inset 0 2px 5px rgb(0 0 0 / 0.55), inset 0 0 0 1px rgb(143 217 234 / 0.12);
+  }
 }
 
 /* A glossy filled bar, for sources and the swarm. */
@@ -411,6 +538,8 @@
     linear-gradient(180deg, rgb(255 255 255 / 0.55) 0 40%, transparent 41%),
     linear-gradient(90deg, var(--color-azure-500), var(--color-aqua));
   box-shadow: 0 2px 6px -2px rgb(72 146 194 / 0.55);
+
+  @variant dark { box-shadow: 0 0 8px -1px rgb(72 166 220 / 0.7); }
 }
 
 /* A pearl orb: an iridescent sphere whose colours turn under fixed highlights.
@@ -422,6 +551,11 @@
   isolation: isolate;
   filter: hue-rotate(var(--orb-hue, 0deg));
   box-shadow: 0 22px 36px -18px rgb(29 90 136 / 0.55);
+
+  /* A pearl at night is a small moon. */
+  @variant dark {
+    box-shadow: 0 0 40px -8px rgb(143 217 234 / 0.45), 0 22px 36px -18px rgb(0 0 0 / 0.8);
+  }
 }
 
 .orb::before {
@@ -456,7 +590,7 @@
   background:
     radial-gradient(circle, var(--color-frost-100) 0 16%, var(--color-frost-300) 17% 20%, transparent 21%),
     conic-gradient(#dcf0f7, #9dd3e5, #ffffff, #b5dbeb, #8fd9ea, #ffffff, #c6e6f0, #dcf0f7);
-  box-shadow: 0 0 0 1px rgb(185 216 228), 0 2px 6px -2px rgb(29 90 136 / 0.4);
+  box-shadow: 0 0 0 1px var(--color-frost-300), 0 2px 6px -2px rgb(29 90 136 / 0.4);
 }
 
 /* Focus ring. */
@@ -470,13 +604,98 @@
 .link {
   color: var(--color-azure-600);
   text-decoration: underline;
-  text-decoration-color: rgb(42 115 168 / 0.3);
+  text-decoration-color: color-mix(in oklab, currentColor 30%, transparent);
   text-underline-offset: 3px;
 }
 
 .link:hover {
   color: var(--color-azure-700);
   text-decoration-color: currentColor;
+}
+
+/* The chrome wordmark gets a halo after dark so its navy edges don't sink
+   into the page. */
+.wordmark {
+  @variant dark {
+    filter: drop-shadow(0 0 1px rgb(220 240 247 / 0.5)) drop-shadow(0 0 28px rgb(72 166 220 / 0.4));
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The theme switch: three links on a recessed track and a gel thumb that
+   springs to whichever mode `<html data-theme>` names. No server state: the
+   page draws it the same for everyone and CSS picks the segment.
+   --------------------------------------------------------------------------- */
+
+.theme-switch {
+  --seg: 1.75rem;
+  position: relative;
+  display: inline-grid;
+  flex-shrink: 0;
+  grid-auto-flow: column;
+  grid-auto-columns: var(--seg);
+  padding: 0.2rem;
+  border-radius: 9999px;
+}
+
+.theme-switch > a {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  height: var(--seg);
+  border-radius: 9999px;
+  color: var(--color-ink-500);
+  transition: color 300ms ease;
+}
+
+.theme-switch > a:hover { color: var(--color-azure-600); }
+
+.theme-switch-thumb {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: var(--seg);
+  height: var(--seg);
+  pointer-events: none;
+  /* Overshoots a little, like an Aqua slider. */
+  transition: translate 450ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+:root[data-theme=light] .theme-switch-thumb { translate: 100% 0; }
+:root[data-theme=dark] .theme-switch-thumb { translate: 200% 0; }
+
+:root:not([data-theme=light], [data-theme=dark]) .theme-switch > [data-mode=system],
+:root[data-theme=light] .theme-switch > [data-mode=light],
+:root[data-theme=dark] .theme-switch > [data-mode=dark] {
+  color: white;
+  filter: drop-shadow(0 1px 1px rgb(13 33 50 / 0.45));
+}
+
+/* A phone's single button: only the current mode's shows. */
+.theme-cycle {
+  width: 1.9rem;
+  height: 1.9rem;
+  place-items: center;
+  display: none;
+}
+
+@media (width < 40rem) {
+  .theme-switch { display: none; }
+
+  :root:not([data-theme=light], [data-theme=dark]) .theme-cycle[data-when=system],
+  :root[data-theme=light] .theme-cycle[data-when=light],
+  :root[data-theme=dark] .theme-cycle[data-when=dark] {
+    display: grid;
+  }
+}
+
+/* The switch's hook reveals the new theme in a growing circle; the default
+   crossfade would fight it. */
+:root[data-turning]::view-transition-old(root),
+:root[data-turning]::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 .phx-loading * { cursor: progress; }

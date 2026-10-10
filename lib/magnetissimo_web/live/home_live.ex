@@ -476,7 +476,7 @@ defmodule MagnetissimoWeb.HomeLive do
                     )
                   }
                   class={[
-                    "group/source focus-ring block rounded-xl px-2 py-1.5 transition hover:bg-white/80",
+                    "group/source focus-ring block rounded-xl px-2 py-1.5 transition hover:bg-glass/80",
                     picked?(@source_filter, source.name) && "bg-azure-100/70",
                     hidden_by_sources?(@source_filter, source.name) && "opacity-50 hover:opacity-100"
                   ]}
@@ -488,7 +488,7 @@ defmodule MagnetissimoWeb.HomeLive do
                         if(picked?(@source_filter, source.name),
                           do: "gel",
                           else:
-                            "border border-frost-300 bg-white/70 group-hover/source:border-azure-400"
+                            "border border-frost-300 bg-glass/70 group-hover/source:border-azure-400"
                         )
                       ]}>
                         <.icon
@@ -595,7 +595,7 @@ defmodule MagnetissimoWeb.HomeLive do
                   alt="Magnetissimo"
                   width="1549"
                   height="257"
-                  class="h-auto w-full"
+                  class="wordmark h-auto w-full"
                 />
               </h1>
 
@@ -709,7 +709,7 @@ defmodule MagnetissimoWeb.HomeLive do
               </ul>
             </div>
 
-            <div class="mt-auto grid grid-cols-[auto_auto_1fr] items-center gap-3 border-t border-frost-300/70 bg-white/40 px-6 py-2.5 sm:px-10">
+            <div class="mt-auto grid grid-cols-[auto_auto_1fr] items-center gap-3 border-t border-frost-300/70 bg-glass/40 px-6 py-2.5 sm:px-10">
               <.disc class="size-5" />
               <span class="label">Now spinning</span>
               <div class="ticker text-sm text-ink-700" aria-hidden="true">
@@ -769,7 +769,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 data-arrived={arrived?(@arrived, torrent) && "true"}
                 class={[
                   arrival_class(@arrived, torrent),
-                  "group grid gap-x-4 gap-y-2.5 rounded-2xl px-3.5 py-3 transition hover:bg-white/80 hover:shadow-[0_6px_16px_-10px_rgba(31,63,209,0.4)] md:grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem] md:items-center"
+                  "group grid gap-x-4 gap-y-2.5 rounded-2xl px-3.5 py-3 transition hover:bg-glass/80 hover:shadow-[0_6px_16px_-10px_rgba(31,63,209,0.4)] md:grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem] md:items-center"
                 ]}
               >
                 <div class="min-w-0">

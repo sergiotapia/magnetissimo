@@ -47,7 +47,7 @@ defmodule MagnetissimoWeb.TorrentLive do
 
         <div class="grid md:grid-cols-[18rem_1fr]">
           <%!-- Left: fingerprint and orb --%>
-          <div class="grid border-frost-300/70 bg-white/35 sm:grid-cols-2 md:grid-cols-1 md:border-r">
+          <div class="grid border-frost-300/70 bg-glass/35 sm:grid-cols-2 md:grid-cols-1 md:border-r">
             <div class="p-6">
               <div class="label mb-3">Fingerprint</div>
               <div class="well mx-auto w-fit rounded-3xl p-4">

@@ -8,6 +8,7 @@ defmodule MagnetissimoWeb.Router do
     plug :put_root_layout, html: {MagnetissimoWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug MagnetissimoWeb.Theme
   end
 
   pipeline :api do
@@ -19,6 +20,7 @@ defmodule MagnetissimoWeb.Router do
 
     live "/", HomeLive
     live "/torrents/:id", TorrentLive
+    get "/theme/:mode", ThemeController, :update
   end
 
   scope "/api", MagnetissimoWeb do

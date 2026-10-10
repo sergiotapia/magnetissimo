@@ -1,10 +1,16 @@
 <!DOCTYPE html>
-<html lang="en" class="bg-frost-100">
+<html lang="en" class="bg-frost-100" data-theme={assigns[:theme] || "system"}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <meta name="theme-color" content="#e7f3f7" />
+    <meta
+      :for={{scheme, color, media} <- theme_colors(assigns[:theme])}
+      name="theme-color"
+      data-scheme={scheme}
+      content={color}
+      media={media}
+    />
     <meta
       name="description"
       content="Magnetissimo: a self-hosted torrent indexer. Crawls, indexes and searches magnet links from your own machine."
