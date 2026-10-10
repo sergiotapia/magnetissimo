@@ -5,9 +5,16 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   No listing on the site carries an infohash. The feed, the front page and the
   search results name a page per book, and only that page has the hash, its
   trackers and the size. So every crawl is one listing request and then one
-  request per book, at most `@max_concurrency` at a time. A page already in
-  the index is not fetched again: its torrent is handed back as it was stored,
-  so a search still records it as a hit for the term.
+  request per book. A page already in the index is not fetched again: its
+  torrent is handed back as it was stored, so a search still records it as a
+  hit for the term.
+
+  The site drops every connection from an address that sends it a burst: about
+  sixty requests in ten minutes, a run of them five at a time, was enough to be
+  shut out. So pages are fetched at most `@max_concurrency` at a time, each
+  task pausing `@page_delay` after its request, and a search fetches pages for
+  only its top `@search_pages` results. Search is the one to watch: a reader
+  typing a term asks for every prefix of it.
 
   The two listings differ in what they say about time. `latest/0` reads the
   RSS feed, whose `pubDate` is exact. `search/1` reads the HTML search
@@ -42,9 +49,10 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   @source_name "AudioBookBay"
   @user_agent "Magnetissimo/0.1"
 
-  # The site served five book pages in a row in about a second each without
-  # throttling; five at once keeps a crawl to about two rounds of requests.
-  @max_concurrency 5
+  # See the moduledoc: the site shuts out an address that sends a burst.
+  @max_concurrency 2
+  @page_delay 500
+  @search_pages 5
   @page_timeout 5_000
 
   # Every category on the site is a genre of audiobook, so none is mapped.
@@ -76,12 +84,16 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   @impl true
   def latest do
     with {:ok, body} <- fetch(@base_url <> "/feed/", receive_timeout: 15_000) do
-      body |> Rss.items() |> Enum.flat_map(&feed_entry/1) |> books()
+      body |> Rss.items() |> Enum.flat_map(&feed_entry/1) |> books(:all)
     end
   end
 
   @doc """
   Looks one term up on the site's search, first page only.
+
+  Results are ranked by relevance, and only the top `@search_pages` not yet
+  indexed have their pages fetched; the rest are left out. Ones already
+  indexed are all returned, since they cost no request.
 
   The site's own search form adds `cat=undefined,undefined`, which changes
   nothing and is left out.
@@ -89,7 +101,7 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
   @impl true
   def search(term) do
     with {:ok, body} <- fetch(@base_url <> "/", params: [s: term]) do
-      body |> listing_entries() |> books()
+      body |> listing_entries() |> books(@search_pages)
     end
   end
 
@@ -124,20 +136,23 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
 
   defp canonical_url(link), do: @base_url <> URI.parse(link).path
 
-  defp books(entries) do
+  # `pages` caps how many book pages are fetched, or is `:all` for no cap.
+  defp books(entries, pages) do
     source_id = Torrents.get_source_by_name!(@source_name).id
     entries = Enum.uniq_by(entries, & &1.url)
     indexed = Torrents.torrents_by_canonical_url(Enum.map(entries, & &1.url))
 
     {known, unknown} = Enum.split_with(entries, &Map.has_key?(indexed, &1.url))
+    unknown = if pages == :all, do: unknown, else: Enum.take(unknown, pages)
+    delay = page_delay()
 
     # Pages that time out are dropped like ones that fail; the next crawl or
     # search asks for them again.
     fetched =
       unknown
-      |> Task.async_stream(&book(&1, source_id),
+      |> Task.async_stream(&book(&1, source_id, delay),
         max_concurrency: @max_concurrency,
-        timeout: @page_timeout * 2,
+        timeout: @page_timeout + delay + 5_000,
         on_timeout: :kill_task,
         zip_input_on_exit: true
       )
@@ -152,8 +167,13 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
     {:ok, Enum.map(known, &Map.take(indexed[&1.url], @indexed_fields)) ++ fetched}
   end
 
-  defp book(entry, source_id) do
-    with {:ok, body} <- fetch(entry.url, receive_timeout: @page_timeout),
+  # The pause comes after the request, so the first pages go out at once and
+  # each slot then waits before its next one.
+  defp book(entry, source_id, delay) do
+    result = fetch(entry.url, receive_timeout: @page_timeout)
+    Process.sleep(delay)
+
+    with {:ok, body} <- result,
          %{} = attrs <- book_attrs(body, entry, source_id) do
       attrs
     else
@@ -260,7 +280,7 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
       Keyword.merge(
         [headers: [user_agent: @user_agent], retry: false, receive_timeout: @page_timeout],
         options
-      ) ++ Application.get_env(:magnetissimo, __MODULE__, [])
+      ) ++ Keyword.delete(config(), :page_delay)
 
     case Req.get(url, options) do
       {:ok, %{status: 200, body: body}} when is_binary(body) -> {:ok, body}
@@ -269,4 +289,9 @@ defmodule Magnetissimo.Crawlers.AudioBookBay do
       {:error, reason} -> {:error, reason}
     end
   end
+
+  # The test config routes requests through a stub and sets the pause to 0.
+  defp config, do: Application.get_env(:magnetissimo, __MODULE__, [])
+
+  defp page_delay, do: Keyword.get(config(), :page_delay, @page_delay)
 end

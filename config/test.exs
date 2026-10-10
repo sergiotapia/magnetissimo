@@ -40,9 +40,11 @@ config :magnetissimo, Magnetissimo.Crawlers.TorrentDownloads,
   plug: {Req.Test, Magnetissimo.Crawlers.TorrentDownloads}
 
 # AudioBookBay reads an HTML page per book as well as its feed, so it gets its
-# own stub, which routes on the path.
+# own stub, which routes on the path. The pause it takes between pages to stay
+# under the site's burst limit is turned off.
 config :magnetissimo, Magnetissimo.Crawlers.AudioBookBay,
-  plug: {Req.Test, Magnetissimo.Crawlers.AudioBookBay}
+  plug: {Req.Test, Magnetissimo.Crawlers.AudioBookBay},
+  page_delay: 0
 
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime

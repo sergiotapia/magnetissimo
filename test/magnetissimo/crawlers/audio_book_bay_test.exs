@@ -102,6 +102,28 @@ defmodule Magnetissimo.Crawlers.AudioBookBayTest do
     assert [_, _] = Torrents.search_torrents("Fixture Book")
   end
 
+  test "a search fetches pages for only its top five new results" do
+    new_books = for n <- 1..7, do: "/abss/book-#{n}/"
+
+    serve(%{
+      "/feed/" => AudioBookBayFixtures.feed_body(),
+      "/" => AudioBookBayFixtures.search_body(new_books ++ [@mila, @king]),
+      @mila => AudioBookBayFixtures.chasing_mila_body(),
+      @king => AudioBookBayFixtures.king_zero_body()
+    })
+
+    assert :ok = Crawlers.crawl_latest(AudioBookBay)
+    assert_asked(["/feed/", @king, @mila])
+
+    # The new books' pages are missing, so they are skipped; what matters is
+    # which were asked for. The two already indexed, ranked last, still count.
+    ExUnit.CaptureLog.capture_log(fn ->
+      assert {:ok, %{found: 2}} = Crawlers.search(AudioBookBay, "Fixture Book")
+    end)
+
+    assert_asked(["/" | Enum.take(new_books, 5)])
+  end
+
   test "a page with no infohash, or one that fails, costs only that book" do
     serve(%{
       "/feed/" => AudioBookBayFixtures.feed_body(),

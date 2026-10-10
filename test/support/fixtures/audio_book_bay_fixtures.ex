@@ -60,6 +60,20 @@ defmodule Magnetissimo.AudioBookBayFixtures do
     """
   end
 
+  @doc "Search results listing a book at each of `paths`, in that order."
+  def search_body(paths) do
+    posts =
+      Enum.map_join(paths, "\n", fn path ->
+        """
+        <div class="post"><div class="postTitle"><h2><a href="#{path}" rel="bookmark">#{path}</a></h2></div><div class="postContent">
+        <p style='text-align:center;'>Posted: 1 Oct 2026<br />File Size: <span style='color:#00f;'>1.00</span> GBs</p>
+        </div></div>
+        """
+      end)
+
+    ~s(<html><body><div id="content">#{posts}</div></body></html>)
+  end
+
   @doc "Search results that match nothing."
   def empty_search_body, do: "<html><body><div id=\"content\"></div></body></html>"
 
