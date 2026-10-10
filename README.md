@@ -108,10 +108,19 @@ mkdir -p /var/lib/magnetissimo
 DATABASE_PATH=/var/lib/magnetissimo/magnetissimo.db bin/server
 ```
 
-`bin/server` starts the web server. `bin/magnetissimo` has the rest of the
-commands: `daemon`, `stop`, `remote` for a console into the running app,
-and `eval`. `bin/migrate` migrates the database without starting the app,
-although starting the app already does that.
+`bin/server` runs it in the foreground, which is what a systemd unit or a
+process supervisor wants. To run it in the background instead, set
+`PHX_SERVER=true` yourself, because without it the app starts but the web
+server doesn't:
+
+```bash
+PHX_SERVER=true DATABASE_PATH=... bin/magnetissimo daemon
+bin/magnetissimo remote    # a console inside the running app
+bin/magnetissimo stop
+```
+
+`bin/migrate` migrates the database without starting the app. Starting
+the app migrates it anyway.
 
 ### Configuration
 
