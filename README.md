@@ -17,8 +17,8 @@ answer is indexed as it lands, and the new rows slide into the page while
 you watch. The next person to search for the same thing gets it from the
 index.
 
-Nothing is crawled on a timer. A site only hears from Magnetissimo when
-someone searches, so the index grows into a record of what you looked for.
+Sites are asked when someone searches, so the index grows into a record of
+what you looked for.
 
 - **Eight sources:** YTS, Nyaa.si, Sukebei, TorrentDownloads, AudioBookBay,
   The Pirate Bay, EZTV and OxTorrent.
@@ -32,8 +32,8 @@ someone searches, so the index grows into a record of what you looked for.
 - **Works without JavaScript.** Searching, filtering, sorting and paging are
   all links and plain GET forms. With JavaScript on, results stream in live.
 - **A JSON API** for scripts and for Sonarr and Radarr.
-- **One SQLite database.** No Postgres and no job queue. To back it up,
-  stop the app and copy the data folder.
+- **One SQLite database.** To back it up, stop the app and copy the data
+  folder.
 
 ## Running it
 
@@ -64,14 +64,13 @@ Then start it:
 docker compose up -d
 ```
 
-Open `http://<your server>:4000`. Nothing else needs configuring. The
-database and a generated secret key are kept in the `magnetissimo-data`
-volume, and every start runs any pending migrations. To upgrade, run
+Open `http://<your server>:4000`. That's the whole setup. The database and
+a generated secret key are kept in the `magnetissimo-data` volume, and every
+start runs any pending migrations. To upgrade, run
 `docker compose pull && docker compose up -d`.
 
 To keep the data in a folder instead of a volume, mount the folder at
-`/data` and run the container as the folder's owner. The image runs as
-`nobody` by default, which can't write to a folder Docker created as root:
+`/data` and run the container as the folder's owner:
 
 ```yaml
     user: "1000:1000"
@@ -80,8 +79,7 @@ To keep the data in a folder instead of a volume, mount the folder at
 ```
 
 If you've cloned the repository, the `compose.yaml` there builds the image
-from source when it can't be pulled, so `docker compose up -d` works
-straight from the checkout. To upgrade a checkout, run
+from source, so `docker compose up -d` works straight from the checkout. To upgrade a checkout, run
 `git pull && docker compose up -d --build`.
 
 `:latest` is the newest release. `:edge` follows every commit to `master`,
@@ -109,9 +107,8 @@ DATABASE_PATH=/var/lib/magnetissimo/magnetissimo.db bin/server
 ```
 
 `bin/server` runs it in the foreground, which is what a systemd unit or a
-process supervisor wants. To run it in the background instead, set
-`PHX_SERVER=true` yourself, because without it the app starts but the web
-server doesn't:
+process supervisor wants. To run it in the background, start it as a daemon
+with `PHX_SERVER=true`:
 
 ```bash
 PHX_SERVER=true DATABASE_PATH=... bin/magnetissimo daemon
@@ -119,8 +116,8 @@ bin/magnetissimo remote    # a console inside the running app
 bin/magnetissimo stop
 ```
 
-`bin/migrate` migrates the database without starting the app. Starting
-the app migrates it anyway.
+Starting the app runs any pending migrations. `bin/migrate` runs them on
+their own.
 
 ### Configuration
 
@@ -130,15 +127,15 @@ Only `DATABASE_PATH` is required, and the Docker image already sets it.
 | --- | --- | --- |
 | `DATABASE_PATH` | `/data/magnetissimo.db` in Docker | The SQLite file. Its directory must exist and be writable. |
 | `PORT` | `4000` | The HTTP port. |
-| `SECRET_KEY_BASE` | generated | Signs cookies. If you don't set it, a random one is generated on first start and saved as `secret_key_base` next to the database. |
+| `SECRET_KEY_BASE` | generated | Signs cookies. When unset, a random one is generated on first start and saved as `secret_key_base` next to the database. |
 | `PHX_HOST` | none | Your public hostname, if the app is behind an HTTPS reverse proxy. Leave it unset for plain `http://<ip>:4000`. |
 | `POOL_SIZE` | `5` | Database connections. |
 
 Magnetissimo speaks plain HTTP. To serve it over HTTPS, put it behind a
 reverse proxy such as Caddy, Traefik or nginx, and forward WebSockets, which
-is what makes results stream in. Any host name or IP the app is reached at
-works without extra configuration. The live-update socket only accepts
-pages served from the same host.
+is what makes results stream in. The app answers on any host name or IP it is
+reached at, and the live-update socket accepts pages served from that same
+host.
 
 ### For development
 
@@ -151,7 +148,7 @@ mix phx.server
 ```
 
 Then open [localhost:4000](http://localhost:4000). In development the
-database starts with a few dozen demo torrents so the page isn't empty.
+database starts with a few dozen demo torrents to look at.
 Search for something and the real sources start filling the index.
 
 ## API
@@ -184,33 +181,25 @@ torrent looks like this:
 }
 ```
 
-The field names are the same as the 2.0.0 API, so anything that read the old
-app keeps working. `category_id` is the Torznab number. A proper Torznab
-endpoint, so Sonarr and Radarr can add Magnetissimo as an indexer directly,
-is the next thing to build.
+`category` is the Torznab category name and `category_id` its number.
 
 ## How it is built
 
 Phoenix 1.8 and LiveView 1.2 on Bandit, with Ecto on SQLite. Search runs
 on two FTS5 indexes: one on trigrams for substrings in any script, and one on
-whole words for the short tokens trigrams can't match. All HTTP goes through
-[Req](https://hexdocs.pm/req). The interface is hand-written Tailwind with no
-component library. Its look, a corporate Y2K glass atrium, is described in
+whole words for short tokens like the `4` in `toy story 4`. All HTTP goes through
+[Req](https://hexdocs.pm/req). The interface is hand-written Tailwind. Its
+look, a corporate Y2K glass atrium, is described in
 [`docs/design.md`](docs/design.md).
-
-This is a ground-up rewrite of Magnetissimo 2.0.0, which ran on Postgres,
-crawled four sites every five minutes, and stored a magnet column that
-didn't contain the `magnet:` scheme. The commit log tells the story of the
-rewrite one step at a time.
 
 ## Contributing
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md). It covers setup, the checks every
-commit has to pass, how to add a new source, and the handful of things in
-this codebase that look odd but are deliberate.
+commit has to pass, how to add a new source, and the design decisions behind
+the code.
 
 ## A note on use
 
-Magnetissimo indexes magnet links that other sites already publish. It hosts
-no content and downloads nothing. What you search for and what you do with
-the links is your responsibility, under the laws where you live.
+Magnetissimo indexes magnet links that other sites publish. What you search
+for and what you do with the links is your responsibility, under the laws
+where you live.
