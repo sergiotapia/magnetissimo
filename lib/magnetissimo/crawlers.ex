@@ -13,11 +13,12 @@ defmodule Magnetissimo.Crawlers do
   alias Magnetissimo.Crawlers.AudioBookBay
   alias Magnetissimo.Crawlers.Nyaa
   alias Magnetissimo.Crawlers.Sukebei
+  alias Magnetissimo.Crawlers.ThePirateBay
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Torrents
 
-  @crawlers [Yts, Nyaa, Sukebei, TorrentDownloads, AudioBookBay]
+  @crawlers [Yts, Nyaa, Sukebei, TorrentDownloads, AudioBookBay, ThePirateBay]
 
   @doc "Every crawler, one per live source."
   @spec all() :: [module()]

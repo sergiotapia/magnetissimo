@@ -9,6 +9,7 @@ defmodule MagnetissimoWeb.ConnCase do
 
   alias Magnetissimo.Crawlers.AudioBookBay
   alias Magnetissimo.Crawlers.Nyaa.Feed
+  alias Magnetissimo.Crawlers.ThePirateBay
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.SourceSearch
@@ -59,6 +60,7 @@ defmodule MagnetissimoWeb.ConnCase do
     Test.stub(TorrentDownloads, &Conn.send_resp(&1, 200, "<rss></rss>"))
     # An empty page is both an empty feed and a search that matched nothing.
     Test.stub(AudioBookBay, &Conn.send_resp(&1, 200, "<html></html>"))
+    Test.stub(ThePirateBay, &Test.json(&1, []))
 
     previous = Application.get_env(:magnetissimo, SourceSearch)
     Application.put_env(:magnetissimo, SourceSearch, ttl: 0)

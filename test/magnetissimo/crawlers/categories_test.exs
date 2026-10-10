@@ -8,6 +8,7 @@ defmodule Magnetissimo.Crawlers.CategoriesTest do
   alias Magnetissimo.Crawlers.Categories
   alias Magnetissimo.Crawlers.Nyaa
   alias Magnetissimo.Crawlers.Sukebei
+  alias Magnetissimo.Crawlers.ThePirateBay
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Taxonomy
@@ -15,7 +16,7 @@ defmodule Magnetissimo.Crawlers.CategoriesTest do
   # Every category each site publishes, as read off the site on 2026-10-10:
   # Nyaa's and Sukebei's category menus (the ids their feeds send as
   # nyaa:categoryId), the names in TorrentDownloads' feed, and the qualities
-  # the YTS API lists. AudioBookBay's categories are genres of audiobook,
+  # the YTS API lists, and the ids The Pirate Bay's main.js names. AudioBookBay's categories are genres of audiobook,
   # which all file under its fallback, so it maps none. When a site adds one,
   # it belongs here and in the crawler's mapping.
   @site_categories %{
@@ -23,6 +24,10 @@ defmodule Magnetissimo.Crawlers.CategoriesTest do
     Nyaa => ~w(1_0 1_1 1_2 1_3 1_4 2_0 2_1 2_2 3_0 3_1 3_2 3_3 4_0 4_1 4_2 4_3 4_4
                5_0 5_1 5_2 6_0 6_1 6_2),
     Sukebei => ~w(1_0 1_1 1_2 1_3 1_4 1_5 2_0 2_1 2_2),
+    ThePirateBay => ~w(100 101 102 103 104 199 200 201 202 203 204 205 206 207 208 209
+                       210 211 212 299 300 301 302 303 304 305 306 399 400 401 402
+                       403 404 405 406 407 408 499 500 501 502 503 504 505 506 507
+                       599 600 601 602 603 604 605 699),
     TorrentDownloads => [
       "Anime",
       "Books",
@@ -59,8 +64,21 @@ defmodule Magnetissimo.Crawlers.CategoriesTest do
   test "nothing from a work-safe source lands in XXX" do
     xxx = Taxonomy.family_ids(Taxonomy.xxx_id())
 
-    for crawler <- Crawlers.all() -- [Sukebei], {key, id} <- crawler.categories().ids do
+    for crawler <- Crawlers.all() -- [Sukebei, ThePirateBay],
+        {key, id} <- crawler.categories().ids do
       refute id in xxx, "#{inspect(crawler)}'s #{key} maps into XXX"
+    end
+  end
+
+  test "The Pirate Bay files into XXX only from its Porn group" do
+    mapping = ThePirateBay.categories()
+    xxx = Taxonomy.family_ids(Taxonomy.xxx_id())
+
+    refute mapping.fallback in xxx
+
+    for {key, id} <- mapping.ids do
+      assert id in xxx == String.starts_with?(key, "5"),
+             "The Pirate Bay's #{key} is filed #{if id in xxx, do: "in", else: "outside"} XXX"
     end
   end
 

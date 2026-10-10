@@ -21,8 +21,9 @@ Built so far:
   design system, read it before adding a page.
 - The JSON API, `GET /api/latest` and `GET /api/search/:term`, with the
   2.0.0 field names.
-- Crawlers for YTS, Nyaa.si, Sukebei, TorrentDownloads and AudioBookBay,
-  asked only when someone searches, through `Magnetissimo.SourceSearch`.
+- Crawlers for YTS, Nyaa.si, Sukebei, TorrentDownloads, AudioBookBay and The
+  Pirate Bay, asked only when someone searches, through
+  `Magnetissimo.SourceSearch`.
 - Tests for the context, the LiveViews, the API and the formatting helpers.
 
 Not built yet — don't assume any of it exists:

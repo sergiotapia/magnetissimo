@@ -18,6 +18,8 @@ defmodule Magnetissimo.Seeds do
     {"AudioBookBay", "https://audiobookbay.lu"},
     {"Nyaa.si", "https://nyaa.si"},
     {"Sukebei", "https://sukebei.nyaa.si"},
+    # The crawler asks apibay.org, the API the site's own pages are built from.
+    {"The Pirate Bay", "https://thepiratebay.org"},
     {"TorrentDownloads", "https://www.torrentdownloads.pro"},
     # The site moved off yts.mx; the crawler talks to movies-api.accel.li,
     # the API base URL the site itself advertises.

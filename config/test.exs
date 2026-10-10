@@ -46,6 +46,10 @@ config :magnetissimo, Magnetissimo.Crawlers.AudioBookBay,
   plug: {Req.Test, Magnetissimo.Crawlers.AudioBookBay},
   page_delay: 0
 
+# The Pirate Bay is one JSON request per search, to apibay.
+config :magnetissimo, Magnetissimo.Crawlers.ThePirateBay,
+  plug: {Req.Test, Magnetissimo.Crawlers.ThePirateBay}
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 
