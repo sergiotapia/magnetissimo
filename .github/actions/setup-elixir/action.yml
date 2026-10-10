@@ -1,6 +1,5 @@
 # What every job in ci.yml does before its check: install Elixir and OTP,
-# restore deps and _build, and fetch deps. The compile job runs first and
-# saves the cache on a miss, so the jobs after it start warm.
+# restore deps and _build, and fetch deps.
 name: Set up Elixir
 description: Install Elixir and OTP, restore the deps and build cache, fetch deps
 

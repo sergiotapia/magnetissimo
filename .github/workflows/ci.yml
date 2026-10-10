@@ -4,8 +4,9 @@
 # their check modes: locally they fix files, here they must fail instead.
 # Add a check to the alias, add it here too.
 #
-# compile goes first and saves the deps and _build cache that the other
-# jobs, run in parallel after it, start from.
+# The four jobs run at once from the same deps and _build cache. When
+# mix.lock changes they all miss it and compile deps themselves; the first
+# to finish saves the new cache.
 name: ci
 
 on:
@@ -30,7 +31,6 @@ jobs:
       - run: mix compile --warnings-as-errors
 
   lint:
-    needs: compile
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
@@ -41,7 +41,6 @@ jobs:
       - run: mix reach.check --arch
 
   dialyzer:
-    needs: compile
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
@@ -60,7 +59,6 @@ jobs:
       - run: mix dialyzer
 
   test:
-    needs: compile
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
