@@ -172,8 +172,7 @@ defmodule MagnetissimoWeb.DossierComponents do
     """
   end
 
-  @doc false
-  def fingerprint_cells(hash) do
+  defp fingerprint_cells(hash) do
     bits =
       hash
       |> String.downcase()

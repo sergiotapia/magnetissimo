@@ -4,6 +4,21 @@
 # If you find anything wrong or unclear in this file, please report an
 # issue on GitHub: https://github.com/rrrene/credo/issues
 #
+
+# ExSlop's checks at their strictest. `ObviousComment` only knows a few verbs
+# out of the box, so it also gets the rest of the ones that open a comment
+# restating the next line ("Send the message", "Loop over each item").
+ex_slop_params = %{
+  ExSlop.Check.Readability.UnaliasedModuleUse => [min_count: 2],
+  ExSlop.Check.Readability.DocFalseOnPublicFunction => [min_count: 1],
+  ExSlop.Check.Readability.ObviousComment => [
+    additional_keywords: [
+      ~r/^(Call|Send|Load|Render|Start|Stop|Loop|Iterate|Map|Filter|Sort|Merge|Append|Put|Read|Write|Run|Query|Make|Generate|Emit|Broadcast|Subscribe|Spawn|Wait|Match|Split|Join|Encode|Decode|Escape|Count|Apply|Use|Pass|Wrap|Show|Print|Log|Display|Clean|Reset|Register|Upsert|Find|Look|Lookup|Open|Close|Push|Pop|Toggle|Track|Prepend|Trim|Strip) (the|a|an|all|each|every|it|them|our|this|new|any) /,
+      ~r/^(this|the following) (function|module|block|code|line)/i
+    ]
+  ]
+}
+
 %{
   #
   # You can have as many configs as you like in the `configs:` field.
@@ -25,7 +40,12 @@
           "lib/",
           "test/",
           "config/",
-          "priv/repo/"
+          "priv/repo/",
+          "mix.exs",
+          ".credo.exs",
+          ".formatter.exs",
+          ".ex_dna.exs",
+          ".reach.exs"
         ],
         excluded: [~r"/_build/", ~r"/deps/", ~r"/node_modules/"]
       },
@@ -175,9 +195,9 @@
             {Credo.Check.Warning.MixEnv, []},
             {Credo.Check.Warning.UnsafeToAtom, []}
             #
-            ## Every ExSlop check, including the opt-in ones
+            ## Every ExSlop check, including the opt-in ones, tuned above
             #
-          ] ++ Enum.map(ExSlop.checks(), &{&1, []}),
+          ] ++ Enum.map(ExSlop.checks(), &{&1, Map.get(ex_slop_params, &1, [])}),
         disabled: [
           #
           # Checks scheduled for next check update (opt-in for now)

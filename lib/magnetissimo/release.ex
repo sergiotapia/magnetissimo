@@ -8,6 +8,7 @@ defmodule Magnetissimo.Release do
   server starts, and `rollback/2` is for `bin/magnetissimo eval`.
   """
 
+  alias Ecto.Migrator
   alias Magnetissimo.Seeds
 
   @app :magnetissimo
@@ -26,10 +27,10 @@ defmodule Magnetissimo.Release do
 
     Enum.each(repos(), fn repo ->
       {:ok, _, _} =
-        Ecto.Migrator.with_repo(
+        Migrator.with_repo(
           repo,
           fn repo ->
-            versions = Ecto.Migrator.run(repo, :up, all: true)
+            versions = Migrator.run(repo, :up, all: true)
             :ok = Seeds.run()
             versions
           end,
@@ -41,7 +42,7 @@ defmodule Magnetissimo.Release do
   @doc "Rolls `repo` back to `version`."
   def rollback(repo, version) do
     load_app()
-    {:ok, _, _} = Ecto.Migrator.with_repo(repo, &Ecto.Migrator.run(&1, :down, to: version))
+    {:ok, _, _} = Migrator.with_repo(repo, &Migrator.run(&1, :down, to: version))
   end
 
   defp repos do

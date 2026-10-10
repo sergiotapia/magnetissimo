@@ -17,7 +17,7 @@ defmodule Magnetissimo.Torrents.Source do
     timestamps(type: :utc_datetime_usec)
   end
 
-  @doc false
+  @doc "Casts a `Magnetissimo.Seeds` row. Names are unique."
   def changeset(source, attrs) do
     source
     |> cast(attrs, [:name, :url])

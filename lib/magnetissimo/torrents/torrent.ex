@@ -37,7 +37,11 @@ defmodule Magnetissimo.Torrents.Torrent do
     timestamps(type: :utc_datetime_usec)
   end
 
-  @doc false
+  @doc """
+  Casts a crawler's attrs. A row is refused unless its hash is 40 lowercase
+  hex characters, its magnet a complete `magnet:?xt=urn:btih:` URI, and its
+  category a Torznab number.
+  """
   def changeset(torrent, attrs) do
     torrent
     |> cast(attrs, [

@@ -10,6 +10,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   alias Magnetissimo.Torrents
   alias Magnetissimo.TorrentsFixtures
   alias Magnetissimo.YtsFixtures
+  alias Req.Test
 
   setup do
     TorrentsFixtures.seed!()
@@ -43,8 +44,8 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   end
 
   test "an entry with no usable upload time is dropped rather than crashed on" do
-    Req.Test.stub(Yts, fn conn ->
-      Req.Test.json(conn, %{
+    Test.stub(Yts, fn conn ->
+      Test.json(conn, %{
         "data" => %{
           "movies" => [
             %{
@@ -62,9 +63,9 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   end
 
   test "search indexes the API's hits and makes them findable by the term" do
-    Req.Test.stub(Yts, fn conn ->
+    Test.stub(Yts, fn conn ->
       assert conn.query_string =~ "query_term=Fall+2+Deadpoint"
-      Req.Test.json(conn, YtsFixtures.api_response())
+      Test.json(conn, YtsFixtures.api_response())
     end)
 
     assert {:ok, %{inserted: 2, found: 2}} = Crawlers.search(Yts, "Fall 2 Deadpoint")
@@ -78,7 +79,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   end
 
   test "search refreshes the swarm of a torrent already indexed" do
-    Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
+    Test.stub(Yts, fn conn -> Test.json(conn, YtsFixtures.api_response()) end)
     assert {:ok, %{inserted: 2}} = Crawlers.search(Yts, "Fixture Movie")
 
     fresher =
@@ -86,7 +87,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
         Enum.map(ts, &Map.merge(&1, %{"seeds" => 999, "peers" => 7}))
       end)
 
-    Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, fresher) end)
+    Test.stub(Yts, fn conn -> Test.json(conn, fresher) end)
     assert {:ok, %{inserted: 0, found: 2}} = Crawlers.search(Yts, "Fixture Movie")
 
     assert Enum.map(Torrents.list_latest_torrents(), &{&1.seeders, &1.leechers}) ==
@@ -111,7 +112,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   end
 
   test "a search that fails says why" do
-    Req.Test.stub(Yts, fn conn -> Plug.Conn.send_resp(conn, 500, "nope") end)
+    Test.stub(Yts, fn conn -> Plug.Conn.send_resp(conn, 500, "nope") end)
 
     ExUnit.CaptureLog.capture_log(fn ->
       assert {:error, _reason} = Crawlers.search(Yts, "Fall 2 Deadpoint")
@@ -119,16 +120,16 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   end
 
   test "a search with no matches is an empty answer, not a failure" do
-    Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.empty_response()) end)
+    Test.stub(Yts, fn conn -> Test.json(conn, YtsFixtures.empty_response()) end)
 
     assert {:ok, %{inserted: 0, found: 0}} = Crawlers.search(Yts, "xqzvbnm")
   end
 
   defp stub_api do
-    Req.Test.stub(Yts, fn conn ->
+    Test.stub(Yts, fn conn ->
       assert conn.query_string =~ "limit=50"
 
-      Req.Test.json(conn, YtsFixtures.api_response())
+      Test.json(conn, YtsFixtures.api_response())
     end)
   end
 end
