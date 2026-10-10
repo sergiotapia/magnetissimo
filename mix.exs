@@ -93,7 +93,10 @@ defmodule Magnetissimo.MixProject do
       test: ["ecto.create --quiet", "ecto.migrate --quiet", "test"],
       "assets.setup": ["tailwind.install --if-missing", "esbuild.install --if-missing"],
       "assets.build": ["compile", "tailwind magnetissimo", "esbuild magnetissimo"],
+      # Compiles first, as assets.build does: the colocated CSS and hooks that
+      # app.css and app.js import are written by the compiler.
       "assets.deploy": [
+        "compile",
         "tailwind magnetissimo --minify",
         "esbuild magnetissimo --minify",
         "phx.digest"
