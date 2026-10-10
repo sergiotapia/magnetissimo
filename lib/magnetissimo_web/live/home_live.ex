@@ -1,10 +1,11 @@
 defmodule MagnetissimoWeb.HomeLive do
   @moduledoc """
-  The home page: search, category filter, per-source status and the
-  latest magnets.
+  The home page: search, category and source filters, per-source status and
+  the latest magnets.
 
   The URL is the state. Typing patches `?q=`, picking a category patches
-  `?category=`, a column header patches `?sort=` and `?dir=`, and the pager
+  `?category=`, toggling sources patches `?sources=` (their slugs, comma
+  separated), a column header patches `?sort=` and `?dir=`, and the pager
   patches `?page=`. `handle_params/3` loads from those, so a search is a link
   and the form still works as a plain GET without JavaScript.
 
@@ -29,6 +30,7 @@ defmodule MagnetissimoWeb.HomeLive do
     {:ok,
      socket
      |> assign(:page_title, "Latest")
+     |> assign(:source_list, Torrents.list_sources())
      |> assign_index_stats()
      |> assign(:ticker, Enum.map(Torrents.list_latest_torrents(limit: 8), & &1.name))
      |> assign(:source_key, nil)
@@ -42,6 +44,7 @@ defmodule MagnetissimoWeb.HomeLive do
   def handle_params(params, _uri, socket) do
     q = params |> Map.get("q", "") |> String.trim()
     category = lookup_category(params["category"])
+    sources = lookup_sources(params["sources"], socket.assigns.source_list)
     sort = lookup_sort(params["sort"], params["dir"])
 
     # The sources are asked before the index is read, so whatever a source
@@ -49,7 +52,7 @@ defmodule MagnetissimoWeb.HomeLive do
     {:noreply,
      socket
      |> follow_sources(q)
-     |> load_results(q, category, sort, page_param(params["page"]))
+     |> load_results(q, category, sources, sort, page_param(params["page"]))
      |> assign(:arrived, :all)}
   end
 
@@ -59,8 +62,8 @@ defmodule MagnetissimoWeb.HomeLive do
   # `handle_params/3` does the searching.
   @impl true
   def handle_event(event, %{"q" => q}, socket) when event in ["search", "submit"] do
-    %{category: category, sort: sort} = socket.assigns
-    {:noreply, push_patch(socket, to: index_path(String.trim(q), category, sort))}
+    %{category: category, source_filter: sources, sort: sort} = socket.assigns
+    {:noreply, push_patch(socket, to: index_path(String.trim(q), category, sources, sort))}
   end
 
   # A source's answer is only applied to the term it was asked for. One for a
@@ -118,6 +121,22 @@ defmodule MagnetissimoWeb.HomeLive do
     end
   end
 
+  # The sources picked, in the order the page lists them. A slug the page
+  # does not know, such as a source since removed, is dropped.
+  defp lookup_sources(nil, _all), do: []
+
+  defp lookup_sources(param, all) do
+    slugs = param |> String.split(",", trim: true) |> MapSet.new()
+    Enum.filter(all, &MapSet.member?(slugs, source_slug(&1.name)))
+  end
+
+  # Clicking a source adds it to the filter, or takes it out if it was in.
+  # The list stays in page order, so one selection is always one URL.
+  defp toggle_source(picked, source, all) do
+    picked = if source in picked, do: List.delete(picked, source), else: [source | picked]
+    Enum.filter(all, &(&1 in picked))
+  end
+
   # A column the page does not know is no sort at all; a direction it does
   # not know is the column's own.
   defp lookup_sort(column, dir) do
@@ -172,11 +191,13 @@ defmodule MagnetissimoWeb.HomeLive do
     [limit: Torrents.per_page(), offset: (page - 1) * Torrents.per_page()]
   end
 
-  # Everything the results panel shows is derived from the query, the category,
+  # Everything the results panel shows is derived from the query, the filters,
   # the sort and the page, so a URL patch and a fresh batch of hits from the
   # source both come through here.
-  defp load_results(socket, q, category, sort, page) do
-    opts = if category, do: [category_id: category.id], else: []
+  defp load_results(socket, q, category, sources, sort, page) do
+    opts =
+      [category_id: category && category.id, source_ids: Enum.map(sources, & &1.id)]
+      |> Enum.reject(fn {_key, value} -> value in [nil, []] end)
 
     count =
       if q == "",
@@ -194,28 +215,30 @@ defmodule MagnetissimoWeb.HomeLive do
     socket
     |> assign(:q, q)
     |> assign(:category, category)
+    |> assign(:source_filter, sources)
     |> assign(:sort, sort)
     |> assign(:page, page)
     |> assign(:pages, pages)
     |> assign(:count, count)
-    |> assign_filtered_away(q, category, count)
+    |> assign_filtered_away(q, category, sources, count)
     |> assign(:form, to_form(%{"q" => q}))
     |> assign(:now, DateTime.utc_now())
     |> assign(:shown_ids, MapSet.new(torrents, & &1.id))
     |> stream(:torrents, torrents, reset: true)
   end
 
-  # With a category filter on, the sources still answer for every category,
-  # so the page says how much of each answer the filter is hiding: per source
-  # in its chip, and in total next to the match count.
-  defp assign_filtered_away(socket, q, category, count) when q != "" and not is_nil(category) do
-    socket
-    |> assign(:in_filter, Torrents.count_search_hits_by_source(q, category.id))
-    |> assign(:outside, Torrents.count_search_torrents(q) - count)
+  # With a filter on, every source is still asked, for every category, so the
+  # page says how much of each answer the filters are hiding: per source in
+  # its chip, and in total next to the match count.
+  defp assign_filtered_away(socket, "", _category, _sources, _count) do
+    assign(socket, in_filter: nil, outside: 0)
   end
 
-  defp assign_filtered_away(socket, _q, _category, _count) do
-    assign(socket, in_filter: nil, outside: 0)
+  defp assign_filtered_away(socket, q, category, sources, count) do
+    in_filter = if category, do: Torrents.count_search_hits_by_source(q, category.id)
+    outside = if category || sources != [], do: Torrents.count_search_torrents(q) - count, else: 0
+
+    assign(socket, in_filter: in_filter, outside: outside)
   end
 
   # A source added to the index: reload the page and mark the rows that were
@@ -223,12 +246,13 @@ defmodule MagnetissimoWeb.HomeLive do
   # re-attaches every kept row, which would replay a row animation on all of
   # them, so the animation class goes only on the arrivals.
   defp reload_with_arrivals(socket) do
-    %{q: q, category: category, sort: sort, page: page, shown_ids: before} = socket.assigns
+    %{q: q, category: category, source_filter: sources, sort: sort, page: page} = socket.assigns
+    before = socket.assigns.shown_ids
 
     arrived_before =
       if socket.assigns.arrived == :all, do: MapSet.new(), else: socket.assigns.arrived
 
-    socket = socket |> assign_index_stats() |> load_results(q, category, sort, page)
+    socket = socket |> assign_index_stats() |> load_results(q, category, sources, sort, page)
 
     arrived =
       socket.assigns.shown_ids |> MapSet.difference(before) |> MapSet.union(arrived_before)
@@ -242,11 +266,11 @@ defmodule MagnetissimoWeb.HomeLive do
     socket
     |> assign(:category_counts, counts)
     |> assign(:tree, category_tree(counts))
-    |> assign(:source_counts, Torrents.count_torrents_by_source())
+    |> assign(:source_counts, Map.new(Torrents.count_torrents_by_source()))
     |> assign(:total, Torrents.count_torrents())
   end
 
-  defp index_path(q, category, sort, page \\ 1) do
+  defp index_path(q, category, sources, sort, page \\ 1) do
     {column, dir} = sort || {nil, nil}
 
     params =
@@ -254,6 +278,7 @@ defmodule MagnetissimoWeb.HomeLive do
         [
           q: if(String.trim(q) != "", do: q),
           category: category && category.id,
+          sources: if(sources != [], do: Enum.map_join(sources, ",", &source_slug(&1.name))),
           sort: column,
           dir: dir,
           page: if(page > 1, do: page)
@@ -276,8 +301,14 @@ defmodule MagnetissimoWeb.HomeLive do
     end
   end
 
-  defp max_source_count([]), do: 1
-  defp max_source_count(counts), do: counts |> Enum.map(&elem(&1, 1)) |> Enum.max() |> max(1)
+  defp max_source_count(counts), do: counts |> Map.values() |> Enum.max(fn -> 1 end) |> max(1)
+
+  defp picked?(sources, name), do: Enum.any?(sources, &(&1.name == name))
+
+  # With sources picked, the chips of the others are told apart: they are
+  # still asked, but nothing they find is listed.
+  defp hidden_by_sources?([], _name), do: false
+  defp hidden_by_sources?(sources, name), do: not picked?(sources, name)
 
   defp arrived?(:all, _torrent), do: false
   defp arrived?(arrived, torrent), do: MapSet.member?(arrived, torrent.id)
@@ -296,12 +327,17 @@ defmodule MagnetissimoWeb.HomeLive do
 
   # With a category filter on, a source's answer is told as what of it the
   # filter shows, so "50 found" never sits above an empty list unexplained.
-  defp source_label({:done, %{found: found}}, name, category, in_filter)
+  defp source_label({:done, %{found: found}}, _name, _category, _in_filter, true = _hidden)
+       when found > 0 do
+    "#{found} found · not shown"
+  end
+
+  defp source_label({:done, %{found: found}}, name, category, in_filter, _hidden)
        when found > 0 and is_map(in_filter) do
     "#{found} found · #{Map.get(in_filter, name, 0)} in #{category.name}"
   end
 
-  defp source_label(status, _name, _category, _in_filter), do: status_label(status)
+  defp source_label(status, _name, _category, _in_filter, _hidden), do: status_label(status)
 
   defp status_label(:searching), do: "asking…"
   defp status_label({:done, %{found: 0}}), do: "nothing"
@@ -388,14 +424,14 @@ defmodule MagnetissimoWeb.HomeLive do
             <div class="flex items-center gap-4 p-5">
               <.orb
                 id="status-orb"
-                seed={"#{@total}:#{length(@source_counts)}"}
+                seed={"#{@total}:#{length(@source_list)}"}
                 class="size-20 shrink-0"
               />
               <dl class="flex-1 text-sm">
                 <div class="spec-row">
                   <dt class="text-ink-500">Sources</dt>
                   <span class="leader"></span>
-                  <dd class="font-bold text-ink-900">{length(@source_counts)}</dd>
+                  <dd class="font-bold text-ink-900">{length(@source_list)}</dd>
                 </div>
                 <div class="spec-row">
                   <dt class="text-ink-500">Magnets</dt>
@@ -409,21 +445,72 @@ defmodule MagnetissimoWeb.HomeLive do
           <div id="sources" class="panel panel-hot animate-rise [animation-delay:160ms]">
             <div class="panel-title">
               <span>Sources</span>
-              <span class="label">by magnets</span>
+              <.link
+                :if={@source_filter != []}
+                patch={index_path(@q, @category, [], @sort)}
+                id="clear-sources"
+                class="pill focus-ring px-2.5 py-1 font-sans text-[0.7rem] font-bold tracking-normal normal-case"
+              >
+                Clear filter ×
+              </.link>
+              <span :if={@source_filter == []} class="label">filter by source</span>
             </div>
-            <ul class="space-y-3 p-5 text-sm">
-              <li :for={{name, count} <- @source_counts}>
-                <div class="flex items-baseline justify-between gap-3">
-                  <span class="font-semibold text-ink-700">{name}</span>
-                  <span class="font-mono text-xs text-ink-900 tabular-nums">{number(count)}</span>
-                </div>
-                <div class="well mt-1.5 h-2.5 rounded-full p-0.5">
-                  <div
-                    class="bar-fill h-full transition-[width] duration-700"
-                    style={"width: #{round(count / max_source_count(@source_counts) * 100)}%"}
-                  >
+            <%!-- Each source toggles in and out of the filter; none picked is all of them. --%>
+            <ul class="space-y-1 p-3 text-sm">
+              <li :for={source <- @source_list}>
+                <.link
+                  patch={
+                    index_path(
+                      @q,
+                      @category,
+                      toggle_source(@source_filter, source, @source_list),
+                      @sort
+                    )
+                  }
+                  id={"source-#{source_slug(source.name)}"}
+                  aria-current={picked?(@source_filter, source.name) && "true"}
+                  title={
+                    if(picked?(@source_filter, source.name),
+                      do: "Stop showing results from #{source.name}",
+                      else: "Show results from #{source.name}"
+                    )
+                  }
+                  class={[
+                    "group/source focus-ring block rounded-xl px-2 py-1.5 transition hover:bg-white/80",
+                    picked?(@source_filter, source.name) && "bg-azure-100/70",
+                    hidden_by_sources?(@source_filter, source.name) && "opacity-50 hover:opacity-100"
+                  ]}
+                >
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="flex items-center gap-2 font-semibold text-ink-700">
+                      <span class={[
+                        "inline-flex size-4 shrink-0 items-center justify-center rounded-full transition",
+                        if(picked?(@source_filter, source.name),
+                          do: "gel",
+                          else:
+                            "border border-frost-300 bg-white/70 group-hover/source:border-azure-400"
+                        )
+                      ]}>
+                        <.icon
+                          :if={picked?(@source_filter, source.name)}
+                          name="hero-check-mini"
+                          class="size-3.5"
+                        />
+                      </span>
+                      {source.name}
+                    </span>
+                    <span class="font-mono text-xs text-ink-900 tabular-nums">
+                      {number(Map.get(@source_counts, source.name, 0))}
+                    </span>
                   </div>
-                </div>
+                  <div class="well mt-1.5 ml-6 h-2.5 rounded-full p-0.5">
+                    <div
+                      class="bar-fill h-full transition-[width] duration-700"
+                      style={"width: #{round(Map.get(@source_counts, source.name, 0) / max_source_count(@source_counts) * 100)}%"}
+                    >
+                    </div>
+                  </div>
+                </.link>
               </li>
             </ul>
             <.signal id="status-signal" class="h-12 w-full" />
@@ -437,7 +524,7 @@ defmodule MagnetissimoWeb.HomeLive do
               <span>Categories</span>
               <.link
                 :if={@category}
-                patch={index_path(@q, nil, @sort)}
+                patch={index_path(@q, nil, @source_filter, @sort)}
                 id="clear-category"
                 class="pill focus-ring px-2.5 py-1 font-sans text-[0.7rem] font-bold tracking-normal normal-case"
               >
@@ -456,7 +543,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 <div class="mt-2 flex flex-wrap gap-1.5">
                   <%!-- The whole group: the top level and all of its children. --%>
                   <.link
-                    patch={index_path(@q, root, @sort)}
+                    patch={index_path(@q, root, @source_filter, @sort)}
                     id={"category-#{root.id}"}
                     aria-current={@category && @category.id == root.id && "true"}
                     class={[
@@ -479,7 +566,7 @@ defmodule MagnetissimoWeb.HomeLive do
                     :for={category <- children}
                     category={category}
                     short
-                    patch={index_path(@q, category, @sort)}
+                    patch={index_path(@q, category, @source_filter, @sort)}
                     active={@category && @category.id == category.id}
                     count={@category_counts[category.id]}
                     id={"category-#{category.id}"}
@@ -522,6 +609,12 @@ defmodule MagnetissimoWeb.HomeLive do
                 class="mt-8"
               >
                 <input :if={@category} type="hidden" name="category" value={@category.id} />
+                <input
+                  :if={@source_filter != []}
+                  type="hidden"
+                  name="sources"
+                  value={Enum.map_join(@source_filter, ",", &source_slug(&1.name))}
+                />
                 <%= if @sort do %>
                   <input type="hidden" name="sort" value={elem(@sort, 0)} />
                   <input type="hidden" name="dir" value={elem(@sort, 1)} />
@@ -556,10 +649,13 @@ defmodule MagnetissimoWeb.HomeLive do
                   {if @count == 1, do: "match", else: "matches"} for
                   <span class="font-bold text-ink-900">“{@q}”</span>
                   <span :if={@category}>in {@category.name}</span>
+                  <span :if={@source_filter != []} id="source-filter-line">
+                    from {Enum.map_join(@source_filter, ", ", & &1.name)}
+                  </span>
                   <span :if={@outside > 0} id="filtered-away">
-                    · {@outside} more outside it,
+                    · {@outside} more outside the filter,
                     <.link
-                      patch={index_path(@q, nil, @sort)}
+                      patch={index_path(@q, nil, [], @sort)}
                       id="show-all"
                       class="font-semibold text-azure-600 underline decoration-azure-200 underline-offset-2 transition hover:decoration-azure-500"
                     >
@@ -581,9 +677,16 @@ defmodule MagnetissimoWeb.HomeLive do
                   :for={{name, status} <- Enum.sort(@sources)}
                   id={"source-status-#{source_slug(name)}"}
                   data-status={status_name(status)}
-                  title={status_title(name, status)}
+                  data-hidden={hidden_by_sources?(@source_filter, name) && "true"}
+                  title={
+                    if(hidden_by_sources?(@source_filter, name),
+                      do: status_title(name, status) <> ", but the source filter hides them",
+                      else: status_title(name, status)
+                    )
+                  }
                   class={[
-                    "pill flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold transition-colors duration-500",
+                    "pill flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold transition duration-500",
+                    hidden_by_sources?(@source_filter, name) && "opacity-55",
                     status == :searching && "text-ink-500",
                     match?({:failed, _}, status) && "border-bubble-soft text-ink-500"
                   ]}
@@ -599,7 +702,8 @@ defmodule MagnetissimoWeb.HomeLive do
                     status,
                     name,
                     @category,
-                    @in_filter
+                    @in_filter,
+                    hidden_by_sources?(@source_filter, name)
                   )}</span>
                 </li>
               </ul>
@@ -640,7 +744,14 @@ defmodule MagnetissimoWeb.HomeLive do
                 label={label}
                 title={title}
                 shown={shown_sort(@sort, @q)}
-                patch={index_path(@q, @category, sort_after_click(shown_sort(@sort, @q), column))}
+                patch={
+                  index_path(
+                    @q,
+                    @category,
+                    @source_filter,
+                    sort_after_click(shown_sort(@sort, @q), column)
+                  )
+                }
               />
               <span class="hidden text-right md:block" aria-hidden="true">Link</span>
             </div>
@@ -714,7 +825,7 @@ defmodule MagnetissimoWeb.HomeLive do
             >
               <.link
                 id="page-prev"
-                patch={index_path(@q, @category, @sort, @page - 1)}
+                patch={index_path(@q, @category, @source_filter, @sort, @page - 1)}
                 aria-disabled={@page == 1 && "true"}
                 class={[
                   "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",
@@ -728,7 +839,7 @@ defmodule MagnetissimoWeb.HomeLive do
 
               <.link
                 id="page-next"
-                patch={index_path(@q, @category, @sort, @page + 1)}
+                patch={index_path(@q, @category, @source_filter, @sort, @page + 1)}
                 aria-disabled={@page == @pages && "true"}
                 class={[
                   "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",

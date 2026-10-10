@@ -78,7 +78,7 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     await_sources(view)
 
     assert has_element?(view, "#source-status-yts", "2 found · 0 in TV")
-    assert has_element?(view, "#filtered-away", "2 more outside it")
+    assert has_element?(view, "#filtered-away", "2 more outside the filter")
     refute has_element?(view, "#torrents li[id^=torrents-]:not(#torrents-empty)")
 
     view |> element("#show-all") |> render_click()
@@ -86,6 +86,100 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     assert has_element?(view, "#torrents", "Fixture Movie (2024)")
     assert has_element?(view, "#source-status-yts", "2 found · 2 new")
     refute has_element?(view, "#filtered-away")
+  end
+
+  describe "source filter" do
+    setup do
+      yts = TorrentsFixtures.torrent_fixture(%{name: "Foxtrot Film", source: "YTS"})
+
+      eztv =
+        TorrentsFixtures.torrent_fixture(%{
+          name: "Foxtrot Show S01E01",
+          source: "EZTV",
+          category: "TV/HD"
+        })
+
+      nyaa =
+        TorrentsFixtures.torrent_fixture(%{
+          name: "Foxtrot Anime",
+          source: "Nyaa.si",
+          category: "TV/Anime"
+        })
+
+      %{yts: yts, eztv: eztv, nyaa: nyaa}
+    end
+
+    test "toggling sources adds them to the filter and takes them out", %{conn: conn} = ctx do
+      {:ok, view, _html} = live(conn, ~p"/")
+
+      # Every source is listed, picked or not, and none picked shows them all.
+      assert has_element?(view, "#source-the-pirate-bay")
+      refute has_element?(view, "#clear-sources")
+      assert has_element?(view, "#torrents-#{ctx.yts.id}")
+
+      view |> element("#source-eztv") |> render_click()
+      assert_patch(view, ~p"/?#{[sources: "eztv"]}")
+      assert has_element?(view, "#source-eztv[aria-current=true]")
+      assert has_element?(view, "#torrents-#{ctx.eztv.id}")
+      refute has_element?(view, "#torrents-#{ctx.yts.id}")
+      refute has_element?(view, "#torrents-#{ctx.nyaa.id}")
+
+      # A second source is added, and the URL lists them in page order.
+      view |> element("#source-nyaa-si") |> render_click()
+      assert_patch(view, ~p"/?#{[sources: "eztv,nyaa-si"]}")
+      assert has_element?(view, "#torrents-#{ctx.nyaa.id}")
+      refute has_element?(view, "#torrents-#{ctx.yts.id}")
+
+      view |> element("#source-eztv") |> render_click()
+      assert_patch(view, ~p"/?#{[sources: "nyaa-si"]}")
+      refute has_element?(view, "#torrents-#{ctx.eztv.id}")
+
+      view |> element("#clear-sources") |> render_click()
+      assert_patch(view, ~p"/")
+      assert has_element?(view, "#torrents-#{ctx.yts.id}")
+    end
+
+    test "the source filter combines with a category and survives a new search",
+         %{conn: conn} = ctx do
+      {:ok, view, _html} = live(conn, ~p"/?#{[sources: "eztv,nyaa-si", category: 5070]}")
+
+      assert has_element?(view, "#torrents-#{ctx.nyaa.id}")
+      refute has_element?(view, "#torrents-#{ctx.eztv.id}")
+      assert has_element?(view, "#search-form input[name=sources][value='eztv,nyaa-si']")
+
+      # YTS finds nothing, so what is outside the filter is only what is indexed.
+      Req.Test.stub(Yts, &Req.Test.json(&1, %{"data" => %{"movie_count" => 0}}))
+      :ok = SourceSearch.subscribe("Foxtrot")
+
+      view |> form("#search-form", q: "Foxtrot") |> render_submit()
+      assert_patch(view, ~p"/?#{[q: "Foxtrot", category: 5070, sources: "eztv,nyaa-si"]}")
+      await_sources(view)
+
+      assert has_element?(view, "#source-filter-line", "from EZTV, Nyaa.si")
+      assert has_element?(view, "#filtered-away", "2 more outside the filter")
+
+      view |> element("#show-all") |> render_click()
+      assert_patch(view, ~p"/?#{[q: "Foxtrot"]}")
+      assert has_element?(view, "#torrents-#{ctx.yts.id}")
+    end
+
+    test "a source answering outside the filter says its hits are not shown", %{conn: conn} do
+      :ok = SourceSearch.subscribe("Fixture Movie")
+
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "Fixture Movie", sources: "eztv"]}")
+      await_sources(view)
+
+      assert has_element?(view, "#source-status-yts[data-hidden]", "2 found · not shown")
+      refute has_element?(view, "#source-status-eztv[data-hidden]")
+      refute has_element?(view, "#torrents", "Fixture Movie (2024)")
+    end
+
+    test "a source the page does not know is ignored", %{conn: conn} = ctx do
+      {:ok, view, _html} = live(conn, ~p"/?#{[sources: "nowhere"]}")
+
+      refute has_element?(view, "#clear-sources")
+      assert has_element?(view, "#torrents-#{ctx.yts.id}")
+    end
   end
 
   test "a source that is down is shown as such, and the others still answer", %{conn: conn} do
