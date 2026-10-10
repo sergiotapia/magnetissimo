@@ -1,0 +1,29 @@
+# What every job in ci.yml does before its check: install Elixir and OTP,
+# restore deps and _build, and fetch deps. The compile job runs first and
+# saves the cache on a miss, so the jobs after it start warm.
+name: Set up Elixir
+description: Install Elixir and OTP, restore the deps and build cache, fetch deps
+
+runs:
+  using: composite
+  steps:
+    - uses: erlef/setup-beam@v1.24.1
+      with:
+        # Keep in step with .mise.toml.
+        elixir-version: "1.20.4"
+        otp-version: "29.1.1"
+        version-type: strict
+
+    - name: Restore deps and build cache
+      uses: actions/cache@v6.1.0
+      with:
+        path: |
+          deps
+          _build
+        key: mix-${{ runner.os }}-29.1.1-1.20.4-${{ hashFiles('mix.lock') }}
+        restore-keys: |
+          mix-${{ runner.os }}-29.1.1-1.20.4-
+
+    - name: Fetch deps
+      shell: bash
+      run: mix deps.get

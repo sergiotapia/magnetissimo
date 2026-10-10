@@ -1,10 +1,11 @@
 # Runs the `mix precommit` checks on every push to master and every pull
-# request. The steps mirror the alias in mix.exs, except that `format` and
-# `deps.unlock` run in their check modes: locally they fix files, here they
-# must fail instead. Add a check to the alias, add it here too.
+# request, one job per group so each shows as its own check. The commands
+# mirror the alias in mix.exs, except that `format` and `deps.unlock` run in
+# their check modes: locally they fix files, here they must fail instead.
+# Add a check to the alias, add it here too.
 #
-# One job, not one per check: each job would fetch and compile everything
-# again, which costs more than the checks themselves.
+# compile goes first and saves the deps and _build cache that the other
+# jobs, run in parallel after it, start from.
 name: ci
 
 on:
@@ -18,54 +19,50 @@ permissions:
 
 env:
   MIX_ENV: test
-  # Keep in step with .mise.toml.
-  ELIXIR_VERSION: "1.20.4"
-  OTP_VERSION: "29.1.1"
 
 jobs:
-  precommit:
+  compile:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
+      - uses: ./.github/actions/setup-elixir
+      - run: mix deps.unlock --check-unused
+      - run: mix compile --warnings-as-errors
 
-      - uses: erlef/setup-beam@v1.24.1
-        with:
-          elixir-version: ${{ env.ELIXIR_VERSION }}
-          otp-version: ${{ env.OTP_VERSION }}
-          version-type: strict
+  lint:
+    needs: compile
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: ./.github/actions/setup-elixir
+      - run: mix format --check-formatted
+      - run: mix credo --strict
+      - run: mix ex_dna
+      - run: mix reach.check --arch
 
-      - name: Restore deps and build cache
+  dialyzer:
+    needs: compile
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: ./.github/actions/setup-elixir
+      # The core PLT (Erlang and Elixir) lives in MIX_HOME and the deps PLT
+      # in _build. Neither changes with the app's own code.
+      - name: Restore PLTs
         uses: actions/cache@v6.1.0
         with:
           path: |
-            deps
-            _build
-          key: mix-${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-${{ hashFiles('mix.lock') }}
+            ~/.mix/dialyxir_*
+            _build/test/dialyxir_*
+          key: plt-${{ runner.os }}-29.1.1-1.20.4-${{ hashFiles('mix.lock') }}
           restore-keys: |
-            mix-${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}-
+            plt-${{ runner.os }}-29.1.1-1.20.4
+      - run: mix dialyzer
 
-      # Dialyzer's core PLT (Erlang and Elixir) lives in MIX_HOME, not _build.
-      - name: Restore Dialyzer core PLT
-        uses: actions/cache@v6.1.0
-        with:
-          path: ~/.mix/dialyxir_*
-          key: plt-${{ runner.os }}-${{ env.OTP_VERSION }}-${{ env.ELIXIR_VERSION }}
-
-      - name: Deps and compile
-        run: |
-          mix deps.get
-          mix compile --warnings-as-errors
-
-      - name: Lint
-        run: |
-          mix format --check-formatted
-          mix deps.unlock --check-unused
-          mix credo --strict
-          mix ex_dna
-          mix reach.check --arch
-
-      - name: Dialyzer
-        run: mix dialyzer
-
-      - name: Test
-        run: mix test
+  test:
+    needs: compile
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: ./.github/actions/setup-elixir
+      - run: mix test
