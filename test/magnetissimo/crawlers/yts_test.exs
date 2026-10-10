@@ -110,6 +110,23 @@ defmodule Magnetissimo.Crawlers.YtsTest do
              [{999, 7}, {999, 7}]
   end
 
+  test "a torrent filed under Other takes the category a later source knows" do
+    other = Torrents.get_category_by_name_or_alias!("Other")
+    stub_api()
+    {:ok, [attrs | _]} = Yts.latest()
+
+    # As TorrentDownloads' search would file it, with no category to go on.
+    %{ids: [id]} = Torrents.index_torrents([%{attrs | category_id: other.id}])
+    assert Torrents.get_torrent!(id).category.name == "Other"
+
+    %{ids: [^id]} = Torrents.index_torrents([attrs])
+    assert Torrents.get_torrent!(id).category.name == "Video - Movies"
+
+    # A real category is never overwritten, by Other or by anything else.
+    %{ids: [^id]} = Torrents.index_torrents([%{attrs | category_id: other.id}])
+    assert Torrents.get_torrent!(id).category.name == "Video - Movies"
+  end
+
   test "a search that fails says why" do
     Req.Test.stub(Yts, fn conn -> Plug.Conn.send_resp(conn, 500, "nope") end)
 

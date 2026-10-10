@@ -193,6 +193,11 @@ defmodule Magnetissimo.Torrents do
   `leechers` take the fresh numbers, so a torrent a search or crawl sees again
   stops showing the swarm it had on the day it was first found.
 
+  The one other exception is a torrent filed under the fallback category.
+  TorrentDownloads' search feed carries no category, so a torrent it finds
+  first lands in "Other" even when Nyaa knows it is anime. The first source to
+  say what it is gets to file it; a real category is never overwritten.
+
   Attrs that fail `Torrent.changeset/2` are not indexed; they come back in
   `:rejected` with their errors, for the caller to log.
 
@@ -259,6 +264,24 @@ defmodule Magnetissimo.Torrents do
   defp upsert(rows) do
     hashes = Enum.map(rows, & &1.magnet_hash)
     known = Repo.all(from t in Torrent, where: t.magnet_hash in ^hashes, select: t.magnet_hash)
+    fallback_id = get_fallback_category!().id
+
+    refresh =
+      from t in Torrent,
+        update: [
+          set: [
+            seeders: fragment("excluded.seeders"),
+            leechers: fragment("excluded.leechers"),
+            updated_at: fragment("excluded.updated_at"),
+            category_id:
+              fragment(
+                "CASE WHEN ? = ? THEN excluded.category_id ELSE ? END",
+                t.category_id,
+                ^fallback_id,
+                t.category_id
+              )
+          ]
+        ]
 
     # Chunked to stay well under SQLite's limit on bound parameters, 13 a row.
     id_by_hash =
@@ -267,7 +290,7 @@ defmodule Magnetissimo.Torrents do
       |> Enum.flat_map(fn chunk ->
         {_count, returned} =
           Repo.insert_all(Torrent, chunk,
-            on_conflict: {:replace, [:seeders, :leechers, :updated_at]},
+            on_conflict: refresh,
             conflict_target: :magnet_hash,
             returning: [:id, :magnet_hash]
           )
