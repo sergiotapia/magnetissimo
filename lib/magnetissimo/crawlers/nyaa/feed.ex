@@ -89,7 +89,7 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
          category when is_binary(category) <- Rss.field(item, "nyaa:category"),
          size when is_integer(size) <- size_to_bytes(Rss.field(item, "nyaa:size")),
          %DateTime{} = published_at <- published_at(Rss.field(item, "pubDate")) do
-      name = unescape(name)
+      name = Rss.unescape(name)
       hash = String.downcase(hash)
 
       %{
@@ -150,26 +150,6 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
       nil -> 0
       index -> index + 1
     end
-  end
-
-  defp unescape(text) do
-    text
-    |> String.replace("&lt;", "<")
-    |> String.replace("&gt;", ">")
-    |> String.replace("&quot;", "\"")
-    |> String.replace("&apos;", "'")
-    |> String.replace("&#39;", "'")
-    |> String.replace("&amp;", "&")
-    |> decode_numeric()
-  end
-
-  defp decode_numeric(text) do
-    Regex.replace(~r/&#(\d+);/, text, fn _, code ->
-      case Integer.parse(code) do
-        {n, ""} when n in 1..0x10FFFF -> <<n::utf8>>
-        _ -> "&#" <> code <> ";"
-      end
-    end)
   end
 
   defp magnet_url(tracker, hash, name) do

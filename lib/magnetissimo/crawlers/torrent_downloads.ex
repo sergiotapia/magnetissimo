@@ -9,9 +9,10 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   lists no infohash, and reading it would mean a second request per result.
 
   The fields are pulled out with fixed patterns rather than an XML parser, the
-  same way the Nyaa feed is read. Unlike Nyaa's feed, this one sends titles as
-  raw UTF-8 with no XML entities and stamps upload times in the origin's local
-  time, so the offset is applied instead of assuming UTC.
+  same way the Nyaa feed is read. Titles are raw UTF-8 with only the entities
+  XML escaping requires (`&amp;` is common), which are decoded. Unlike Nyaa's
+  feed, this one stamps upload times in the origin's local time, so the offset
+  is applied instead of assuming UTC.
 
   The feed carries only the infohash and no tracker, so the magnet URI is built
   from the shared public tracker list, as the YTS crawler does.
@@ -71,11 +72,12 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   # parse, is dropped rather than crashing the crawl. The feed's link is
   # relative to the site root, and the site redirects to `www`.
   defp torrent_attrs(item, source_id) do
-    with name when is_binary(name) <- Rss.field(item, "title"),
+    with title when is_binary(title) <- Rss.field(item, "title"),
          path when is_binary(path) <- Rss.field(item, "link"),
          hash when is_binary(hash) <- Rss.field(item, "info_hash"),
          %DateTime{} = published_at <- published_at(Rss.field(item, "pubDate")) do
       hash = String.downcase(hash)
+      name = Rss.unescape(title)
 
       %{
         name: name,

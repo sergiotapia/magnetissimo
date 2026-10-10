@@ -46,6 +46,31 @@ defmodule Magnetissimo.Crawlers.Rss do
     end
   end
 
+  @entities %{"amp" => "&", "lt" => "<", "gt" => ">", "quot" => "\"", "apos" => "'"}
+
+  @doc """
+  Decodes the XML entities a feed escapes text with: the five named ones and
+  numeric character references.
+
+  One pass, so text that was escaped twice comes out escaped once: `&amp;lt;`
+  is `&lt;`, not `<`. A reference to no valid character is left as it is.
+  """
+  @spec unescape(String.t()) :: String.t()
+  def unescape(text) do
+    Regex.replace(~r/&(amp|lt|gt|quot|apos|#\d+);/, text, fn whole, entity ->
+      decode(whole, entity)
+    end)
+  end
+
+  defp decode(whole, "#" <> code) do
+    case Integer.parse(code) do
+      {n, ""} when n in 1..0xD7FF or n in 0xE000..0x10FFFF -> <<n::utf8>>
+      _ -> whole
+    end
+  end
+
+  defp decode(_whole, name), do: Map.fetch!(@entities, name)
+
   @doc """
   Builds attrs for every item with `attrs_fun.(item, source_id)`.
 

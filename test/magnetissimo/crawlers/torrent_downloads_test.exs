@@ -46,6 +46,21 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
     assert older.category.name == "Audio - Lossy"
   end
 
+  test "entities in a title are decoded once" do
+    body =
+      String.replace(
+        TorrentDownloadsFixtures.rss_body(),
+        "L’Officina della Camomilla",
+        "Fire &amp; Ice &amp;lt;3 &#233;"
+      )
+
+    stub(body)
+    assert :ok = Crawlers.crawl_latest(TorrentDownloads)
+
+    assert [_newest, older] = Torrents.list_latest_torrents()
+    assert older.name == "Fire & Ice &lt;3 é - VM 18 [FLAC 24-44]"
+  end
+
   test "crawling the same feed again adds nothing" do
     stub(TorrentDownloadsFixtures.rss_body())
 
