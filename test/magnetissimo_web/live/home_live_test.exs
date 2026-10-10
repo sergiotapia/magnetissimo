@@ -126,6 +126,92 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     refute html =~ "source-status"
   end
 
+  describe "column headers" do
+    setup do
+      now = DateTime.utc_now()
+
+      TorrentsFixtures.torrent_fixture(%{
+        name: "Kappa Big",
+        size_in_bytes: 9_000,
+        seeders: 1,
+        published_at: DateTime.add(now, -2, :day)
+      })
+
+      TorrentsFixtures.torrent_fixture(%{
+        name: "kappa Alpha",
+        size_in_bytes: 1_000,
+        seeders: 900,
+        published_at: now
+      })
+
+      :ok
+    end
+
+    test "sort the latest list, one way then the other, then back", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/")
+
+      # Unsorted, the latest list is in age order, and the header says so.
+      assert has_element?(view, "#sort-age[data-dir=asc]")
+      assert row_names(view) == ["kappa Alpha", "Kappa Big"]
+
+      view |> element("#sort-size") |> render_click()
+      assert_patch(view, ~p"/?#{[sort: "size", dir: "desc"]}")
+      assert has_element?(view, "#sort-size[data-dir=desc]")
+      refute has_element?(view, "#sort-age[data-dir]")
+      assert row_names(view) == ["Kappa Big", "kappa Alpha"]
+
+      view |> element("#sort-size") |> render_click()
+      assert_patch(view, ~p"/?#{[sort: "size", dir: "asc"]}")
+      assert row_names(view) == ["kappa Alpha", "Kappa Big"]
+
+      view |> element("#sort-size") |> render_click()
+      assert_patch(view, ~p"/")
+      refute has_element?(view, "#sort-size[data-dir]")
+
+      view |> element("#sort-age") |> render_click()
+      assert_patch(view, ~p"/?#{[sort: "age", dir: "desc"]}")
+      assert row_names(view) == ["Kappa Big", "kappa Alpha"]
+    end
+
+    test "sort a search by name or seeders, and keep the sort when searching again",
+         %{conn: conn} do
+      # The sources find nothing, so the rows are only the two fixtures.
+      Req.Test.stub(Yts, &Req.Test.json(&1, YtsFixtures.empty_response()))
+      :ok = SourceSearch.subscribe("kappa")
+      :ok = SourceSearch.subscribe("kappa big")
+
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "kappa", sort: "name"]}")
+      await_sources(view)
+
+      # No direction in the link is the column's own: A to Z.
+      assert has_element?(view, "#sort-name[data-dir=asc]")
+      assert row_names(view) == ["kappa Alpha", "Kappa Big"]
+
+      view |> element("#sort-seeders") |> render_click()
+      assert_patch(view, ~p"/?#{[q: "kappa", sort: "seeders", dir: "desc"]}")
+      assert row_names(view) == ["kappa Alpha", "Kappa Big"]
+
+      view |> form("#search-form", q: "kappa big") |> render_submit()
+      assert_patch(view, ~p"/?#{[q: "kappa big", sort: "seeders", dir: "desc"]}")
+      await_sources(view)
+    end
+
+    test "a sort the page does not know is ignored", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/?#{[sort: "magnet_hash", dir: "sideways"]}")
+
+      assert has_element?(view, "#sort-age[data-dir=asc]")
+      assert row_names(view) == ["kappa Alpha", "Kappa Big"]
+    end
+  end
+
+  defp row_names(view) do
+    view
+    |> render()
+    |> LazyHTML.from_fragment()
+    |> LazyHTML.query("#torrents li[id^=torrents-]:not(#torrents-empty) h2")
+    |> Enum.map(&(&1 |> LazyHTML.text() |> String.trim()))
+  end
+
   # Every source must be done before the test ends: the sandbox hands their
   # tasks a connection they would otherwise still be writing on after the
   # test's transaction has rolled back.

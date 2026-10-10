@@ -4,9 +4,9 @@ defmodule MagnetissimoWeb.HomeLive do
   latest magnets.
 
   The URL is the state. Typing patches `?q=`, picking a category patches
-  `?category=` and the pager patches `?page=`, and `handle_params/3` loads
-  from those, so a search is a link and the form still works as a plain GET
-  without JavaScript.
+  `?category=`, a column header patches `?sort=` and `?dir=`, and the pager
+  patches `?page=`. `handle_params/3` loads from those, so a search is a link
+  and the form still works as a plain GET without JavaScript.
 
   A search answers twice. The index answers at once, and at the same moment
   every source's own search is asked through `Magnetissimo.SourceSearch`.
@@ -18,6 +18,11 @@ defmodule MagnetissimoWeb.HomeLive do
   alias Magnetissimo.SourceSearch
   alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
+
+  # The columns a header sorts by, each with the way its first click orders
+  # it: names A to Z, the biggest and best seeded first, the youngest first.
+  @sort_columns [name: :asc, size: :desc, seeders: :desc, age: :asc]
+  @sort_params Map.new(@sort_columns, fn {column, _dir} -> {Atom.to_string(column), column} end)
 
   @impl true
   def mount(_params, _session, socket) do
@@ -37,13 +42,14 @@ defmodule MagnetissimoWeb.HomeLive do
   def handle_params(params, _uri, socket) do
     q = params |> Map.get("q", "") |> String.trim()
     category = lookup_category(params["category"])
+    sort = lookup_sort(params["sort"], params["dir"])
 
     # The sources are asked before the index is read, so whatever a source
     # indexed before its status was read here is already in the first load.
     {:noreply,
      socket
      |> follow_sources(q)
-     |> load_results(q, category, page_param(params["page"]))
+     |> load_results(q, category, sort, page_param(params["page"]))
      |> assign(:arrived, :all)}
   end
 
@@ -53,7 +59,8 @@ defmodule MagnetissimoWeb.HomeLive do
   # `handle_params/3` does the searching.
   @impl true
   def handle_event(event, %{"q" => q}, socket) when event in ["search", "submit"] do
-    {:noreply, push_patch(socket, to: index_path(String.trim(q), socket.assigns.category))}
+    %{category: category, sort: sort} = socket.assigns
+    {:noreply, push_patch(socket, to: index_path(String.trim(q), category, sort))}
   end
 
   # A source's answer is only applied to the term it was asked for. One for a
@@ -111,6 +118,47 @@ defmodule MagnetissimoWeb.HomeLive do
     end
   end
 
+  # A column the page does not know is no sort at all; a direction it does
+  # not know is the column's own.
+  defp lookup_sort(column, dir) do
+    case Map.fetch(@sort_params, column) do
+      {:ok, column} -> {column, lookup_dir(dir, Keyword.fetch!(@sort_columns, column))}
+      :error -> nil
+    end
+  end
+
+  defp lookup_dir("asc", _default), do: :asc
+  defp lookup_dir("desc", _default), do: :desc
+  defp lookup_dir(_dir, default), do: default
+
+  # What a header's click sorts by. The first click orders its column the way
+  # it is most often wanted, the second turns that around and the third goes
+  # back to the page's own order: best match for a search, newest otherwise.
+  defp sort_after_click(current, column) do
+    first = Keyword.fetch!(@sort_columns, column)
+
+    case current do
+      {^column, ^first} -> {column, flip(first)}
+      {^column, _flipped} -> nil
+      _other -> {column, first}
+    end
+  end
+
+  # The order the list is in when no column was picked, so the header can show
+  # it: the latest list is the age column, youngest first; a search is ranked.
+  defp shown_sort(nil, ""), do: {:age, :asc}
+  defp shown_sort(sort, _q), do: sort
+
+  defp flip(:asc), do: :desc
+  defp flip(:desc), do: :asc
+
+  # The age column is the publication date the other way round.
+  defp torrent_sort(nil), do: []
+  defp torrent_sort({:name, dir}), do: [sort: {:name, dir}]
+  defp torrent_sort({:size, dir}), do: [sort: {:size_in_bytes, dir}]
+  defp torrent_sort({:seeders, dir}), do: [sort: {:seeders, dir}]
+  defp torrent_sort({:age, dir}), do: [sort: {:published_at, flip(dir)}]
+
   defp page_param(nil), do: 1
 
   defp page_param(value) do
@@ -124,10 +172,10 @@ defmodule MagnetissimoWeb.HomeLive do
     [limit: Torrents.per_page(), offset: (page - 1) * Torrents.per_page()]
   end
 
-  # Everything the results panel shows is derived from the query, the category
-  # and the page, so a URL patch and a fresh batch of hits from the source both
-  # come through here.
-  defp load_results(socket, q, category, page) do
+  # Everything the results panel shows is derived from the query, the category,
+  # the sort and the page, so a URL patch and a fresh batch of hits from the
+  # source both come through here.
+  defp load_results(socket, q, category, sort, page) do
     opts = if category, do: [category_id: category.id], else: []
 
     count =
@@ -140,12 +188,13 @@ defmodule MagnetissimoWeb.HomeLive do
 
     torrents =
       if q == "",
-        do: Torrents.list_latest_torrents(opts ++ page_opts(page)),
-        else: Torrents.search_torrents(q, opts ++ page_opts(page))
+        do: Torrents.list_latest_torrents(opts ++ torrent_sort(sort) ++ page_opts(page)),
+        else: Torrents.search_torrents(q, opts ++ torrent_sort(sort) ++ page_opts(page))
 
     socket
     |> assign(:q, q)
     |> assign(:category, category)
+    |> assign(:sort, sort)
     |> assign(:page, page)
     |> assign(:pages, pages)
     |> assign(:count, count)
@@ -174,12 +223,12 @@ defmodule MagnetissimoWeb.HomeLive do
   # re-attaches every kept row, which would replay a row animation on all of
   # them, so the animation class goes only on the arrivals.
   defp reload_with_arrivals(socket) do
-    %{q: q, category: category, page: page, shown_ids: before} = socket.assigns
+    %{q: q, category: category, sort: sort, page: page, shown_ids: before} = socket.assigns
 
     arrived_before =
       if socket.assigns.arrived == :all, do: MapSet.new(), else: socket.assigns.arrived
 
-    socket = socket |> assign_index_stats() |> load_results(q, category, page)
+    socket = socket |> assign_index_stats() |> load_results(q, category, sort, page)
 
     arrived =
       socket.assigns.shown_ids |> MapSet.difference(before) |> MapSet.union(arrived_before)
@@ -198,12 +247,20 @@ defmodule MagnetissimoWeb.HomeLive do
     |> assign(:latest_at, Torrents.latest_published_at())
   end
 
-  defp index_path(q, category, page \\ 1) do
+  defp index_path(q, category, sort, page \\ 1) do
+    {column, dir} = sort || {nil, nil}
+
     params =
-      []
-      |> then(&if(String.trim(q) == "", do: &1, else: [{:q, q} | &1]))
-      |> then(&if(category, do: [{:category, category.id} | &1], else: &1))
-      |> then(&if(page > 1, do: [{:page, page} | &1], else: &1))
+      Enum.reject(
+        [
+          q: if(String.trim(q) != "", do: q),
+          category: category && category.id,
+          sort: column,
+          dir: dir,
+          page: if(page > 1, do: page)
+        ],
+        fn {_key, value} -> is_nil(value) end
+      )
 
     ~p"/?#{params}"
   end
@@ -257,6 +314,62 @@ defmodule MagnetissimoWeb.HomeLive do
   defp status_title(name, :searching), do: "Asking #{name}'s own search"
   defp status_title(name, {:done, _}), do: "#{name} answered; its hits are in the results"
   defp status_title(name, {:failed, _}), do: "#{name} did not answer this time"
+
+  defp sort_headers do
+    [
+      {:name, "Name", "name"},
+      {:size, "Size", "size"},
+      {:seeders, "Swarm", "seeders"},
+      {:age, "Age", "age"}
+    ]
+  end
+
+  attr :column, :atom, required: true
+  attr :label, :string, required: true
+  attr :title, :string, required: true
+  attr :shown, :any, required: true, doc: "the order the list is in, `{column, dir}` or nil"
+  attr :patch, :string, required: true
+
+  defp sort_header(assigns) do
+    dir =
+      case assigns.shown do
+        {column, dir} when column == assigns.column -> dir
+        _other -> nil
+      end
+
+    assigns = assign(assigns, :dir, dir)
+
+    ~H"""
+    <.link
+      patch={@patch}
+      id={"sort-#{@column}"}
+      data-dir={@dir}
+      aria-label={"Sort by #{@title}" <> if(@dir, do: ", now #{dir_word(@dir)}", else: "")}
+      title={"Sort by #{@title}"}
+      class={[
+        "group/sort focus-ring inline-flex items-center gap-1 rounded transition-colors hover:text-azure-600",
+        @dir && "text-azure-600",
+        @column in [:size, :age] && "md:flex-row-reverse md:justify-self-end"
+      ]}
+    >
+      <span>{@label}</span>
+      <.icon
+        name={sort_icon(@dir)}
+        class={[
+          "size-3.5 shrink-0 transition",
+          !@dir && "opacity-0 group-hover/sort:opacity-60 group-focus-visible/sort:opacity-60"
+        ]}
+      />
+    </.link>
+    """
+  end
+
+  defp sort_icon(:asc), do: "hero-arrow-up-mini"
+  defp sort_icon(:desc), do: "hero-arrow-down-mini"
+  defp sort_icon(nil), do: "hero-arrows-up-down-mini"
+
+  defp dir_word(:asc), do: "ascending"
+  defp dir_word(:desc), do: "descending"
 
   @impl true
   def render(assigns) do
@@ -330,7 +443,7 @@ defmodule MagnetissimoWeb.HomeLive do
               <span>Categories</span>
               <.link
                 :if={@category}
-                patch={index_path(@q, nil)}
+                patch={index_path(@q, nil, @sort)}
                 id="clear-category"
                 class="pill focus-ring px-2.5 py-1 font-sans text-[0.7rem] font-bold tracking-normal normal-case"
               >
@@ -349,7 +462,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 <div class="mt-2 flex flex-wrap gap-1.5">
                   <%!-- The whole group: the top level and all of its children. --%>
                   <.link
-                    patch={index_path(@q, root)}
+                    patch={index_path(@q, root, @sort)}
                     id={"category-#{root.id}"}
                     aria-current={@category && @category.id == root.id && "true"}
                     class={[
@@ -372,7 +485,7 @@ defmodule MagnetissimoWeb.HomeLive do
                     :for={category <- children}
                     category={category}
                     short
-                    patch={index_path(@q, category)}
+                    patch={index_path(@q, category, @sort)}
                     active={@category && @category.id == category.id}
                     count={@category_counts[category.id]}
                     id={"category-#{category.id}"}
@@ -415,6 +528,10 @@ defmodule MagnetissimoWeb.HomeLive do
                 class="mt-8"
               >
                 <input :if={@category} type="hidden" name="category" value={@category.id} />
+                <%= if @sort do %>
+                  <input type="hidden" name="sort" value={elem(@sort, 0)} />
+                  <input type="hidden" name="dir" value={elem(@sort, 1)} />
+                <% end %>
                 <label for="q" class="sr-only">Search the index</label>
                 <div class="well flex items-center gap-2 rounded-full p-1.5 pl-5 transition focus-within:shadow-[inset_0_2px_4px_rgba(31,63,209,0.12),0_0_0_3px_rgba(79,123,255,0.35)]">
                   <.icon name="hero-magnifying-glass" class="size-5 shrink-0 text-azure-500" />
@@ -448,7 +565,7 @@ defmodule MagnetissimoWeb.HomeLive do
                   <span :if={@outside > 0} id="filtered-away">
                     · {@outside} more outside it,
                     <.link
-                      patch={index_path(@q, nil)}
+                      patch={index_path(@q, nil, @sort)}
                       id="show-all"
                       class="font-semibold text-azure-600 underline decoration-azure-200 underline-offset-2 transition hover:decoration-azure-500"
                     >
@@ -519,14 +636,19 @@ defmodule MagnetissimoWeb.HomeLive do
             </div>
 
             <div
-              class="label hidden grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem] gap-4 border-b border-frost-300/70 px-5 py-2.5 md:grid"
-              aria-hidden="true"
+              id="sort-headers"
+              class="label flex flex-wrap items-center gap-x-4 gap-y-1 border-b border-frost-300/70 px-5 py-2.5 md:grid md:grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem]"
             >
-              <span>Name</span>
-              <span class="text-right">Size</span>
-              <span>Swarm</span>
-              <span class="text-right">Age</span>
-              <span class="text-right">Link</span>
+              <span class="text-ink-300 md:hidden">Sort by</span>
+              <.sort_header
+                :for={{column, label, title} <- sort_headers()}
+                column={column}
+                label={label}
+                title={title}
+                shown={shown_sort(@sort, @q)}
+                patch={index_path(@q, @category, sort_after_click(shown_sort(@sort, @q), column))}
+              />
+              <span class="hidden text-right md:block" aria-hidden="true">Link</span>
             </div>
 
             <ol id="torrents" phx-update="stream" class="divide-y divide-frost-200 p-1.5">
@@ -598,7 +720,7 @@ defmodule MagnetissimoWeb.HomeLive do
             >
               <.link
                 id="page-prev"
-                patch={index_path(@q, @category, @page - 1)}
+                patch={index_path(@q, @category, @sort, @page - 1)}
                 aria-disabled={@page == 1 && "true"}
                 class={[
                   "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",
@@ -612,7 +734,7 @@ defmodule MagnetissimoWeb.HomeLive do
 
               <.link
                 id="page-next"
-                patch={index_path(@q, @category, @page + 1)}
+                patch={index_path(@q, @category, @sort, @page + 1)}
                 aria-disabled={@page == @pages && "true"}
                 class={[
                   "pill focus-ring px-3.5 py-1.5 font-display text-xs font-bold tracking-[0.15em] uppercase",
