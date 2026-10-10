@@ -67,20 +67,27 @@ defmodule Magnetissimo.Torrents do
     * `:offset` - skip this many, 0 by default, for paging
     * `:category_id` - only torrents filed under this category or, for a
       top-level one, any of its children
+    * `:sort` - a `t:Magnetissimo.Torrents.Search.sort/0`, such as
+      `{:seeders, :desc}`, in place of newest first
 
   """
   def list_latest_torrents(opts \\ []) do
     limit = Keyword.get(opts, :limit, @latest_limit)
     offset = Keyword.get(opts, :offset, 0)
 
-    query =
-      from t in Torrent,
-        order_by: [desc: t.published_at, desc: t.id],
-        limit: ^limit,
-        offset: ^offset,
-        preload: [:source]
+    query = from t in Torrent, limit: ^limit, offset: ^offset, preload: [:source]
 
-    Repo.all(by_category(query, opts))
+    query |> by_category(opts) |> sorted(opts[:sort]) |> Repo.all()
+  end
+
+  defp sorted(query, nil), do: order_by(query, [t], desc: t.published_at, desc: t.id)
+
+  defp sorted(query, {:name, dir}) do
+    order_by(query, [t], [{^dir, fragment("? COLLATE NOCASE", t.name)}, desc: t.id])
+  end
+
+  defp sorted(query, {field, dir}) when field in [:size_in_bytes, :seeders, :published_at] do
+    order_by(query, [t], [{^dir, field(t, ^field)}, desc: t.id])
   end
 
   @doc "Returns how many torrents are indexed, or match `:category_id`."
@@ -263,14 +270,16 @@ defmodule Magnetissimo.Torrents do
   See `Magnetissimo.Torrents.Search` for how a term is matched and ranked.
   Returns `[]` for input with nothing to search for.
 
-  Takes the same options as `list_latest_torrents/1`. The category filter and
-  the page are applied in SQL, so a page is always full while matches remain.
+  Takes the same options as `list_latest_torrents/1`, where `:sort` replaces
+  best match first. The category filter and the page are applied in SQL, so a
+  page is always full while matches remain.
   """
   def search_torrents(term, opts \\ []) do
     limit = Keyword.get(opts, :limit, @search_limit)
     offset = Keyword.get(opts, :offset, 0)
+    order = Search.order_by(opts[:sort])
 
-    case search_query(term, opts, "t.id", "ORDER BY #{Search.order_by()} LIMIT ? OFFSET ?") do
+    case search_query(term, opts, "t.id", "ORDER BY #{order} LIMIT ? OFFSET ?") do
       nil ->
         []
 

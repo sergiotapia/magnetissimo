@@ -160,6 +160,43 @@ defmodule Magnetissimo.Torrents.SearchTest do
     assert Enum.map(Torrents.list_latest_torrents(uhd), & &1.name) == ["Delta Film UHD"]
   end
 
+  test "a search or the latest list can be sorted by a column, before paging" do
+    now = DateTime.utc_now()
+
+    fixture("Sigma big", %{size_in_bytes: 9_000, seeders: 5, published_at: now})
+
+    fixture("sigma Alpha", %{
+      size_in_bytes: 1_000,
+      seeders: 50,
+      published_at: DateTime.add(now, -2, :day)
+    })
+
+    fixture("Sigma middle", %{
+      size_in_bytes: 5_000,
+      seeders: 500,
+      published_at: DateTime.add(now, -1, :day)
+    })
+
+    # Names compare without case: "sigma Alpha" is first, not last.
+    assert names("sigma", sort: {:name, :asc}) == ["sigma Alpha", "Sigma big", "Sigma middle"]
+
+    assert names("sigma", sort: {:size_in_bytes, :desc}) == [
+             "Sigma big",
+             "Sigma middle",
+             "sigma Alpha"
+           ]
+
+    assert names("sigma", sort: {:seeders, :asc}, limit: 2) == ["Sigma big", "sigma Alpha"]
+
+    assert names("sigma", sort: {:published_at, :asc}, offset: 1) ==
+             ["Sigma middle", "Sigma big"]
+
+    latest = &Enum.map(Torrents.list_latest_torrents(&1), fn t -> t.name end)
+    assert latest.([]) == ["Sigma big", "Sigma middle", "sigma Alpha"]
+    assert latest.(sort: {:name, :desc}) == ["Sigma middle", "Sigma big", "sigma Alpha"]
+    assert latest.(sort: {:seeders, :desc}, limit: 1) == ["Sigma middle"]
+  end
+
   test "each source's hits for a term can be counted within a category" do
     yts = Torrents.get_source_by_name!("YTS").id
     nyaa = Torrents.get_source_by_name!("Nyaa.si").id

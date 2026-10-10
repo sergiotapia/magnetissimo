@@ -32,6 +32,9 @@ defmodule Magnetissimo.Torrents.Search do
 
   @type token :: {:trigram | :word | :substring, String.t()}
 
+  @typedoc "A column to order by instead of the best match, and which way."
+  @type sort :: {:name | :size_in_bytes | :seeders | :published_at, :asc | :desc}
+
   # Scripts written without spaces between words.
   @unspaced ~r/[\p{Han}\p{Hiragana}\p{Katakana}\p{Hangul}\p{Thai}]/u
 
@@ -95,11 +98,24 @@ defmodule Magnetissimo.Torrents.Search do
     end
   end
 
-  @doc "The `ORDER BY` terms for a query joining `matches m` onto `torrents t`."
-  @spec order_by() :: String.t()
-  def order_by do
+  @doc """
+  The `ORDER BY` terms for a query joining `matches m` onto `torrents t`:
+  best match first, or by the column a `t:sort/0` names. Names compare
+  without regard to case, so "alien" does not sort after "Zodiac".
+  """
+  @spec order_by(sort() | nil) :: String.t()
+  def order_by(nil) do
     "m.score * (1.0 + ln(1.0 + min(t.seeders, 10000)) / 10.0), t.seeders DESC, t.id DESC"
   end
+
+  def order_by({:name, dir}), do: "t.name COLLATE NOCASE #{direction(dir)}, t.id DESC"
+
+  def order_by({field, dir}) when field in [:size_in_bytes, :seeders, :published_at] do
+    "t.#{field} #{direction(dir)}, t.id DESC"
+  end
+
+  defp direction(:asc), do: "ASC"
+  defp direction(:desc), do: "DESC"
 
   # One index drives the query and scores it; every other kind of token
   # narrows it. The trigram index drives when it can, because its bm25 sees
