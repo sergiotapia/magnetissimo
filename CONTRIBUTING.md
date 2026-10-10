@@ -189,8 +189,9 @@ These are the parts most likely to surprise you. Each was a deliberate choice.
 - **The URL is the page state.** The query, category, sources, sort and page
   all live in the URL, so every view is a link and the page works without
   JavaScript.
-- **One light theme, hand-written Tailwind.** daisyUI was removed on
-  purpose. Read `docs/design.md` before adding UI.
+- **Two themes, hand-written Tailwind.** Light and dark share one set of
+  tokens, so use the tokens rather than raw colours and both stay right.
+  daisyUI was removed on purpose. Read `docs/design.md` before adding UI.
 
 ## Tests
 

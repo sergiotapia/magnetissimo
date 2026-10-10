@@ -12,7 +12,8 @@ kept for the fingerprint and the pixel captions only.
 
 ## Palette
 
-Defined as `@theme` tokens in `assets/css/app.css`. Light only.
+Defined as `@theme` tokens in `assets/css/app.css`. These are the light
+values; see "After hours" for dark.
 
 | Token | Hex | Use |
 |-------|-----|-----|
@@ -24,12 +25,37 @@ Defined as `@theme` tokens in `assets/css/app.css`. Light only.
 | `aqua` | `#8FD9EA` | the ceiling glow, the second stop of every gradient |
 | `mint` / `mint-soft` | `#11A07C` / `#C6EFE2` | seeders, "online" |
 | `bubble` / `bubble-soft` | `#E04A64` / `#FBD9DF` | leechers and errors, nothing else |
+| `glass` | `#FFFFFF` | lit glass: row hovers, tinted strips (`bg-glass/80`) |
 
 Azure is the page. Gradients go azure → aqua. Nothing is warm except
 `bubble`, which is why it reads as a warning. The background is a cyan
 ceiling fading to a pale middle and a blue floor, with a white skylight
 bloom top right and `.ceiling` light strips across the top. Mint means alive, bubble means
 draining or wrong; never use either for decoration.
+
+## After hours
+
+The dark theme is the same atrium at 11pm. The skylight has gone to
+midnight navy (`#07131F`), moonlight still falls top right, and the floor
+still glows blue at the bottom. The fluorescent strips are the only lights
+left on, burning cyan. Panels turn to smoked glass with a cyan rim, wells
+go nearly black, and the gel buttons look lit from inside, like Bondi
+plastic on a desk at night. The orb glows like a small moon, and the
+chrome wordmark gets a soft halo so its navy edges don't sink into the page.
+
+Dark doesn't add tokens. It re-points the existing ones under the `dark`
+variant, and the `frost` and `ink` scales swap ends: `ink-900` is still the
+text (now `#E4F3FA`) and `frost-100` is still the page (now `#091522`).
+`azure-600`/`700` lighten so links and badges keep their contrast, `azure-100`/`200`
+darken into tints, and `mint` and `bubble` brighten. `glass` becomes
+`#1A3954`. A primitive whose light look can't be expressed in tokens
+(gradients, rims, glows) has an `@variant dark { … }` block inside its own
+rule.
+
+The `dark` variant applies when `<html data-theme="dark">`, or when it is
+`system` and the OS prefers dark. The server writes `data-theme` from the
+`theme` cookie (`MagnetissimoWeb.Theme`), so the first paint is already in
+the right theme.
 
 ## Type
 
@@ -66,6 +92,14 @@ All in `app.css`:
 - `.orb`, `.disc`, `.sparkle` — see Art.
 - `.ticker` — a row that drifts left forever; render its content twice.
 - `.focus-ring` — the keyboard focus outline.
+- `.theme-switch` — system / light / dark on a `.well` track, with a
+  `.gel` thumb that springs under the mode `<html data-theme>` names. CSS
+  picks the segment, so the server needn't know the theme to draw it. On a
+  phone it collapses to a single `.theme-cycle` gel button that steps
+  through the modes. Each segment is a link to `GET /theme/:mode`, which
+  works without JavaScript. With JavaScript the hook flips the theme in
+  place and reveals it in a circle growing from the button (a view
+  transition, skipped under reduced motion).
 
 `prefers-reduced-motion` stops every animation, including the orb and the CD.
 

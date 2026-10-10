@@ -51,6 +51,7 @@ it.
 | `lib/magnetissimo_web/controllers/torrent_*.ex` | `GET /api/latest` and `GET /api/search/:term`, keeping the 2.0.0 field names. |
 | `lib/magnetissimo_web/components/dossier_components.ex` | Art and data components: orb, fingerprint, swarm bar, chips. |
 | `lib/magnetissimo_web/format.ex` | Sizes in binary units, counts, ages, hashes. |
+| `lib/magnetissimo_web/theme.ex`, `controllers/theme_controller.ex` | The `theme` cookie (light, dark, or follow the system) and the no-JS `GET /theme/:mode`. |
 | `docs/design.md` | The design system. Read it before touching UI. |
 
 Every module has a moduledoc that explains *why* it works the way it does.
@@ -185,10 +186,18 @@ unless asked.
 
 ## UI
 
-- The design is light-only corporate Y2K: frosted glass panels, azure gel
-  buttons, chrome. Tokens and primitives (`.panel`, `.gel`, `.pill`,
-  `.well`, `.label`, …) are in `assets/css/app.css` and described in
+- The design is corporate Y2K: frosted glass panels, azure gel buttons,
+  chrome. Tokens and primitives (`.panel`, `.gel`, `.pill`, `.well`,
+  `.label`, …) are in `assets/css/app.css` and described in
   `docs/design.md`. Use them before inventing new ones.
+- There is a light and a dark theme. Dark re-points the same tokens, so
+  `text-ink-900` or `bg-glass/80` is right in both. Never write `bg-white`
+  or a raw hex in a template. A primitive that needs its own dark look
+  puts `@variant dark { … }` inside its rule in `app.css`. Check both
+  themes in screenshots (set a `theme=dark` cookie).
+- `<html data-theme>` comes from the `theme` cookie
+  (`MagnetissimoWeb.Theme`), so the server renders the right theme on the
+  first paint. Don't move theme detection into JavaScript.
 - Use plain Tailwind 4 and no component library. daisyUI was removed on
   purpose. Never use `@apply`. Keep the
   `@import "tailwindcss" source(none)` / `@source` header in `app.css`
