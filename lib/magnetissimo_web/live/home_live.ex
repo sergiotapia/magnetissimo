@@ -7,10 +7,15 @@ defmodule MagnetissimoWeb.HomeLive do
   `?category=` and the pager patches `?page=`, and `handle_params/3` loads
   from those, so a search is a link and the form still works as a plain GET
   without JavaScript.
+
+  A search answers twice. The index answers at once, and at the same moment
+  every source's own search is asked through `Magnetissimo.SourceSearch`.
+  Each source's hits are indexed as they land, the page is reloaded from the
+  index, and the rows that were not there before slide in.
   """
   use MagnetissimoWeb, :live_view
 
-  alias Magnetissimo.Crawlers
+  alias Magnetissimo.SourceSearch
   alias Magnetissimo.Torrents
 
   @impl true
@@ -19,13 +24,12 @@ defmodule MagnetissimoWeb.HomeLive do
      socket
      |> assign(:page_title, "Latest")
      |> assign(:tree, Torrents.list_category_tree())
-     |> assign(:category_counts, Torrents.count_torrents_by_category())
-     |> assign(:source_counts, Torrents.count_torrents_by_source())
-     |> assign(:total, Torrents.count_torrents())
-     |> assign(:latest_at, Torrents.latest_published_at())
+     |> assign_index_stats()
      |> assign(:ticker, Enum.map(Torrents.list_latest_torrents(limit: 8), & &1.name))
-     |> assign(:searching, nil)
-     |> assign(:search_task, nil)
+     |> assign(:source_key, nil)
+     |> assign(:sources, %{})
+     |> assign(:shown_ids, MapSet.new())
+     |> assign(:arrived, :all)
      |> assign(:now, DateTime.utc_now())}
   end
 
@@ -34,55 +38,66 @@ defmodule MagnetissimoWeb.HomeLive do
     q = params |> Map.get("q", "") |> String.trim()
     category = lookup_category(params["category"], socket.assigns.tree)
 
-    # Patching to a different term abandons whatever the source was asked for.
-    socket = if socket.assigns.searching == q, do: socket, else: clear_search(socket)
-
-    {:noreply, load_results(socket, q, category, page_param(params["page"]))}
-  end
-
-  # Typing patches the URL and, once the reader pauses, reaches out to the
-  # sources. `phx-debounce` on the input is what keeps that to one lookup per
-  # pause rather than one per keystroke; pressing enter cancels the pending
-  # timer and takes the immediate `submit` path instead.
-  @impl true
-  def handle_event("search", %{"q" => q}, socket), do: lookup(socket, q)
-  def handle_event("submit", %{"q" => q}, socket), do: lookup(socket, q)
-
-  defp lookup(socket, q) do
-    q = String.trim(q)
-
+    # The sources are asked before the index is read, so whatever a source
+    # indexed before its status was read here is already in the first load.
     {:noreply,
      socket
-     |> assign(:q, q)
-     |> ask_source(q)
-     |> push_patch(to: index_path(q, socket.assigns.category))}
+     |> follow_sources(q)
+     |> load_results(q, category, page_param(params["page"]))
+     |> assign(:arrived, :all)}
   end
 
+  # Typing patches the URL once the reader pauses: `phx-debounce` on the
+  # input keeps that to one patch per pause rather than one per keystroke,
+  # and pressing enter takes the immediate `submit` path instead. Either way
+  # `handle_params/3` does the searching.
   @impl true
-  def handle_info({:source_search, term, :updated}, socket) do
-    # A batch for a term the reader has already moved on from is dropped, so a
-    # slow lookup for an earlier term cannot redraw the list under a newer one.
-    # The rows are in the index either way, so the next search finds them.
-    socket = if term == socket.assigns.q, do: reload_results(socket), else: socket
-
-    {:noreply, socket}
+  def handle_event(event, %{"q" => q}, socket) when event in ["search", "submit"] do
+    {:noreply, push_patch(socket, to: index_path(String.trim(q), socket.assigns.category))}
   end
 
-  def handle_info({:source_search, _term, :done}, socket), do: {:noreply, socket}
+  # A source's answer is only applied to the term it was asked for. One for a
+  # term the reader has moved on from can still be in the mailbox after the
+  # unsubscribe, and must not redraw the list under the newer term.
+  @impl true
+  def handle_info({:source_search, key, source, status}, %{assigns: %{source_key: key}} = socket) do
+    socket = update(socket, :sources, &Map.put(&1, source, status))
 
-  # The lookup task runs every source in turn, so its exit is the last word on
-  # the term, whatever each source turned up. A task whose pid is no longer the
-  # current one belongs to a term the reader has moved on from, so its exit
-  # neither clears the in-flight state nor reloads the list.
-  def handle_info({:DOWN, _ref, :process, pid, _reason}, socket) do
     socket =
-      if pid == socket.assigns.search_task do
-        socket |> clear_search() |> reload_results()
-      else
-        socket
+      case status do
+        {:done, %{found: found}} when found > 0 -> reload_with_arrivals(socket)
+        _nothing_new -> socket
       end
 
     {:noreply, socket}
+  end
+
+  def handle_info({:source_search_done, key, statuses}, %{assigns: %{source_key: key}} = socket) do
+    {:noreply, assign(socket, :sources, statuses)}
+  end
+
+  def handle_info({:source_search, _key, _source, _status}, socket), do: {:noreply, socket}
+  def handle_info({:source_search_done, _key, _statuses}, socket), do: {:noreply, socket}
+
+  # Moves the subscription to the sources' answers for `q`, and asks for it.
+  # The first, disconnected render cannot receive answers, so it asks nothing.
+  defp follow_sources(socket, q) do
+    key = SourceSearch.key(q)
+    previous = socket.assigns.source_key
+
+    if not connected?(socket) or key == previous do
+      socket
+    else
+      if previous, do: SourceSearch.unsubscribe(previous)
+      ask_sources(socket, key)
+    end
+  end
+
+  defp ask_sources(socket, ""), do: assign(socket, source_key: nil, sources: %{})
+
+  defp ask_sources(socket, key) do
+    :ok = SourceSearch.subscribe(key)
+    assign(socket, source_key: key, sources: SourceSearch.request(key))
   end
 
   defp lookup_category(nil, _tree), do: nil
@@ -139,44 +154,35 @@ defmodule MagnetissimoWeb.HomeLive do
     |> assign(:count, count)
     |> assign(:form, to_form(%{"q" => q}))
     |> assign(:now, DateTime.utc_now())
+    |> assign(:shown_ids, MapSet.new(torrents, & &1.id))
     |> stream(:torrents, torrents, reset: true)
   end
 
-  defp reload_results(socket) do
-    load_results(socket, socket.assigns.q, socket.assigns.category, socket.assigns.page)
+  # A source added to the index: reload the page and mark the rows that were
+  # not on it before, so they, and only they, slide in. Resetting the stream
+  # re-attaches every kept row, which would replay a row animation on all of
+  # them, so the animation class goes only on the arrivals.
+  defp reload_with_arrivals(socket) do
+    %{q: q, category: category, page: page, shown_ids: before} = socket.assigns
+
+    arrived_before =
+      if socket.assigns.arrived == :all, do: MapSet.new(), else: socket.assigns.arrived
+
+    socket = socket |> assign_index_stats() |> load_results(q, category, page)
+
+    arrived =
+      socket.assigns.shown_ids |> MapSet.difference(before) |> MapSet.union(arrived_before)
+
+    assign(socket, :arrived, arrived)
   end
 
-  # Every source is asked in one background task, in turn, so the results on
-  # screen stay interactive and only one process writes to SQLite at a time.
-  # The answers arrive as `handle_info/2` messages and reload them. A term
-  # already in flight is not asked for twice.
-  #
-  # The task's pid is kept on the socket so the in-flight work is part of the
-  # socket's state, which is also what lets a test wait on it instead of
-  # sleeping.
-  defp ask_source(socket, q) do
-    if q == "" or not connected?(socket) or socket.assigns.searching == q do
-      socket
-    else
-      parent = self()
-
-      {:ok, pid} =
-        Task.start(fn ->
-          Enum.each(Crawlers.all(), &notify_found(Crawlers.search(&1, q), parent, q))
-        end)
-
-      Process.monitor(pid)
-      assign(socket, searching: q, search_task: pid)
-    end
+  defp assign_index_stats(socket) do
+    socket
+    |> assign(:category_counts, Torrents.count_torrents_by_category())
+    |> assign(:source_counts, Torrents.count_torrents_by_source())
+    |> assign(:total, Torrents.count_torrents())
+    |> assign(:latest_at, Torrents.latest_published_at())
   end
-
-  defp notify_found({:ok, %{found: found}}, parent, q) when found > 0 do
-    send(parent, {:source_search, q, :updated})
-  end
-
-  defp notify_found(_result, _parent, _q), do: :ok
-
-  defp clear_search(socket), do: assign(socket, searching: nil, search_task: nil)
 
   defp index_path(q, category, page \\ 1) do
     params =
@@ -195,6 +201,32 @@ defmodule MagnetissimoWeb.HomeLive do
 
   defp max_source_count([]), do: 1
   defp max_source_count(counts), do: counts |> Enum.map(&elem(&1, 1)) |> Enum.max() |> max(1)
+
+  defp arrived?(:all, _torrent), do: false
+  defp arrived?(arrived, torrent), do: MapSet.member?(arrived, torrent.id)
+
+  # A fresh page rises in as a whole; after that only arrivals move.
+  defp arrival_class(:all, _torrent), do: "animate-rise"
+
+  defp arrival_class(arrived, torrent),
+    do: if(MapSet.member?(arrived, torrent.id), do: "animate-arrive")
+
+  defp source_slug(name), do: name |> String.downcase() |> String.replace(~r/[^a-z0-9]+/, "-")
+
+  defp status_name(:searching), do: "searching"
+  defp status_name({:done, _}), do: "done"
+  defp status_name({:failed, _}), do: "failed"
+
+  defp status_label(:searching), do: "asking…"
+  defp status_label({:done, %{found: 0}}), do: "nothing"
+  defp status_label({:done, %{found: found, inserted: 0}}), do: "#{found} found"
+  defp status_label({:done, %{found: found, inserted: new}}), do: "#{found} found · #{new} new"
+  defp status_label({:failed, :timeout}), do: "timed out"
+  defp status_label({:failed, _reason}), do: "unreachable"
+
+  defp status_title(name, :searching), do: "Asking #{name}'s own search"
+  defp status_title(name, {:done, _}), do: "#{name} answered; its hits are in the results"
+  defp status_title(name, {:failed, _}), do: "#{name} did not answer this time"
 
   @impl true
   def render(assigns) do
@@ -363,16 +395,33 @@ defmodule MagnetissimoWeb.HomeLive do
                 <% end %>
               </p>
 
-              <p
-                :if={@searching}
-                id="source-search"
-                class="mt-3 flex items-center gap-2 pl-5 text-sm text-ink-500"
+              <ul
+                :if={@sources != %{}}
+                id="source-status"
+                class="mt-3 flex flex-wrap items-center gap-1.5 pl-5"
+                aria-live="polite"
               >
-                <span class="size-1.5 animate-pulse rounded-full bg-azure-400 motion-reduce:animate-none"></span>
-                <span>
-                  Asking the source for <span class="font-bold text-ink-900">“{@searching}”</span>
-                </span>
-              </p>
+                <li
+                  :for={{name, status} <- Enum.sort(@sources)}
+                  id={"source-status-#{source_slug(name)}"}
+                  data-status={status_name(status)}
+                  title={status_title(name, status)}
+                  class={[
+                    "pill flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold transition-colors duration-500",
+                    status == :searching && "text-ink-500",
+                    match?({:failed, _}, status) && "border-bubble-soft text-ink-500"
+                  ]}
+                >
+                  <span class={[
+                    "size-1.5 shrink-0 rounded-full transition-colors duration-500",
+                    status == :searching && "animate-pulse bg-azure-400 motion-reduce:animate-none",
+                    match?({:done, _}, status) && "bg-mint shadow-[0_0_0_3px_var(--color-mint-soft)]",
+                    match?({:failed, _}, status) && "bg-bubble"
+                  ]}></span>
+                  <span class="text-ink-900">{name}</span>
+                  <span class="font-mono text-[0.7rem] tabular-nums">{status_label(status)}</span>
+                </li>
+              </ul>
             </div>
 
             <div class="mt-auto grid grid-cols-[auto_auto_1fr] items-center gap-3 border-t border-frost-300/70 bg-white/40 px-6 py-2.5 sm:px-10">
@@ -420,7 +469,11 @@ defmodule MagnetissimoWeb.HomeLive do
               <li
                 :for={{id, torrent} <- @streams.torrents}
                 id={id}
-                class="animate-rise group grid gap-x-4 gap-y-2.5 rounded-2xl px-3.5 py-3 transition hover:bg-white/80 hover:shadow-[0_6px_16px_-10px_rgba(31,63,209,0.4)] md:grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem] md:items-center"
+                data-arrived={arrived?(@arrived, torrent) && "true"}
+                class={[
+                  arrival_class(@arrived, torrent),
+                  "group grid gap-x-4 gap-y-2.5 rounded-2xl px-3.5 py-3 transition hover:bg-white/80 hover:shadow-[0_6px_16px_-10px_rgba(31,63,209,0.4)] md:grid-cols-[minmax(0,1fr)_5.5rem_7.5rem_4.5rem_2rem] md:items-center"
+                ]}
               >
                 <div class="min-w-0">
                   <h2 class="text-sm leading-snug font-semibold text-ink-900">
@@ -435,6 +488,12 @@ defmodule MagnetissimoWeb.HomeLive do
                   <div class="mt-1.5 flex items-center gap-2.5">
                     <.category_chip name={torrent.category.name} />
                     <span class="label">{torrent.source.name}</span>
+                    <span
+                      :if={arrived?(@arrived, torrent)}
+                      class="rounded-full bg-azure-100 px-2 py-0.5 font-display text-[0.6rem] font-bold tracking-[0.15em] text-azure-700 uppercase"
+                    >
+                      Just found
+                    </span>
                   </div>
                 </div>
 

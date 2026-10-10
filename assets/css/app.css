@@ -120,6 +120,9 @@
 
   --animate-ticker: ticker 40s linear infinite;
   --animate-rise: rise 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /* `backwards`, not `both`: once it ends the row's own hover background
+     applies again instead of the last keyframe's. */
+  --animate-arrive: arrive 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
   --animate-spin-slow: spin 3.2s linear infinite;
   --animate-twinkle: twinkle 3.6s ease-in-out infinite;
   --animate-drift: drift 14s linear infinite;
@@ -134,6 +137,13 @@
   @keyframes rise {
     from { opacity: 0; transform: translateY(10px) scale(0.99); }
     to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* A row a source just found: slides in from the left, lit, then settles. */
+  @keyframes arrive {
+    0% { opacity: 0; transform: translateX(-16px); background-color: var(--color-azure-100); }
+    18% { opacity: 1; transform: translateX(0); background-color: var(--color-azure-100); }
+    100% { background-color: transparent; }
   }
 
   @keyframes twinkle {
@@ -246,7 +256,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-ticker, .animate-drift, .animate-rise, .animate-spin-slow,
+  .animate-ticker, .animate-drift, .animate-rise, .animate-arrive, .animate-spin-slow,
   .animate-orb, .animate-float, .sparkle, .orb::before, .ticker > * {
     animation: none !important;
   }

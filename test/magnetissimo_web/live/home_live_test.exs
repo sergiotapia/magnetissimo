@@ -7,91 +7,123 @@ defmodule MagnetissimoWeb.HomeLiveTest do
   alias Magnetissimo.Crawlers.Nyaa.Feed
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
+  alias Magnetissimo.SourceSearch
   alias Magnetissimo.TorrentsFixtures
   alias Magnetissimo.YtsFixtures
-  alias Req.Test
 
   setup do
     TorrentsFixtures.seed!()
+
+    # The sources are asked from SourceSearch's own tasks, not from this
+    # process, so the stubs are shared with every process.
+    Req.Test.set_req_test_to_shared()
+    Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
+    # The feed-driven sources are asked too; an empty feed stands in for them.
+    Req.Test.stub(Feed, &Plug.Conn.send_resp(&1, 200, "<rss></rss>"))
+    Req.Test.stub(TorrentDownloads, &Plug.Conn.send_resp(&1, 200, "<rss></rss>"))
+
+    # The database is rolled back after every test, so a term cached by the
+    # last test must not count as already searched in this one.
+    previous = Application.get_env(:magnetissimo, SourceSearch)
+    Application.put_env(:magnetissimo, SourceSearch, ttl: 0)
+    on_exit(fn -> Application.put_env(:magnetissimo, SourceSearch, previous || []) end)
+
     :ok
   end
 
-  test "typing asks the source after the debounce, then shows what it found", %{conn: conn} do
+  test "the index answers at once, then the sources' hits slide in", %{conn: conn} do
+    local = TorrentsFixtures.torrent_fixture(%{name: "Fixture Movie Collection"})
+    :ok = SourceSearch.subscribe("Fixture Movie")
+
+    {:ok, view, _html} = live(conn, ~p"/?#{[q: "Fixture Movie"]}")
+
+    assert has_element?(view, "#torrents-#{local.id}")
+    refute has_element?(view, "#torrents-#{local.id}[data-arrived]")
+    assert has_element?(view, "#source-status-yts")
+
+    await_sources(view)
+
+    assert has_element?(view, "#source-status-yts[data-status=done]", "2 found · 2 new")
+    assert has_element?(view, "#source-status-nyaa-si[data-status=done]", "nothing")
+    assert has_element?(view, "#torrents li[data-arrived]", "Fixture Movie (2024)")
+    # What was already on the page stays put rather than arriving again.
+    refute has_element?(view, "#torrents-#{local.id}[data-arrived]")
+  end
+
+  test "typing patches the url, which asks the sources", %{conn: conn} do
+    :ok = SourceSearch.subscribe("Fixture Movie")
     {:ok, view, _html} = live(conn, ~p"/")
-    allow_sources(view)
 
     assert has_element?(view, "#q[phx-debounce='400']")
+    refute has_element?(view, "#source-status")
 
-    html = view |> form("#search-form", q: "Fixture Movie") |> render_change()
-    assert html =~ "Asking the source"
+    view |> form("#search-form", q: "Fixture Movie") |> render_change()
+    assert_patch(view, ~p"/?#{[q: "Fixture Movie"]}")
 
-    await_source(view)
-
+    await_sources(view)
     assert has_element?(view, "#torrents", "Fixture Movie (2024)")
-    refute has_element?(view, "#source-search")
   end
 
-  test "pressing enter asks the source immediately", %{conn: conn} do
+  test "pressing enter asks the sources too", %{conn: conn} do
+    :ok = SourceSearch.subscribe("Fixture Movie")
     {:ok, view, _html} = live(conn, ~p"/")
-    allow_sources(view)
 
-    html = view |> form("#search-form", q: "Fixture Movie") |> render_submit()
-    assert html =~ "Asking the source"
+    view |> form("#search-form", q: "Fixture Movie") |> render_submit()
+    assert_patch(view, ~p"/?#{[q: "Fixture Movie"]}")
 
-    await_source(view)
+    await_sources(view)
+    assert has_element?(view, "#torrents", "Fixture Movie (2024)")
   end
 
-  test "hits from the source appear in the results as they arrive", %{conn: conn} do
-    {:ok, view, _html} = live(conn, ~p"/?#{[q: "Fall 2 Deadpoint"]}")
+  test "a source that is down is shown as such, and the others still answer", %{conn: conn} do
+    Req.Test.stub(TorrentDownloads, &Plug.Conn.send_resp(&1, 503, "unavailable"))
+    :ok = SourceSearch.subscribe("Fixture Movie")
 
-    torrent = TorrentsFixtures.torrent_fixture(%{name: "Fall 2: Deadpoint (2026)"})
-    refute has_element?(view, "#torrents-#{torrent.id}")
+    ExUnit.CaptureLog.capture_log(fn ->
+      {:ok, view, _html} = live(conn, ~p"/?#{[q: "Fixture Movie"]}")
+      await_sources(view)
 
-    send(view.pid, {:source_search, "Fall 2 Deadpoint", :updated})
-
-    assert has_element?(view, "#torrents-#{torrent.id}", "Fall 2: Deadpoint (2026)")
+      assert has_element?(view, "#source-status-torrentdownloads[data-status=failed]")
+      assert has_element?(view, "#torrents", "Fixture Movie (2024)")
+    end)
   end
 
-  test "a slow lookup for an earlier term cannot redraw the current list", %{conn: conn} do
+  test "an answer for a term the reader has left cannot redraw the list", %{conn: conn} do
     current = TorrentsFixtures.torrent_fixture(%{name: "Deadpoint (2026)"})
+    :ok = SourceSearch.subscribe("Deadpoint")
 
     {:ok, view, _html} = live(conn, ~p"/?#{[q: "Deadpoint"]}")
-    assert has_element?(view, "#torrents-#{current.id}", "Deadpoint (2026)")
+    await_sources(view)
 
-    # The earlier term's batch lands after the reader has moved on. It matches
+    # The earlier term's answer lands after the reader has moved on. It matches
     # "Fall" but not "Deadpoint", so applying it would drop the current result.
     stale = TorrentsFixtures.torrent_fixture(%{name: "Fall From Grace (2024)"})
-    send(view.pid, {:source_search, "Fall", :updated})
+    send(view.pid, {:source_search, "fall", "YTS", {:done, %{found: 1, inserted: 1}}})
 
     assert has_element?(view, "#torrents-#{current.id}", "Deadpoint (2026)")
     refute has_element?(view, "#torrents-#{stale.id}")
   end
 
-  defp allow_sources(view) do
-    Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
-    # The feed-driven sources are asked too; an empty feed stands in for them.
-    Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 200, "<rss></rss>") end)
-    Test.stub(TorrentDownloads, fn conn -> Plug.Conn.send_resp(conn, 200, "<rss></rss>") end)
+  test "the first, disconnected render shows the index and asks no one", %{conn: conn} do
+    TorrentsFixtures.torrent_fixture(%{name: "Deadpoint (2026)"})
 
-    assert :ok = Test.allow(Yts, self(), view.pid)
-    assert :ok = Test.allow(Feed, self(), view.pid)
-    assert :ok = Test.allow(TorrentDownloads, self(), view.pid)
+    html = conn |> get(~p"/?#{[q: "Deadpoint"]}") |> html_response(200)
+
+    assert html =~ "Deadpoint (2026)"
+    refute html =~ "source-status"
   end
 
-  # The lookup runs in its own process, which must finish before the test does:
-  # the sandbox hands it a connection it would otherwise still be writing on
-  # after the test's transaction has rolled back.
-  defp await_source(view) do
-    case :sys.get_state(view.pid).socket.assigns.search_task do
-      # Already finished and cleared; there is nothing left to wait on.
-      nil ->
-        :ok
-
-      task ->
-        ref = Process.monitor(task)
-        assert_receive {:DOWN, ^ref, :process, ^task, reason}
-        # `:noproc` means it exited between the read above and the monitor.
-        assert reason in [:normal, :noproc]
-    end
+  # Every source must be done before the test ends: the sandbox hands their
+  # tasks a connection they would otherwise still be writing on after the
+  # test's transaction has rolled back.
+  #
+  # The broadcast reaches this process and the view from the same handler in
+  # SourceSearch, so once that handler is over and the view has worked through
+  # its mailbox, the view has seen every answer.
+  defp await_sources(view) do
+    assert_receive {:source_search_done, _key, _statuses}, 2_000
+    _ = :sys.get_state(SourceSearch)
+    _ = :sys.get_state(view.pid)
+    :ok
   end
 end
