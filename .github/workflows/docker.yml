@@ -1,0 +1,45 @@
+# Publishes the image to ghcr.io/sergiotapia/magnetissimo for amd64 and
+# arm64 (a Raspberry Pi, most NAS boxes), each built on its own native
+# runner, since compiling Elixir under QEMU emulation is slow and flaky.
+#
+#   push to master  -> :master and :edge
+#   tag v1.2.3      -> :1.2.3, :1.2 and :latest
+#   pull request    -> built, never pushed
+name: docker
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "v*"
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  image:
+    uses: docker/github-builder/.github/workflows/build.yml@v1.17.0
+    permissions:
+      contents: read # to fetch the repository content
+      id-token: write # to sign the attestations with GitHub OIDC
+      packages: write # to push to ghcr.io
+    with:
+      output: image
+      push: ${{ github.event_name != 'pull_request' }}
+      platforms: linux/amd64,linux/arm64
+      cache: true
+      meta-images: ghcr.io/sergiotapia/magnetissimo
+      meta-tags: |
+        type=ref,event=branch
+        type=raw,value=edge,enable={{is_default_branch}}
+        type=ref,event=pr
+        type=semver,pattern={{version}}
+        type=semver,pattern={{major}}.{{minor}}
+      set-meta-labels: true
+    secrets:
+      registry-auths: |
+        - registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
