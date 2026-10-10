@@ -167,7 +167,9 @@ disable it on that line with a reason:
 
 ## Git
 
-There is no remote yet, so the commit log is the only history.
+`origin` is `github.com/sergiotapia/magnetissimo`. Every push to `master`
+publishes the `:master` and `:edge` images, so commit freely but never push
+unless asked.
 
 - Commit each working step as soon as it works: a migration, a crawler, a
   passing test. Don't save everything for one big commit at the end.

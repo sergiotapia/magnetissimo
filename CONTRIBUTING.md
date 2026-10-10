@@ -93,9 +93,6 @@ give the reason:
 
 ## Commits
 
-There is no shared remote yet, so the commit log is the project's only
-history.
-
 - **One logical change per commit, committed as soon as it works.** That
   might be a migration, a crawler, or a passing test. A small honest step is
   better than one large commit at the end.
