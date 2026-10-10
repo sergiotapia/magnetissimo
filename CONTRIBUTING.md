@@ -138,10 +138,10 @@ Read it before writing UI or Ecto code.
   stateless and idempotent: it reads a feed and upserts by infohash, so a
   missed or failed run loses nothing that the next one does not pick up, and
   every feed holds hours of uploads (in October 2026, Nyaa's about 7 hours,
-  Sukebei's and TorrentDownloads' busiest category about 2). A job queue would buy persistence and retries a crawl does
-  not need, and on SQLite its polling would compete with the crawlers and
-  searches for the one writer. What the old app got wrong was crashing:
-  a crawl never raises, it logs. Reach for Oban when work stops being
+  Sukebei's and TorrentDownloads' busiest category about 2). A job queue
+  would buy persistence and retries a crawl does not need, and on SQLite its
+  polling would compete with the crawlers and searches for the one writer.
+  What the old app got wrong was crashing: a crawl never raises, it logs. Reach for Oban when work stops being
   idempotent, such as a multi-page backfill that must resume where it left
   off.
 - **One theme, and it is dark.** Plain Tailwind with the tokens in
