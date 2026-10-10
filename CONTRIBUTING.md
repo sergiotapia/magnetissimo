@@ -243,11 +243,11 @@ The image is built by `.github/workflows/docker.yml` with Docker's
 runners and pushes to `ghcr.io/sergiotapia/magnetissimo`:
 
 - Every push to `master` publishes `:master` and `:edge`.
-- A `vX.Y.Z` tag publishes `:X.Y.Z`, `:X.Y` and `:latest`.
+- A `vX.Y.Z` tag publishes `:X.Y.Z`, `:X.Y`, `:X` and `:latest`.
 - Pull requests build the image without pushing it.
 
 To cut a release, bump `version` in `mix.exs`, commit, then tag and push:
-`git tag v0.2.0 && git push origin v0.2.0`. GHCR packages are private when
+`git tag v3.1.0 && git push origin v3.1.0`. GHCR packages are private when
 first created, so after the first push, make the package public in its
 settings on GitHub.
 

@@ -3,7 +3,7 @@
 # runner, since compiling Elixir under QEMU emulation is slow and flaky.
 #
 #   push to master  -> :master and :edge
-#   tag v1.2.3      -> :1.2.3, :1.2 and :latest
+#   tag v1.2.3      -> :1.2.3, :1.2, :1 and :latest
 #   pull request    -> built, never pushed
 name: docker
 
@@ -37,6 +37,7 @@ jobs:
         type=ref,event=pr
         type=semver,pattern={{version}}
         type=semver,pattern={{major}}.{{minor}}
+        type=semver,pattern={{major}}
       set-meta-labels: true
     secrets:
       registry-auths: |
