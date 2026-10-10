@@ -10,8 +10,12 @@ defmodule Magnetissimo.Application do
     children = [
       MagnetissimoWeb.Telemetry,
       Magnetissimo.Repo,
+      # A release migrates and seeds the sources before the endpoint takes a
+      # request, so a fresh container or an upgrade needs no step by hand.
       {Ecto.Migrator,
-       repos: Application.fetch_env!(:magnetissimo, :ecto_repos), skip: skip_migrations?()},
+       repos: Application.fetch_env!(:magnetissimo, :ecto_repos),
+       migrator: &Magnetissimo.Release.migrator/3,
+       skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Magnetissimo.PubSub},
       # Each source a search asks runs as its own task under this supervisor,

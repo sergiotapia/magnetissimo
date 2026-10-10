@@ -35,6 +35,7 @@ defmodule Magnetissimo.Seeds do
   Inserts the sources, and refreshes the `url` of one that has moved. Safe to
   run repeatedly.
   """
+  @spec run() :: :ok
   def run do
     Enum.each(@sources, fn {name, url} -> upsert_source(name, url) end)
   end
