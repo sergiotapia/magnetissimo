@@ -14,6 +14,8 @@ defmodule Magnetissimo.Seeds do
 
   # Every source here has a crawler in Magnetissimo.Crawlers.all/0.
   @sources [
+    # The crawler hardcodes the domain too; the site moves every so often.
+    {"AudioBookBay", "https://audiobookbay.lu"},
     {"Nyaa.si", "https://nyaa.si"},
     {"Sukebei", "https://sukebei.nyaa.si"},
     {"TorrentDownloads", "https://www.torrentdownloads.pro"},

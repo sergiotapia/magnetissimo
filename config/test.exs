@@ -39,6 +39,11 @@ config :magnetissimo, Magnetissimo.Crawlers.Nyaa.Feed,
 config :magnetissimo, Magnetissimo.Crawlers.TorrentDownloads,
   plug: {Req.Test, Magnetissimo.Crawlers.TorrentDownloads}
 
+# AudioBookBay reads an HTML page per book as well as its feed, so it gets its
+# own stub, which routes on the path.
+config :magnetissimo, Magnetissimo.Crawlers.AudioBookBay,
+  plug: {Req.Test, Magnetissimo.Crawlers.AudioBookBay}
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

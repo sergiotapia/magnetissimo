@@ -20,10 +20,15 @@ defmodule Magnetissimo.Crawlers.Magnet do
     "https://opentracker.i2p.rocks:443/announce"
   ]
 
-  @doc "Returns a complete magnet URI, name and public trackers included."
-  @spec url(String.t(), String.t()) :: String.t()
-  def url(hash, name) do
-    trackers = Enum.map_join(@trackers, "&tr=", &URI.encode_www_form/1)
+  @doc """
+  Returns a complete magnet URI, name and trackers included.
+
+  `trackers` defaults to the public list. AudioBookBay passes the ones its
+  own page lists for the torrent instead.
+  """
+  @spec url(String.t(), String.t(), [String.t()]) :: String.t()
+  def url(hash, name, trackers \\ @trackers) do
+    trackers = Enum.map_join(trackers, "&tr=", &URI.encode_www_form/1)
 
     "magnet:?xt=urn:btih:#{hash}&dn=#{URI.encode_www_form(name)}&tr=#{trackers}"
   end

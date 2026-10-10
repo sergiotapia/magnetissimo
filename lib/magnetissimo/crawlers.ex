@@ -10,13 +10,14 @@ defmodule Magnetissimo.Crawlers do
 
   require Logger
 
+  alias Magnetissimo.Crawlers.AudioBookBay
   alias Magnetissimo.Crawlers.Nyaa
   alias Magnetissimo.Crawlers.Sukebei
   alias Magnetissimo.Crawlers.TorrentDownloads
   alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.Torrents
 
-  @crawlers [Yts, Nyaa, Sukebei, TorrentDownloads]
+  @crawlers [Yts, Nyaa, Sukebei, TorrentDownloads, AudioBookBay]
 
   @doc "Every crawler, one per live source."
   @spec all() :: [module()]
