@@ -40,6 +40,16 @@ defmodule Magnetissimo.TaxonomyTest do
     refute 5040 in family
   end
 
+  test "a Torznab cat list matches families, and a subcategory's parent" do
+    ids = Taxonomy.torznab_ids([5030, 5040, 5040, 2000, 99, 100_010])
+
+    assert 5000 in ids and 5030 in ids and 5040 in ids
+    refute 5070 in ids
+    assert 2045 in ids
+    assert ids == Enum.uniq(ids)
+    assert Taxonomy.torznab_ids([99]) == []
+  end
+
   test "the tree keeps a top level with a kept child, and drops the rest" do
     tree = Taxonomy.tree(&(&1.id in [2045, 8000]))
 

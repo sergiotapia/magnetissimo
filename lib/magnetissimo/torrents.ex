@@ -67,6 +67,9 @@ defmodule Magnetissimo.Torrents do
     * `:offset` - skip this many, 0 by default, for paging
     * `:category_id` - only torrents filed under this category or, for a
       top-level one, any of its children
+    * `:category_ids` - only torrents filed under exactly one of these, such
+      as `Magnetissimo.Taxonomy.torznab_ids/1` returns; an empty list is no
+      filter
     * `:source_ids` - only torrents from one of these sources; an empty list
       is no filter, not an empty result
     * `:sort` - a `t:Magnetissimo.Torrents.Search.sort/0`, such as
@@ -92,25 +95,34 @@ defmodule Magnetissimo.Torrents do
     order_by(query, [t], [{^dir, field(t, ^field)}, desc: t.id])
   end
 
-  @doc "Returns how many torrents are indexed, or match `:category_id` and `:source_ids`."
+  @doc """
+  Returns how many torrents are indexed, or match `:category_id`,
+  `:category_ids` and `:source_ids`.
+  """
   def count_torrents(opts \\ []) do
     Repo.aggregate(filtered(from(t in Torrent), opts), :count)
   end
 
   defp filtered(query, opts) do
-    query =
-      case Keyword.fetch(opts, :category_id) do
-        {:ok, category_id} ->
-          where(query, [t], t.category_id in ^Taxonomy.family_ids(category_id))
+    for {column, ids} <- filters(opts), ids != [], reduce: query do
+      query -> where(query, [t], field(t, ^column) in ^ids)
+    end
+  end
 
-        :error ->
-          query
+  # Each is `{column, ids}`, kept when the column is one of the ids. An
+  # empty list is no filter.
+  defp filters(opts) do
+    family =
+      case Keyword.fetch(opts, :category_id) do
+        {:ok, category_id} -> Taxonomy.family_ids(category_id)
+        :error -> []
       end
 
-    case Keyword.get(opts, :source_ids, []) do
-      [] -> query
-      source_ids -> where(query, [t], t.source_id in ^source_ids)
-    end
+    [
+      category_id: family,
+      category_id: Keyword.get(opts, :category_ids, []),
+      source_id: Keyword.get(opts, :source_ids, [])
+    ]
   end
 
   @doc """
@@ -311,7 +323,7 @@ defmodule Magnetissimo.Torrents do
   @doc """
   Returns how many torrents `search_torrents/2` matches, so the UI can page.
 
-  Takes the same `:category_id` and `:source_ids` options; input with nothing
+  Takes the same filter options; input with nothing
   to search for matches nothing rather than everything.
   """
   def count_search_torrents(term, opts \\ []) do
@@ -345,15 +357,8 @@ defmodule Magnetissimo.Torrents do
   defp search_query(_term, _opts, _select, _tail), do: nil
 
   defp search_filter(opts) do
-    category_ids =
-      case Keyword.fetch(opts, :category_id) do
-        {:ok, category_id} -> Taxonomy.family_ids(category_id)
-        :error -> []
-      end
-
     conditions =
-      for {column, ids} <- [category_id: category_ids, source_id: opts[:source_ids] || []],
-          ids != [] do
+      for {column, ids} <- filters(opts), ids != [] do
         {"t.#{column} IN (#{Enum.map_join(ids, ", ", fn _ -> "?" end)})", ids}
       end
 

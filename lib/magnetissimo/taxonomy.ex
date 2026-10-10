@@ -160,6 +160,28 @@ defmodule Magnetissimo.Taxonomy do
     [id | for(%Category{parent_id: ^id, id: child} <- @categories, do: child)]
   end
 
+  @doc """
+  The numbers a Torznab client's `cat=` list matches: each category with its
+  children, and for a subcategory its parent as well. Numbers that are not
+  categories are ignored.
+
+  The parent is there because a site that only says "TV" files its torrents
+  under TV, while Sonarr asks for TV/SD and TV/HD by default. Without it,
+  nothing EZTV finds would ever reach Sonarr.
+  """
+  @spec torznab_ids([integer()]) :: [pos_integer()]
+  def torznab_ids(ids) do
+    ids
+    |> Enum.flat_map(fn id ->
+      case get(id) do
+        nil -> []
+        %Category{parent_id: nil} -> family_ids(id)
+        %Category{parent_id: parent_id} -> [id, parent_id]
+      end
+    end)
+    |> Enum.uniq()
+  end
+
   @doc "The top-level category a category belongs to: itself, or its parent."
   @spec root(Category.t()) :: Category.t()
   def root(%Category{parent_id: nil} = category), do: category

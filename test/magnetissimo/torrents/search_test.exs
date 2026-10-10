@@ -160,6 +160,24 @@ defmodule Magnetissimo.Torrents.SearchTest do
     assert Enum.map(Torrents.list_latest_torrents(uhd), & &1.name) == ["Delta Film UHD"]
   end
 
+  test "filtering by a list of categories keeps exactly those" do
+    fixture("Foxglove Show", %{category: "TV"})
+    fixture("Foxglove Show HD", %{category: "TV/HD"})
+    fixture("Foxglove Anime", %{category: "TV/Anime"})
+    fixture("Foxglove Film", %{category: "Movies"})
+
+    tv = [category_ids: Taxonomy.torznab_ids([5030, 5040])]
+    assert Enum.sort(names("foxglove", tv)) == ["Foxglove Show", "Foxglove Show HD"]
+    assert Torrents.count_search_torrents("foxglove", tv) == 2
+    assert Torrents.count_torrents(tv) == 2
+
+    latest = Enum.map(Torrents.list_latest_torrents(tv), & &1.name)
+    assert Enum.sort(latest) == ["Foxglove Show", "Foxglove Show HD"]
+
+    # An empty list is no filter at all.
+    assert Torrents.count_search_torrents("foxglove", category_ids: []) == 4
+  end
+
   test "filtering by sources keeps any of them, and combines with a category" do
     fixture("Echo Film", %{source: "YTS"})
     fixture("Echo Show", %{source: "EZTV", category: "TV/HD"})
