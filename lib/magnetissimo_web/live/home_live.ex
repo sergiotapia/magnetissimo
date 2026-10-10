@@ -99,15 +99,15 @@ defmodule MagnetissimoWeb.HomeLive do
       socket
     else
       if previous, do: SourceSearch.unsubscribe(previous)
-      ask_sources(socket, key)
+      ask_sources(socket, q, key)
     end
   end
 
-  defp ask_sources(socket, ""), do: assign(socket, source_key: nil, sources: %{})
+  defp ask_sources(socket, _q, ""), do: assign(socket, source_key: nil, sources: %{})
 
-  defp ask_sources(socket, key) do
+  defp ask_sources(socket, q, key) do
     :ok = SourceSearch.subscribe(key)
-    assign(socket, source_key: key, sources: SourceSearch.request(key))
+    assign(socket, source_key: key, sources: SourceSearch.request(q))
   end
 
   # Any Torznab category can be filtered on, including one nothing is filed

@@ -22,8 +22,9 @@ defmodule Magnetissimo.SourceSearchTest do
     end)
 
     # The server remembers terms for the ttl, and the database is rolled back
-    # after every test, so every test searches a term no other test has.
-    %{term: "term #{System.unique_integer([:positive])}"}
+    # after every test, so every test searches a term no other test has. One
+    # word, so the term the sources are asked for is also its key.
+    %{term: "term#{System.unique_integer([:positive])}"}
   end
 
   defp configure(config), do: Application.put_env(:magnetissimo, SourceSearch, config)
@@ -69,6 +70,25 @@ defmodule Magnetissimo.SourceSearchTest do
     refute_received {:crawled, _, _, _}
   end
 
+  test "the same words in another order join the search, asked as first typed", %{
+    term: term
+  } do
+    key = SourceSearch.key("Alpha #{term}")
+    assert key == SourceSearch.key("#{term}  alpha")
+    :ok = SourceSearch.subscribe(key)
+
+    SourceSearch.request("Alpha #{term}")
+    assert_receive {:crawled, "Nyaa.si", crawled, slow}
+    assert crawled == "alpha #{term}"
+
+    assert %{"Nyaa.si" => :searching} = SourceSearch.request("#{term} alpha")
+    send(slow, :go)
+    assert_receive {:source_search_done, ^key, _}
+
+    assert_received {:crawled, "YTS", ^crawled, _}
+    refute_received {:crawled, _, _, _}
+  end
+
   test "a term asked again after the ttl is searched again", %{term: term} do
     configure(crawlers: [FastCrawler], ttl: 0)
     key = SourceSearch.key(term)
@@ -85,15 +105,16 @@ defmodule Magnetissimo.SourceSearchTest do
   end
 
   test "a source that fails or crashes is reported, and the others still answer" do
-    key = "fail crash"
-    :ok = SourceSearch.subscribe(key)
+    term = "fail crash"
+    key = SourceSearch.key(term)
+    :ok = SourceSearch.subscribe(term)
     configure(crawlers: [FastCrawler, SlowCrawler], ttl: 0, timeout: 5_000)
 
     ExUnit.CaptureLog.capture_log(fn ->
-      SourceSearch.request(key)
+      SourceSearch.request(term)
 
       assert_receive {:source_search, ^key, "YTS", {:failed, {:crashed, _}}}
-      assert_receive {:crawled, "Nyaa.si", ^key, slow}
+      assert_receive {:crawled, "Nyaa.si", ^term, slow}
       send(slow, :go)
 
       assert_receive {:source_search, ^key, "Nyaa.si", {:done, %{found: 1}}}

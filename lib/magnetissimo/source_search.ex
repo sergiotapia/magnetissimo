@@ -11,7 +11,10 @@ defmodule Magnetissimo.SourceSearch do
       own answer. Each task indexes its hits in one short transaction, which
       keeps SQLite's single writer free between them.
     * One term is searched once at a time, however many readers ask for it.
-      A second reader typing the same thing joins the search in flight.
+      A second reader typing the same thing joins the search in flight. The
+      same words in another order are the same thing: Readarr asks for
+      "Title Author" and "Author Title" back to back, and every site's search
+      and the local index match words in any order.
     * A term every source answered in the last `:ttl` is not searched again;
       its hits are already in the index. This is what keeps search-as-you-type
       from hammering the sites when a reader backspaces and retypes. A term a
@@ -60,10 +63,10 @@ defmodule Magnetissimo.SourceSearch do
 
   @doc """
   The key a term is searched, broadcast and cached under: two terms that
-  differ only by case or spacing are one search.
+  differ only by case, spacing or the order of their words are one search.
   """
   @spec key(String.t()) :: String.t()
-  def key(term), do: Search.normalize(term)
+  def key(term), do: term |> Search.normalize() |> String.split() |> Enum.sort() |> Enum.join(" ")
 
   @doc "Subscribes the caller to the answers for `term`."
   @spec subscribe(String.t()) :: :ok | {:error, term()}
@@ -81,7 +84,7 @@ defmodule Magnetissimo.SourceSearch do
   subscribe would be missed. A term too short to search returns `%{}`.
   """
   @spec request(String.t()) :: statuses()
-  def request(term), do: GenServer.call(__MODULE__, {:request, key(term)})
+  def request(term), do: GenServer.call(__MODULE__, {:request, key(term), Search.normalize(term)})
 
   @doc """
   Requests `term` and waits up to `timeout` for every source to answer.
@@ -96,7 +99,7 @@ defmodule Magnetissimo.SourceSearch do
     :ok = subscribe(key)
     deadline = System.monotonic_time(:millisecond) + timeout
 
-    statuses = request(key)
+    statuses = request(term)
     statuses = if searching?(statuses), do: wait(key, statuses, deadline), else: statuses
 
     :ok = unsubscribe(key)
@@ -152,21 +155,23 @@ defmodule Magnetissimo.SourceSearch do
   end
 
   @impl true
-  def handle_call({:request, key}, _from, state) do
+  # The sites are asked for `term` as the first reader typed it, since a
+  # site's search may rank by word order even though it matches in any.
+  def handle_call({:request, key, term}, _from, state) do
     state = prune(state)
 
     cond do
       String.length(key) < @min_length -> {:reply, %{}, state}
       Map.has_key?(state.searches, key) -> {:reply, state.searches[key].statuses, state}
       Map.has_key?(state.recent, key) -> {:reply, elem(state.recent[key], 1), state}
-      true -> start(key, state)
+      true -> start(key, term, state)
     end
   end
 
-  defp start(key, state) do
+  defp start(key, term, state) do
     tasks =
       for crawler <- config(:crawlers, Crawlers.all()), into: %{} do
-        task = Task.Supervisor.async_nolink(@tasks, Crawlers, :search, [crawler, key])
+        task = Task.Supervisor.async_nolink(@tasks, Crawlers, :search, [crawler, term])
         {task.ref, {key, crawler.source_name(), task.pid}}
       end
 
