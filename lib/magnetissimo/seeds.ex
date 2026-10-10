@@ -16,6 +16,9 @@ defmodule Magnetissimo.Seeds do
   @sources [
     # The crawler hardcodes the domain too; the site moves every so often.
     {"AudioBookBay", "https://audiobookbay.lu"},
+    # The crawler asks the site's API, the only part not behind Cloudflare's
+    # challenge, and finds shows through IMDb's title suggestions.
+    {"EZTV", "https://eztvx.to"},
     {"Nyaa.si", "https://nyaa.si"},
     {"Sukebei", "https://sukebei.nyaa.si"},
     # The crawler asks apibay.org, the API the site's own pages are built from.

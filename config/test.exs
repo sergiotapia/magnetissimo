@@ -50,6 +50,10 @@ config :magnetissimo, Magnetissimo.Crawlers.AudioBookBay,
 config :magnetissimo, Magnetissimo.Crawlers.ThePirateBay,
   plug: {Req.Test, Magnetissimo.Crawlers.ThePirateBay}
 
+# EZTV asks IMDb for the show and then EZTV's API for its torrents. One stub
+# answers both, routing on the host.
+config :magnetissimo, Magnetissimo.Crawlers.Eztv, plug: {Req.Test, Magnetissimo.Crawlers.Eztv}
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

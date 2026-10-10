@@ -8,6 +8,7 @@ defmodule MagnetissimoWeb.ConnCase do
   use ExUnit.CaseTemplate
 
   alias Magnetissimo.Crawlers.AudioBookBay
+  alias Magnetissimo.Crawlers.Eztv
   alias Magnetissimo.Crawlers.Nyaa.Feed
   alias Magnetissimo.Crawlers.ThePirateBay
   alias Magnetissimo.Crawlers.TorrentDownloads
@@ -61,6 +62,8 @@ defmodule MagnetissimoWeb.ConnCase do
     # An empty page is both an empty feed and a search that matched nothing.
     Test.stub(AudioBookBay, &Conn.send_resp(&1, 200, "<html></html>"))
     Test.stub(ThePirateBay, &Test.json(&1, []))
+    # IMDb suggesting no show means EZTV is never asked.
+    Test.stub(Eztv, &Test.json(&1, %{}))
 
     previous = Application.get_env(:magnetissimo, SourceSearch)
     Application.put_env(:magnetissimo, SourceSearch, ttl: 0)
