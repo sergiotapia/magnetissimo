@@ -133,9 +133,17 @@ Read it before writing UI or Ecto code.
   `Magnetissimo.SourceSearch` asks every source's own search in parallel,
   shares one search per term, caches answered terms, indexes the hits and
   broadcasts each answer so the page can slide them in.
-- **Background work is jobs, not timers.** The old app ran one GenServer per
-  source on a 5-minute `Process.send_after`, with no visibility and no backoff.
-  Use Oban when the crawlers land.
+- **Crawls run on a timer, not a job queue.** `Magnetissimo.Crawlers.Scheduler`
+  runs each crawler every 5 minutes. That is enough because a crawl is
+  stateless and idempotent: it reads a feed and upserts by infohash, so a
+  missed or failed run loses nothing that the next one does not pick up, and
+  every feed holds hours of uploads (in October 2026, Nyaa's about 7 hours,
+  Sukebei's and TorrentDownloads' busiest category about 2). A job queue would buy persistence and retries a crawl does
+  not need, and on SQLite its polling would compete with the crawlers and
+  searches for the one writer. What the old app got wrong was crashing:
+  a crawl never raises, it logs. Reach for Oban when work stops being
+  idempotent, such as a multi-page backfill that must resume where it left
+  off.
 - **One theme, and it is dark.** Plain Tailwind with the tokens in
   `assets/css/app.css`; `docs/design.md` says what each one is for. There is
   no light mode and no component library — daisyUI was deliberately removed.
