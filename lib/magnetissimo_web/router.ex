@@ -23,6 +23,13 @@ defmodule MagnetissimoWeb.Router do
     get "/theme/:mode", ThemeController, :update
   end
 
+  # Torznab, for Sonarr, Radarr, Lidarr, Prowlarr and the book managers. It
+  # reads `t=` and answers in XML whatever the client says it accepts, so it
+  # goes through no pipeline.
+  scope "/", MagnetissimoWeb do
+    get "/api", TorznabController, :index
+  end
+
   scope "/api", MagnetissimoWeb do
     pipe_through :api
 

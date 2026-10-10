@@ -44,6 +44,9 @@ defmodule Magnetissimo.SourceSearch do
   @tasks Magnetissimo.SourceSearch.TaskSupervisor
   @ttl :timer.minutes(15)
   @timeout :timer.seconds(20)
+  # How much longer than the timeout `await/1` waits, for the giving up to
+  # reach it.
+  @await_margin :timer.seconds(1)
 
   # Shorter than this, a term is a reader still typing, and no site's search
   # does anything useful with one character.
@@ -106,6 +109,13 @@ defmodule Magnetissimo.SourceSearch do
     flush(key)
     statuses
   end
+
+  @doc """
+  Requests `term` and waits until every source has answered or been given up
+  on, which the `:timeout` bounds.
+  """
+  @spec await(String.t()) :: statuses()
+  def await(term), do: await(term, config(:timeout, @timeout) + @await_margin)
 
   @doc "Whether any source in `statuses` has yet to answer."
   @spec searching?(statuses()) :: boolean()
