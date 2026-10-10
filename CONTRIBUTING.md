@@ -21,11 +21,12 @@ Built so far:
   design system, read it before adding a page.
 - The JSON API, `GET /api/latest` and `GET /api/search/:term`, with the
   2.0.0 field names.
+- Crawlers for YTS, Nyaa.si, Sukebei, TorrentDownloads and AudioBookBay,
+  asked only when someone searches, through `Magnetissimo.SourceSearch`.
 - Tests for the context, the LiveViews, the API and the formatting helpers.
 
 Not built yet — don't assume any of it exists:
 
-- Crawlers and the background jobs that run them.
 - The Torznab endpoint for Sonarr and Radarr.
 
 ## Environment
@@ -110,7 +111,8 @@ Read it before writing UI or Ecto code.
 - **`magnet_hash` is the identity, not the name.** One source page yields
   several torrents that share a name — YTS returns 720p, 1080p and 2160p for a
   single movie — and only the hash tells them apart. A duplicate `magnet_hash`
-  is the expected result of re-crawling a feed, not an error.
+  is the expected result of a source returning a torrent already indexed, not
+  an error.
 - **`magnet_url` holds the complete magnet URI**, scheme included. The old
   column stored `?xt=urn:btih:…` with `magnet:` re-added at render time, so the
   column name lied about its contents.
@@ -133,17 +135,14 @@ Read it before writing UI or Ecto code.
   `Magnetissimo.SourceSearch` asks every source's own search in parallel,
   shares one search per term, caches answered terms, indexes the hits and
   broadcasts each answer so the page can slide them in.
-- **Crawls run on a timer, not a job queue.** `Magnetissimo.Crawlers.Scheduler`
-  runs each crawler every 5 minutes. That is enough because a crawl is
-  stateless and idempotent: it reads a feed and upserts by infohash, so a
-  missed or failed run loses nothing that the next one does not pick up, and
-  every feed holds hours of uploads (in October 2026, Nyaa's about 7 hours,
-  Sukebei's and TorrentDownloads' busiest category about 2). A job queue
-  would buy persistence and retries a crawl does not need, and on SQLite its
-  polling would compete with the crawlers and searches for the one writer.
-  What the old app got wrong was crashing: a crawl never raises, it logs. Reach for Oban when work stops being
-  idempotent, such as a multi-page backfill that must resume where it left
-  off.
+- **Nothing is crawled on a timer; sources are asked only on a search.**
+  Every crawler used to be polled every 5 minutes for its newest torrents. In
+  October 2026 Nyaa and AudioBookBay both started dropping our connections,
+  so the timers and each crawler's `latest/0` were removed. The index now
+  holds what readers have searched for, and a site only hears from us when
+  someone types a term. Don't add a scheduler back. A source that needs more
+  than one request per search, as AudioBookBay does, paces itself: a reader
+  typing a term asks for every prefix of it.
 - **One theme, and it is dark.** Plain Tailwind with the tokens in
   `assets/css/app.css`; `docs/design.md` says what each one is for. There is
   no light mode and no component library — daisyUI was deliberately removed.
