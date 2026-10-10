@@ -349,9 +349,8 @@ defmodule Magnetissimo.Torrents do
   def search_torrents(term, opts \\ []) do
     limit = Keyword.get(opts, :limit, @search_limit)
     offset = Keyword.get(opts, :offset, 0)
-    order = Search.order_by(opts[:sort])
 
-    case search_query(term, opts, "t.id", "ORDER BY #{order} LIMIT ? OFFSET ?") do
+    case search_query(term, opts, :page) do
       nil ->
         []
 
@@ -368,7 +367,7 @@ defmodule Magnetissimo.Torrents do
   to search for matches nothing rather than everything.
   """
   def count_search_torrents(term, opts \\ []) do
-    case search_query(term, opts, "count(*)", "") do
+    case search_query(term, opts, :count) do
       nil ->
         0
 
@@ -378,19 +377,32 @@ defmodule Magnetissimo.Torrents do
     end
   end
 
-  defp search_query(term, opts, select, tail) when is_binary(term) do
-    search_query(Query.plain(term), opts, select, tail)
+  defp search_query(term, opts, kind) when is_binary(term) do
+    search_query(Query.plain(term), opts, kind)
   end
 
-  defp search_query(%Query{} = query, opts, select, tail) do
-    with {matches, params} <- Search.matches(query, Keyword.get(opts, :scope, :all)) do
+  # Only a page in best match order needs scores. A count needs no column of
+  # `torrents` either, unless a filter reads one: every match is a torrent,
+  # since the indexes follow the table and a source hit goes with its torrent.
+  defp search_query(%Query{} = query, opts, kind) do
+    rank? = kind == :page and is_nil(opts[:sort])
+    search_opts = [scope: Keyword.get(opts, :scope, :all), rank: rank?]
+
+    with {matches, params} <- Search.matches(query, search_opts) do
       {filter, filter_params} = search_filter(opts)
+
+      {select, join, tail} =
+        case kind do
+          :count when filter == "" -> {"count(*)", "", ""}
+          :count -> {"count(*)", "JOIN torrents t ON t.id = m.id", ""}
+          :page -> {"t.id", "JOIN torrents t ON t.id = m.id", page_tail(opts[:sort])}
+        end
 
       sql = """
       WITH #{matches}
       SELECT #{select}
       FROM matches m
-      JOIN torrents t ON t.id = m.id
+      #{join}
       #{filter}
       #{tail}
       """
@@ -399,7 +411,9 @@ defmodule Magnetissimo.Torrents do
     end
   end
 
-  defp search_query(_term, _opts, _select, _tail), do: nil
+  defp search_query(_term, _opts, _kind), do: nil
+
+  defp page_tail(sort), do: "ORDER BY #{Search.order_by(sort)} LIMIT ? OFFSET ?"
 
   defp search_filter(opts) do
     in_lists =

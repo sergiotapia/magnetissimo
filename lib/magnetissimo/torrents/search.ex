@@ -97,42 +97,88 @@ defmodule Magnetissimo.Torrents.Search do
   and their parameters, or `nil` when there is nothing to search for.
 
   Takes a `t:Magnetissimo.Torrents.Query.t/0`, or plain text, which is read
-  with `Magnetissimo.Torrents.Query.plain/1`. `scope` is `:all` to match
-  names and descriptions, or `:name` for names only.
+  with `Magnetissimo.Torrents.Query.plain/1`.
 
   A lower score is a better match. Callers join `matches` onto `torrents`.
+
+  ## Options
+
+    * `:scope` - `:all` (the default) to match names and descriptions, or
+      `:name` for names only
+    * `:rank` - `false` when nothing will order by the score, as in a count
+      or a sort by a column: every score is then 0.0, and bm25, which is
+      most of what a search of a common word costs, is never computed.
+      `true` by default
   """
-  @spec matches(Query.t() | String.t(), scope()) :: {String.t(), list()} | nil
-  def matches(query, scope \\ :all)
+  @spec matches(Query.t() | String.t(), keyword()) :: {String.t(), list()} | nil
+  def matches(query, opts \\ [])
 
-  def matches(term, scope) when is_binary(term), do: matches(Query.plain(term), scope)
+  def matches(term, opts) when is_binary(term), do: matches(Query.plain(term), opts)
 
-  def matches(%Query{} = query, scope) when scope in [:all, :name] do
+  def matches(%Query{} = query, opts) do
+    scope = Keyword.get(opts, :scope, :all)
+    rank? = Keyword.get(opts, :rank, true)
+
     if Query.empty?(query) do
       nil
     else
       tokens = driver_tokens(query)
-      {driver_sql, driver_params} = driver(tokens, query.typing?, scope)
-      {hits_sql, hits_params} = hits(query, tokens, scope)
-      {where_sql, where_params} = strict(query, scope)
+      strict = strict(query, scope)
 
-      # The candidates are materialized before the operators join them to
-      # `torrents`: flattened into that join, bm25 loses the FTS5 query it
-      # scores and refuses to run.
-      sql = """
-      candidates(id, score) AS MATERIALIZED (
-        #{hits_sql}
-        #{driver_sql}
-      ),
-      matches(id, score) AS (
-        SELECT u.id, min(u.score) FROM candidates AS u
-        #{where_sql}
-        GROUP BY u.id
-      )
-      """
-
-      {sql, hits_params ++ driver_params ++ where_params}
+      case driver(tokens, query, scope, rank?) do
+        :every_torrent -> every_torrent(strict)
+        driver -> narrowed(driver, hits(query, tokens, scope), strict)
+      end
     end
+  end
+
+  # Every torrent is a candidate, so the operators are tested as the table is
+  # read, rather than on a copy of all its ids joined back to it.
+  defp every_torrent({where_sql, where_params}) do
+    {"matches(id, score) AS (\n  SELECT t.id, 0.0 AS score FROM torrents t WHERE #{where_sql}\n)\n",
+     where_params}
+  end
+
+  defp narrowed({driver_sql, driver_params}, {hits_sql, hits_params}, strict) do
+    # The operators read the name and description only for a short
+    # substring or a pattern. Every other one tests the id against an index,
+    # so the candidates, which hold it, stand in for `torrents t`.
+    {from_sql, u, where_sql, where_params} =
+      case strict do
+        {"TRUE", []} ->
+          {"candidates AS u", "u", "", []}
+
+        {sql, params} ->
+          if String.contains?(sql, ["t.name", "t.description"]),
+            do: {"candidates AS u JOIN torrents t ON t.id = u.id", "u", "WHERE #{sql}", params},
+            else: {"candidates AS t", "t", "WHERE #{sql}", params}
+      end
+
+    # A torrent can be both a source hit and a text match. Without hits,
+    # every candidate is a different torrent, and there is nothing to group.
+    {score_sql, group_sql} =
+      if hits_sql == "",
+        do: {"#{u}.score", ""},
+        else: {"min(#{u}.score)", "GROUP BY #{u}.id"}
+
+    # The candidates are materialized before the operators join them to
+    # `torrents`: flattened into that join, bm25 loses the FTS5 query it
+    # scores and refuses to run. Unranked, it would run, but SQLite could
+    # then look each torrent up in FTS5 one id at a time (see
+    # `text_matches/4`).
+    sql = """
+    candidates(id, score) AS MATERIALIZED (
+      #{hits_sql}
+      #{driver_sql}
+    ),
+    matches(id, score) AS (
+      SELECT #{u}.id, #{score_sql} FROM #{from_sql}
+      #{where_sql}
+      #{group_sql}
+    )
+    """
+
+    {sql, hits_params ++ driver_params ++ where_params}
   end
 
   @doc """
@@ -159,7 +205,7 @@ defmodule Magnetissimo.Torrents.Search do
   # (plain words, and the longer words of quoted text and patterns) as plain
   # tokens, which finds a superset of what the operators allow and lets bm25
   # rank it. A query of nothing but alternatives and exclusions has no such
-  # words, and starts from every torrent.
+  # words: see `alternatives/2`.
   defp driver_tokens(%Query{clauses: clauses}) do
     for [atom] <- clauses, token <- driver_tokens(atom), do: token
   end
@@ -171,8 +217,31 @@ defmodule Magnetissimo.Torrents.Search do
     Enum.filter(tokens(text), &match?({:trigram, _}, &1))
   end
 
-  defp driver([], _typing?, _scope), do: {"SELECT id, 0.0 AS score FROM torrents", []}
-  defp driver(tokens, typing?, scope), do: text_matches(tokens, typing?, scope)
+  defp driver([], query, scope, _rank?), do: alternatives(query, scope)
+  defp driver(tokens, query, scope, rank?), do: text_matches(tokens, query.typing?, scope, rank?)
+
+  # With no word it needs outright, a query starts from what any alternative
+  # of one clause finds, when each has a word an index can find: everything
+  # the clause allows is in there, and the operators then hold it to the
+  # rest. Scanning every torrent instead took "s05e13|s05e14" 80 ms on
+  # 250,000 torrents. A clause with an alternative only a scan can answer,
+  # such as "x*" or a short unspaced word, and a query of nothing but
+  # exclusions, still start from every torrent. Nothing scores these, as
+  # before: the seeders rank them.
+  defp alternatives(%Query{clauses: clauses}, scope) do
+    Enum.find_value(clauses, :every_torrent, fn clause ->
+      atom_tokens = Enum.map(clause, &driver_tokens/1)
+
+      if Enum.all?(atom_tokens, &indexed?/1) do
+        parts = Enum.map(atom_tokens, &text_matches(&1, false, scope, false))
+
+        {"SELECT id, score FROM (\n" <> Enum.map_join(parts, "\nUNION\n", &elem(&1, 0)) <> "\n)",
+         Enum.flat_map(parts, &elem(&1, 1))}
+      end
+    end)
+  end
+
+  defp indexed?(tokens), do: Enum.any?(tokens, &match?({kind, _} when kind != :substring, &1))
 
   # Torrents a source returned for one of the searches it was asked. They
   # stand in for the driver's words, and are held to the operators like any
@@ -196,7 +265,7 @@ defmodule Magnetissimo.Torrents.Search do
   # One index drives the query and scores it; every other kind of token
   # narrows it. The trigram index drives when it can, because its bm25 sees
   # the longest and most specific tokens.
-  defp text_matches(tokens, typing?, scope) do
+  defp text_matches(tokens, typing?, scope, score?) do
     trigrams = for {:trigram, t} <- tokens, do: t
     words = for {:word, t} <- tokens, do: t
     # Lowercased to match `lower(name)`, as the FTS indexes ignore case too.
@@ -207,21 +276,28 @@ defmodule Magnetissimo.Torrents.Search do
     # a trigram phrase is already a substring match.
     prefix? = typing? and match?([{:word, _} | _], Enum.reverse(tokens))
 
-    {base, base_params, words, substrings} = base(trigrams, words, substrings, prefix?, scope)
+    {base, base_params, words, substrings} =
+      base(trigrams, words, substrings, prefix?, scope, score?)
 
+    # `+rowid`, not `rowid`: given a plain `rowid IN (…)`, SQLite hands each
+    # id in the list to FTS5, which then runs its whole MATCH once per id.
+    # "toy story 4" took 1.7 seconds that way on 250,000 torrents, as every
+    # name with a "4" in it re-ran "toy story". The unary plus keeps the list
+    # out of FTS5, so its MATCH runs once and each row is looked up in the
+    # list.
     {word_sql, word_params} =
       case words do
         [] ->
           {"", []}
 
         words ->
-          {"AND rowid IN (SELECT rowid FROM torrents_words WHERE torrents_words MATCH ?)",
+          {"AND +rowid IN (SELECT rowid FROM torrents_words WHERE torrents_words MATCH ?)",
            [in_scope(scope, phrases(words, prefix?))]}
       end
 
     substring_sql =
-      Enum.map_join(substrings, "\n", fn _ ->
-        "AND rowid IN (SELECT id FROM torrents WHERE instr(lower(name), ?) > 0)"
+      Enum.map_join(substrings, "\n", fn substring ->
+        "AND +rowid IN (SELECT id FROM torrents WHERE instr(#{folded("name", substring)}, ?) > 0)"
       end)
 
     {Enum.join([base, word_sql, substring_sql], "\n"), base_params ++ word_params ++ substrings}
@@ -229,22 +305,28 @@ defmodule Magnetissimo.Torrents.Search do
 
   # The query that drives, its parameters, and the words and substrings left
   # over to narrow it.
-  defp base([_ | _] = trigrams, words, substrings, _prefix?, scope) do
-    {fts("torrents_search"), [in_scope(scope, phrases(trigrams, false))], words, substrings}
+  defp base([_ | _] = trigrams, words, substrings, _prefix?, scope, score?) do
+    {fts("torrents_search", score?), [in_scope(scope, phrases(trigrams, false))], words,
+     substrings}
   end
 
-  defp base([], [_ | _] = words, substrings, prefix?, scope) do
-    {fts("torrents_words"), [in_scope(scope, phrases(words, prefix?))], [], substrings}
+  defp base([], [_ | _] = words, substrings, prefix?, scope, score?) do
+    {fts("torrents_words", score?), [in_scope(scope, phrases(words, prefix?))], [], substrings}
   end
 
-  defp base([], [], [first | rest], _prefix?, _scope) do
-    {"SELECT id, 0.0 AS score FROM torrents WHERE instr(lower(name), ?) > 0", [first], [], rest}
+  defp base([], [], [first | rest], _prefix?, _scope, _score?) do
+    {"SELECT id, 0.0 AS score FROM torrents WHERE instr(#{folded("name", first)}, ?) > 0",
+     [first], [], rest}
   end
 
   # bm25's weights must be literals: 10x for name, 1x for description. The
   # table is named in full because MATCH does not accept an alias.
-  defp fts(table) do
+  defp fts(table, true) do
     "SELECT rowid AS id, bm25(#{table}, 10.0, 1.0) AS score FROM #{table} WHERE #{table} MATCH ?"
+  end
+
+  defp fts(table, false) do
+    "SELECT rowid AS id, 0.0 AS score FROM #{table} WHERE #{table} MATCH ?"
   end
 
   # Every token is quoted. FTS5 parses MATCH as a query language, so bare
@@ -268,7 +350,8 @@ defmodule Magnetissimo.Torrents.Search do
 
   # Everything the driver cannot say: quoted text, patterns, alternatives and
   # exclusions. Plain words need nothing here, since the driver or a source
-  # hit already answered for them.
+  # hit already answered for them. One condition on `torrents t`, or `TRUE`
+  # when there is nothing to hold the candidates to.
   defp strict(%Query{clauses: clauses, excludes: excludes}, scope) do
     required =
       for clause <- clauses, not match?([{:words, _}], clause) do
@@ -278,12 +361,8 @@ defmodule Magnetissimo.Torrents.Search do
     excluded = for atom <- excludes, do: negate(excluded_condition(atom, scope))
 
     case required ++ excluded do
-      [] ->
-        {"", []}
-
-      conditions ->
-        {sql, params} = all(conditions)
-        {"JOIN torrents t ON t.id = u.id\nWHERE #{sql}", params}
+      [] -> {"TRUE", []}
+      conditions -> all(conditions)
     end
   end
 
@@ -379,17 +458,24 @@ defmodule Magnetissimo.Torrents.Search do
     text_condition(&"instr(#{&1}, ?) > 0", String.downcase(token), scope)
   end
 
+  # SQLite's lower() folds only ASCII letters, so for text without one it
+  # changes nothing the text could match. Skipped, it no longer copies every
+  # name a scan reads: a short CJK search reads every torrent.
+  defp folded(column, text), do: if(ascii_letter?(text), do: "lower(#{column})", else: column)
+
+  defp ascii_letter?(text), do: String.match?(text, ~r/[a-zA-Z]/)
+
   # `condition` turns a lowercased column into SQL with one parameter, which
   # is `param`. With descriptions in scope, either column may match.
   defp text_condition(condition, param, scope) do
     columns =
       case scope do
-        :all -> ["lower(t.name)", "lower(coalesce(t.description, ''))"]
-        :name -> ["lower(t.name)"]
+        :all -> ["t.name", "coalesce(t.description, '')"]
+        :name -> ["t.name"]
       end
 
     columns
-    |> Enum.map(&{condition.(&1), [param]})
+    |> Enum.map(&{condition.(folded(&1, param)), [param]})
     |> any()
   end
 
