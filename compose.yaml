@@ -1,0 +1,26 @@
+# Magnetissimo with Docker Compose.
+#
+#   docker compose up -d
+#
+# Then open http://<this machine>:4000. Nothing has to be configured: the
+# database and a generated secret are kept in the `magnetissimo-data` volume,
+# and migrations run on every start.
+services:
+  magnetissimo:
+    image: ghcr.io/sergiotapia/magnetissimo:latest
+    # Builds from this checkout when the image can't be pulled. Delete this
+    # line if you copied the file somewhere without the source next to it.
+    build: .
+    container_name: magnetissimo
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    volumes:
+      - magnetissimo-data:/data
+    # Everything here is optional. See the README for what each one does.
+    # environment:
+    #   PHX_HOST: magnetissimo.example.com
+    #   SECRET_KEY_BASE: ...
+
+volumes:
+  magnetissimo-data:

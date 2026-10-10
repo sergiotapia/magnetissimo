@@ -39,3 +39,6 @@ npm-debug.log
 *.db
 *.db-*
 
+
+# Data folder when compose.yaml mounts ./data instead of a volume
+/data/
