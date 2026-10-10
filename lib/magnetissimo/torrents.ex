@@ -140,7 +140,7 @@ defmodule Magnetissimo.Torrents do
   `:rejected` with their errors, for the caller to log.
 
   With `search_term: term`, the batch is also recorded as what a source
-  returned for `term` (see `record_search_hits/2`), in the same transaction:
+  returned for `term` (see `record_search_hits/3`), in the same transaction:
   a search given up on halfway can never leave the torrents indexed but not
   findable by the term that found them.
 
@@ -164,7 +164,11 @@ defmodule Magnetissimo.Torrents do
     {:ok, {ids, inserted}} =
       Repo.transact(fn ->
         {ids, inserted} = upsert(rows)
-        if term = opts[:search_term], do: insert_search_hits(term, ids)
+
+        if term = opts[:search_term] do
+          insert_search_hits(term, Enum.zip(Enum.map(rows, & &1.source_id), ids))
+        end
+
         {:ok, {ids, inserted}}
       end)
 
@@ -334,22 +338,44 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
+  Returns `%{source_name => count}`: how many of the torrents each source
+  returned for `term` are filed under `category_id` or one of its children.
+
+  A source that returned none in the category is left out. This is what lets
+  the page say how much of a source's answer a category filter is hiding.
+  """
+  def count_search_hits_by_source(term, category_id) do
+    Repo.all(
+      from h in SearchHit,
+        join: t in assoc(h, :torrent),
+        join: s in assoc(h, :source),
+        where: h.term == ^Search.normalize(term),
+        where: t.category_id in ^Taxonomy.family_ids(category_id),
+        group_by: s.name,
+        select: {s.name, count(h.torrent_id, :distinct)}
+    )
+    |> Map.new()
+  end
+
+  @doc """
   Records that a source returned `torrent_ids` when asked for `term`, so the
   search finds them by that term from now on. Already recorded pairs are kept
   as they are.
   """
-  def record_search_hits(term, torrent_ids) do
-    insert_search_hits(term, torrent_ids)
+  def record_search_hits(term, source_id, torrent_ids) do
+    insert_search_hits(term, Enum.map(torrent_ids, &{source_id, &1}))
   end
 
   defp insert_search_hits(_term, []), do: :ok
 
-  defp insert_search_hits(term, torrent_ids) do
+  defp insert_search_hits(term, hits) do
     term = Search.normalize(term)
     now = DateTime.utc_now()
 
-    torrent_ids
-    |> Enum.map(&%{term: term, torrent_id: &1, inserted_at: now})
+    hits
+    |> Enum.map(fn {source_id, torrent_id} ->
+      %{term: term, source_id: source_id, torrent_id: torrent_id, inserted_at: now}
+    end)
     |> Enum.chunk_every(5_000)
     |> Enum.each(fn rows ->
       {_count, _} = Repo.insert_all(SearchHit, rows, on_conflict: :nothing)

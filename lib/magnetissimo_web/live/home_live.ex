@@ -149,10 +149,24 @@ defmodule MagnetissimoWeb.HomeLive do
     |> assign(:page, page)
     |> assign(:pages, pages)
     |> assign(:count, count)
+    |> assign_filtered_away(q, category, count)
     |> assign(:form, to_form(%{"q" => q}))
     |> assign(:now, DateTime.utc_now())
     |> assign(:shown_ids, MapSet.new(torrents, & &1.id))
     |> stream(:torrents, torrents, reset: true)
+  end
+
+  # With a category filter on, the sources still answer for every category,
+  # so the page says how much of each answer the filter is hiding: per source
+  # in its chip, and in total next to the match count.
+  defp assign_filtered_away(socket, q, category, count) when q != "" and not is_nil(category) do
+    socket
+    |> assign(:in_filter, Torrents.count_search_hits_by_source(q, category.id))
+    |> assign(:outside, Torrents.count_search_torrents(q) - count)
+  end
+
+  defp assign_filtered_away(socket, _q, _category, _count) do
+    assign(socket, in_filter: nil, outside: 0)
   end
 
   # A source added to the index: reload the page and mark the rows that were
@@ -223,6 +237,15 @@ defmodule MagnetissimoWeb.HomeLive do
   defp status_name(:searching), do: "searching"
   defp status_name({:done, _}), do: "done"
   defp status_name({:failed, _}), do: "failed"
+
+  # With a category filter on, a source's answer is told as what of it the
+  # filter shows, so "50 found" never sits above an empty list unexplained.
+  defp source_label({:done, %{found: found}}, name, category, in_filter)
+       when found > 0 and is_map(in_filter) do
+    "#{found} found · #{Map.get(in_filter, name, 0)} in #{category.name}"
+  end
+
+  defp source_label(status, _name, _category, _in_filter), do: status_label(status)
 
   defp status_label(:searching), do: "asking…"
   defp status_label({:done, %{found: 0}}), do: "nothing"
@@ -422,6 +445,16 @@ defmodule MagnetissimoWeb.HomeLive do
                   {if @count == 1, do: "match", else: "matches"} for
                   <span class="font-bold text-ink-900">“{@q}”</span>
                   <span :if={@category}>in {@category.name}</span>
+                  <span :if={@outside > 0} id="filtered-away">
+                    · {@outside} more outside it,
+                    <.link
+                      patch={index_path(@q, nil)}
+                      id="show-all"
+                      class="font-semibold text-azure-600 underline decoration-azure-200 underline-offset-2 transition hover:decoration-azure-500"
+                    >
+                      show all
+                    </.link>
+                  </span>
                 <% else %>
                   Type to search, or pick a category.
                 <% end %>
@@ -451,7 +484,12 @@ defmodule MagnetissimoWeb.HomeLive do
                     match?({:failed, _}, status) && "bg-bubble"
                   ]}></span>
                   <span class="text-ink-900">{name}</span>
-                  <span class="font-mono text-[0.7rem] tabular-nums">{status_label(status)}</span>
+                  <span class="font-mono text-[0.7rem] tabular-nums">{source_label(
+                    status,
+                    name,
+                    @category,
+                    @in_filter
+                  )}</span>
                 </li>
               </ul>
             </div>

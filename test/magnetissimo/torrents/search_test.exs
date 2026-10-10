@@ -117,7 +117,7 @@ defmodule Magnetissimo.Torrents.SearchTest do
 
     assert names("spiderverse") == []
 
-    :ok = Torrents.record_search_hits("SpiderVerse ", [hit.id])
+    :ok = Torrents.record_search_hits("SpiderVerse ", hit.source_id, [hit.id])
 
     assert names("spiderverse") == ["Spider-Man: Across the Spider-Verse (2023)"]
     assert Torrents.count_search_torrents("spiderverse") == 1
@@ -127,7 +127,7 @@ defmodule Magnetissimo.Torrents.SearchTest do
     text = fixture("Heat (1995)", %{seeders: 1})
     hit_only = fixture("Michael Mann Collection", %{seeders: 10_000})
 
-    :ok = Torrents.record_search_hits("heat", [text.id, hit_only.id])
+    :ok = Torrents.record_search_hits("heat", text.source_id, [text.id, hit_only.id])
 
     # A source hit with no text match ranks last, however well seeded.
     fixture("Heat Wave", %{seeders: 1})
@@ -158,5 +158,27 @@ defmodule Magnetissimo.Torrents.SearchTest do
     uhd = [category_id: Taxonomy.id!("Movies/UHD")]
     assert names("delta", uhd) == ["Delta Film UHD"]
     assert Enum.map(Torrents.list_latest_torrents(uhd), & &1.name) == ["Delta Film UHD"]
+  end
+
+  test "each source's hits for a term can be counted within a category" do
+    yts = Torrents.get_source_by_name!("YTS").id
+    nyaa = Torrents.get_source_by_name!("Nyaa.si").id
+
+    film = fixture("Omega Film", %{category: "Movies/HD"})
+    game = fixture("Omega Game", %{category: "PC/Games"})
+    show = fixture("Omega Show", %{category: "TV/Anime"})
+
+    :ok = Torrents.record_search_hits("omega", yts, [film.id, game.id])
+    # Two sources can return the same torrent; each counts it once.
+    :ok = Torrents.record_search_hits("omega", nyaa, [film.id, show.id])
+
+    assert Torrents.count_search_hits_by_source("Omega", Taxonomy.id!("Movies")) ==
+             %{"YTS" => 1, "Nyaa.si" => 1}
+
+    assert Torrents.count_search_hits_by_source("omega", Taxonomy.id!("PC/Games")) == %{
+             "YTS" => 1
+           }
+
+    assert Torrents.count_search_hits_by_source("omega", Taxonomy.id!("XXX")) == %{}
   end
 end

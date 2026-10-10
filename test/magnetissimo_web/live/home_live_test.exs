@@ -69,6 +69,25 @@ defmodule MagnetissimoWeb.HomeLiveTest do
     assert has_element?(view, "#torrents", "Fixture Movie (2024)")
   end
 
+  test "with a category filter on, each answer says how much of it the filter shows",
+       %{conn: conn} do
+    :ok = SourceSearch.subscribe("Fixture Movie")
+
+    # YTS files the fixture's two variants under Movies/HD.
+    {:ok, view, _html} = live(conn, ~p"/?#{[q: "Fixture Movie", category: 5000]}")
+    await_sources(view)
+
+    assert has_element?(view, "#source-status-yts", "2 found · 0 in TV")
+    assert has_element?(view, "#filtered-away", "2 more outside it")
+    refute has_element?(view, "#torrents li[id^=torrents-]:not(#torrents-empty)")
+
+    view |> element("#show-all") |> render_click()
+    assert_patch(view, ~p"/?#{[q: "Fixture Movie"]}")
+    assert has_element?(view, "#torrents", "Fixture Movie (2024)")
+    assert has_element?(view, "#source-status-yts", "2 found · 2 new")
+    refute has_element?(view, "#filtered-away")
+  end
+
   test "a source that is down is shown as such, and the others still answer", %{conn: conn} do
     Req.Test.stub(TorrentDownloads, &Plug.Conn.send_resp(&1, 503, "unavailable"))
     :ok = SourceSearch.subscribe("Fixture Movie")
