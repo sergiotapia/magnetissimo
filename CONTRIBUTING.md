@@ -10,8 +10,9 @@ this one is Phoenix 1.8 / LiveView 1.2 / SQLite.
 
 Built so far:
 
-- The data layer: `sources`, `categories`, `category_aliases`, `torrents`, and
-  the `torrents_search` FTS5 index, with the seed taxonomy.
+- The data layer: `sources`, `torrents`, `search_hits`, and the
+  `torrents_search` (trigram) and `torrents_words` FTS5 indexes. Categories
+  are the Torznab standard, in code: `Magnetissimo.Taxonomy`.
 - `Magnetissimo.Torrents`, the context over them.
 - Phoenix 1.8 on Bandit, plain Tailwind.
 - The UI: `HomeLive` (search, category filter, per-source status, latest
@@ -113,20 +114,25 @@ Read it before writing UI or Ecto code.
 - **`magnet_url` holds the complete magnet URI**, scheme included. The old
   column stored `?xt=urn:btih:…` with `magnet:` re-added at render time, so the
   column name lied about its contents.
-- **A source's category wording goes in `category_aliases`.** When a site names
-  a category we don't know, add an alias row pointing at a canonical category
-  rather than adding a category. Aliases beat names and only child categories
-  are assignable, so `"Anime"` resolves to `Anime - English-translated` and
-  `"Video"` (a parent) falls back to `Other`. The taxonomy lives in
-  `Magnetissimo.Seeds` — it is knowledge the crawlers need at runtime, not
-  fixture data.
+- **Categories are the Torznab standard, and each crawler maps its own.**
+  `Magnetissimo.Taxonomy` is the Newznab/Torznab list Sonarr and Radarr speak;
+  `category_id` is a Torznab number. Never add a category of our own. Each
+  crawler declares a `Magnetissimo.Crawlers.Categories.mapping!/3` from the
+  site's most stable key (an id where the feed has one, not a display name) to
+  a Torznab name, with a fallback. For a new source, start from the
+  `categorymappings` in its Prowlarr indexer definition and refine where the
+  site says more. An adult source falls back to `XXX`. List every category the
+  site publishes in `test/magnetissimo/crawlers/categories_test.exs`; an
+  unmapped one is logged at runtime.
 - **HTTP goes through `Req`**, and `.reach.exs` enforces it. The old crawlers
   used `%{status_code: 200} = HTTPoison.get!(url)`, which turned a site hiccup
   into a supervisor crash loop. A non-200 is data; handle it.
-- **Search never scrapes.** The old `search_torrents/1` ran four scrapers on
-  every 300 ms-debounced keystroke and then discarded the results before
-  querying the database. Fetching belongs in background jobs; search reads the
-  index.
+- **Search reads the index, and asks the sources beside it.** The old
+  `search_torrents/1` ran four scrapers inline on every keystroke and threw the
+  results away. `Torrents.search_torrents/2` only ever reads the index;
+  `Magnetissimo.SourceSearch` asks every source's own search in parallel,
+  shares one search per term, caches answered terms, indexes the hits and
+  broadcasts each answer so the page can slide them in.
 - **Background work is jobs, not timers.** The old app ran one GenServer per
   source on a 5-minute `Process.send_after`, with no visibility and no backoff.
   Use Oban when the crawlers land.
