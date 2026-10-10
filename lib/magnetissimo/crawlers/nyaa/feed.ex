@@ -32,8 +32,6 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
     "udp://tracker.torrent.eu.org:451/announce"
   ]
 
-  @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
-
   @units %{
     "Bytes" => 1,
     "B" => 1,
@@ -89,7 +87,7 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
          hash when is_binary(hash) <- Rss.field(item, "nyaa:infoHash"),
          canonical_url when is_binary(canonical_url) <- guid(item),
          size when is_integer(size) <- size_to_bytes(Rss.field(item, "nyaa:size")),
-         %DateTime{} = published_at <- published_at(Rss.field(item, "pubDate")) do
+         %DateTime{} = published_at <- Rss.published_at(Rss.field(item, "pubDate")) do
       name = Rss.unescape(name)
       hash = String.downcase(hash)
 
@@ -126,30 +124,6 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
       round(number * multiplier)
     else
       _ -> nil
-    end
-  end
-
-  # Fri, 09 Oct 2026 23:24:24 -0000. The feed is always UTC, and only this
-  # fixed shape needs to parse, so the standard date parsers (which do not
-  # cover RFC 1123) are not pulled in for it.
-  defp published_at(nil), do: nil
-
-  defp published_at(raw) do
-    with [_, day, month, year, hour, minute, second] <-
-           Regex.run(~r/(\d{1,2}) (\w{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2})/, raw),
-         {:ok, date} <- Date.new(Rss.to_integer(year), month_number(month), Rss.to_integer(day)),
-         {:ok, time} <-
-           Time.new(Rss.to_integer(hour), Rss.to_integer(minute), Rss.to_integer(second)) do
-      DateTime.new!(date, time, "Etc/UTC")
-    else
-      _ -> nil
-    end
-  end
-
-  defp month_number(month) do
-    case Enum.find_index(@months, &(&1 == month)) do
-      nil -> 0
-      index -> index + 1
     end
   end
 

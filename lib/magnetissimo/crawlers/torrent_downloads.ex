@@ -31,8 +31,6 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   @source_name "TorrentDownloads"
   @user_agent "Magnetissimo/0.1"
 
-  @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
-
   # The feed names a category but gives no id, so the names are the keys.
   # These are Prowlarr's `torrentdownloads` mappings: the site's categories
   # are broad, and say nothing finer to map onto.
@@ -164,7 +162,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     with title when is_binary(title) <- Rss.field(item, "title"),
          path when is_binary(path) <- Rss.field(item, "link"),
          hash when is_binary(hash) <- Rss.field(item, "info_hash"),
-         %DateTime{} = published_at <- published_at(Rss.field(item, "pubDate")) do
+         %DateTime{} = published_at <- Rss.published_at(Rss.field(item, "pubDate")) do
       hash = String.downcase(hash)
       name = Rss.unescape(title)
 
@@ -202,41 +200,6 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     case Regex.run(~r/<category><!\[CDATA\[(.*?)\]\]><\/category>/, item, capture: :all_but_first) do
       [value] when value != "" -> value
       _none -> narrowed_to
-    end
-  end
-
-  # Sat, 10 Oct 2026 01:40:07 +0200. The feed stamps each item in the origin's
-  # local time, unlike Nyaa's UTC feed, so the offset is applied and the result
-  # stored as UTC, which is what the rest of the app compares against. Only
-  # this fixed shape needs to parse, so no date library is pulled in for it.
-  defp published_at(nil), do: nil
-
-  defp published_at(raw) do
-    with [_, day, month, year, hour, minute, second, sign, offset_hour, offset_minute] <-
-           Regex.run(
-             ~r/(\d{1,2}) (\w{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2}) ([+-])(\d{2})(\d{2})/,
-             raw
-           ),
-         {:ok, date} <- Date.new(Rss.to_integer(year), month_number(month), Rss.to_integer(day)),
-         {:ok, time} <-
-           Time.new(Rss.to_integer(hour), Rss.to_integer(minute), Rss.to_integer(second)) do
-      date
-      |> DateTime.new!(time, "Etc/UTC")
-      |> DateTime.add(-offset_seconds(sign, offset_hour, offset_minute), :second)
-    else
-      _ -> nil
-    end
-  end
-
-  defp offset_seconds(sign, hour, minute) do
-    sign = if sign == "-", do: -1, else: 1
-    sign * (Rss.to_integer(hour) * 3600 + Rss.to_integer(minute) * 60)
-  end
-
-  defp month_number(month) do
-    case Enum.find_index(@months, &(&1 == month)) do
-      nil -> 0
-      index -> index + 1
     end
   end
 end

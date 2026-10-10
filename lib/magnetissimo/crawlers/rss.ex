@@ -5,7 +5,7 @@ defmodule Magnetissimo.Crawlers.Rss do
   Nyaa and TorrentDownloads both publish a feed of `<item>` entries and both
   file one torrent per entry, so pulling the items out, reading a plain field
   and parsing an integer are the same on both. What differs per site — field
-  names, size and date formats, magnet construction — stays in that site's own
+  names, size formats, magnet construction — stays in that site's own
   module, which passes only its item-to-attrs function in here.
 
   The fields are read with fixed patterns rather than an XML parser, because
@@ -43,6 +43,49 @@ defmodule Magnetissimo.Crawlers.Rss do
     case Integer.parse(value) do
       {int, _rest} -> int
       :error -> 0
+    end
+  end
+
+  @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
+
+  @doc """
+  Parses a feed's RFC 1123 date, `Sat, 10 Oct 2026 01:40:07 +0200`, into UTC.
+
+  Not every feed stamps its items in UTC, so the offset is applied and the
+  result stored as UTC, which is what the rest of the app compares against.
+  Only this fixed shape needs to parse, so no date library is pulled in for
+  it. Returns `nil` for anything else.
+  """
+  @spec published_at(String.t() | nil) :: DateTime.t() | nil
+  def published_at(nil), do: nil
+
+  def published_at(raw) do
+    with [_, day, month, year, hour, minute, second, sign, offset_hour, offset_minute] <-
+           Regex.run(
+             ~r/(\d{1,2}) (\w{3}) (\d{4}) (\d{2}):(\d{2}):(\d{2}) ([+-])(\d{2})(\d{2})/,
+             raw
+           ),
+         {:ok, date} <- Date.new(to_integer(year), month_number(month), to_integer(day)),
+         {:ok, time} <- Time.new(to_integer(hour), to_integer(minute), to_integer(second)) do
+      date
+      |> DateTime.new!(time, "Etc/UTC")
+      |> DateTime.add(-offset_seconds(sign, offset_hour, offset_minute), :second)
+    else
+      _ -> nil
+    end
+  end
+
+  defp offset_seconds(sign, hour, minute) do
+    sign = if sign == "-", do: -1, else: 1
+    sign * (to_integer(hour) * 3600 + to_integer(minute) * 60)
+  end
+
+  @doc "The number of an English month abbreviation (`\"Oct\"` is 10), `0` if unknown."
+  @spec month_number(String.t()) :: non_neg_integer()
+  def month_number(month) do
+    case Enum.find_index(@months, &(&1 == month)) do
+      nil -> 0
+      index -> index + 1
     end
   end
 
