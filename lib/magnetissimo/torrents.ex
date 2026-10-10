@@ -37,6 +37,19 @@ defmodule Magnetissimo.Torrents do
     Repo.get_by!(Source, name: name)
   end
 
+  @doc "Records that the source named `name` was crawled at `at`."
+  def mark_source_crawled(name, at \\ DateTime.utc_now()) do
+    {_count, _} =
+      Repo.update_all(from(s in Source, where: s.name == ^name), set: [last_crawled_at: at])
+
+    :ok
+  end
+
+  @doc "Returns when any source was last crawled, or nil if none has been."
+  def last_crawled_at do
+    Repo.one(from s in Source, select: max(s.last_crawled_at))
+  end
+
   ## Categories
 
   @doc """
@@ -100,11 +113,6 @@ defmodule Magnetissimo.Torrents do
       {:ok, category_id} -> where(query, [t], t.category_id in ^Taxonomy.family_ids(category_id))
       :error -> query
     end
-  end
-
-  @doc "Returns when the newest torrent was published, or `nil` for an empty index."
-  def latest_published_at do
-    Repo.one(from t in Torrent, select: max(t.published_at))
   end
 
   @doc """

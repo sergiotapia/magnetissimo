@@ -42,6 +42,18 @@ defmodule Magnetissimo.Crawlers.YtsTest do
     assert second.magnet_hash == String.downcase(YtsFixtures.hash_720p())
   end
 
+  test "a crawl the site answers is recorded as the last crawl, even with nothing new" do
+    stub_api()
+    assert Torrents.last_crawled_at() == nil
+
+    assert :ok = Crawlers.crawl_latest(Yts)
+    first = Torrents.last_crawled_at()
+    assert %DateTime{} = first
+
+    assert :ok = Crawlers.crawl_latest(Yts)
+    assert DateTime.compare(Torrents.last_crawled_at(), first) == :gt
+  end
+
   test "crawling the same page again adds nothing" do
     stub_api()
 
@@ -77,6 +89,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
 
     assert log =~ "crawl failed"
     assert Torrents.count_torrents() == 0
+    assert Torrents.last_crawled_at() == nil
   end
 
   test "search indexes the API's hits and makes them findable by the term" do

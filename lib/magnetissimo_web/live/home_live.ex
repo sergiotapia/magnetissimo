@@ -244,7 +244,7 @@ defmodule MagnetissimoWeb.HomeLive do
     |> assign(:tree, category_tree(counts))
     |> assign(:source_counts, Torrents.count_torrents_by_source())
     |> assign(:total, Torrents.count_torrents())
-    |> assign(:latest_at, Torrents.latest_published_at())
+    |> assign(:last_crawled_at, Torrents.last_crawled_at())
   end
 
   defp index_path(q, category, sort, page \\ 1) do
@@ -396,7 +396,9 @@ defmodule MagnetissimoWeb.HomeLive do
                 <div class="spec-row">
                   <dt class="text-ink-500">Last crawl</dt>
                   <span class="leader"></span>
-                  <dd class="font-bold text-ink-900">{ago(@latest_at, @now)}</dd>
+                  <dd id="last-crawl" class="font-bold text-ink-900">
+                    {ago(@last_crawled_at, @now)}
+                  </dd>
                 </div>
                 <div class="spec-row">
                   <dt class="text-ink-500">Sources</dt>

@@ -22,7 +22,13 @@ defmodule Magnetissimo.Crawlers do
   @spec all() :: [module()]
   def all, do: @crawlers
 
-  @doc "Fetches the newest torrents from `crawler`'s site and indexes them."
+  @doc """
+  Fetches the newest torrents from `crawler`'s site and indexes them.
+
+  A crawl the site answered is recorded as the source's last crawl, even when
+  it brought nothing new. A failed one is not, so a source that keeps failing
+  shows its last crawl getting older.
+  """
   @spec crawl_latest(module()) :: :ok
   def crawl_latest(crawler) do
     source = crawler.source_name()
@@ -30,6 +36,7 @@ defmodule Magnetissimo.Crawlers do
     case crawler.latest() do
       {:ok, attrs} ->
         %{inserted: inserted, ids: ids} = index(source, attrs)
+        :ok = Torrents.mark_source_crawled(source)
 
         Logger.info(
           "[#{source}] indexed #{inserted} new torrents, refreshed #{length(ids) - inserted}"
