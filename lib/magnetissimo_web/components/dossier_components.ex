@@ -43,8 +43,12 @@ defmodule MagnetissimoWeb.DossierComponents do
 
   @doc """
   A category as a small pill. Links when `patch` is given.
+
+  Shows the full Torznab name (`"Movies/UHD"`), or with `short` only the part
+  after the parent (`"UHD"`), for where the parent is already on screen.
   """
-  attr :name, :string, required: true
+  attr :category, Magnetissimo.Taxonomy.Category, required: true
+  attr :short, :boolean, default: false
   attr :patch, :string, default: nil
   attr :active, :boolean, default: false
   attr :count, :integer, default: nil
@@ -59,7 +63,7 @@ defmodule MagnetissimoWeb.DossierComponents do
       aria-current={@active && "true"}
       {@rest}
     >
-      {short_category(@name)}
+      {if @short, do: @category.label, else: @category.name}
       <span
         :if={@count}
         class={[
@@ -70,8 +74,8 @@ defmodule MagnetissimoWeb.DossierComponents do
         {@count}
       </span>
     </.link>
-    <span :if={!@patch} class={chip_classes(@active)} {@rest}>
-      {short_category(@name)}
+    <span :if={!@patch} class={chip_classes(@active)} title={@category.name} {@rest}>
+      {if @short, do: @category.label, else: @category.name}
     </span>
     """
   end
@@ -82,17 +86,6 @@ defmodule MagnetissimoWeb.DossierComponents do
 
   defp chip_classes(_inactive) do
     "pill inline-flex items-center whitespace-nowrap px-3 py-1 text-xs font-semibold leading-none"
-  end
-
-  @doc """
-  The part of a child category name after the parent: `"Video - Movies"`
-  becomes `"Movies"`. Parents and "Other" come back unchanged.
-  """
-  def short_category(name) do
-    case String.split(name, " - ", parts: 2) do
-      [_parent, child] -> child
-      [name] -> name
-    end
   end
 
   @doc """

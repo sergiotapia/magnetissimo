@@ -3,21 +3,23 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   The crawler Nyaa.si and Sukebei share.
 
   Both sites run the same software and publish the same RSS shape, so only
-  three things differ: the feed URL, the site's own tracker and the source row
-  a torrent is filed under. Those are passed in as a keyword list; the two
-  callers are `Magnetissimo.Crawlers.Nyaa` and `Magnetissimo.Crawlers.Sukebei`.
+  the feed URL, the site's own tracker, the source row and the category
+  mapping differ. Those are passed in as a keyword list; the two callers are
+  `Magnetissimo.Crawlers.Nyaa` and `Magnetissimo.Crawlers.Sukebei`.
 
   The feed is a small, machine-generated document with no real description in
   it, so only the fields the index needs are read out: title, canonical page,
-  infohash, category, size, swarm and upload time. The magnet URI is built
-  here, because the feed carries only the infohash.
+  infohash, category id, size, swarm and upload time. The category is read by
+  its id (`nyaa:categoryId`, such as `"1_2"`), not its name, because the
+  names in the feed differ from the ones on the site's own menu. The magnet
+  URI is built here, because the feed carries only the infohash.
 
   The fields are pulled from the raw item with fixed patterns rather than an
   XML parser: item titles carry arbitrary UTF-8, and xmerl rejects that input.
   """
 
+  alias Magnetissimo.Crawlers.Categories
   alias Magnetissimo.Crawlers.Rss
-  alias Magnetissimo.Torrents
 
   @user_agent "Magnetissimo/0.1"
 
@@ -44,7 +46,7 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
   @doc """
   Fetches the newest items on the site in `site`.
 
-  `site` needs `:source` (the `sources.name` row), `:rss_url` and `:tracker`.
+  `site` is the keyword list `Magnetissimo.Crawlers.Nyaa.Site` builds.
   """
   @spec latest(keyword()) :: {:ok, [map()]} | {:error, term()}
   def latest(site), do: fetch_attrs(site[:rss_url], site)
@@ -86,7 +88,6 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
     with name when is_binary(name) <- Rss.field(item, "title"),
          hash when is_binary(hash) <- Rss.field(item, "nyaa:infoHash"),
          canonical_url when is_binary(canonical_url) <- guid(item),
-         category when is_binary(category) <- Rss.field(item, "nyaa:category"),
          size when is_integer(size) <- size_to_bytes(Rss.field(item, "nyaa:size")),
          %DateTime{} = published_at <- published_at(Rss.field(item, "pubDate")) do
       name = Rss.unescape(name)
@@ -101,7 +102,7 @@ defmodule Magnetissimo.Crawlers.Nyaa.Feed do
         size_in_bytes: size,
         magnet_hash: hash,
         magnet_url: magnet_url(site[:tracker], hash, name),
-        category_id: Torrents.get_category_by_name_or_alias!(category).id,
+        category_id: Categories.resolve(site[:categories], Rss.field(item, "nyaa:categoryId")),
         source_id: source_id
       }
     else

@@ -6,6 +6,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
 
   alias Magnetissimo.Crawlers
   alias Magnetissimo.Crawlers.Yts
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
   alias Magnetissimo.TorrentsFixtures
   alias Magnetissimo.YtsFixtures
@@ -23,7 +24,7 @@ defmodule Magnetissimo.Crawlers.YtsTest do
     assert [first, second] = Torrents.list_latest_torrents()
 
     assert first.name == "Fixture Movie (2024)"
-    assert first.category.name == "Video - Movies"
+    assert Taxonomy.fetch!(first.category_id).name == "Movies/HD"
     assert first.source.name == "YTS"
     assert first.magnet_hash == String.downcase(YtsFixtures.hash_1080p())
     assert first.seeders == 25
@@ -111,20 +112,20 @@ defmodule Magnetissimo.Crawlers.YtsTest do
   end
 
   test "a torrent filed under Other takes the category a later source knows" do
-    other = Torrents.get_category_by_name_or_alias!("Other")
+    other = Taxonomy.other_id()
     stub_api()
     {:ok, [attrs | _]} = Yts.latest()
 
     # As TorrentDownloads' search would file it, with no category to go on.
-    %{ids: [id]} = Torrents.index_torrents([%{attrs | category_id: other.id}])
-    assert Torrents.get_torrent!(id).category.name == "Other"
+    %{ids: [id]} = Torrents.index_torrents([%{attrs | category_id: other}])
+    assert Torrents.get_torrent!(id).category_id == other
 
     %{ids: [^id]} = Torrents.index_torrents([attrs])
-    assert Torrents.get_torrent!(id).category.name == "Video - Movies"
+    assert Torrents.get_torrent!(id).category_id == Taxonomy.id!("Movies/HD")
 
     # A real category is never overwritten, by Other or by anything else.
-    %{ids: [^id]} = Torrents.index_torrents([%{attrs | category_id: other.id}])
-    assert Torrents.get_torrent!(id).category.name == "Video - Movies"
+    %{ids: [^id]} = Torrents.index_torrents([%{attrs | category_id: other}])
+    assert Torrents.get_torrent!(id).category_id == Taxonomy.id!("Movies/HD")
   end
 
   test "a search that fails says why" do

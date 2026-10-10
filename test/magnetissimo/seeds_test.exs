@@ -4,6 +4,7 @@ defmodule Magnetissimo.SeedsTest do
   # the same time however long the busy timeout is.
   use Magnetissimo.DataCase, async: false
 
+  alias Magnetissimo.Crawlers
   alias Magnetissimo.Seeds
   alias Magnetissimo.Torrents
 
@@ -19,27 +20,11 @@ defmodule Magnetissimo.SeedsTest do
     assert Torrents.get_source_by_name!("YTS").url != "https://yts.mx/"
   end
 
-  test "running twice leaves one row per source" do
+  test "there is one source row per crawler, however often it runs" do
     Seeds.run()
     Seeds.run()
 
     assert Torrents.list_sources() |> Enum.map(& &1.name) |> Enum.sort() ==
-             ["1337x", "Nyaa.si", "Sukebei", "TorrentDownloads", "YTS"]
-  end
-
-  test "every category Sukebei files under resolves to a real category" do
-    Seeds.run()
-
-    for {site, ours} <- [
-          {"Art - Anime", "Anime - Raw"},
-          {"Art - Doujinshi", "Books - Raw"},
-          {"Art - Manga", "Books - Raw"},
-          {"Art - Games", "Software - Games"},
-          {"Art - Pictures", "Images - Graphics"},
-          {"Real Life - Photobooks / Pictures", "Images - Photos"},
-          {"Real Life - Videos", "Video - XXX"}
-        ] do
-      assert Torrents.get_category_by_name_or_alias!(site).name == ours
-    end
+             Crawlers.all() |> Enum.map(& &1.source_name()) |> Enum.sort()
   end
 end

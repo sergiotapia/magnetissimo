@@ -2,6 +2,7 @@ defmodule Magnetissimo.Torrents.SearchTest do
   # Not async: every test here writes, and SQLite takes one writer at a time.
   use Magnetissimo.DataCase, async: false
 
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
   alias Magnetissimo.Torrents.Search
   alias Magnetissimo.TorrentsFixtures
@@ -135,14 +136,27 @@ defmodule Magnetissimo.Torrents.SearchTest do
   end
 
   test "the category filter and paging run in SQL, so every page is full" do
-    for n <- 1..6, do: fixture("Gamma Show #{n}", %{category: "Anime - Raw", seeders: n})
+    for n <- 1..6, do: fixture("Gamma Show #{n}", %{category: "TV/Anime", seeders: n})
     for n <- 1..6, do: fixture("Gamma Movie #{n}", %{seeders: 100 + n})
 
-    category = Torrents.get_category_by_name_or_alias!("Anime - Raw")
-    opts = [category_id: category.id]
+    opts = [category_id: Taxonomy.id!("TV/Anime")]
 
     assert Torrents.count_search_torrents("gamma", opts) == 6
     assert names("gamma", [{:limit, 4} | opts]) == Enum.map(6..3//-1, &"Gamma Show #{&1}")
     assert names("gamma", opts ++ [limit: 4, offset: 4]) == ["Gamma Show 2", "Gamma Show 1"]
+  end
+
+  test "filtering by a top-level category includes its children" do
+    fixture("Delta Film", %{category: "Movies"})
+    fixture("Delta Film UHD", %{category: "Movies/UHD"})
+    fixture("Delta Show", %{category: "TV"})
+
+    movies = [category_id: Taxonomy.id!("Movies")]
+    assert Enum.sort(names("delta", movies)) == ["Delta Film", "Delta Film UHD"]
+    assert Torrents.count_search_torrents("delta", movies) == 2
+
+    uhd = [category_id: Taxonomy.id!("Movies/UHD")]
+    assert names("delta", uhd) == ["Delta Film UHD"]
+    assert Enum.map(Torrents.list_latest_torrents(uhd), & &1.name) == ["Delta Film UHD"]
   end
 end

@@ -1,7 +1,7 @@
 defmodule Magnetissimo.Torrents do
   @moduledoc """
-  The torrents context: the sites we crawl, the canonical category tree, and the
-  indexed torrents.
+  The torrents context: the sites we crawl and the indexed torrents. The
+  categories they are filed under are `Magnetissimo.Taxonomy`.
 
   Searching goes through `search_torrents/2`, which queries the two FTS5
   indexes. Read `Magnetissimo.Torrents.Search` before writing anything else
@@ -11,7 +11,7 @@ defmodule Magnetissimo.Torrents do
   import Ecto.Query, warn: false
 
   alias Magnetissimo.Repo
-  alias Magnetissimo.Torrents.Category
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents.Search
   alias Magnetissimo.Torrents.SearchHit
   alias Magnetissimo.Torrents.Source
@@ -39,40 +39,11 @@ defmodule Magnetissimo.Torrents do
 
   ## Categories
 
-  @doc "Returns every category, parents and children, with their aliases."
-  def list_categories do
-    Repo.all(
-      from c in Category,
-        order_by: [asc: c.name],
-        preload: [:category_aliases]
-    )
-  end
-
   @doc """
-  Returns the top-level categories with their children, both ordered by name.
-
-  "Other" has no children, so it comes back as a childless parent: it is the
-  one category a torrent can be filed under directly.
+  Returns `%{category_id => torrent_count}` for every category with torrents
+  filed directly under it. A top-level category's own count leaves out its
+  children; see `Magnetissimo.Taxonomy.family_ids/1`.
   """
-  def list_category_tree do
-    children = from(c in Category, order_by: [asc: c.name])
-
-    Repo.all(
-      from c in Category,
-        where: is_nil(c.parent_id),
-        order_by: [asc: c.name],
-        preload: [children: ^children]
-    )
-  end
-
-  @doc """
-  Gets a single category.
-
-  Raises `Ecto.NoResultsError` if the category does not exist.
-  """
-  def get_category!(id), do: Repo.get!(Category, id)
-
-  @doc "Returns `%{category_id => torrent_count}` for every category with torrents."
   def count_torrents_by_category do
     Repo.all(
       from t in Torrent,
@@ -80,40 +51,6 @@ defmodule Magnetissimo.Torrents do
         select: {t.category_id, count(t.id)}
     )
     |> Map.new()
-  end
-
-  @doc """
-  Resolves a site's own category wording to a canonical category.
-
-  Aliases win over names, then the canonical name is matched, then `"Other"`.
-  Alias-first ordering matters: `"Anime"` is both a top-level category and an
-  alias for `"Anime - English-translated"`, and the alias is the intended
-  target. Only children are matchable — parents exist to group the tree and are
-  never assigned to a torrent.
-  """
-  def get_category_by_name_or_alias!(name_or_alias) do
-    find_category_by_alias(name_or_alias) ||
-      find_category_by_name(name_or_alias) ||
-      get_fallback_category!()
-  end
-
-  defp find_category_by_alias(name) do
-    Repo.one(
-      from c in Category,
-        join: a in assoc(c, :category_aliases),
-        where: a.name == ^name
-    )
-  end
-
-  defp find_category_by_name(name) do
-    Repo.one(
-      from c in Category,
-        where: c.name == ^name and not is_nil(c.parent_id)
-    )
-  end
-
-  defp get_fallback_category! do
-    Repo.get_by!(Category, name: Category.fallback())
   end
 
   ## Torrents
@@ -128,7 +65,8 @@ defmodule Magnetissimo.Torrents do
 
     * `:limit` - how many to return, 50 by default
     * `:offset` - skip this many, 0 by default, for paging
-    * `:category_id` - only torrents filed under this category
+    * `:category_id` - only torrents filed under this category or, for a
+      top-level one, any of its children
 
   """
   def list_latest_torrents(opts \\ []) do
@@ -140,7 +78,7 @@ defmodule Magnetissimo.Torrents do
         order_by: [desc: t.published_at, desc: t.id],
         limit: ^limit,
         offset: ^offset,
-        preload: [:source, :category]
+        preload: [:source]
 
     Repo.all(by_category(query, opts))
   end
@@ -152,7 +90,7 @@ defmodule Magnetissimo.Torrents do
 
   defp by_category(query, opts) do
     case Keyword.fetch(opts, :category_id) do
-      {:ok, category_id} -> where(query, [t], t.category_id == ^category_id)
+      {:ok, category_id} -> where(query, [t], t.category_id in ^Taxonomy.family_ids(category_id))
       :error -> query
     end
   end
@@ -163,12 +101,12 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
-  Gets a single torrent with its source and category.
+  Gets a single torrent with its source.
 
   Raises `Ecto.NoResultsError` if the torrent does not exist.
   """
   def get_torrent!(id) do
-    Repo.get!(Torrent, id) |> Repo.preload([:source, :category])
+    Repo.get!(Torrent, id) |> Repo.preload(:source)
   end
 
   @doc """
@@ -264,7 +202,7 @@ defmodule Magnetissimo.Torrents do
   defp upsert(rows) do
     hashes = Enum.map(rows, & &1.magnet_hash)
     known = Repo.all(from t in Torrent, where: t.magnet_hash in ^hashes, select: t.magnet_hash)
-    fallback_id = get_fallback_category!().id
+    fallback_id = Taxonomy.other_id()
 
     refresh =
       from t in Torrent,
@@ -359,8 +297,12 @@ defmodule Magnetissimo.Torrents do
     with {matches, params} <- Search.matches(term) do
       {filter, filter_params} =
         case Keyword.fetch(opts, :category_id) do
-          {:ok, category_id} -> {"WHERE t.category_id = ?", [category_id]}
-          :error -> {"", []}
+          {:ok, category_id} ->
+            ids = Taxonomy.family_ids(category_id)
+            {"WHERE t.category_id IN (#{Enum.map_join(ids, ", ", fn _ -> "?" end)})", ids}
+
+          :error ->
+            {"", []}
         end
 
       sql = """
@@ -384,7 +326,7 @@ defmodule Magnetissimo.Torrents do
 
   defp load_torrents_in_order(ids) do
     by_id =
-      from(t in Torrent, where: t.id in ^ids, preload: [:source, :category])
+      from(t in Torrent, where: t.id in ^ids, preload: [:source])
       |> Repo.all()
       |> Map.new(&{&1.id, &1})
 

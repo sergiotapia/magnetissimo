@@ -18,17 +18,33 @@ defmodule Magnetissimo.Crawlers.Yts do
 
   @behaviour Magnetissimo.Crawlers.Crawler
 
+  alias Magnetissimo.Crawlers.Categories
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Torrents
 
   @api_url "https://movies-api.accel.li/api/v2/list_movies.json"
   @source_name "YTS"
-  @category_name "Movies"
+  # Everything on YTS is a film, and each torrent says its quality, which is
+  # how Torznab divides Movies. Prowlarr files YTS the same way.
+  @categories Categories.mapping!(
+                @source_name,
+                %{
+                  "480p" => "Movies/SD",
+                  "720p" => "Movies/HD",
+                  "1080p" => "Movies/HD",
+                  "2160p" => "Movies/UHD",
+                  "3D" => "Movies/3D"
+                },
+                fallback: "Movies"
+              )
   @limit 50
   @user_agent "Magnetissimo/0.1"
 
   @impl true
   def source_name, do: @source_name
+
+  @impl true
+  def categories, do: @categories
 
   @doc "Fetches the newest movies, one torrent per quality variant."
   @impl true
@@ -40,10 +56,9 @@ defmodule Magnetissimo.Crawlers.Yts do
 
   defp fetch_attrs(params) do
     with {:ok, movies} <- fetch_movies(params) do
-      category_id = Torrents.get_category_by_name_or_alias!(@category_name).id
       source_id = Torrents.get_source_by_name!(@source_name).id
 
-      {:ok, Enum.flat_map(movies, &torrent_attrs(&1, category_id, source_id))}
+      {:ok, Enum.flat_map(movies, &torrent_attrs(&1, source_id))}
     end
   end
 
@@ -71,15 +86,15 @@ defmodule Magnetissimo.Crawlers.Yts do
   defp movies(%{"data" => %{"movie_count" => 0}}), do: {:ok, []}
   defp movies(_body), do: {:error, :unexpected_response}
 
-  defp torrent_attrs(movie, category_id, source_id) do
+  defp torrent_attrs(movie, source_id) do
     movie
     |> Map.get("torrents", [])
-    |> Enum.flat_map(&attrs_for(&1, movie, category_id, source_id))
+    |> Enum.flat_map(&attrs_for(&1, movie, source_id))
   end
 
   # A torrent with no usable upload time is dropped rather than crashing the
   # crawl, so one malformed entry cannot cost the whole page.
-  defp attrs_for(torrent, movie, category_id, source_id) do
+  defp attrs_for(torrent, movie, source_id) do
     with unix when is_integer(unix) <- torrent["date_uploaded_unix"],
          {:ok, published_at} <- DateTime.from_unix(unix) do
       name = movie["title_long"]
@@ -97,7 +112,7 @@ defmodule Magnetissimo.Crawlers.Yts do
           size_in_bytes: torrent["size_bytes"],
           magnet_hash: hash,
           magnet_url: Magnet.url(hash, name),
-          category_id: category_id,
+          category_id: Categories.resolve(@categories, torrent["quality"]),
           source_id: source_id
         }
       ]

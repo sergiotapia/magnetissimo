@@ -8,6 +8,7 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
   alias Magnetissimo.Crawlers.Nyaa.Feed
   alias Magnetissimo.Crawlers.Sukebei
   alias Magnetissimo.NyaaFixtures
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
   alias Magnetissimo.TorrentsFixtures
 
@@ -24,7 +25,7 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
     assert [newest, older] = Torrents.list_latest_torrents()
 
     assert newest.name == "[Group] Show & Tell - 01 (1080p)"
-    assert newest.category.name == "Anime - English-translated"
+    assert category(newest) == "TV/Anime"
     assert newest.source.name == "Nyaa.si"
     assert newest.canonical_url == "https://nyaa.test/view/1"
     assert newest.magnet_hash == NyaaFixtures.hash_lower()
@@ -61,7 +62,7 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
 
     assert [torrent] = Torrents.list_latest_torrents()
     assert torrent.source.name == "Sukebei"
-    assert torrent.category.name == "Video - XXX"
+    assert category(torrent) == "XXX"
     assert torrent.magnet_url =~ "&tr=http%3A%2F%2Fsukebei.tracker.wf%3A8888%2Fannounce"
   end
 
@@ -80,7 +81,8 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
     assert [torrent] = Torrents.list_latest_torrents()
     assert torrent.name == "Angel Club 06-12.zip"
     assert torrent.size_in_bytes == 0
-    assert torrent.category.name == "Anime - Raw"
+    # "Art - Anime": hentai, which the 2.0 mapping filed with work-safe anime.
+    assert category(torrent) == "XXX"
   end
 
   test "a failing site is logged, not raised" do
@@ -118,6 +120,8 @@ defmodule Magnetissimo.Crawlers.NyaaTest do
 
     assert log =~ "failed"
   end
+
+  defp category(torrent), do: Taxonomy.fetch!(torrent.category_id).name
 
   defp stub(body) do
     Req.Test.stub(Feed, fn conn -> Plug.Conn.send_resp(conn, 200, body) end)

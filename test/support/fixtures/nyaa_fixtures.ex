@@ -27,6 +27,7 @@ defmodule Magnetissimo.NyaaFixtures do
           <nyaa:seeders>12</nyaa:seeders>
           <nyaa:leechers>3</nyaa:leechers>
           <nyaa:infoHash>#{@hash_lower}</nyaa:infoHash>
+          <nyaa:categoryId>1_2</nyaa:categoryId>
           <nyaa:category>Anime - English-translated</nyaa:category>
           <nyaa:size>1.5 GiB</nyaa:size>
           <description><![CDATA[not read by the crawler]]></description>
@@ -39,6 +40,7 @@ defmodule Magnetissimo.NyaaFixtures do
           <nyaa:seeders>5</nyaa:seeders>
           <nyaa:leechers>0</nyaa:leechers>
           <nyaa:infoHash>#{@hash_upper}</nyaa:infoHash>
+          <nyaa:categoryId>1_4</nyaa:categoryId>
           <nyaa:category>Anime - Raw</nyaa:category>
           <nyaa:size>700.5 MiB</nyaa:size>
         </item>
@@ -60,6 +62,7 @@ defmodule Magnetissimo.NyaaFixtures do
           <nyaa:seeders>1</nyaa:seeders>
           <nyaa:leechers>0</nyaa:leechers>
           <nyaa:infoHash>#{@hash_lower}</nyaa:infoHash>
+          <nyaa:categoryId>2_2</nyaa:categoryId>
           <nyaa:category>Real Life - Videos</nyaa:category>
           <nyaa:size>1.1 GiB</nyaa:size>
         </item>
@@ -77,6 +80,7 @@ defmodule Magnetissimo.NyaaFixtures do
           <title>Broken</title>
           <guid isPermaLink="true">https://nyaa.test/view/3</guid>
           <nyaa:infoHash>#{@hash_lower}</nyaa:infoHash>
+          <nyaa:categoryId>1_4</nyaa:categoryId>
           <nyaa:category>Anime - Raw</nyaa:category>
           <nyaa:size>not a size</nyaa:size>
         </item>
@@ -97,6 +101,7 @@ defmodule Magnetissimo.NyaaFixtures do
           <nyaa:seeders>0</nyaa:seeders>
           <nyaa:leechers>0</nyaa:leechers>
           <nyaa:infoHash>#{@hash_lower}</nyaa:infoHash>
+          <nyaa:categoryId>1_1</nyaa:categoryId>
           <nyaa:category>Art - Anime</nyaa:category>
           <nyaa:size>0 Bytes</nyaa:size>
         </item>

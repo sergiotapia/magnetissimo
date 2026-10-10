@@ -11,10 +11,15 @@ defmodule Magnetissimo.FastCrawler do
 
   @behaviour Magnetissimo.Crawlers.Crawler
 
+  alias Magnetissimo.Crawlers.Categories
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
 
   @impl true
   def source_name, do: "YTS"
+
+  @impl true
+  def categories, do: Categories.mapping!(source_name(), %{}, fallback: "Other")
 
   @impl true
   def latest, do: {:ok, []}
@@ -50,7 +55,7 @@ defmodule Magnetissimo.FastCrawler do
       size_in_bytes: 1_000,
       magnet_hash: hash,
       magnet_url: "magnet:?xt=urn:btih:#{hash}",
-      category_id: Torrents.get_category_by_name_or_alias!("Other").id,
+      category_id: Taxonomy.other_id(),
       source_id: Torrents.get_source_by_name!(source).id
     }
   end

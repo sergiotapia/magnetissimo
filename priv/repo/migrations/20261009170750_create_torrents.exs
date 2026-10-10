@@ -12,7 +12,9 @@ defmodule Magnetissimo.Repo.Migrations.CreateTorrents do
       add :size_in_bytes, :bigint, null: false
       add :magnet_hash, :text, null: false
       add :magnet_url, :text, null: false
-      add :category_id, references(:categories, on_delete: :restrict), null: false
+      # A Torznab category number. The taxonomy lives in code
+      # (Magnetissimo.Taxonomy), so there is no table to reference.
+      add :category_id, :integer, null: false
       add :source_id, references(:sources, on_delete: :restrict), null: false
 
       timestamps(type: :utc_datetime_usec)

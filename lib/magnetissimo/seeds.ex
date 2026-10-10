@@ -1,99 +1,33 @@
 defmodule Magnetissimo.Seeds do
   @moduledoc """
-  The crawl sources and the canonical category tree, including the strings each
-  site uses for a category.
+  The crawl sources: one row per site a crawler files torrents under.
 
-  This mapping is knowledge rather than fixture data: a crawler cannot file a
-  torrent without it, because every site names its categories differently. It
-  lives in `lib/` so a release task can reach it too. Imported from the 2.0.0
-  app, where it was duplicated between `priv/repo/seeds.exs` and a `DbSeeder`
-  module.
+  The categories are not seeded. They are the Torznab standard and live in
+  code, in `Magnetissimo.Taxonomy`, and each crawler maps its own site's
+  categories onto them.
+
+  It lives in `lib/` so a release task can reach it too.
   """
 
   alias Magnetissimo.Repo
-  alias Magnetissimo.Torrents.Category
-  alias Magnetissimo.Torrents.CategoryAlias
   alias Magnetissimo.Torrents.Source
 
+  # Every source here has a crawler in Magnetissimo.Crawlers.all/0.
   @sources [
     {"Nyaa.si", "https://nyaa.si"},
     {"Sukebei", "https://sukebei.nyaa.si"},
     {"TorrentDownloads", "https://www.torrentdownloads.pro"},
-    # yts.mx stopped resolving; yts.gg is the live site, and the crawler talks
-    # to movies-api.accel.li, the API base URL the site itself advertises.
-    {"YTS", "https://yts.gg/"},
-    {"1337x", "https://www.1337x.to"}
-  ]
-
-  # {parent name, [{child name, [site's wording for it]}]}
-  @categories [
-    {"Anime",
-     [
-       {"Anime - Music Video", ["Anime - Anime Music Video"]},
-       {"Anime - English-translated", ["Anime"]},
-       {"Anime - Non-English translated", ["Anime - Non-English-translated"]},
-       {"Anime - Raw", ["Art - Anime"]}
-     ]},
-    {"Audio",
-     [
-       {"Audio - Lossless", []},
-       {"Audio - Lossy", ["Music"]}
-     ]},
-    {"Books",
-     [
-       {"Books - English-translated",
-        ["Literature - English-translated", "Books", "Ebooks", "e-books", "ebook"]},
-       {"Books - Non-English translated", ["Literature - Non-English-translated"]},
-       {"Books - Raw", ["Literature - Raw", "Art - Manga", "Art - Doujinshi"]}
-     ]},
-    {"Video",
-     [
-       {"Video - Movies",
-        [
-          "Live Action - Raw",
-          "Live Action - English-translated",
-          "Live Action - Idol/Promotional Video",
-          "Live Action - Non-English-translated",
-          "Movies"
-        ]},
-       {"Video - Television", ["TV Shows", "TV", "television", "Television", "TV - Other"]},
-       {"Video - Documentaries", ["Documentaries", "Documentary"]},
-       {"Video - XXX", ["XXX", "Real Life - Videos"]}
-     ]},
-    {"Images",
-     [
-       {"Images - Graphics", ["Pictures - Graphics", "Art - Pictures"]},
-       # Sukebei files photobooks as "Real Life - Photobooks / Pictures".
-       {"Images - Photos",
-        ["Pictures - Photos", "Real Life - Pictures", "Real Life - Photobooks / Pictures"]}
-     ]},
-    {"Software",
-     [
-       {"Software - Applications",
-        ["Software", "Mac", "Linux", "Windows", "Apps", "Apple", "Other operating systems"]},
-       {"Software - Games", ["Games", "Art - Games"]}
-     ]},
-    {Category.fallback(), []}
+    # The site moved off yts.mx; the crawler talks to movies-api.accel.li,
+    # the API base URL the site itself advertises.
+    {"YTS", "https://yts.gg/"}
   ]
 
   @doc """
-  Inserts the sources and the category tree, and refreshes a source `url` that
-  has moved. Safe to run repeatedly.
+  Inserts the sources, and refreshes the `url` of one that has moved. Safe to
+  run repeatedly.
   """
   def run do
     Enum.each(@sources, fn {name, url} -> upsert_source(name, url) end)
-    Enum.each(@categories, &upsert_category_tree/1)
-    :ok
-  end
-
-  defp upsert_category_tree({parent_name, children}) do
-    parent = upsert_category(parent_name, nil)
-    Enum.each(children, &upsert_child_category(&1, parent))
-  end
-
-  defp upsert_child_category({child_name, aliases}, parent) do
-    category = upsert_category(child_name, parent.id)
-    Enum.each(aliases, &upsert_alias(&1, category))
   end
 
   defp upsert_source(name, url) do
@@ -101,17 +35,5 @@ defmodule Magnetissimo.Seeds do
       nil -> Repo.insert!(Source.changeset(%Source{}, %{name: name, url: url}))
       source -> Repo.update!(Source.changeset(source, %{url: url}))
     end
-  end
-
-  defp upsert_category(name, parent_id) do
-    Repo.get_by(Category, name: name) ||
-      Repo.insert!(Category.changeset(%Category{}, %{name: name, parent_id: parent_id}))
-  end
-
-  defp upsert_alias(name, category) do
-    Repo.get_by(CategoryAlias, name: name) ||
-      Repo.insert!(
-        CategoryAlias.changeset(%CategoryAlias{}, %{name: name, category_id: category.id})
-      )
   end
 end

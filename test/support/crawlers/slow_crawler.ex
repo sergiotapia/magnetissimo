@@ -17,6 +17,9 @@ defmodule Magnetissimo.SlowCrawler do
   def source_name, do: "Nyaa.si"
 
   @impl true
+  def categories, do: FastCrawler.categories()
+
+  @impl true
   def latest, do: {:ok, []}
 
   @impl true

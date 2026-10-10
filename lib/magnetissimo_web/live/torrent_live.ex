@@ -5,6 +5,7 @@ defmodule MagnetissimoWeb.TorrentLive do
   """
   use MagnetissimoWeb, :live_view
 
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
 
   @impl true
@@ -32,7 +33,7 @@ defmodule MagnetissimoWeb.TorrentLive do
           navigate={~p"/?#{[category: @torrent.category_id]}"}
           class="pill focus-ring px-3 py-1"
         >
-          {@torrent.category.name}
+          {Taxonomy.fetch!(@torrent.category_id).name}
         </.link>
         <span class="text-ink-300" aria-hidden="true">›</span>
         <span class="px-1 font-mono text-ink-500">No. {ordinal(@torrent.id)}</span>
@@ -89,7 +90,7 @@ defmodule MagnetissimoWeb.TorrentLive do
                     navigate={~p"/?#{[category: @torrent.category_id]}"}
                     class="link font-semibold"
                   >
-                    {@torrent.category.name}
+                    {Taxonomy.fetch!(@torrent.category_id).name}
                   </.link>
                 </dd>
               </div>

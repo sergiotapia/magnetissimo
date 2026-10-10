@@ -20,9 +20,9 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
 
   @behaviour Magnetissimo.Crawlers.Crawler
 
+  alias Magnetissimo.Crawlers.Categories
   alias Magnetissimo.Crawlers.Magnet
   alias Magnetissimo.Crawlers.Rss
-  alias Magnetissimo.Torrents
 
   @base_url "https://www.torrentdownloads.pro"
   @feed_path "/rss.xml"
@@ -31,8 +31,30 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
 
   @months ~w(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec)
 
+  # The feed names a category but gives no id, so the names are the keys.
+  # These are Prowlarr's `torrentdownloads` mappings: the site's categories
+  # are broad, and say nothing finer to map onto.
+  @categories Categories.mapping!(
+                @source_name,
+                %{
+                  "Anime" => "TV/Anime",
+                  "Books" => "Books",
+                  "Games" => "PC/Games",
+                  "Movies" => "Movies",
+                  "Music" => "Audio",
+                  "Software" => "PC",
+                  "TV Shows" => "TV",
+                  "Pics" => "Other/Misc",
+                  "Other" => "Other"
+                },
+                fallback: "Other"
+              )
+
   @impl true
   def source_name, do: @source_name
+
+  @impl true
+  def categories, do: @categories
 
   @doc "Fetches today's newest torrents."
   @impl true
@@ -41,8 +63,9 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
   @doc """
   Looks one term up on the feed.
 
-  The feed has no category for a search hit, so those are filed under `"Other"`
-  rather than guessed at from the search page's icons.
+  The feed has no category for a search hit, so those are filed under Other
+  rather than guessed at from the search page's icons. A later crawl of the
+  latest feed, or another source, re-files one it knows better.
   """
   @impl true
   def search(term), do: fetch_attrs(type: "search", search: term)
@@ -88,7 +111,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
         size_in_bytes: Rss.integer_field(item, "size"),
         magnet_hash: hash,
         magnet_url: Magnet.url(hash, name),
-        category_id: Torrents.get_category_by_name_or_alias!(category(item)).id,
+        category_id: Categories.resolve(@categories, category(item)),
         source_id: source_id
       }
     else
@@ -107,8 +130,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloads do
     end
   end
 
-  # The category is CDATA, and empty on a search hit; an empty name falls
-  # through to "Other" in the lookup.
+  # The category is CDATA, and empty on a search hit, which takes the fallback.
   defp category(item) do
     case Regex.run(~r/<category><!\[CDATA\[(.*?)\]\]><\/category>/, item, capture: :all_but_first) do
       [value] -> value

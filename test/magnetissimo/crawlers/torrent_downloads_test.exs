@@ -5,6 +5,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
 
   alias Magnetissimo.Crawlers
   alias Magnetissimo.Crawlers.TorrentDownloads
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.TorrentDownloadsFixtures
   alias Magnetissimo.Torrents
   alias Magnetissimo.TorrentsFixtures
@@ -22,7 +23,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
     assert [newest, older] = Torrents.list_latest_torrents()
 
     assert newest.name == "Kill Jackie S01 2160p WEBRip HDR x265-KONTRAST"
-    assert newest.category.name == "Video - Television"
+    assert category(newest) == "TV"
     assert newest.source.name == "TorrentDownloads"
 
     assert newest.canonical_url ==
@@ -43,7 +44,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
            )
 
     assert older.name == "L’Officina della Camomilla - VM 18 [FLAC 24-44]"
-    assert older.category.name == "Audio - Lossy"
+    assert category(older) == "Audio"
   end
 
   test "entities in a title are decoded once" do
@@ -99,7 +100,7 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
     assert {:ok, %{inserted: 1, found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
 
     assert [torrent] = Torrents.list_latest_torrents()
-    assert torrent.category.name == "Other"
+    assert category(torrent) == "Other"
 
     # The same term again finds the same torrent and adds nothing.
     assert {:ok, %{inserted: 0, found: 1}} = Crawlers.search(TorrentDownloads, "Fixture Search")
@@ -127,6 +128,8 @@ defmodule Magnetissimo.Crawlers.TorrentDownloadsTest do
       assert {:error, {:http_status, 500}} = Crawlers.search(TorrentDownloads, "Anything")
     end)
   end
+
+  defp category(torrent), do: Taxonomy.fetch!(torrent.category_id).name
 
   defp stub(body) do
     Req.Test.stub(TorrentDownloads, fn conn -> Plug.Conn.send_resp(conn, 200, body) end)

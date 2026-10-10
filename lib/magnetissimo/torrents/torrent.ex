@@ -8,12 +8,15 @@ defmodule Magnetissimo.Torrents.Torrent do
 
   `magnet_url` holds the complete magnet URI, scheme included, exactly as it
   should be handed to a client.
+
+  `category_id` is a Torznab category number (`2045` is Movies/UHD); see
+  `Magnetissimo.Taxonomy`.
   """
 
   use Ecto.Schema
   import Ecto.Changeset
 
-  alias Magnetissimo.Torrents.Category
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents.Source
 
   schema "torrents" do
@@ -27,7 +30,8 @@ defmodule Magnetissimo.Torrents.Torrent do
     field :magnet_hash, :string
     field :magnet_url, :string
 
-    belongs_to :category, Category
+    # A Torznab number from Magnetissimo.Taxonomy, not a foreign key.
+    field :category_id, :integer
     belongs_to :source, Source
 
     timestamps(type: :utc_datetime_usec)
@@ -67,7 +71,7 @@ defmodule Magnetissimo.Torrents.Torrent do
       message: "must be a complete magnet URI starting with magnet:?xt=urn:btih:"
     )
     |> unique_constraint(:magnet_hash)
-    |> foreign_key_constraint(:category_id)
+    |> validate_inclusion(:category_id, Taxonomy.ids(), message: "is not a Torznab category")
     |> foreign_key_constraint(:source_id)
   end
 end

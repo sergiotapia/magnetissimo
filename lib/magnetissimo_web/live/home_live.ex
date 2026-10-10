@@ -16,6 +16,7 @@ defmodule MagnetissimoWeb.HomeLive do
   use MagnetissimoWeb, :live_view
 
   alias Magnetissimo.SourceSearch
+  alias Magnetissimo.Taxonomy
   alias Magnetissimo.Torrents
 
   @impl true
@@ -23,7 +24,6 @@ defmodule MagnetissimoWeb.HomeLive do
     {:ok,
      socket
      |> assign(:page_title, "Latest")
-     |> assign(:tree, Torrents.list_category_tree())
      |> assign_index_stats()
      |> assign(:ticker, Enum.map(Torrents.list_latest_torrents(limit: 8), & &1.name))
      |> assign(:source_key, nil)
@@ -36,7 +36,7 @@ defmodule MagnetissimoWeb.HomeLive do
   @impl true
   def handle_params(params, _uri, socket) do
     q = params |> Map.get("q", "") |> String.trim()
-    category = lookup_category(params["category"], socket.assigns.tree)
+    category = lookup_category(params["category"])
 
     # The sources are asked before the index is read, so whatever a source
     # indexed before its status was read here is already in the first load.
@@ -100,17 +100,14 @@ defmodule MagnetissimoWeb.HomeLive do
     assign(socket, source_key: key, sources: SourceSearch.request(key))
   end
 
-  defp lookup_category(nil, _tree), do: nil
+  # Any Torznab category can be filtered on, including one nothing is filed
+  # under yet: the link is still a valid one, and simply lists nothing.
+  defp lookup_category(nil), do: nil
 
-  defp lookup_category(id, tree) when is_binary(id) do
+  defp lookup_category(id) when is_binary(id) do
     case Integer.parse(id) do
-      {id, ""} ->
-        tree
-        |> Enum.flat_map(fn parent -> [parent | parent.children] end)
-        |> Enum.find(&(&1.id == id))
-
-      _ ->
-        nil
+      {id, ""} -> Taxonomy.get(id)
+      _ -> nil
     end
   end
 
@@ -177,8 +174,11 @@ defmodule MagnetissimoWeb.HomeLive do
   end
 
   defp assign_index_stats(socket) do
+    counts = Torrents.count_torrents_by_category()
+
     socket
-    |> assign(:category_counts, Torrents.count_torrents_by_category())
+    |> assign(:category_counts, counts)
+    |> assign(:tree, category_tree(counts))
     |> assign(:source_counts, Torrents.count_torrents_by_source())
     |> assign(:total, Torrents.count_torrents())
     |> assign(:latest_at, Torrents.latest_published_at())
@@ -194,10 +194,17 @@ defmodule MagnetissimoWeb.HomeLive do
     ~p"/?#{params}"
   end
 
-  # A parent is a heading for its children, except "Other", which has none
-  # and holds torrents itself.
-  defp filterable(%{children: []} = parent), do: [parent]
-  defp filterable(parent), do: parent.children
+  # Only the categories something is filed under, each top level with the
+  # count for its whole group. The taxonomy has some seventy categories, most
+  # of which no source uses.
+  defp category_tree(counts) do
+    for {root, children} <- Taxonomy.tree(&Map.has_key?(counts, &1.id)) do
+      family_count =
+        root.id |> Taxonomy.family_ids() |> Enum.map(&Map.get(counts, &1, 0)) |> Enum.sum()
+
+      {root, children, family_count}
+    end
+  end
 
   defp max_source_count([]), do: 1
   defp max_source_count(counts), do: counts |> Enum.map(&elem(&1, 1)) |> Enum.max() |> max(1)
@@ -309,14 +316,39 @@ defmodule MagnetissimoWeb.HomeLive do
               <span :if={!@category} class="label">filter by category</span>
             </div>
             <div class="space-y-4 p-5">
-              <div :for={parent <- @tree}>
+              <p :if={@tree == []} id="categories-empty" class="text-sm text-ink-500">
+                Nothing indexed yet.
+              </p>
+              <div :for={{root, children, family_count} <- @tree} id={"category-group-#{root.id}"}>
                 <h3 class="font-display text-xs font-bold tracking-[0.2em] text-ink-500 uppercase">
-                  {parent.name}
+                  {root.name}
                 </h3>
                 <div class="mt-2 flex flex-wrap gap-1.5">
+                  <%!-- The whole group: the top level and all of its children. --%>
+                  <.link
+                    patch={index_path(@q, root)}
+                    id={"category-#{root.id}"}
+                    aria-current={@category && @category.id == root.id && "true"}
+                    class={[
+                      if(@category && @category.id == root.id, do: "gel", else: "pill"),
+                      "focus-ring inline-flex items-center px-3 py-1 text-xs leading-none font-semibold whitespace-nowrap"
+                    ]}
+                  >
+                    All
+                    <span class={[
+                      "ml-1.5 rounded-full px-1.5 py-px font-mono text-[0.65rem]",
+                      if(@category && @category.id == root.id,
+                        do: "bg-white/25",
+                        else: "bg-azure-100 text-azure-600"
+                      )
+                    ]}>
+                      {family_count}
+                    </span>
+                  </.link>
                   <.category_chip
-                    :for={category <- filterable(parent)}
-                    name={category.name}
+                    :for={category <- children}
+                    category={category}
+                    short
                     patch={index_path(@q, category)}
                     active={@category && @category.id == category.id}
                     count={@category_counts[category.id]}
@@ -486,7 +518,7 @@ defmodule MagnetissimoWeb.HomeLive do
                     </.link>
                   </h2>
                   <div class="mt-1.5 flex items-center gap-2.5">
-                    <.category_chip name={torrent.category.name} />
+                    <.category_chip category={Taxonomy.fetch!(torrent.category_id)} />
                     <span class="label">{torrent.source.name}</span>
                     <span
                       :if={arrived?(@arrived, torrent)}

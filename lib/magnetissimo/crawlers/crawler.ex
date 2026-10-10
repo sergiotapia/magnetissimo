@@ -13,6 +13,13 @@ defmodule Magnetissimo.Crawlers.Crawler do
   @doc "The `sources.name` row this crawler files torrents under."
   @callback source_name() :: String.t()
 
+  @doc """
+  The site's categories mapped onto `Magnetissimo.Taxonomy`, built with
+  `Magnetissimo.Crawlers.Categories.mapping!/3`. Every torrent the crawler
+  returns is filed through it.
+  """
+  @callback categories() :: Magnetissimo.Crawlers.Categories.t()
+
   @doc "Fetches the newest torrents on the site."
   @callback latest() :: {:ok, [attrs]} | {:error, term()}
 
