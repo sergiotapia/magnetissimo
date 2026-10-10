@@ -36,9 +36,10 @@ it.
 | `lib/magnetissimo/torrents.ex` | The context: list, count, `index_torrents/2`, `search_torrents/2`. |
 | `lib/magnetissimo/torrents/search.ex` | Tokenizes free text, routes each token to an FTS5 index, ranks the results. |
 | `lib/magnetissimo/taxonomy.ex` | The Torznab category list, in code. `category_id` is a Torznab number. |
-| `lib/magnetissimo/source_search.ex` | A GenServer that asks every crawler at once, dedupes in-flight terms, caches answered terms for 15 minutes, gives up after 20s, and broadcasts on PubSub. |
+| `lib/magnetissimo/source_search.ex` | A GenServer that asks every crawler at once, dedupes in-flight terms (in any word order), caches answered terms for 15 minutes, gives up after 20s, and broadcasts on PubSub. |
 | `lib/magnetissimo/crawlers.ex` | `all/0`, plus `search/2`, which runs one crawler and indexes its result. |
 | `lib/magnetissimo/crawlers/crawler.ex` | The behaviour: `source_name/0`, `categories/0`, `search/1`. |
+| `lib/magnetissimo/crawlers/pacer.ex` | Holds each site to two searches in flight, started a second apart, whoever asks. Monitors callers, so a dead one leaves the line. |
 | `lib/magnetissimo/crawlers/http.ex` | The single `Req.get` every crawler makes. Doesn't retry. A non-200 response is an `{:error, _}`. |
 | `lib/magnetissimo/crawlers/categories.ex` | `mapping!/3`: the site's category key mapped to a Torznab name, checked at compile time. |
 | `lib/magnetissimo/crawlers/*.ex` | One module per site: Yts, Nyaa, Sukebei, TorrentDownloads, AudioBookBay, ThePirateBay, Eztv, OxTorrent. |
@@ -48,6 +49,7 @@ it.
 | `Dockerfile`, `compose.yaml`, `.github/workflows/docker.yml` | The image (debian-slim, runs as `nobody`, data in `/data`), the homelab compose file, and multi-arch publishing to `ghcr.io/sergiotapia/magnetissimo`. |
 | `lib/magnetissimo_web/live/home_live.ex` | Search, category and source filters, sorting, paging, live source status. |
 | `lib/magnetissimo_web/live/torrent_live.ex` | One torrent's detail page. |
+| `lib/magnetissimo_web/controllers/torznab_*.ex` | The Torznab API at `GET /api?t=…` for Sonarr, Radarr, Lidarr, Prowlarr and the book managers: request parsing, XML, controller. |
 | `lib/magnetissimo_web/controllers/torrent_*.ex` | `GET /api/latest` and `GET /api/search/:term`, keeping the 2.0.0 field names. |
 | `lib/magnetissimo_web/components/dossier_components.ex` | Art and data components: orb, fingerprint, swarm bar, chips. |
 | `lib/magnetissimo_web/format.ex` | Sizes in binary units, counts, ages, hashes. |
@@ -64,7 +66,12 @@ Breaking any of these causes bugs that tests may not catch:
 
 - **Sources are asked only on a search.** Don't add timers, schedulers, job
   queues or "latest" crawls. Polling got the project blocked by Nyaa and
-  AudioBookBay in October 2026.
+  AudioBookBay in October 2026. A Torznab request with no text is a client's
+  RSS poll or Test button, not a search: it is answered from the index and
+  never reaches `SourceSearch`.
+- **Every site request waits its turn in `Crawlers.Pacer`.** `Crawlers.search/2`
+  goes through it. Don't call a crawler's `search/1` from anywhere else, and
+  don't raise the pacer's limits to make a backfill faster.
 - **Crawlers fetch and parse, and never write.** `Crawlers.search/2` passes
   their attrs to `Torrents.index_torrents/2`, which upserts by `magnet_hash`
   and records `search_hits` in a single transaction.
@@ -104,8 +111,14 @@ Breaking any of these causes bugs that tests may not catch:
   secret beside the database, and accepts any host. Don't add a required
   env var, `force_ssl`, or a fixed `check_origin`. Homelab installs run on
   plain `http://<lan-ip>:4000`. See "Releasing" in `CONTRIBUTING.md`.
-- **JSON API field names are frozen** to the 2.0.0 shape, because Sonarr and
-  Radarr setups depend on them.
+- **JSON API field names are frozen** to the 2.0.0 shape, because scripts
+  depend on them. Sonarr, Radarr and the rest can't read JSON; they use the
+  Torznab API.
+- **Torznab output says everything in several places on purpose.** Each
+  client reads a different element (see `MagnetissimoWeb.TorznabXML`), so
+  don't drop one that looks redundant. Errors are `<error>` documents with
+  status 200. Caps advertise only text parameters: never `imdbid`, `tvdbid`
+  or `tmdbid`, which nothing here can resolve.
 
 ## Architecture rules (enforced by `mix reach.check --arch`)
 

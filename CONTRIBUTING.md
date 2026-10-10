@@ -36,12 +36,14 @@ lib/magnetissimo/
   crawlers/crawler.ex      the behaviour every source implements
   crawlers/http.ex         the single Req GET every crawler makes
   crawlers/categories.ex   compile-time site→Torznab category mapping
+  crawlers/pacer.ex        holds each site to two searches at a time
   crawlers/<source>.ex     one module per site
   seeds.ex                 the sources rows
   release.ex               migrate and seed, for a release with no Mix
 lib/magnetissimo_web/
   live/home_live.ex        search, filters, sources, results
   live/torrent_live.ex     one torrent
+  controllers/torznab_*    the Torznab API at /api, for the *arr apps
   controllers/torrent_*    the JSON API
   components/              layouts, core and dossier components
   format.ex                sizes, counts, ages, hashes
@@ -57,10 +59,13 @@ docs/design.md             the visual design system
 1. `HomeLive` patches the URL (`?q=`). `handle_params/3` subscribes to the
    term and calls `SourceSearch.request/1`, then reads the index through
    `Torrents.search_torrents/2` and renders it straight away.
-2. `SourceSearch` starts one supervised task per crawler. If the same term is
-   already in flight, a second reader joins it. If every source answered it
+2. `SourceSearch` starts one supervised task per crawler. If the same term,
+   or the same words in another order, is already in flight, a second
+   reader joins it. If every source answered it
    within the last 15 minutes, nothing is asked again.
-3. Each task calls `Crawlers.search/2`. The crawler fetches and parses, then
+3. Each task calls `Crawlers.search/2`, which waits for the site's turn in
+   `Crawlers.Pacer` (two searches per site at a time, a second apart, from
+   readers and Torznab clients alike). The crawler fetches and parses, then
    `Torrents.index_torrents/2` upserts the batch by `magnet_hash` and
    records each hit for the term in `search_hits`, all in one transaction.
 4. Each answer is broadcast on PubSub. `HomeLive` reloads from the index and
@@ -68,9 +73,19 @@ docs/design.md             the visual design system
 5. A source gets 20 seconds. After that its task is killed, which rolls back
    its transaction, and it is shown as failed.
 
-`GET /api/search/:term` does the same thing, but waits up to 10 seconds for
-the sources (`SourceSearch.await/2`) before reading the index, since a JSON
-client can't receive results later.
+`GET /api/search/:term` and a Torznab search (`GET /api?t=search&q=…`, or
+`tvsearch`, `movie`, `music`, `book`) do the same thing, but wait for every
+source to answer or time out (`SourceSearch.await/1`) before reading the
+index, since an API client can't receive results later.
+
+A Torznab request with no text is a client's RSS poll or Test button. It
+comes every 15 to 30 minutes from every app, so `TorznabController`
+answers it from the index alone and never calls `SourceSearch`.
+`TorznabRequest` rebuilds each function's parameters (`season` and `ep`,
+`artist` and `album`, `author` and `title`) into one free-text term, and
+the caps advertise only those. Don't advertise `imdbid` or `tvdbid`:
+nothing here can resolve an id, and Radarr would then send searches with
+nothing else in them.
 
 ## Checks
 
@@ -216,7 +231,9 @@ These are the parts most likely to surprise you. Each was a deliberate choice.
 | A crawler | `test/magnetissimo/crawlers/<site>_test.exs` |
 | Category mappings | `test/magnetissimo/crawlers/categories_test.exs` |
 | The home page | `test/magnetissimo_web/live/home_live_test.exs` |
+| The pacer | `test/magnetissimo/crawlers/pacer_test.exs` |
 | The JSON API | `test/magnetissimo_web/controllers/torrent_controller_test.exs` |
+| The Torznab API | `test/magnetissimo_web/controllers/torznab_{request,controller}_test.exs` |
 | Formatting | `test/magnetissimo_web/format_test.exs` |
 
 ## Releasing
@@ -269,8 +286,5 @@ mkdir -p /tmp/mg && DATABASE_PATH=/tmp/mg/m.db PORT=4100 \
 
 ## Still to build
 
-- A Torznab endpoint (`/api/torznab?t=caps|search|tvsearch|movie`), so Sonarr
-  and Radarr can add Magnetissimo as an indexer directly. The taxonomy and
-  the category numbers are already in place for it.
 - A health check route, for Docker's `HEALTHCHECK` and uptime monitors.
 - Tests for `TorrentLive`.

@@ -31,7 +31,8 @@ what you looked for.
   copies rank first among near-identical names.
 - **Works without JavaScript.** Searching, filtering, sorting and paging are
   all links and plain GET forms. With JavaScript on, results stream in live.
-- **A JSON API** for scripts and for Sonarr and Radarr.
+- **A Torznab indexer** for Sonarr, Radarr, Lidarr, Prowlarr and the book
+  managers, and **a JSON API** for scripts.
 - **One SQLite database.** To back it up, stop the app and copy the data
   folder.
 
@@ -151,15 +152,54 @@ Then open [localhost:4000](http://localhost:4000). In development the
 database starts with a few dozen demo torrents to look at.
 Search for something and the real sources start filling the index.
 
-## API
+## Sonarr, Radarr and the book managers
+
+Magnetissimo is a Torznab indexer at `/api`. In each app, add an indexer of
+type **Torznab** (in Prowlarr, **Generic Torznab**, which then syncs it to
+every app it manages) with:
+
+- **URL:** `http://<ip>:4000`, the address the app reaches Magnetissimo on.
+- **API path:** `/api`, the default.
+- **API key:** anything, or blank. There is no key to check. Listenarr won't
+  save a blank one, so type any word.
+- **Categories:** the defaults work. Asking for a subcategory includes
+  torrents a site only filed under its parent, so Sonarr's default TV/SD and
+  TV/HD also get everything EZTV files under TV.
+
+| App | Searches with | Categories to pick |
+| --- | --- | --- |
+| Sonarr | Title and `S01E02`, `S01`, or an air date | TV/SD, TV/HD; anime under TV/Anime |
+| Radarr | Title and year | Movies and its subcategories |
+| Lidarr | Artist and album | Audio |
+| Chaptarr, Bookshelf, Readarr | Author and title | Audio/Audiobook, Books/EBook |
+| Listenarr | Title, author and series | `3030` (Audio/Audiobook) |
+| LazyLibrarian | Author and title | found by name |
+
+What to expect:
+
+- **A search takes 5 to 20 seconds.** Every site is asked live, as in the
+  web UI. The apps allow far longer.
+- **Searches are by text, not by IMDb or TVDB id.** The sites only search
+  by text, so Magnetissimo tells the apps it takes text, and they send the
+  title.
+- **RSS syncs and the Test button never reach the sites.** They are
+  answered from the index, newest first. On a fresh install with nothing in
+  the chosen categories, Test sees one placeholder item that cannot be
+  grabbed, rather than failing.
+- **Big backfills go slowly on purpose.** Each site gets at most two
+  searches at a time, a second apart, however many apps are asking. A
+  "search all missing" over a large library takes a while, and no site gets
+  hammered.
+
+## JSON API
 
 | Endpoint | Returns |
 | --- | --- |
 | `GET /api/latest` | The 50 most recently published torrents in the index. |
 | `GET /api/search/:term` | The best 50 matches for `term`. |
 
-A search gives the sources up to ten seconds to answer before it reads the
-index. A term that was searched in the last fifteen minutes is answered
+A search gives the sources up to twenty seconds to answer before it reads
+the index. A term that was searched in the last fifteen minutes is answered
 straight from the index. Both endpoints return `{"data": [...]}`, where each
 torrent looks like this:
 
