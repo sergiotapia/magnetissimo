@@ -125,6 +125,19 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
+  Returns the torrents already indexed at any of `urls`, keyed by
+  `canonical_url`.
+
+  For a source whose listing names a page per torrent but no infohash, so its
+  crawler can skip fetching the pages it has already read.
+  """
+  def torrents_by_canonical_url(urls) do
+    from(t in Torrent, where: t.canonical_url in ^urls)
+    |> Repo.all()
+    |> Map.new(&{&1.canonical_url, &1})
+  end
+
+  @doc """
   Inserts a torrent as scraped from a source.
 
   A duplicate `magnet_hash` is the expected outcome when a source republishes
