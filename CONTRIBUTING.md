@@ -238,10 +238,13 @@ settings on GitHub.
 
 Things to keep working when you touch the release or the image:
 
-- **A release migrates and seeds on boot.** The `Ecto.Migrator` child in
-  `Magnetissimo.Application` runs `Release.migrator/3` whenever
-  `RELEASE_NAME` is set. A new source's row is therefore created on the
-  first boot after an upgrade, with nobody running seeds.
+- **A release migrates and seeds on boot.** `Application.start/2` calls
+  `Release.migrate/0` whenever `RELEASE_NAME` is set, before the
+  supervision tree starts. A new source's row is therefore created on the
+  first boot after an upgrade, with nobody running seeds. It migrates on a
+  single connection of its own. An `Ecto.Migrator` child sharing the Repo's
+  pool crashed about one fresh boot in three: a connection opened on the
+  empty file still had the empty schema, and a later migration ran on it.
 - **Zero required configuration in Docker.** The image sets
   `DATABASE_PATH`. `SECRET_KEY_BASE` falls back to a key generated once and
   stored next to the database (`config/runtime.exs`). Don't add a required

@@ -7,15 +7,17 @@ defmodule Magnetissimo.Application do
 
   @impl true
   def start(_type, _args) do
+    # A release migrates and seeds the sources before anything else starts,
+    # so a fresh container or an upgrade needs no step by hand. It happens
+    # here, on one connection of its own, rather than in an `Ecto.Migrator`
+    # child sharing the Repo's pool: a pooled connection opened on the empty
+    # file kept a stale schema, and a migration that ran on it failed about
+    # one fresh boot in three.
+    if release?(), do: Magnetissimo.Release.migrate()
+
     children = [
       MagnetissimoWeb.Telemetry,
       Magnetissimo.Repo,
-      # A release migrates and seeds the sources before the endpoint takes a
-      # request, so a fresh container or an upgrade needs no step by hand.
-      {Ecto.Migrator,
-       repos: Application.fetch_env!(:magnetissimo, :ecto_repos),
-       migrator: &Magnetissimo.Release.migrator/3,
-       skip: skip_migrations?()},
       {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Magnetissimo.PubSub},
       # Each source a search asks runs as its own task under this supervisor,
@@ -42,7 +44,5 @@ defmodule Magnetissimo.Application do
 
   # Migrations run from the release when there is one, and from
   # `mix ecto.migrate` otherwise.
-  defp skip_migrations? do
-    System.get_env("RELEASE_NAME") == nil
-  end
+  defp release?, do: System.get_env("RELEASE_NAME") != nil
 end

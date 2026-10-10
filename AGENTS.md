@@ -43,7 +43,7 @@ it.
 | `lib/magnetissimo/crawlers/categories.ex` | `mapping!/3`: the site's category key mapped to a Torznab name, checked at compile time. |
 | `lib/magnetissimo/crawlers/*.ex` | One module per site: Yts, Nyaa, Sukebei, TorrentDownloads, AudioBookBay, ThePirateBay, Eztv, OxTorrent. |
 | `lib/magnetissimo/seeds.ex` | The `sources` rows. Every crawler has one. |
-| `lib/magnetissimo/release.ex` | `migrate/0` for `bin/migrate`, and `migrator/3`, which migrates and then seeds on release boot. |
+| `lib/magnetissimo/release.ex` | `migrate/0`: migrations then seeds, on one connection. Release boot and `bin/migrate` both call it. |
 | `config/runtime.exs` | Production env: `DATABASE_PATH`, generated `SECRET_KEY_BASE`, optional `PHX_HOST`, `check_origin: :conn`. |
 | `Dockerfile`, `compose.yaml`, `.github/workflows/docker.yml` | The image (debian-slim, runs as `nobody`, data in `/data`), the homelab compose file, and multi-arch publishing to `ghcr.io/sergiotapia/magnetissimo`. |
 | `lib/magnetissimo_web/live/home_live.ex` | Search, category and source filters, sorting, paging, live source status. |
@@ -88,6 +88,9 @@ Breaking any of these causes bugs that tests may not catch:
 - **FTS5 triggers delete with the `'delete'` command.** After touching that
   schema, run
   `insert into torrents_search(torrents_search) values('integrity-check')`.
+- **Migrate on one connection, before the pool.** Several pooled SQLite
+  connections opened on a fresh file can run a migration against a stale
+  schema. That is why the release doesn't use an `Ecto.Migrator` child.
 - **Migrations roll back.** Verify with
   `mix ecto.rollback --all && mix ecto.migrate`. Create migration files with
   `mix ecto.gen.migration name_with_underscores`, and never hand-name them.
@@ -95,7 +98,8 @@ Breaking any of these causes bugs that tests may not catch:
   `?sort`, `?dir` and `?page` are all read in `handle_params/3`. Every
   control is a link or a GET form, so the page works without JavaScript.
 - **A release needs no setup.** It migrates and seeds on boot
-  (`Release.migrator/3` via `Ecto.Migrator`), generates and keeps its own
+  (`Release.migrate/0`, called in `Application.start/2` before the Repo's
+  pool exists), generates and keeps its own
   secret beside the database, and accepts any host. Don't add a required
   env var, `force_ssl`, or a fixed `check_origin`. Homelab installs run on
   plain `http://<lan-ip>:4000`. See "Releasing" in `CONTRIBUTING.md`.
