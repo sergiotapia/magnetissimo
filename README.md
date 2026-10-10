@@ -32,13 +32,104 @@ someone searches, so the index grows into a record of what you looked for.
 - **Works without JavaScript.** Searching, filtering, sorting and paging are
   all links and plain GET forms. With JavaScript on, results stream in live.
 - **A JSON API** for scripts and for Sonarr and Radarr.
-- **One SQLite file.** No Postgres and no job queue. Back it up by copying
-  one file.
+- **One SQLite database.** No Postgres and no job queue. To back it up,
+  stop the app and copy the data folder.
 
 ## Running it
 
-You need Elixir 1.20 and Erlang/OTP 29. The exact versions are pinned in
-`.mise.toml`, so with [mise](https://mise.jdx.dev):
+### With Docker
+
+This is the easiest way, and works on anything that runs Docker: a
+homelab server, a NAS, or a Raspberry Pi (the image is built for amd64 and
+arm64). Save this as `compose.yaml`:
+
+```yaml
+services:
+  magnetissimo:
+    image: ghcr.io/sergiotapia/magnetissimo:latest
+    container_name: magnetissimo
+    restart: unless-stopped
+    ports:
+      - "4000:4000"
+    volumes:
+      - magnetissimo-data:/data
+
+volumes:
+  magnetissimo-data:
+```
+
+Then start it:
+
+```bash
+docker compose up -d
+```
+
+Open `http://<your server>:4000`. Nothing else needs configuring. The
+database and a generated secret key are kept in the `magnetissimo-data`
+volume, and every start runs any pending migrations. To upgrade, run
+`docker compose pull && docker compose up -d`.
+
+To keep the data in a folder instead of a volume, mount the folder at
+`/data` and run the container as the folder's owner. The image runs as
+`nobody` by default, which can't write to a folder Docker created as root:
+
+```yaml
+    user: "1000:1000"
+    volumes:
+      - ./data:/data
+```
+
+If you've cloned the repository, the `compose.yaml` there also builds the
+image from source when it can't be pulled: run `docker compose up -d --build`.
+
+`:latest` is the newest release. `:edge` follows every commit to `master`,
+and `:0.1` or `:0.1.0` pin a version.
+
+### As an Elixir release
+
+A [release](https://mix.hexdocs.pm/Mix.Tasks.Release.html) is a
+self-contained directory with the Erlang runtime included. Build it on the
+same OS and CPU architecture as the server it will run on:
+
+```bash
+mise install                     # Elixir 1.20.4 / OTP 29.1.1
+MIX_ENV=prod mix deps.get --only prod
+MIX_ENV=prod mix assets.setup
+MIX_ENV=prod mix assets.deploy
+MIX_ENV=prod mix release
+```
+
+Copy `_build/prod/rel/magnetissimo` to the server and start it:
+
+```bash
+mkdir -p /var/lib/magnetissimo
+DATABASE_PATH=/var/lib/magnetissimo/magnetissimo.db bin/server
+```
+
+`bin/server` starts the web server. `bin/magnetissimo` has the rest of the
+commands: `daemon`, `stop`, `remote` for a console into the running app,
+and `eval`. `bin/migrate` migrates the database without starting the app,
+although starting the app already does that.
+
+### Configuration
+
+Only `DATABASE_PATH` is required, and the Docker image already sets it.
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `DATABASE_PATH` | `/data/magnetissimo.db` in Docker | The SQLite file. Its directory must exist and be writable. |
+| `PORT` | `4000` | The HTTP port. |
+| `SECRET_KEY_BASE` | generated | Signs cookies. If you don't set it, a random one is generated on first start and saved as `secret_key_base` next to the database. |
+| `PHX_HOST` | none | Your public hostname, if the app is behind an HTTPS reverse proxy. Leave it unset for plain `http://<ip>:4000`. |
+| `POOL_SIZE` | `5` | Database connections. |
+
+Magnetissimo speaks plain HTTP. To serve it over HTTPS, put it behind a
+reverse proxy such as Caddy, Traefik or nginx, and forward WebSockets, which
+is what makes results stream in. Any host name or IP the app is reached at
+works without extra configuration. The live-update socket only accepts
+pages served from the same host.
+
+### For development
 
 ```bash
 git clone https://github.com/sergiotapia/magnetissimo
@@ -51,35 +142,6 @@ mix phx.server
 Then open [localhost:4000](http://localhost:4000). In development the
 database starts with a few dozen demo torrents so the page isn't empty.
 Search for something and the real sources start filling the index.
-
-### In production
-
-Build a release and set four environment variables:
-
-```bash
-MIX_ENV=prod mix assets.deploy
-MIX_ENV=prod mix release
-
-DATABASE_PATH=/var/lib/magnetissimo/magnetissimo.db \
-SECRET_KEY_BASE="$(mix phx.gen.secret)" \
-PHX_HOST=magnetissimo.example.com \
-PHX_SERVER=true \
-_build/prod/rel/magnetissimo/bin/magnetissimo start
-```
-
-| Variable | Required | What it does |
-| --- | --- | --- |
-| `DATABASE_PATH` | yes | Where the SQLite file lives. It is created if it does not exist. |
-| `SECRET_KEY_BASE` | yes | Signs cookies. Generate one with `mix phx.gen.secret`. |
-| `PHX_HOST` | yes | The host name the app is reached at. |
-| `PHX_SERVER` | yes | Set it to `true` to start the web server. |
-| `PORT` | no | The HTTP port. Defaults to `4000`. |
-| `POOL_SIZE` | no | Database connections. Defaults to `5`. |
-
-A release runs its own migrations when it starts. In production the app
-redirects plain HTTP to HTTPS for any host other than `localhost`, so put it
-behind a proxy that terminates TLS and sets `X-Forwarded-Proto`. There is no
-Docker image yet.
 
 ## API
 

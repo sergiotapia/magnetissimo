@@ -38,12 +38,17 @@ lib/magnetissimo/
   crawlers/categories.ex   compile-time site→Torznab category mapping
   crawlers/<source>.ex     one module per site
   seeds.ex                 the sources rows
+  release.ex               migrate and seed, for a release with no Mix
 lib/magnetissimo_web/
   live/home_live.ex        search, filters, sources, results
   live/torrent_live.ex     one torrent
   controllers/torrent_*    the JSON API
   components/              layouts, core and dossier components
   format.ex                sizes, counts, ages, hashes
+config/runtime.exs         production settings, read from the environment
+rel/overlays/bin/          bin/server and bin/migrate, copied into a release
+Dockerfile, compose.yaml   the image and how homelabs run it
+.github/workflows/docker.yml  publishes the image to ghcr.io
 docs/design.md             the visual design system
 ```
 
@@ -216,10 +221,55 @@ These are the parts most likely to surprise you. Each was a deliberate choice.
 | The JSON API | `test/magnetissimo_web/controllers/torrent_controller_test.exs` |
 | Formatting | `test/magnetissimo_web/format_test.exs` |
 
+## Releasing
+
+The image is built by `.github/workflows/docker.yml` with Docker's
+`github-builder` reusable workflow. It builds amd64 and arm64 on native
+runners and pushes to `ghcr.io/sergiotapia/magnetissimo`:
+
+- Every push to `master` publishes `:master` and `:edge`.
+- A `vX.Y.Z` tag publishes `:X.Y.Z`, `:X.Y` and `:latest`.
+- Pull requests build the image without pushing it.
+
+To cut a release, bump `version` in `mix.exs`, commit, then tag and push:
+`git tag v0.2.0 && git push origin v0.2.0`. GHCR packages are private when
+first created, so after the first push, make the package public in its
+settings on GitHub.
+
+Things to keep working when you touch the release or the image:
+
+- **A release migrates and seeds on boot.** The `Ecto.Migrator` child in
+  `Magnetissimo.Application` runs `Release.migrator/3` whenever
+  `RELEASE_NAME` is set. A new source's row is therefore created on the
+  first boot after an upgrade, with nobody running seeds.
+- **Zero required configuration in Docker.** The image sets
+  `DATABASE_PATH`. `SECRET_KEY_BASE` falls back to a key generated once and
+  stored next to the database (`config/runtime.exs`). Don't add a required
+  variable without a sensible default.
+- **No `force_ssl`, and `check_origin: :conn`.** Most installs are reached
+  at `http://<lan-ip>:4000`. Redirecting that to HTTPS breaks them, and so
+  does a socket that only accepts one configured host. TLS is the reverse
+  proxy's job.
+- **The runner is `debian-slim` and runs as `nobody`,** with `/data` owned by
+  `nobody` so a named volume starts out writable. Keep the builder and
+  runner on the same Debian release, and on the Elixir/OTP versions in
+  `.mise.toml`.
+- **To test the image locally:**
+  `docker compose up -d --build`, then open http://localhost:4000. To start
+  from a clean database, run `docker compose down -v` first.
+
+To try a bare release without Docker:
+
+```bash
+MIX_ENV=prod mix assets.deploy && MIX_ENV=prod mix release --overwrite
+mkdir -p /tmp/mg && DATABASE_PATH=/tmp/mg/m.db PORT=4100 \
+  _build/prod/rel/magnetissimo/bin/server
+```
+
 ## Still to build
 
 - A Torznab endpoint (`/api/torznab?t=caps|search|tvsearch|movie`), so Sonarr
   and Radarr can add Magnetissimo as an indexer directly. The taxonomy and
   the category numbers are already in place for it.
-- A Docker image and a documented deployment.
+- A health check route, for Docker's `HEALTHCHECK` and uptime monitors.
 - Tests for `TorrentLive`.
