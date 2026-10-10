@@ -78,15 +78,24 @@ defmodule MagnetissimoWeb.TorznabRequest do
 
   defp search(t, params) do
     term = term(t, params)
+    category_ids = params |> Map.get("cat", "") |> category_ids()
 
     %__MODULE__{
       function: :search,
       term: term,
-      unsupported?: is_nil(term) and Enum.any?(@ids, &present?(params[&1])),
-      category_ids: params |> Map.get("cat", "") |> category_ids(),
+      unsupported?: unsupported?(term, params, category_ids),
+      category_ids: category_ids,
       limit: params |> integer("limit", @max_limit) |> max(1) |> min(@max_limit),
       offset: params |> integer("offset", 0) |> max(0)
     }
+  end
+
+  # Ids alone are a search we cannot run. So is a `cat` list with no category
+  # we know, such as a site-specific 100000-range one: unknown ids are
+  # ignored, which leaves nothing to match, not everything.
+  defp unsupported?(term, params, category_ids) do
+    (is_nil(term) and Enum.any?(@ids, &present?(params[&1]))) or
+      (present?(params["cat"]) and category_ids == [])
   end
 
   defp term("tvsearch", params) do
@@ -111,10 +120,21 @@ defmodule MagnetissimoWeb.TorznabRequest do
   # Sonarr sends a season zero-padded ("01", "00" for specials), and some
   # clients send "S01"; a daily show's episode is its air date, "MM/DD".
   defp episode(season, ep) do
-    case {number(season, "s"), ep} do
-      {nil, _ep} -> nil
-      {year, <<month::binary-size(2), "/", day::binary-size(2)>>} -> "#{year}.#{month}.#{day}"
-      {season, ep} -> season_episode(season, number(ep, "e"))
+    case number(season, "s") do
+      nil -> nil
+      season -> air_date(season, ep) || season_episode(season, number(ep, "e"))
+    end
+  end
+
+  defp air_date(_year, nil), do: nil
+
+  defp air_date(year, ep) do
+    case Regex.run(~r/^\s*(\d{1,2})\/(\d{1,2})\s*$/, ep) do
+      [_, month, day] ->
+        "#{year}.#{String.pad_leading(month, 2, "0")}.#{String.pad_leading(day, 2, "0")}"
+
+      nil ->
+        nil
     end
   end
 

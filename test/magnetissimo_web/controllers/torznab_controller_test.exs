@@ -138,6 +138,16 @@ defmodule MagnetissimoWeb.TorznabControllerTest do
            ]
   end
 
+  test "links follow the scheme a TLS-ending proxy says it was", %{conn: conn} do
+    doc =
+      conn
+      |> put_req_header("x-forwarded-proto", "https")
+      |> api(t: "book", cat: "3030")
+      |> xml()
+
+    assert select(doc, "//channel/link/text()") == ["https://www.example.com/"]
+  end
+
   test "ids it cannot look up match nothing and ask no site", %{conn: conn} do
     TorrentsFixtures.torrent_fixture(%{name: "The Matrix"})
 

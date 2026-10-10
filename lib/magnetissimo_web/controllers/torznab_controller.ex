@@ -82,9 +82,17 @@ defmodule MagnetissimoWeb.TorznabController do
 
   # Links point back the way the client came in. The endpoint's configured
   # host is localhost unless PHX_HOST is set, and a homelab reaches the app
-  # on its LAN address.
+  # on its LAN address. Behind a reverse proxy that ends TLS, the request
+  # arrives as http, and the proxy says what it was.
   defp base_url(conn) do
-    %URI{scheme: Atom.to_string(conn.scheme), host: conn.host, port: conn.port}
-    |> URI.to_string()
+    uri = %URI{scheme: Atom.to_string(conn.scheme), host: conn.host, port: conn.port}
+
+    case get_req_header(conn, "x-forwarded-proto") do
+      ["https" | _] ->
+        URI.to_string(%{uri | scheme: "https", port: 443})
+
+      _direct ->
+        URI.to_string(uri)
+    end
   end
 end

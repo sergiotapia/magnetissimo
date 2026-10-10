@@ -19,6 +19,8 @@ defmodule MagnetissimoWeb.TorznabRequestTest do
     assert term(Map.merge(tv, %{"season" => "2026", "ep" => "10/05"})) ==
              "Breaking Bad 2026.10.05"
 
+    assert term(Map.merge(tv, %{"season" => "2026", "ep" => "1/5"})) == "Breaking Bad 2026.01.05"
+
     assert term(tv) == "Breaking Bad"
   end
 
@@ -45,6 +47,13 @@ defmodule MagnetissimoWeb.TorznabRequestTest do
 
     assert {:ok, %{term: nil, unsupported?: true}} =
              TorznabRequest.parse(%{"t" => "movie", "imdbid" => "0133093"})
+
+    # A cat list with no category we know leaves nothing to match.
+    assert {:ok, %{unsupported?: true}} =
+             TorznabRequest.parse(%{"t" => "search", "q" => "dune", "cat" => "100001"})
+
+    assert {:ok, %{unsupported?: false, category_ids: []}} =
+             TorznabRequest.parse(%{"t" => "search", "q" => "dune", "cat" => ""})
   end
 
   test "categories take their families and parents, and bad paging is defaulted" do
