@@ -1,190 +1,225 @@
 # Contributing
 
-## Where this project is
+Thanks for wanting to work on Magnetissimo. This guide covers how to get set
+up, what every commit has to pass, how the code is laid out, how to add a
+torrent source, and the decisions that look odd until you know why they
+were made.
 
-Magnetissimo is being rewritten from the 2.0.0 app at `~/Work/magnetissimo-old`.
-Read `legacy-project.md` in that repo for what the app does, how the crawlers
-worked, and which of its rough edges are deliberate. That repo is the reference
-for **intent**, not for code: it is Elixir 1.14 / Phoenix 1.7 / Postgres, and
-this one is Phoenix 1.8 / LiveView 1.2 / SQLite.
+If you are an AI agent, `AGENTS.md` is written for you and says the same
+things more tersely.
 
-Built so far:
+## Setup
 
-- The data layer: `sources`, `torrents`, `search_hits`, and the
-  `torrents_search` (trigram) and `torrents_words` FTS5 indexes. Categories
-  are the Torznab standard, in code: `Magnetissimo.Taxonomy`.
-- `Magnetissimo.Torrents`, the context over them.
-- Phoenix 1.8 on Bandit, plain Tailwind.
-- The UI: `HomeLive` (search, category filter, per-source status, latest
-  torrents) and `TorrentLive` (one torrent as a dossier). The look is a CRT
-  reading of the mood board in `docs/moodboard/`; `docs/design.md` is the
-  design system, read it before adding a page.
-- The JSON API, `GET /api/latest` and `GET /api/search/:term`, with the
-  2.0.0 field names.
-- Crawlers for YTS, Nyaa.si, Sukebei, TorrentDownloads, AudioBookBay, The
-  Pirate Bay, EZTV and OxTorrent, asked only when someone searches, through
-  `Magnetissimo.SourceSearch`.
-- Tests for the context, the LiveViews, the API and the formatting helpers.
-
-Not built yet — don't assume any of it exists:
-
-- The Torznab endpoint for Sonarr and Radarr.
-
-## Environment
-
-Tool versions are pinned in `.mise.toml` (Elixir 1.20.4, OTP 29.1.1).
+Tool versions are pinned in `.mise.toml`: Elixir 1.20.4 on OTP 29.1.1.
 
 ```bash
 mise install
-mix setup          # deps, database, migrations, seeds, assets
-iex -S mix phx.server
+mix setup             # deps, SQLite database, migrations, sources, assets
+iex -S mix phx.server # http://localhost:4000
 ```
 
-## Committing
+`mix setup` seeds the `sources` table and, in dev only, about fifty demo
+torrents (`priv/repo/seeds.exs`) so the page has something on it. Their
+hashes and URLs are made up. Everything else gets into the index because
+someone searched for it. `mix ecto.reset` starts over.
 
-There is no remote yet. The commit log is the only record of how this was
-built, so commit early and often and locally.
+## Where things are
 
-- **One logical change per commit.** Commit as soon as a step works — a
-  migration, a crawler, a passing check — even if the feature around it is
-  unfinished. Do not hold work back until it is finished or pretty. A messy
-  honest step beats one large opaque commit at the end.
-- **Never `--amend`, rebase, or force-push a commit that already exists.**
-  Add a follow-up commit instead. The course corrections are part of the
-  history. Never squash.
-- `git add -A` is fine here; there is no unrelated churn to worry about.
-- Run `mix precommit` before committing when the change touches Elixir. If it
-  fails for a reason unrelated to your change, commit anyway and say so in the
-  body.
-- **Subject line:** imperative, capitalized, no trailing period, under ~72
-  characters, and it says what the change gets you. `Index torrents with SQLite
-  FTS5`, not `wip`.
-- **Body** for anything non-trivial: explain *why* and any non-obvious
-  constraint, wrapped at ~72 characters. When a decision replaced something the
-  2.0.0 app did differently, say what and why — that is the part nobody can
-  reconstruct later.
-- Never commit secrets, `.env` files, or database files (`*.db` is gitignored).
+```
+lib/magnetissimo/
+  torrents.ex              the context: list, count, index, search
+  torrents/search.ex       free text to FTS5 SQL, ranking
+  torrents/{torrent,source,search_hit}.ex
+  taxonomy.ex              the Torznab category list, in code
+  source_search.ex         asks every source at once, caches, broadcasts
+  crawlers.ex              runs one crawler's search and indexes the result
+  crawlers/crawler.ex      the behaviour every source implements
+  crawlers/http.ex         the single Req GET every crawler makes
+  crawlers/categories.ex   compile-time site→Torznab category mapping
+  crawlers/<source>.ex     one module per site
+  seeds.ex                 the sources rows
+lib/magnetissimo_web/
+  live/home_live.ex        search, filters, sources, results
+  live/torrent_live.ex     one torrent
+  controllers/torrent_*    the JSON API
+  components/              layouts, core and dossier components
+  format.ex                sizes, counts, ages, hashes
+docs/design.md             the visual design system
+```
+
+### How a search flows
+
+1. `HomeLive` patches the URL (`?q=`). `handle_params/3` subscribes to the
+   term and calls `SourceSearch.request/1`, then reads the index through
+   `Torrents.search_torrents/2` and renders it straight away.
+2. `SourceSearch` starts one supervised task per crawler. If the same term is
+   already in flight, a second reader joins it. If every source answered it
+   within the last 15 minutes, nothing is asked again.
+3. Each task calls `Crawlers.search/2`. The crawler fetches and parses, then
+   `Torrents.index_torrents/2` upserts the batch by `magnet_hash` and
+   records each hit for the term in `search_hits`, all in one transaction.
+4. Each answer is broadcast on PubSub. `HomeLive` reloads from the index and
+   marks the rows that weren't there before, which then slide in.
+5. A source gets 20 seconds. After that its task is killed, which rolls back
+   its transaction, and it is shown as failed.
+
+`GET /api/search/:term` does the same thing, but waits up to 10 seconds for
+the sources (`SourceSearch.await/2`) before reading the index, since a JSON
+client can't receive results later.
 
 ## Checks
 
-`mix precommit` must pass:
+`mix precommit` has to pass before you commit Elixir changes. It runs:
 
 | Step | What fails it |
 | --- | --- |
 | `compile --warnings-as-errors` | Any compiler warning. |
-| `deps.unlock --unused`, `format` | Nothing. They clean the lockfile and format the code. |
-| `credo --strict` | Any Credo issue, including every [ExSlop](https://github.com/elixir-vibe/ex_slop) check for the patterns generated code tends to have. `.credo.exs` holds the list. |
-| `ex_dna` | Any duplicated code in `lib/` or `test/`, including copies with renamed variables or changed literals, and near-misses at 85% similarity (`.ex_dna.exs`). Extract the shared code. |
-| `reach.check --arch` | A break of the architecture rules in `.reach.exs`: the domain calling `MagnetissimoWeb`, the web layer calling `Repo` or `Ecto.Query` directly, any HTTP client other than `Req`, `System.cmd`, `Port.open`, `String.to_atom`, or `IO.puts`. |
-| `dialyzer` | Any Dialyzer warning, including an ignored return value. Write `_ = call()` when ignoring it is deliberate. The first run builds a PLT in `_build/` and takes a minute or two. |
+| `deps.unlock --unused`, `format` | Nothing. They tidy the lockfile and format the code. |
+| `credo --strict` | Any Credo issue, including every [ExSlop](https://github.com/elixir-vibe/ex_slop) check for patterns generated code tends to have. See `.credo.exs`. |
+| `ex_dna` | Duplicated code in `lib/` or `test/`. That includes copies with renamed variables or changed literals, and near-misses at 85% similarity. Extract the shared code. |
+| `reach.check --arch` | A break of the rules in `.reach.exs`: the domain calling `MagnetissimoWeb`, web code calling `Repo` or `Ecto.Query`, any HTTP client other than Req, `System.cmd`/`Port.open`, `String.to_atom`, or `IO.puts`/`IO.inspect`. |
+| `dialyzer` | Any warning, including an ignored return value. Write `_ = call()` when ignoring one is deliberate. The first run builds a PLT and takes a few minutes. |
 | `test` | Any failing test. |
 
-Fix what a check finds instead of disabling it. If a check is wrong for one
-line, disable it on that line with a reason
-(`# credo:disable-for-next-line Check.Name because …`).
+When a check finds something, fix the code. Don't turn the check off. If a
+check is genuinely wrong about one line, disable it on that line only and
+give the reason:
+`# credo:disable-for-next-line Check.Name because …`.
 
-`AGENTS.md` has the long-form Phoenix, LiveView, Ecto and HEEx conventions.
-Read it before writing UI or Ecto code.
+## Commits
 
-## How we build a feature
+There is no shared remote yet, so the commit log is the project's only
+history.
 
-1. **Migration.** `mix ecto.gen.migration name_with_underscores`. Never
-   hand-name migration files.
-2. **Schema** under `lib/magnetissimo/torrents/`.
-3. **Context function** in `Magnetissimo.Torrents`. LiveViews and controllers
-   call contexts and never touch `Repo` directly.
-4. **UI** in a LiveView under `lib/magnetissimo_web/live/`, plain Tailwind.
-5. **Tests** for the context, and for the LiveView where there is one.
+- **One logical change per commit, committed as soon as it works.** That
+  might be a migration, a crawler, or a passing test. A small honest step is
+  better than one large commit at the end.
+- **Never amend, rebase, squash or force-push an existing commit.** Fix it
+  in a follow-up commit. The course corrections are part of the history.
+- **Subject:** imperative and capitalized, no trailing period, under 72
+  characters. Say what the change gets you: `Crawl OxTorrent, a page per
+  release`, not `add oxtorrent`.
+- **Body:** explain *why*, wrapped at about 72 characters, whenever the
+  subject doesn't make it obvious. When you replace something the 2.0.0 app
+  did, say what it did and why you changed it.
+- If `mix precommit` fails for a reason unrelated to your change, commit
+  anyway and say so in the body.
+- Never commit secrets or database files. `*.db` is gitignored.
 
-## Patterns we use
+## Adding a source
 
-- **Integer primary keys are load-bearing, not a style choice.** Every table
-  uses Ecto's default `"id" INTEGER PRIMARY KEY AUTOINCREMENT`. On SQLite that
-  column *is* the rowid, which is what the `torrents_search` external-content
-  index joins on. Never reach for `:binary_id`, UUIDs, nanoid, or
-  `ecto_identifier`, and never pass `--binary-id` to a generator.
-- **Never pass user text to FTS5 `MATCH`.** FTS5 parses its argument as a query
-  language, so ordinary search text raises: `ubuntu:24.04` gives
-  `no such column: ubuntu`, `x265-` and `NOT` give syntax errors, `*` gives
-  `unknown special query`. `Torrents.match_query/1` quotes each token;
-  query through `Torrents.search_torrents/2` rather than writing `MATCH` by
-  hand.
-- **`magnet_hash` is the identity, not the name.** One source page yields
-  several torrents that share a name — YTS returns 720p, 1080p and 2160p for a
-  single movie — and only the hash tells them apart. A duplicate `magnet_hash`
-  is the expected result of a source returning a torrent already indexed, not
-  an error.
-- **`magnet_url` holds the complete magnet URI**, scheme included. The old
-  column stored `?xt=urn:btih:…` with `magnet:` re-added at render time, so the
-  column name lied about its contents.
-- **Categories are the Torznab standard, and each crawler maps its own.**
-  `Magnetissimo.Taxonomy` is the Newznab/Torznab list Sonarr and Radarr speak;
-  `category_id` is a Torznab number. Never add a category of our own. Each
-  crawler declares a `Magnetissimo.Crawlers.Categories.mapping!/3` from the
-  site's most stable key (an id where the feed has one, not a display name) to
-  a Torznab name, with a fallback. For a new source, start from the
-  `categorymappings` in its Prowlarr indexer definition and refine where the
-  site says more. An adult source falls back to `XXX`. List every category the
-  site publishes in `test/magnetissimo/crawlers/categories_test.exs`; an
-  unmapped one is logged at runtime.
-- **HTTP goes through `Req`**, and `.reach.exs` enforces it. The old crawlers
-  used `%{status_code: 200} = HTTPoison.get!(url)`, which turned a site hiccup
-  into a supervisor crash loop. A non-200 is data; handle it.
-- **Search reads the index, and asks the sources beside it.** The old
-  `search_torrents/1` ran four scrapers inline on every keystroke and threw the
-  results away. `Torrents.search_torrents/2` only ever reads the index;
-  `Magnetissimo.SourceSearch` asks every source's own search in parallel,
-  shares one search per term, caches answered terms, indexes the hits and
-  broadcasts each answer so the page can slide them in.
-- **Nothing is crawled on a timer; sources are asked only on a search.**
-  Every crawler used to be polled every 5 minutes for its newest torrents. In
-  October 2026 Nyaa and AudioBookBay both started dropping our connections,
-  so the timers and each crawler's `latest/0` were removed. The index now
-  holds what readers have searched for, and a site only hears from us when
-  someone types a term. Don't add a scheduler back. A source that needs more
-  than one request per search, as AudioBookBay does, paces itself: a reader
-  typing a term asks for every prefix of it.
-- **One theme, and it is dark.** Plain Tailwind with the tokens in
-  `assets/css/app.css`; `docs/design.md` says what each one is for. There is
-  no light mode and no component library — daisyUI was deliberately removed.
-  Don't add one back.
-- **Database tests are `async: false`.** SQLite has one writer; two sandboxed
-  tests inserting at once fail with `Database busy`. Pure tests (formatting,
-  components) stay async.
-- **The FTS5 index is maintained by triggers, and the delete path is subtle.**
-  The delete trigger must use FTS5's special `'delete'` command; a plain
-  `INSERT` of the old values re-adds the tokens instead of removing them and
-  silently corrupts the index. After changing anything about that table, check
-  it with
+Most contributions will be this one. Keep `Magnetissimo.Crawlers.Yts` open
+for the simplest example, and `AudioBookBay` or `OxTorrent` for a site that
+needs a second request per result.
+
+1. **Find the cheapest way in.** Look for a JSON API, an RSS feed with a
+   search parameter, or the endpoint the site's own JavaScript calls (The
+   Pirate Bay's pages are filled from `apibay.org`). Scrape HTML only when
+   there's nothing else. One request per search is ideal. If you need one
+   per result, cap how many, skip pages already in the index
+   (`Torrents.torrents_by_canonical_url/1`), and pace the requests.
+2. **Write the crawler** at `lib/magnetissimo/crawlers/<site>.ex`,
+   implementing `Magnetissimo.Crawlers.Crawler`:
+   - `source_name/0` is the `sources.name` row.
+   - `categories/0` is a `Categories.mapping!/3` from the site's most stable
+     category key (an id rather than a display name) to Torznab names, with
+     a `:fallback`. Start from the `categorymappings` in the site's
+     [Prowlarr indexer definition](https://github.com/Prowlarr/Indexers)
+     and refine it. An adult site falls back to `XXX`.
+   - `search/1` returns `{:ok, [attrs]}` or `{:error, reason}`, and must
+     never raise because a site is down. Fetch through `Crawlers.Http.get/2`,
+     merging in `Application.get_env(:magnetissimo, __MODULE__, [])` so tests
+     can stub it.
+   - Attrs need `name`, `canonical_url`, `published_at`, `size_in_bytes`, a
+     lowercase 40-character `magnet_hash`, a full `magnet_url`,
+     `category_id` and `source_id`. If the site gives only an infohash, build
+     the magnet with `Crawlers.Magnet`. If it names its own trackers, use
+     those.
+   - Write the moduledoc as notes for the next person. Cover how the site is
+     read, what it gets wrong, and what you had to work around.
+3. **Register it.** Add it to `@crawlers` in `Magnetissimo.Crawlers`, add its
+   row to `Magnetissimo.Seeds`, and add a `Req.Test` plug for it in
+   `config/test.exs`.
+4. **Test it from saved fixtures.** Put a trimmed real response in
+   `test/support/fixtures/<site>_fixtures.ex` and write
+   `test/magnetissimo/crawlers/<site>_test.exs` against it. Never let a test
+   reach the live site. List every category the site publishes in
+   `test/magnetissimo/crawlers/categories_test.exs`.
+5. **Try it for real.** Run `mix run priv/repo/seeds.exs`, start the server,
+   search, and check the logs (`[Site] search "term": N found, M new`).
+
+## Decisions worth knowing
+
+These are the parts most likely to surprise you. Each was a deliberate choice.
+
+- **Sources are asked only when someone searches.** The 2.0.0 app polled
+  every site every five minutes. In October 2026 Nyaa and AudioBookBay both
+  started dropping our connections, so the timers were removed. Please don't
+  add a scheduler, a job queue, or a "latest" crawl back.
+- **Nothing is retried.** A non-200 response comes back as
+  `{:error, {:http_status, n}}` and is shown as that source failing.
+  Retrying only adds to the burst that gets a rate-limited site to shut us
+  out.
+- **`magnet_hash` is a torrent's identity, not its name.** YTS returns 720p,
+  1080p and 2160p under one name. A duplicate hash is the normal result of
+  a source returning something already indexed. The existing row keeps its
+  data, but takes the fresh seeder and leecher counts, and it can move out of
+  `Other` if a source knows a better category.
+- **`magnet_url` is the whole URI, scheme included.** The old column
+  stored the URI without `magnet:`, so its name didn't match its contents.
+- **Categories are the Torznab standard, defined in code** in
+  `Magnetissimo.Taxonomy`, and `category_id` is the Torznab number. Never
+  invent a category. A mapping to a name that doesn't exist fails to compile.
+- **Primary keys are integers.** On SQLite the integer primary key *is* the
+  rowid that the FTS5 indexes join on. Don't use `:binary_id` or UUIDs, and
+  never pass `--binary-id`.
+- **Never hand user text to FTS5 `MATCH`.** `Torrents.Search` splits the
+  text into tokens and quotes each one. Without the quotes, `ubuntu:24.04`
+  and `x265-` are query syntax and raise. Search through
+  `Torrents.search_torrents/2`.
+- **The FTS5 delete trigger uses the special `'delete'` command.** A plain
+  insert of the old values silently corrupts the index. After touching that
+  table, run
   `insert into torrents_search(torrents_search) values('integrity-check')`.
-- **Migrations must roll back.** `mix ecto.rollback --all` followed by
-  `mix ecto.migrate` is part of verifying a data change. The FTS5 migration
-  hand-writes `up`/`down` because `create virtual table` has no Ecto DSL.
+- **Migrations must roll back.** Before a data change counts as done, run
+  `mix ecto.rollback --all && mix ecto.migrate`. Always generate migration
+  files with `mix ecto.gen.migration`.
+- **The URL is the page state.** The query, category, sources, sort and page
+  all live in the URL, so every view is a link and the page works without
+  JavaScript.
+- **One light theme, hand-written Tailwind.** daisyUI was removed on
+  purpose. Read `docs/design.md` before adding UI.
 
 ## Tests
 
-`test/support/data_case.ex` runs database tests in one SQL sandbox per test,
-`test/support/conn_case.ex` runs tests through the router, and
-`Magnetissimo.TorrentsFixtures` (`test/support/fixtures/`) seeds the taxonomy
-and inserts a torrent with sensible defaults.
+- `Magnetissimo.DataCase` gives each test a SQL sandbox, `ConnCase` runs
+  requests through the router, and `Magnetissimo.TorrentsFixtures` seeds the
+  sources and inserts torrents with sensible defaults.
+- Anything that writes to the database is `async: false`, because SQLite
+  has a single writer. Pure tests stay async.
+- No network calls. Stub HTTP with `Req.Test`.
+- `Magnetissimo.FastCrawler` and `SlowCrawler` in `test/support/crawlers/`
+  are stand-in sources for testing `SourceSearch` and the LiveView. A term
+  containing `crash` or `fail` makes the fast one misbehave.
+- Never use `Process.sleep`. Wait on a message, a `:DOWN`, or
+  `:sys.get_state/1`.
+- LiveView tests target DOM ids with `element/2` and `has_element?/2`, and
+  check outcomes rather than exact wording.
 
-Tests cover the ground the checks cannot:
-
-| Change | Where |
+| What you changed | Where its tests go |
 | --- | --- |
-| Context and schema logic | `test/magnetissimo/torrents_test.exs` |
-| The FTS5 index | `torrents_search` stays in sync on insert, update and delete, and `match_query/1` survives hostile input such as `ubuntu:24.04`, `x265-` and `*` (still to write) |
-| Crawlers | one file per source, parsing saved fixtures, never the live site |
-| LiveView UI | `test/magnetissimo_web/live/`, one file per LiveView |
-| The JSON API | `test/magnetissimo_web/controllers/` |
-| Formatting and components | `test/magnetissimo_web/format_test.exs`, `test/magnetissimo_web/components/` |
+| Search, ranking, filters, sorting | `test/magnetissimo/torrents/search_test.exs` |
+| Source search, caching, timeouts | `test/magnetissimo/source_search_test.exs` |
+| A crawler | `test/magnetissimo/crawlers/<site>_test.exs` |
+| Category mappings | `test/magnetissimo/crawlers/categories_test.exs` |
+| The home page | `test/magnetissimo_web/live/home_live_test.exs` |
+| The JSON API | `test/magnetissimo_web/controllers/torrent_controller_test.exs` |
+| Formatting | `test/magnetissimo_web/format_test.exs` |
 
-Rules:
+## Still to build
 
-- `async: true` for pure tests; `async: false` for anything that writes to the
-  database, because SQLite has one writer.
-- **Never make real network calls.** Stub `Req` with
-  `req_options: [plug: {Req.Test, name}]`.
-- Don't use `Process.sleep`; wait on messages or `:sys.get_state/1`.
-- For LiveView, assert against DOM ids with `element/2` / `has_element?/2`.
-  Test outcomes, not raw HTML or exact copy.
+- A Torznab endpoint (`/api/torznab?t=caps|search|tvsearch|movie`), so Sonarr
+  and Radarr can add Magnetissimo as an indexer directly. The taxonomy and
+  the category numbers are already in place for it.
+- A Docker image and a documented deployment.
+- Tests for `TorrentLive`.
