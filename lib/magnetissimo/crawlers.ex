@@ -6,6 +6,10 @@ defmodule Magnetissimo.Crawlers do
   parses, and this module writes. `search/2` never raises on a site being
   down or answering badly; it says why, for `Magnetissimo.SourceSearch` to
   show.
+
+  Every site is asked through `Magnetissimo.Crawlers.Pacer`, so however many
+  readers and Torznab clients search at once, a site sees only a few searches
+  at a time.
   """
 
   require Logger
@@ -14,6 +18,7 @@ defmodule Magnetissimo.Crawlers do
   alias Magnetissimo.Crawlers.Eztv
   alias Magnetissimo.Crawlers.Nyaa
   alias Magnetissimo.Crawlers.OxTorrent
+  alias Magnetissimo.Crawlers.Pacer
   alias Magnetissimo.Crawlers.Sukebei
   alias Magnetissimo.Crawlers.ThePirateBay
   alias Magnetissimo.Crawlers.TorrentDownloads
@@ -38,7 +43,7 @@ defmodule Magnetissimo.Crawlers do
   def search(crawler, term) do
     source = crawler.source_name()
 
-    case crawler.search(term) do
+    case Pacer.run(source, fn -> crawler.search(term) end) do
       {:ok, attrs} ->
         %{inserted: inserted, ids: ids} = index(source, attrs, term)
 

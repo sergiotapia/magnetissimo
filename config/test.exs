@@ -59,6 +59,11 @@ config :magnetissimo, Magnetissimo.Crawlers.Eztv, plug: {Req.Test, Magnetissimo.
 config :magnetissimo, Magnetissimo.Crawlers.OxTorrent,
   plug: {Req.Test, Magnetissimo.Crawlers.OxTorrent}
 
+# Searches start without waiting on one another. Slots are plentiful because
+# `SlowCrawler` holds one until its search times out, which can be after the
+# test that started it has finished.
+config :magnetissimo, Magnetissimo.Crawlers.Pacer, interval: 0, concurrency: 100
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

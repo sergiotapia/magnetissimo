@@ -20,6 +20,8 @@ defmodule Magnetissimo.Application do
       Magnetissimo.Repo,
       {DNSCluster, query: Application.get_env(:magnetissimo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Magnetissimo.PubSub},
+      # Every site is asked through this, so none is asked too often.
+      Magnetissimo.Crawlers.Pacer,
       # Each source a search asks runs as its own task under this supervisor,
       # so a source that crashes takes only its own answer with it.
       {Task.Supervisor, name: Magnetissimo.SourceSearch.TaskSupervisor},
