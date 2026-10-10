@@ -12,6 +12,7 @@ defmodule Magnetissimo.Torrents do
 
   alias Magnetissimo.Repo
   alias Magnetissimo.Taxonomy
+  alias Magnetissimo.Torrents.Query
   alias Magnetissimo.Torrents.Search
   alias Magnetissimo.Torrents.SearchHit
   alias Magnetissimo.Torrents.Source
@@ -74,7 +75,11 @@ defmodule Magnetissimo.Torrents do
       is no filter, not an empty result
     * `:sort` - a `t:Magnetissimo.Torrents.Search.sort/0`, such as
       `{:seeders, :desc}`, in place of newest first
+    * `:min_size` and `:max_size` - in bytes
+    * `:min_seeders` and `:max_seeders`
+    * `:published_after` and `:published_before` - `DateTime`s
 
+  Every bound is inclusive, and a `nil` one is no bound.
   """
   def list_latest_torrents(opts \\ []) do
     limit = Keyword.get(opts, :limit, @latest_limit)
@@ -96,18 +101,50 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
-  Returns how many torrents are indexed, or match `:category_id`,
-  `:category_ids` and `:source_ids`.
+  Returns how many torrents are indexed, or match the filters
+  `list_latest_torrents/1` takes.
   """
   def count_torrents(opts \\ []) do
     Repo.aggregate(filtered(from(t in Torrent), opts), :count)
   end
 
   defp filtered(query, opts) do
-    for {column, ids} <- filters(opts), ids != [], reduce: query do
-      query -> where(query, [t], field(t, ^column) in ^ids)
+    query =
+      for {column, ids} <- filters(opts), ids != [], reduce: query do
+        query -> where(query, [t], field(t, ^column) in ^ids)
+      end
+
+    for {column, bound, value} <- ranges(opts), reduce: query do
+      query when bound == :min -> where(query, [t], field(t, ^column) >= ^value)
+      query when bound == :max -> where(query, [t], field(t, ^column) <= ^value)
     end
   end
+
+  @ranges [
+    min_size: {:size_in_bytes, :min},
+    max_size: {:size_in_bytes, :max},
+    min_seeders: {:seeders, :min},
+    max_seeders: {:seeders, :max},
+    published_after: {:published_at, :min},
+    published_before: {:published_at, :max}
+  ]
+
+  # Each is `{column, :min | :max, value}`, for every bound given.
+  defp ranges(opts) do
+    for {option, {column, bound}} <- @ranges, value = opts[option], value != nil do
+      {column, bound, range_value(value)}
+    end
+  end
+
+  # `published_at` is stored as ISO 8601 text with six decimals, and compared
+  # as text. A date with fewer would sort after one with more in the same
+  # second, so every date is padded to the column's precision.
+  defp range_value(%DateTime{} = date) do
+    {microsecond, _precision} = date.microsecond
+    %{DateTime.shift_zone!(date, "Etc/UTC") | microsecond: {microsecond, 6}}
+  end
+
+  defp range_value(value) when is_integer(value), do: value
 
   # Each is `{column, ids}`, kept when the column is one of the ids. An
   # empty list is no filter.
@@ -298,12 +335,16 @@ defmodule Magnetissimo.Torrents do
   @doc """
   Searches torrents by name and description, best match first.
 
-  See `Magnetissimo.Torrents.Search` for how a term is matched and ranked.
+  `query` is a `t:Magnetissimo.Torrents.Query.t/0`, which may hold
+  operators, or plain text, where nothing is an operator: Torznab clients
+  send titles, which can begin with a dash or hold a quote. See
+  `Magnetissimo.Torrents.Search` for how either is matched and ranked.
   Returns `[]` for input with nothing to search for.
 
   Takes the same options as `list_latest_torrents/1`, where `:sort` replaces
-  best match first. The category and source filters and the page are applied
-  in SQL, so a page is always full while matches remain.
+  best match first, and `:scope`: `:all` (the default) to match names and
+  descriptions, or `:name` for names only. The filters and the page are
+  applied in SQL, so a page is always full while matches remain.
   """
   def search_torrents(term, opts \\ []) do
     limit = Keyword.get(opts, :limit, @search_limit)
@@ -338,7 +379,11 @@ defmodule Magnetissimo.Torrents do
   end
 
   defp search_query(term, opts, select, tail) when is_binary(term) do
-    with {matches, params} <- Search.matches(term) do
+    search_query(Query.plain(term), opts, select, tail)
+  end
+
+  defp search_query(%Query{} = query, opts, select, tail) do
+    with {matches, params} <- Search.matches(query, Keyword.get(opts, :scope, :all)) do
       {filter, filter_params} = search_filter(opts)
 
       sql = """
@@ -357,10 +402,18 @@ defmodule Magnetissimo.Torrents do
   defp search_query(_term, _opts, _select, _tail), do: nil
 
   defp search_filter(opts) do
-    conditions =
+    in_lists =
       for {column, ids} <- filters(opts), ids != [] do
         {"t.#{column} IN (#{Enum.map_join(ids, ", ", fn _ -> "?" end)})", ids}
       end
+
+    bounds =
+      for {column, bound, value} <- ranges(opts) do
+        operator = if bound == :min, do: ">=", else: "<="
+        {"t.#{column} #{operator} ?", [sql_value(value)]}
+      end
+
+    conditions = in_lists ++ bounds
 
     case conditions do
       [] ->
@@ -371,6 +424,9 @@ defmodule Magnetissimo.Torrents do
          Enum.flat_map(conditions, &elem(&1, 1))}
     end
   end
+
+  defp sql_value(%DateTime{} = date), do: DateTime.to_iso8601(date)
+  defp sql_value(value), do: value
 
   # The search returns ids in rank order; a single `where id in ^ids` query
   # would lose it, so the rows are re-sorted here.
