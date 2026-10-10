@@ -4,32 +4,11 @@ defmodule MagnetissimoWeb.HomeLiveTest do
 
   import Phoenix.LiveViewTest
 
-  alias Magnetissimo.Crawlers.Nyaa.Feed
   alias Magnetissimo.Crawlers.TorrentDownloads
-  alias Magnetissimo.Crawlers.Yts
   alias Magnetissimo.SourceSearch
   alias Magnetissimo.TorrentsFixtures
-  alias Magnetissimo.YtsFixtures
 
-  setup do
-    TorrentsFixtures.seed!()
-
-    # The sources are asked from SourceSearch's own tasks, not from this
-    # process, so the stubs are shared with every process.
-    Req.Test.set_req_test_to_shared()
-    Req.Test.stub(Yts, fn conn -> Req.Test.json(conn, YtsFixtures.api_response()) end)
-    # The feed-driven sources are asked too; an empty feed stands in for them.
-    Req.Test.stub(Feed, &Plug.Conn.send_resp(&1, 200, "<rss></rss>"))
-    Req.Test.stub(TorrentDownloads, &Plug.Conn.send_resp(&1, 200, "<rss></rss>"))
-
-    # The database is rolled back after every test, so a term cached by the
-    # last test must not count as already searched in this one.
-    previous = Application.get_env(:magnetissimo, SourceSearch)
-    Application.put_env(:magnetissimo, SourceSearch, ttl: 0)
-    on_exit(fn -> Application.put_env(:magnetissimo, SourceSearch, previous || []) end)
-
-    :ok
-  end
+  setup :stub_sources
 
   test "the index answers at once, then the sources' hits slide in", %{conn: conn} do
     local = TorrentsFixtures.torrent_fixture(%{name: "Fixture Movie Collection"})
