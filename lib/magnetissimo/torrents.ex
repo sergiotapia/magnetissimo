@@ -3,15 +3,17 @@ defmodule Magnetissimo.Torrents do
   The torrents context: the sites we crawl, the canonical category tree, and the
   indexed torrents.
 
-  Searching goes through `search_torrents/2`, which queries the `torrents_search`
-  FTS5 index. Read `match_query/1` before writing anything else that talks to
-  that index.
+  Searching goes through `search_torrents/2`, which queries the two FTS5
+  indexes. Read `Magnetissimo.Torrents.Search` before writing anything else
+  that talks to them.
   """
 
   import Ecto.Query, warn: false
 
   alias Magnetissimo.Repo
   alias Magnetissimo.Torrents.Category
+  alias Magnetissimo.Torrents.Search
+  alias Magnetissimo.Torrents.SearchHit
   alias Magnetissimo.Torrents.Source
   alias Magnetissimo.Torrents.Torrent
 
@@ -196,124 +198,70 @@ defmodule Magnetissimo.Torrents do
   ## Search
 
   @doc """
-  Full-text searches torrents by name and description, best match first.
+  Searches torrents by name and description, best match first.
 
-  A name match outranks a description match ten to one, so a title beats a plot
-  summary that happens to mention the same word. Returns `[]` for blank input.
+  See `Magnetissimo.Torrents.Search` for how a term is matched and ranked.
+  Returns `[]` for input with nothing to search for.
 
-  Takes the same options as `list_latest_torrents/1`. With a `:category_id`
-  the index is asked for more rows than the limit before filtering, so a
-  category that rarely wins on relevance still fills a page.
+  Takes the same options as `list_latest_torrents/1`. The category filter and
+  the page are applied in SQL, so a page is always full while matches remain.
   """
   def search_torrents(term, opts \\ []) do
     limit = Keyword.get(opts, :limit, @search_limit)
     offset = Keyword.get(opts, :offset, 0)
 
-    case match_query(term) do
+    case search_query(term, opts, "t.id", "ORDER BY #{Search.order_by()} LIMIT ? OFFSET ?") do
       nil ->
         []
 
-      match ->
-        match
-        |> matching_torrent_ids(limit, offset, Keyword.has_key?(opts, :category_id))
-        |> load_torrents_in_order()
-        |> filter_by_category(opts)
-        |> Enum.slice(offset, limit)
+      {sql, params} ->
+        %{rows: rows} = Repo.query!(sql, params ++ [limit, offset])
+        rows |> Enum.map(&hd/1) |> load_torrents_in_order()
     end
   end
 
   @doc """
   Returns how many torrents `search_torrents/2` matches, so the UI can page.
 
-  Takes the same `:category_id` option; blank input matches nothing rather
-  than everything.
+  Takes the same `:category_id` option; input with nothing to search for
+  matches nothing rather than everything.
   """
   def count_search_torrents(term, opts \\ []) do
-    case match_query(term) do
+    case search_query(term, opts, "count(*)", "") do
       nil ->
         0
 
-      match ->
-        {filter, params} =
-          case Keyword.fetch(opts, :category_id) do
-            {:ok, category_id} -> {"AND t.category_id = ?", [category_id]}
-            :error -> {"", []}
-          end
-
-        # The FTS table is named in full: an alias is not accepted by MATCH.
-        sql = """
-        SELECT count(*)
-        FROM torrents_search
-        JOIN torrents t ON t.id = torrents_search.rowid
-        WHERE torrents_search MATCH ?
-        #{filter}
-        """
-
-        %{rows: [[count]]} = Repo.query!(sql, [match | params])
+      {sql, params} ->
+        %{rows: [[count]]} = Repo.query!(sql, params)
         count
     end
   end
 
-  defp filter_by_category(torrents, opts) do
-    case Keyword.fetch(opts, :category_id) do
-      {:ok, category_id} -> Enum.filter(torrents, &(&1.category_id == category_id))
-      :error -> torrents
+  defp search_query(term, opts, select, tail) when is_binary(term) do
+    with {matches, params} <- Search.matches(term) do
+      {filter, filter_params} =
+        case Keyword.fetch(opts, :category_id) do
+          {:ok, category_id} -> {"WHERE t.category_id = ?", [category_id]}
+          :error -> {"", []}
+        end
+
+      sql = """
+      WITH #{matches}
+      SELECT #{select}
+      FROM matches m
+      JOIN torrents t ON t.id = m.id
+      #{filter}
+      #{tail}
+      """
+
+      {sql, params ++ filter_params}
     end
   end
 
-  @doc """
-  Turns free text into an FTS5 `MATCH` expression, or `nil` when there is
-  nothing to search for.
+  defp search_query(_term, _opts, _select, _tail), do: nil
 
-  Every token is wrapped in double quotes. Raw user input must never reach
-  `MATCH` unquoted, because FTS5 parses its argument as a query language, so
-  ordinary search text kills the query with a syntax error:
-
-      ubuntu:24.04 -> no such column: ubuntu
-      x265-        -> fts5: syntax error near ""
-      foo(bar)     -> fts5: syntax error near "foo"
-      NOT          -> fts5: syntax error near "NOT"
-      *            -> unknown special query
-
-  Quoting also neutralises the boolean operators, so a user searching for `OR`
-  gets torrents containing "or" rather than a query matching everything. The
-  trailing `*` makes the final token a prefix match, which is what typing into
-  a search box needs.
-  """
-  def match_query(term) when is_binary(term) do
-    tokens = term |> String.split(~r/\s+/, trim: true) |> Enum.map(&quote_token/1)
-
-    case tokens do
-      [] -> nil
-      _ -> tokens |> List.update_at(-1, &(&1 <> "*")) |> Enum.join(" ")
-    end
-  end
-
-  def match_query(_term), do: nil
-
-  defp quote_token(token), do: ~s("#{String.replace(token, "\"", "\"\"")}")
-
-  defp matching_torrent_ids(match, limit, offset, filtered?) do
-    # A category filter is applied after the FTS rows come back, so the index
-    # is asked for every row up to this page (oversampled when filtering) and
-    # the page is sliced out afterwards.
-    limit = if filtered?, do: (offset + limit) * 4, else: offset + limit
-
-    # bm25's weights must be literals: 10x for name, 1x for description.
-    sql = """
-    SELECT rowid
-    FROM torrents_search
-    WHERE torrents_search MATCH ?
-    ORDER BY bm25(torrents_search, 10.0, 1.0)
-    LIMIT ?
-    """
-
-    %{rows: rows} = Repo.query!(sql, [match, limit])
-    Enum.map(rows, &hd/1)
-  end
-
-  # The FTS index returns ids in relevance order; a single `where id in ^ids`
-  # query would lose it, so the rows are re-sorted here.
+  # The search returns ids in rank order; a single `where id in ^ids` query
+  # would lose it, so the rows are re-sorted here.
   defp load_torrents_in_order([]), do: []
 
   defp load_torrents_in_order(ids) do
@@ -323,5 +271,22 @@ defmodule Magnetissimo.Torrents do
       |> Map.new(&{&1.id, &1})
 
     Enum.flat_map(ids, fn id -> List.wrap(by_id[id]) end)
+  end
+
+  @doc """
+  Records that a source returned `torrent_ids` when asked for `term`, so the
+  search finds them by that term from now on. Already recorded pairs are kept
+  as they are.
+  """
+  def record_search_hits(_term, []), do: :ok
+
+  def record_search_hits(term, torrent_ids) do
+    term = Search.normalize(term)
+    now = DateTime.utc_now()
+
+    rows = Enum.map(torrent_ids, &%{term: term, torrent_id: &1, inserted_at: now})
+    {_count, _} = Repo.insert_all(SearchHit, rows, on_conflict: :nothing)
+
+    :ok
   end
 end
