@@ -197,9 +197,3 @@ look, a corporate Y2K glass atrium, is described in
 Read [CONTRIBUTING.md](CONTRIBUTING.md). It covers setup, the checks every
 commit has to pass, how to add a new source, and the design decisions behind
 the code.
-
-## A note on use
-
-Magnetissimo indexes magnet links that other sites publish. What you search
-for and what you do with the links is your responsibility, under the laws
-where you live.
