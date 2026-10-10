@@ -6,22 +6,30 @@ defmodule MagnetissimoWeb.Format do
   free of arithmetic and the same number reads the same way on every page.
   """
 
-  @units ~w(B KB MB GB TB PB)
+  @units ~w(B KiB MiB GiB TiB PiB)
 
   @doc """
-  Human-readable file size, one decimal above kilobytes.
+  Human-readable file size, one decimal above kibibytes.
+
+      iex> bytes(933_075_071)
+      "890 MiB"
 
       iex> bytes(1_400_000_000)
-      "1.4 GB"
+      "1.3 GiB"
 
-  Sizes are decimal (1 KB = 1000 B), which is what every torrent site shows.
+  Sizes are binary (1 KiB = 1024 B), as the sources show them: The Pirate
+  Bay and Nyaa label them MiB and GiB, and OxTorrent and AudioBookBay divide
+  by 1024 too but write MB. Decimal units would show every size some 5%
+  bigger than the page it came from.
   """
   def bytes(nil), do: "—"
-  def bytes(n) when is_integer(n) and n < 1000, do: "#{n} B"
+  def bytes(n) when is_integer(n) and n < 1024, do: "#{n} B"
 
   def bytes(n) when is_integer(n) do
-    exponent = min(trunc(:math.log10(n) / 3), length(@units) - 1)
-    value = n / :math.pow(1000, exponent)
+    # Counted on the integer's bits, so an exact power of 1024 never lands a
+    # unit low the way a float logarithm can.
+    exponent = min(div(length(Integer.digits(n, 2)) - 1, 10), length(@units) - 1)
+    value = n / 1024 ** exponent
     unit = Enum.at(@units, exponent)
 
     if value >= 100 or exponent == 1,
