@@ -79,8 +79,10 @@ To keep the data in a folder instead of a volume, mount the folder at
       - ./data:/data
 ```
 
-If you've cloned the repository, the `compose.yaml` there also builds the
-image from source when it can't be pulled: run `docker compose up -d --build`.
+If you've cloned the repository, the `compose.yaml` there builds the image
+from source when it can't be pulled, so `docker compose up -d` works
+straight from the checkout. To upgrade a checkout, run
+`git pull && docker compose up -d --build`.
 
 `:latest` is the newest release. `:edge` follows every commit to `master`,
 and `:0.1` or `:0.1.0` pin a version.
