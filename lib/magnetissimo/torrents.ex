@@ -233,6 +233,59 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
+  Files again the torrents only the DHT has found, for when the DHT's
+  classifier has learned something. `fun` gets each one's `:name` and
+  `:files` (with string keys, as stored) and returns a category id, or `nil`
+  to leave it.
+
+  A torrent any site has returned (it has `search_hits`) keeps its category:
+  it may be the site's own. Works through the index in batches, each in its
+  own transaction, so the DHT's writes are never held up for long. Returns how
+  many torrents changed category.
+  """
+  @spec recategorize_dht_torrents((map() -> pos_integer() | nil)) :: non_neg_integer()
+  def recategorize_dht_torrents(fun) do
+    dht = from s in Source, where: s.name == @dht, select: s.id
+    seen = from h in SearchHit, select: h.torrent_id
+
+    query =
+      from t in Torrent,
+        where: t.source_id in subquery(dht) and t.id not in subquery(seen),
+        where: not is_nil(t.files),
+        order_by: t.id,
+        limit: 500,
+        select: %{id: t.id, name: t.name, files: t.files, category_id: t.category_id}
+
+    recategorize(query, fun, 0, 0)
+  end
+
+  defp recategorize(query, fun, after_id, changed) do
+    case Repo.all(from t in query, where: t.id > ^after_id) do
+      [] ->
+        changed
+
+      batch ->
+        moves =
+          for torrent <- batch,
+              category_id = fun.(torrent),
+              category_id not in [nil, torrent.category_id],
+              do: {category_id, torrent.id}
+
+        {:ok, :moved} = Repo.transact(fn -> move(moves) end)
+        last_id = batch |> Enum.map(& &1.id) |> Enum.max()
+        recategorize(query, fun, last_id, changed + length(moves))
+    end
+  end
+
+  defp move(moves) do
+    for {category_id, ids} <- Enum.group_by(moves, &elem(&1, 0), &elem(&1, 1)) do
+      Repo.update_all(from(t in Torrent, where: t.id in ^ids), set: [category_id: category_id])
+    end
+
+    {:ok, :moved}
+  end
+
+  @doc """
   Sets the swarm of the torrent with this hex infohash, as a DHT scrape
   estimated it. Returns `{:ok, id}`, or `:error` when no such torrent is
   indexed. The search indexes are not touched.
@@ -291,10 +344,13 @@ defmodule Magnetissimo.Torrents do
   A torrent indexed without a file list gains one when a source that has it,
   the DHT, sees the torrent too.
 
-  The one other exception is a torrent filed under the fallback category.
-  TorrentDownloads' search feed carries no category, so a torrent it finds
-  first lands in "Other" even when Nyaa knows it is anime. The first source to
-  say what it is gets to file it; a real category is never overwritten.
+  The one other exception is the category, when the first source could only
+  guess it. TorrentDownloads' search feed carries no category, so a torrent
+  it finds first lands in "Other" even when Nyaa knows it is anime: the first
+  source to say what it is gets to file it. The DHT files a torrent by reading
+  its name and files, so a site's own category, other than "Other", replaces
+  the DHT's guess; the DHT seeing it again does not put the guess back.
+  Otherwise a real category is never overwritten.
 
   Attrs that fail `Torrent.changeset/2` are not indexed; they come back in
   `:rejected` with their errors, for the caller to log.
@@ -419,8 +475,17 @@ defmodule Magnetissimo.Torrents do
             dynamic(
               [t],
               fragment(
-                "CASE WHEN ? = ? THEN excluded.category_id ELSE ? END",
+                """
+                CASE WHEN ? = ?
+                  OR (? = (SELECT id FROM sources WHERE name = ?)
+                      AND excluded.source_id <> ? AND excluded.category_id <> ?)
+                THEN excluded.category_id ELSE ? END
+                """,
                 t.category_id,
+                ^fallback_id,
+                t.source_id,
+                ^@dht,
+                t.source_id,
                 ^fallback_id,
                 t.category_id
               )

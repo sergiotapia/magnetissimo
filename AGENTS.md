@@ -103,7 +103,8 @@ Breaking any of these causes bugs that tests may not catch:
   duplicate is normal. On conflict, only the seeders, leechers and
   `updated_at` refresh (the swarm only when the source sent one: nil seeders
   and leechers keep the old numbers), the file list fills in only if it was
-  empty, and the category is replaced only if it was `Other`.
+  empty, and the category is replaced only if it was `Other`, or was the
+  DHT's guess and a site names a real one.
 - **`file_names` is derived.** `Torrent.changeset/2` fills it from `files`
   (paths, one per line) for the FTS indexes. Never cast or write it
   directly. Both FTS5 indexes have three columns: `name, description,

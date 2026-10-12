@@ -46,8 +46,13 @@ sees, and the measurements behind the three rate presets.
    bytes are refused.
    `Classifier` picks a Torznab category from file extensions weighed by
    size and from the name, and refuses anything matching the banned
-   keywords (child sexual abuse material). The keyword lists come from
-   bitmagnet.
+   keywords (child sexual abuse material). The keyword lists started from
+   bitmagnet's. A site that later returns the same torrent replaces the
+   guess with its own category. After the classifier changes,
+   `Magnetissimo.Release.reclassify_dht()` (from `bin/magnetissimo eval`,
+   or `mix run --no-start -e` in development) files the DHT's torrents
+   again; `classifier_corpus_test.exs` holds real torrents a person
+   labelled, to catch a change that files them wrongly.
 6. **Index.** `Indexer` writes batches through `Torrents.index_torrents/2`
    and broadcasts them to the `/dht` page.
 7. **Swarm** ([BEP 33]). `get_peers` with `scrape: 1` to the nodes that

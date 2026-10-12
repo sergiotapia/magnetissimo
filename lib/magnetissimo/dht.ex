@@ -36,11 +36,13 @@ defmodule Magnetissimo.DHT do
 
   import Ecto.Query, warn: false
 
+  alias Magnetissimo.DHT.Classifier
   alias Magnetissimo.DHT.KRPC
   alias Magnetissimo.DHT.Runner
   alias Magnetissimo.DHT.Settings
   alias Magnetissimo.DHT.Stats
   alias Magnetissimo.Repo
+  alias Magnetissimo.Torrents
 
   @pubsub Magnetissimo.PubSub
   @topic "dht"
@@ -168,6 +170,29 @@ defmodule Magnetissimo.DHT do
   end
 
   ## Known nodes
+
+  @doc """
+  Files every torrent only the DHT has found again, with today's
+  `Magnetissimo.DHT.Classifier`, and returns how many changed category.
+
+  The category is decided once, when a torrent is indexed, so a better
+  classifier files only what it finds from then on; this brings the rest up
+  to date. A torrent it would now refuse keeps its category. A torrent a site
+  has returned keeps the site's (see
+  `Magnetissimo.Torrents.recategorize_dht_torrents/1`). From a release,
+  `bin/magnetissimo eval "Magnetissimo.Release.reclassify_dht()"`.
+  """
+  @spec reclassify_torrents() :: non_neg_integer()
+  def reclassify_torrents do
+    Torrents.recategorize_dht_torrents(fn %{name: name, files: files} ->
+      files = Enum.map(files, &%{path: &1["path"], size: &1["size"]})
+
+      case Classifier.classify(%{name: name, files: files}) do
+        {:ok, category_id} -> category_id
+        :banned -> nil
+      end
+    end)
+  end
 
   @doc "The nodes saved by `save_nodes/1`, as `{id, {ip, port}}`."
   @spec load_nodes() :: [{binary(), KRPC.address()}]

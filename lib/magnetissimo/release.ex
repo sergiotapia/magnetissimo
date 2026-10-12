@@ -5,10 +5,14 @@ defmodule Magnetissimo.Release do
   A release calls `migrate/0` on every boot, before the Repo's pool starts
   (see `Magnetissimo.Application`), so nothing here has to be run by hand.
   `bin/migrate` calls it too, for whoever wants the database ready before the
-  server starts, and `rollback/2` is for `bin/magnetissimo eval`.
+  server starts. `rollback/2` and `reclassify_dht/0` are for
+  `bin/magnetissimo eval`.
   """
 
+  require Logger
+
   alias Ecto.Migrator
+  alias Magnetissimo.DHT
   alias Magnetissimo.Seeds
 
   @app :magnetissimo
@@ -37,6 +41,24 @@ defmodule Magnetissimo.Release do
           pool_size: 1
         )
     end)
+  end
+
+  @doc """
+  Files the DHT's torrents again with today's classifier (see
+  `Magnetissimo.DHT.reclassify_torrents/0`), for `bin/magnetissimo eval`
+  after an upgrade. Safe while the server runs.
+  """
+  @spec reclassify_dht() :: non_neg_integer()
+  def reclassify_dht do
+    load_app()
+
+    {:ok, changed, _} =
+      Migrator.with_repo(Magnetissimo.Repo, fn _repo -> DHT.reclassify_torrents() end,
+        pool_size: 1
+      )
+
+    Logger.info("Filed #{changed} DHT torrents under a new category")
+    changed
   end
 
   @doc "Rolls `repo` back to `version`."

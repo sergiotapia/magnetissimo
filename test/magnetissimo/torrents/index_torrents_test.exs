@@ -66,6 +66,34 @@ defmodule Magnetissimo.Torrents.IndexTorrentsTest do
     assert Torrents.count_search_torrents("movie.mkv") == 1
   end
 
+  test "a site's category replaces the DHT's guess, and the DHT never puts it back" do
+    movies = %{category_id: Taxonomy.id!("Movies")}
+    anime = %{category_id: Taxonomy.id!("TV/Anime")}
+    other = %{category_id: Taxonomy.other_id()}
+
+    %{ids: [id]} = Torrents.index_torrents([attrs("DHT", movies)])
+    %{ids: [^id]} = Torrents.index_torrents([attrs("TorrentDownloads", other)])
+    assert Torrents.get_torrent!(id).category_id == Taxonomy.id!("Movies")
+
+    %{ids: [^id]} = Torrents.index_torrents([attrs("Nyaa.si", anime)])
+    assert Torrents.get_torrent!(id).category_id == Taxonomy.id!("TV/Anime")
+
+    %{ids: [^id]} = Torrents.index_torrents([attrs("DHT", movies)])
+    assert Torrents.get_torrent!(id).category_id == Taxonomy.id!("TV/Anime")
+  end
+
+  test "a site's category is never replaced but for Other" do
+    %{ids: [id]} = Torrents.index_torrents([attrs("YTS", %{})])
+
+    %{ids: [^id]} =
+      Torrents.index_torrents([attrs("Nyaa.si", %{category_id: Taxonomy.id!("TV")})])
+
+    assert Torrents.get_torrent!(id).category_id == Taxonomy.id!("Movies")
+
+    %{ids: [^id]} = Torrents.index_torrents([attrs("DHT", %{category_id: Taxonomy.id!("XXX")})])
+    assert Torrents.get_torrent!(id).category_id == Taxonomy.id!("Movies")
+  end
+
   test "a size past SQLite's integers is rejected, not a crash" do
     %{ids: [], rejected: [{_attrs, errors}]} =
       Torrents.index_torrents([attrs("YTS", %{size_in_bytes: 99_999_999_999_999_999_999})])
