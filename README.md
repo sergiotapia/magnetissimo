@@ -164,31 +164,51 @@ Search for something and the real sources start filling the index.
 
 ## Searching
 
-The search box takes plain words, as any search does, and these:
+Type one or more words in the search box. Magnetissimo shows the torrents
+that have all of the words. You can also use these symbols:
 
-| Type | Finds |
+| You type | You get |
 | --- | --- |
-| `dune part two` | All three words, anywhere in the name or description. |
-| `"[ToonsHub]"` | Exactly what is between the quotes, brackets and spaces included, ignoring case and accents. `"part two"` does not find `Dune.Part.Two`: leave the quotes off for that. |
-| `dune -cam` | Dune, without the whole word `cam`. `El Camino` and `HDCAM` stay. |
-| `dune -*cam` | Dune, without `cam` anywhere in a word, so `HDCAM` goes too. |
-| `dune 2160p\|4k` | Dune in either resolution. A bar binds tighter than a space. |
-| `seinfeld s05e1*` | Any word starting with `s05e1`. A star in the middle, `s0*e14`, matches anything between. |
+| `dune part two` | Torrents with all three words. The words can be in any order and in any part of the name, the description or the file names. |
+| `"[ToonsHub]"` | Torrents with this exact text, with the brackets and the spaces. Capital letters and accents have no effect. |
+| `dune -cam` | Dune torrents, but not the ones with the word `cam`. The minus removes only the full word, so torrents with `El Camino` or `HDCAM` are still in the results. |
+| `dune -*cam` | Dune torrents, but not the ones with `cam` in any word. This also removes `HDCAM`. |
+| `dune 2160p\|4k` | Dune torrents with `2160p` or `4k`. |
+| `seinfeld s05e1*` | Seinfeld torrents with a word that starts with `s05e1`, for example `s05e10` or `s05e14`. |
+| `seinfeld s0*e14` | Seinfeld torrents with a word like `s01e14` or `s05e14`. A star in a word matches any characters. |
 
-Under the search box, **Refine** limits the results to names only, a size
-(`2 GB`, `700 MB`; binary units, as the sites use, and a bare number is GB),
-a number of seeders, or an age (`12h`, `7d`, `2w`, `3mo`, `1y`; a bare number
-is days). These filters also apply to the latest list when the search box is
-empty.
+Some things to know:
 
-The sites themselves only understand plain words, so they are never sent the
-operators. They are asked the words you typed, without exclusions or
-wildcards, and once for each alternative (`dune 2160p` and `dune 4k`), up to
-three searches. Magnetissimo applies everything else to what they return.
-Changing a filter or an exclusion asks no site again.
+- Quotes find the exact characters. `"part two"` does not find
+  `Dune.Part.Two`, because a dot is not a space. To find it, type the words
+  without quotes.
+- The bar joins only the two words next to it. `dune 2160p|4k remux` finds
+  torrents with `dune`, with `2160p` or `4k`, and with `remux`.
+- A minus removes a result only when it is at the start of a word. In
+  `spider-man`, the dash is part of the word.
 
-Torznab apps and the JSON API search plain text: there, `-` and `"` are
-just part of a title.
+**Refine**, under the search box, gives more filters:
+
+- **Names only:** look for the words in the torrent names only.
+- **Size:** a smallest and a largest size, for example `700 MB` or `2 GB`. A
+  number with no unit is in GB. Sizes use binary units (1 GB is 1,024 MB),
+  as the sites do.
+- **Seeders:** a smallest and a largest number of seeders.
+- **Age:** newer than or older than, for example `12h`, `7d`, `2w`, `3mo` or
+  `1y`. A number with no unit is in days.
+
+The filters also work when the search box is empty. Then they filter the
+list of the latest torrents.
+
+**What the sites get.** The torrent sites understand only plain words, so
+Magnetissimo does not send them the symbols. It sends the words you typed,
+without the minus words and the stars. For each `|` choice, it sends one more
+search (`dune 2160p` and `dune 4k`), to a maximum of three searches.
+Magnetissimo then applies the symbols to the results. When you change a filter
+or a minus word, Magnetissimo does not ask the sites again.
+
+**Torznab and the JSON API.** These searches use plain text only. A `-` or a
+`"` is part of the title, not a symbol.
 
 ## The DHT crawler
 
