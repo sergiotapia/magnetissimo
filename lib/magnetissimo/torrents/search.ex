@@ -2,8 +2,9 @@ defmodule Magnetissimo.Torrents.Search do
   @moduledoc """
   Turns free text into the SQL that finds matching torrents, best first.
 
-  Two FTS5 indexes cover `torrents.name` and `torrents.description`, and each
-  token in a search goes to the one that can answer it:
+  Two FTS5 indexes cover `torrents.name`, `torrents.description` and
+  `torrents.file_names` (the paths in a torrent's file list, which only the
+  DHT knows), and each token in a search goes to the one that can answer it:
 
     * `torrents_search` uses the trigram tokenizer, so a token of three
       characters or more is a substring match in any script. That is what makes
@@ -42,7 +43,9 @@ defmodule Magnetissimo.Torrents.Search do
     * A source hit stands in for the plain words only. Every operator still
       applies to it, and a search of names only ignores hits.
 
-  Ranking is bm25 with a name match worth ten description matches, scaled up
+  Ranking is bm25 with a name match worth ten description or file-name
+  matches, so a word in the title beats the same word buried in a file list,
+  scaled up
   by how well seeded the torrent is: among near-identical names the one people
   can actually download comes first. The scale is logarithmic and capped at
   10,000 seeders, about 1.9x, so seeders break ties without burying a better
@@ -53,7 +56,7 @@ defmodule Magnetissimo.Torrents.Search do
 
   @type token :: {:trigram | :word | :substring, String.t()}
 
-  @typedoc "Where text must match: names and descriptions, or names only."
+  @typedoc "Where text must match: names, descriptions and file names, or names only."
   @type scope :: :all | :name
 
   @typedoc "A column to order by instead of the best match, and which way."
@@ -103,8 +106,8 @@ defmodule Magnetissimo.Torrents.Search do
 
   ## Options
 
-    * `:scope` - `:all` (the default) to match names and descriptions, or
-      `:name` for names only
+    * `:scope` - `:all` (the default) to match names, descriptions and file
+      names, or `:name` for names only
     * `:rank` - `false` when nothing will order by the score, as in a count
       or a sort by a column: every score is then 0.0, and bm25, which is
       most of what a search of a common word costs, is never computed.
@@ -140,7 +143,7 @@ defmodule Magnetissimo.Torrents.Search do
   end
 
   defp narrowed({driver_sql, driver_params}, {hits_sql, hits_params}, strict) do
-    # The operators read the name and description only for a short
+    # The operators read the name, description and file names only for a short
     # substring or a pattern. Every other one tests the id against an index,
     # so the candidates, which hold it, stand in for `torrents t`.
     {from_sql, u, where_sql, where_params} =
@@ -149,7 +152,7 @@ defmodule Magnetissimo.Torrents.Search do
           {"candidates AS u", "u", "", []}
 
         {sql, params} ->
-          if String.contains?(sql, ["t.name", "t.description"]),
+          if String.contains?(sql, ["t.name", "t.description", "t.file_names"]),
             do: {"candidates AS u JOIN torrents t ON t.id = u.id", "u", "WHERE #{sql}", params},
             else: {"candidates AS t", "t", "WHERE #{sql}", params}
       end
@@ -319,10 +322,11 @@ defmodule Magnetissimo.Torrents.Search do
      [first], [], rest}
   end
 
-  # bm25's weights must be literals: 10x for name, 1x for description. The
-  # table is named in full because MATCH does not accept an alias.
+  # bm25's weights must be literals: 10x for name, 1x for description and for
+  # file names. The table is named in full because MATCH does not accept an
+  # alias.
   defp fts(table, true) do
-    "SELECT rowid AS id, bm25(#{table}, 10.0, 1.0) AS score FROM #{table} WHERE #{table} MATCH ?"
+    "SELECT rowid AS id, bm25(#{table}, 10.0, 1.0, 1.0) AS score FROM #{table} WHERE #{table} MATCH ?"
   end
 
   defp fts(table, false) do
@@ -342,7 +346,8 @@ defmodule Magnetissimo.Torrents.Search do
 
   defp quote_fts(text), do: ~s("#{String.replace(text, "\"", "\"\"")}")
 
-  # An FTS5 column filter. Both indexes have the columns `name, description`.
+  # An FTS5 column filter. Both indexes have the columns `name, description,
+  # file_names`.
   defp in_scope(:all, expression), do: expression
   defp in_scope(:name, expression), do: "name : (#{expression})"
 
@@ -466,11 +471,12 @@ defmodule Magnetissimo.Torrents.Search do
   defp ascii_letter?(text), do: String.match?(text, ~r/[a-zA-Z]/)
 
   # `condition` turns a lowercased column into SQL with one parameter, which
-  # is `param`. With descriptions in scope, either column may match.
+  # is `param`. With descriptions and file names in scope, any column may
+  # match.
   defp text_condition(condition, param, scope) do
     columns =
       case scope do
-        :all -> ["t.name", "coalesce(t.description, '')"]
+        :all -> ["t.name", "coalesce(t.description, '')", "coalesce(t.file_names, '')"]
         :name -> ["t.name"]
       end
 

@@ -541,7 +541,7 @@ defmodule MagnetissimoWeb.HomeLive do
                 id="refine-in-all"
                 checked={@filters.scope == :all}
                 class="accent-azure-500"
-              /> Names and descriptions
+              /> Names, descriptions and files
             </label>
             <label class="inline-flex items-center gap-2">
               <input

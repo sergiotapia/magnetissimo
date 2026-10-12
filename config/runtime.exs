@@ -23,6 +23,14 @@ end
 config :magnetissimo, MagnetissimoWeb.Endpoint,
   http: [port: String.to_integer(System.get_env("PORT", "4000"))]
 
+# The DHT crawler is switched on, and its rate set, on the /dht page; those
+# settings live in the database. DHT_PORT is the local UDP port it sends
+# from, any free one by default: the crawler is a read-only node, so nothing
+# has to be forwarded.
+if config_env() != :test do
+  config :magnetissimo, Magnetissimo.DHT, port: String.to_integer(System.get_env("DHT_PORT", "0"))
+end
+
 if config_env() == :dev do
   # Reload browser tabs when matching files change.
   config :magnetissimo, MagnetissimoWeb.Endpoint,

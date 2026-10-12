@@ -22,9 +22,15 @@ what you looked for.
 
 - **Eight sources:** YTS, Nyaa.si, Sukebei, TorrentDownloads, AudioBookBay,
   The Pirate Bay, EZTV and OxTorrent.
+- **The BitTorrent DHT, if you want it.** Turn on the DHT crawler and
+  Magnetissimo finds torrents on its own, all the time, straight from the
+  peer-to-peer network, file lists included. Watch them arrive on `/dht`. See
+  [The DHT crawler](#the-dht-crawler).
 - **Torznab categories.** Every torrent is filed under the standard
   Newznab/Torznab category list that Sonarr, Radarr, Prowlarr and Jackett
   use, whatever the source called it.
+- **Search that looks inside torrents.** Names, descriptions, and the file
+  names of torrents the DHT found.
 - **Search that copes with real names.** `spider-man` finds
   `Spider.Man.2002`, `toy story 4` matches the `4`, and a fragment of a
   Japanese title matches without any spaces to split on. Better-seeded
@@ -134,6 +140,7 @@ Only `DATABASE_PATH` is required, and the Docker image already sets it.
 | `SECRET_KEY_BASE` | generated | Signs cookies. When unset, a random one is generated on first start and saved as `secret_key_base` next to the database. |
 | `PHX_HOST` | none | Your public hostname, if the app is behind an HTTPS reverse proxy. Leave it unset for plain `http://<ip>:4000`. |
 | `POOL_SIZE` | `5` | Database connections. |
+| `DHT_PORT` | any free port | The local UDP port the [DHT crawler](#the-dht-crawler) sends from. Nothing needs forwarding. |
 
 Magnetissimo speaks plain HTTP. To serve it over HTTPS, put it behind a
 reverse proxy such as Caddy, Traefik or nginx, and forward WebSockets, which
@@ -182,6 +189,46 @@ Changing a filter or an exclusion asks no site again.
 
 Torznab apps and the JSON API search plain text: there, `-` and `"` are
 just part of a title.
+
+## The DHT crawler
+
+Every BitTorrent client is part of the DHT, the peer-to-peer network that
+makes magnet links work. Open **`/dht`** (the **DHT** link in the header),
+flip the switch, and Magnetissimo walks it in the background: it asks peers for samples of the torrents they know, fetches
+each torrent's name and file list from the peers sharing it, files it under
+a category, and estimates its seeders and leechers.
+
+- The same page shows what it finds as it arrives: the latest hundred,
+  with live seeder counts, and how hard the crawler is working. The switch
+  and the rate are saved in the database and apply at once. It starts off.
+- Searches find DHT torrents like any other, including by the names of the
+  files inside them. They stay out of "Fresh magnets", the Torznab RSS poll
+  and `/api/latest`, which they would flood.
+- Nothing needs forwarding. The crawler is a read-only DHT node, so it works
+  behind NAT and in Docker as is.
+
+**Your router.** A crawler talks to thousands of different addresses, and
+a home router keeps a table entry for each. Fill that table and everyone's
+browsing stalls, whatever the bandwidth. The rate slider on `/dht` sets
+how hard the crawler works. Each stop was measured on a home connection:
+
+| Rate | Router table entries it adds | Bandwidth out / in | Torrents found |
+| --- | --- | --- | --- |
+| `gentle` (default) | about 600, at most ~900 | 10 / 25 kbit/s | ~900 an hour |
+| `normal` | about 2,000, at most ~3,000 | 35 / 85 kbit/s | ~2,600 an hour |
+| `max` | about 6,500, at most ~9,000 | 110 / 260 kbit/s | ~7,000 an hour |
+
+`gentle` is safe on any router, and `normal` on most. `max` fills the
+4,000-entry table of a cheap router, so keep it for a VPS, a VPN container
+or a router with room for 16,000 connections or more. If browsing slows
+down, slide it down or route the container through a VPN. [`docs/dht.md`](docs/dht.md) has the details and
+the measurements.
+
+**Privacy.** Fetching a torrent's file list is a real BitTorrent
+connection, so the peers in a swarm, and anyone watching it, see your IP.
+No content is downloaded. Use a VPN if that matters to you. The DHT holds
+everything people share. Adult torrents are filed under XXX, and a list of
+banned keywords keeps abuse material out of the index.
 
 ## Sonarr, Radarr and the book managers
 
@@ -259,7 +306,8 @@ torrent looks like this:
 Phoenix 1.8 and LiveView 1.2 on Bandit, with Ecto on SQLite. Search runs
 on two FTS5 indexes: one on trigrams for substrings in any script, and one on
 whole words for short tokens like the `4` in `toy story 4`. All HTTP goes through
-[Req](https://hexdocs.pm/req). The interface is hand-written Tailwind. Its
+[Req](https://hexdocs.pm/req). The DHT crawler is plain OTP: `:gen_udp`,
+`:gen_tcp` and its own bencode, with no dependency. The interface is hand-written Tailwind. Its
 look, a corporate Y2K glass atrium, is described in
 [`docs/design.md`](docs/design.md).
 

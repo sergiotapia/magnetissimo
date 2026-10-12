@@ -61,6 +61,7 @@ defmodule MagnetissimoWeb.Layouts do
             <.nav_link navigate={~p"/"} id="nav-latest">Latest</.nav_link>
             <.nav_link href={~p"/#categories"} id="nav-categories">Categories</.nav_link>
             <.nav_link href={~p"/#sources"} id="nav-sources">Sources</.nav_link>
+            <.nav_link navigate={~p"/dht"} id="nav-dht">DHT</.nav_link>
             <.nav_link href={~p"/api/latest"} id="nav-api">API</.nav_link>
             <.nav_link href="https://github.com/sergiotapia/magnetissimo" id="nav-source">
               More+

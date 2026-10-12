@@ -38,11 +38,15 @@ lib/magnetissimo/
   crawlers/categories.ex   compile-time site→Torznab category mapping
   crawlers/pacer.ex        holds each site to two searches at a time
   crawlers/<source>.ex     one module per site
+  dht.ex                   the DHT source: config, presets, PubSub
+  dht/                     the DHT crawler: KRPC over UDP, metadata over TCP,
+                           sampler, fetcher, classifier, indexer, stats
   seeds.ex                 the sources rows
   release.ex               migrate and seed, for a release with no Mix
 lib/magnetissimo_web/
   live/home_live.ex        search, filters, sources, results
-  live/torrent_live.ex     one torrent
+  live/torrent_live.ex     one torrent, with its files when known
+  live/dht_live.ex         the DHT page: what the crawler just found, live
   controllers/torznab_*    the Torznab API at /api, for the *arr apps
   controllers/torrent_*    the JSON API
   components/              layouts, core and dossier components
@@ -52,6 +56,7 @@ rel/overlays/bin/          bin/server and bin/migrate, copied into a release
 Dockerfile, compose.yaml   the image and how homelabs run it
 .github/workflows/docker.yml  publishes the image to ghcr.io
 docs/design.md             the visual design system
+docs/dht.md                how the DHT crawler works, and its measured rates
 ```
 
 ### How a search flows
@@ -169,10 +174,27 @@ needs a second request per result.
 
 These are the parts most likely to surprise you. Each was a deliberate choice.
 
-- **Sources are asked only when someone searches.** The 2.0.0 app polled
+- **Sites are asked only when someone searches.** The 2.0.0 app polled
   every site every five minutes. In October 2026 Nyaa and AudioBookBay both
   started dropping our connections, so the timers were removed. Please don't
-  add a scheduler, a job queue, or a "latest" crawl back.
+  add a scheduler, a job queue, or a "latest" crawl of a site back.
+- **The DHT is the one source crawled in the background, and it is off by
+  default.** It is not a site: there is nobody to block us, and it can't
+  answer a text search, only map infohashes to peers. So `Magnetissimo.DHT`
+  walks it all the time once someone switches it on at `/dht`, inside the
+  packet budget the rate slider picks. Those two settings are a database row,
+  and `DHT.Runner` starts, stops or restarts the crawler when they change. It doesn't go through `Crawlers.Pacer`, which paces HTTP to
+  sites, and it isn't in `Crawlers.all/0`, so a search never waits on it.
+  What it finds stays out of the views without a search ("Fresh magnets",
+  the Torznab RSS poll, `/api/latest`), where it would bury the sites'
+  releases, and shows on `/dht` instead. Its rates were measured on a home
+  connection; see `docs/dht.md` before changing them.
+- **A home router counts connections, not bytes.** The DHT crawler's
+  bandwidth is tiny. What hurts a household is the router's
+  connection-tracking table: every distinct address the crawler talks to
+  is an entry for 30 seconds to 2 minutes. The crawler is a read-only node
+  (BEP 43), sends no packet outside its budget, stops sampling while the
+  fetch queue is full, and resets every TCP connection it closes.
 - **Nothing is retried.** A non-200 response comes back as
   `{:error, {:http_status, n}}` and is shown as that source failing.
   Retrying only adds to the burst that gets a rate-limited site to shut us
@@ -180,8 +202,10 @@ These are the parts most likely to surprise you. Each was a deliberate choice.
 - **`magnet_hash` is a torrent's identity, not its name.** YTS returns 720p,
   1080p and 2160p under one name. A duplicate hash is the normal result of
   a source returning something already indexed. The existing row keeps its
-  data, but takes the fresh seeder and leecher counts, and it can move out of
-  `Other` if a source knows a better category.
+  data, but takes the fresh seeder and leecher counts (unless the source
+  knows none, as AudioBookBay and the DHT don't), gains a file list if it
+  had none, and it can move out of `Other` if a source knows a better
+  category.
 - **`magnet_url` is the whole URI, scheme included.** The old column
   stored the URI without `magnet:`, so its name didn't match its contents.
 - **Categories are the Torznab standard, defined in code** in
@@ -287,4 +311,7 @@ mkdir -p /tmp/mg && DATABASE_PATH=/tmp/mg/m.db PORT=4100 \
 ## Still to build
 
 - A health check route, for Docker's `HEALTHCHECK` and uptime monitors.
-- Tests for `TorrentLive`.
+- More tests for `TorrentLive`; there are a few, for its file list.
+- The DHT crawler's metadata fetch speaks plaintext only. Some peers insist
+  on Message Stream Encryption (MSE) and close the connection; supporting
+  it would raise the fetch success rate.

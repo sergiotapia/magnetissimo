@@ -20,7 +20,8 @@
       # Every source is scraped through Req, so timeouts, retries and a dead
       # site are handled in one place instead of once per crawler.
       {"*", ["HTTPoison.*", "Tesla.*", "Finch.request", "Finch.stream", ":httpc.*"]},
-      # Nothing shells out, and no crawler owns a port.
+      # Nothing shells out. The DHT's UDP and TCP sockets are :gen_udp and
+      # :gen_tcp, not ports.
       {"*", ["System.cmd", "System.shell", "Port.open"]},
       # Never build atoms from input.
       {"*", ["String.to_atom", "List.to_atom"]},

@@ -21,6 +21,9 @@ services:
     # environment:
     #   PHX_HOST: magnetissimo.example.com
     #   SECRET_KEY_BASE: ...
+    #   # The DHT crawler is switched on at /dht. This only picks the UDP
+    #   # port it sends from; nothing needs forwarding.
+    #   DHT_PORT: "6881"
 
 volumes:
   magnetissimo-data:

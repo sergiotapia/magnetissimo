@@ -20,11 +20,11 @@ defmodule Magnetissimo.SeedsTest do
     assert Torrents.get_source_by_name!("YTS").url != "https://yts.mx/"
   end
 
-  test "there is one source row per crawler, however often it runs" do
+  test "there is one source row per crawler and one for the DHT, however often it runs" do
     Seeds.run()
     Seeds.run()
 
     assert Torrents.list_sources() |> Enum.map(& &1.name) |> Enum.sort() ==
-             Crawlers.all() |> Enum.map(& &1.source_name()) |> Enum.sort()
+             Enum.sort(["DHT" | Enum.map(Crawlers.all(), & &1.source_name())])
   end
 end

@@ -25,7 +25,7 @@ defmodule Magnetissimo.MixProject do
   def application do
     [
       mod: {Magnetissimo.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:logger, :runtime_tools, :crypto]
     ]
   end
 

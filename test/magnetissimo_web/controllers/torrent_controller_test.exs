@@ -19,4 +19,18 @@ defmodule MagnetissimoWeb.TorrentControllerTest do
     assert "Fixture Movie Collection" in names
     assert Enum.count(names, &(&1 == "Fixture Movie (2024)")) == 2
   end
+
+  test "latest leaves out what the DHT found", %{conn: conn} do
+    TorrentsFixtures.torrent_fixture(%{name: "From A Site"})
+    TorrentsFixtures.torrent_fixture(%{name: "From The DHT", source: "DHT"})
+
+    names =
+      conn
+      |> get(~p"/api/latest")
+      |> json_response(200)
+      |> Map.fetch!("data")
+      |> Enum.map(& &1["name"])
+
+    assert names == ["From A Site"]
+  end
 end

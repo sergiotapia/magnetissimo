@@ -12,7 +12,7 @@ config :magnetissimo,
   generators: [timestamp_type: :utc_datetime]
 
 # Every source a search asks writes in its own transaction, at the same time
-# as the others and the scheduled crawls. A deferred transaction that reads
+# as the others and the DHT crawler. A deferred transaction that reads
 # before it writes gets SQLITE_BUSY at once when another writer commits in
 # between, and busy_timeout does not retry that. An immediate one takes the
 # write lock up front and waits its turn instead.

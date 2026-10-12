@@ -64,6 +64,11 @@ config :magnetissimo, Magnetissimo.Crawlers.OxTorrent,
 # test that started it has finished.
 config :magnetissimo, Magnetissimo.Crawlers.Pacer, interval: 0, concurrency: 100
 
+# The DHT crawler never runs in tests: switching it on starts a stand-in
+# that touches no network. Its pieces are tested one by one, with a
+# transport that hands packets to the test instead.
+config :magnetissimo, Magnetissimo.DHT.Runner, crawler: Magnetissimo.DHT.FakeCrawler
+
 # Initialize plugs at runtime for faster test compilation
 config :phoenix, :plug_init_mode, :runtime
 

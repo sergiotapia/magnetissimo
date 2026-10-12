@@ -68,6 +68,18 @@ defmodule MagnetissimoWeb.TorznabControllerTest do
     refute_received {:crawled, _, _, _}
   end
 
+  test "a poll leaves out what the DHT found, which a search still finds", %{conn: conn} do
+    TorrentsFixtures.torrent_fixture(%{name: "Site Show", category: "TV/HD"})
+    TorrentsFixtures.torrent_fixture(%{name: "DHT Show", category: "TV/HD", source: "DHT"})
+
+    doc = conn |> api(t: "tvsearch", cat: "5040") |> xml()
+    assert select(doc, "//item/title/text()") == ["Site Show"]
+    assert select(doc, "//newznab:response/@total") == ["1"]
+
+    doc = conn |> api(t: "search", q: "dht show") |> xml()
+    assert "DHT Show" in select(doc, "//item/title/text()")
+  end
+
   test "a poll that finds nothing gets a placeholder, not an empty feed", %{conn: conn} do
     doc = conn |> api(t: "book", cat: "3030") |> xml()
 

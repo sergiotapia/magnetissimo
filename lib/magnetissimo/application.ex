@@ -26,6 +26,9 @@ defmodule Magnetissimo.Application do
       # so a source that crashes takes only its own answer with it.
       {Task.Supervisor, name: Magnetissimo.SourceSearch.TaskSupervisor},
       Magnetissimo.SourceSearch,
+      # The DHT crawler's runner, which starts the crawler only once it is
+      # switched on at /dht.
+      Magnetissimo.DHT.Supervisor,
       # Start to serve requests, typically the last entry
       MagnetissimoWeb.Endpoint
     ]

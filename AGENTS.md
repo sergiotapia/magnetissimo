@@ -2,7 +2,8 @@
 
 Magnetissimo is a self-hosted torrent indexer. When someone searches, it asks
 eight torrent sites' own search at once, extracts the magnet links, indexes
-them in SQLite, and serves them through a LiveView UI and a JSON API.
+them in SQLite, and serves them through a LiveView UI and a JSON API. When
+switched on at `/dht`, it also crawls the BitTorrent DHT in the background.
 Phoenix 1.8, LiveView 1.2, Ecto on SQLite with FTS5, Req, Bandit, and
 hand-written Tailwind 4.
 
@@ -39,19 +40,23 @@ it.
 | `lib/magnetissimo/crawlers/http.ex` | The single `Req.get` every crawler makes. Doesn't retry. A non-200 response is an `{:error, _}`. |
 | `lib/magnetissimo/crawlers/categories.ex` | `mapping!/3`: the site's category key mapped to a Torznab name, checked at compile time. |
 | `lib/magnetissimo/crawlers/*.ex` | One module per site: Yts, Nyaa, Sukebei, TorrentDownloads, AudioBookBay, ThePirateBay, Eztv, OxTorrent. |
-| `lib/magnetissimo/seeds.ex` | The `sources` rows. Every crawler has one. |
+| `lib/magnetissimo/dht.ex` | The DHT source: settings (on/off and rate, in `dht_settings`), the measured rate presets, PubSub, saved nodes. |
+| `lib/magnetissimo/dht/*.ex` | The DHT crawler. Pure: `Bencode`, `KRPC`, `PeerWire` (BEP 3/9/10), `Info`, `Classifier`, `Bloom` (BEP 33), `Table`. Processes: `Supervisor` and `Runner` (always up; start, stop and restart `Crawler` to match the settings), `Node` (the UDP socket and packet budget), `Sampler` (BEP 51 walk), `Fetcher` (peers, metadata over TCP via `Metadata`, scrape), `Indexer` (batched writes), `Stats`. |
+| `lib/magnetissimo/seeds.ex` | The `sources` rows. Every crawler has one, and so does the DHT. |
 | `lib/magnetissimo/release.ex` | `migrate/0`: migrations then seeds, on one connection. Release boot and `bin/migrate` both call it. |
 | `config/runtime.exs` | Production env: `DATABASE_PATH`, generated `SECRET_KEY_BASE`, optional `PHX_HOST`, `check_origin: :conn`. |
 | `Dockerfile`, `compose.yaml`, `.github/workflows/docker.yml` | The image (debian-slim, runs as `nobody`, data in `/data`), the homelab compose file, and multi-arch publishing to `ghcr.io/sergiotapia/magnetissimo`. |
 | `lib/magnetissimo_web/live/home_live.ex` | Search, category and source filters, refine fields, sorting, paging, live source status. |
 | `lib/magnetissimo_web/search_filters.ex` | The refine fields (names only, size, seeders, age), read from and written to the URL. |
-| `lib/magnetissimo_web/live/torrent_live.ex` | One torrent's detail page. |
+| `lib/magnetissimo_web/live/torrent_live.ex` | One torrent's detail page, with its file list when the DHT gave one. |
+| `lib/magnetissimo_web/live/dht_live.ex` | `/dht`: the on/off switch and rate slider (`DhtSettings`, and `DhtSettingsController` without JS), the crawler's status, and the latest 100 DHT finds, live. |
 | `lib/magnetissimo_web/controllers/torznab_*.ex` | The Torznab API at `GET /api?t=…` for Sonarr, Radarr, Lidarr, Prowlarr and the book managers: request parsing, XML, controller. |
 | `lib/magnetissimo_web/controllers/torrent_*.ex` | `GET /api/latest` and `GET /api/search/:term`, with frozen field names. |
 | `lib/magnetissimo_web/components/dossier_components.ex` | Art and data components: orb, fingerprint, swarm bar, chips. |
 | `lib/magnetissimo_web/format.ex` | Sizes in binary units, counts, ages, hashes. |
 | `lib/magnetissimo_web/theme.ex`, `controllers/theme_controller.ex` | The `theme` cookie (light, dark, or follow the system) and the no-JS `GET /theme/:mode`. |
 | `docs/design.md` | The design system. Read it before touching UI. |
+| `docs/dht.md` | How the DHT crawler works, and the measured rates behind its presets. |
 
 Every module has a moduledoc that explains *why* it works the way it does.
 Read the moduledoc before you edit a module, and update it when what it says
@@ -61,11 +66,30 @@ stops being true.
 
 Breaking any of these causes bugs that tests may not catch:
 
-- **Sources are asked only on a search.** Don't add timers, schedulers, job
-  queues or "latest" crawls. Polling got the project blocked by Nyaa and
-  AudioBookBay in October 2026. A Torznab request with no text is a client's
-  RSS poll or Test button, not a search: it is answered from the index and
-  never reaches `SourceSearch`.
+- **Sites are asked only on a search.** Don't add timers, schedulers, job
+  queues or "latest" crawls of a site. Polling got the project blocked by
+  Nyaa and AudioBookBay in October 2026. A Torznab request with no text is a
+  client's RSS poll or Test button, not a search: it is answered from the
+  index and never reaches `SourceSearch`.
+- **The DHT is the one background source, and it is off until switched on
+  at `/dht`.** Its settings are a database row (`DHT.Settings`), not env
+  vars; `DHT.update_settings/1` saves them and the `Runner` applies them. It is
+  not a site and not a `Crawler`: it isn't in `Crawlers.all/0`, doesn't use
+  the Pacer, and a search never waits on it. It writes through
+  `Torrents.index_torrents/2` from `DHT.Indexer`, in batches. Its torrents
+  stay out of the views without a search (`list_latest_torrents/1`,
+  `count_torrents/1`, `count_torrents_by_category/0`, so "Fresh magnets",
+  the Torznab poll and `/api/latest`) unless `:source_ids` names the DHT.
+- **Every DHT packet waits its turn in `DHT.Node`'s budget.** Don't add a
+  path that sends UDP around it, don't raise a preset without measuring it
+  (`docs/dht.md`), and keep the node read-only (`ro: 1`, no answers to
+  queries). A home router's connection table, not bandwidth, is the limit:
+  each distinct address is an entry. Close TCP with `linger: {true, 0}`.
+- **The DHT never trusts a peer.** `Bencode` caps depth and checks every
+  length before reading; `PeerWire` checks the metadata size, each piece's
+  index and length, and the SHA-1 before anything is parsed. A banned
+  keyword (`DHT.Classifier`) refuses a torrent before it is written, and a
+  private torrent (BEP 27) is never indexed.
 - **Every site request waits its turn in `Crawlers.Pacer`.** `Crawlers.search/2`
   goes through it. Don't call a crawler's `search/1` from anywhere else, and
   don't raise the pacer's limits to make a backfill faster.
@@ -77,7 +101,13 @@ Breaking any of these causes bugs that tests may not catch:
   worse.
 - **`magnet_hash` is identity.** It is 40 lowercase hex characters. A
   duplicate is normal. On conflict, only the seeders, leechers and
-  `updated_at` refresh, and the category is replaced only if it was `Other`.
+  `updated_at` refresh (the swarm only when the source sent one: nil seeders
+  and leechers keep the old numbers), the file list fills in only if it was
+  empty, and the category is replaced only if it was `Other`.
+- **`file_names` is derived.** `Torrent.changeset/2` fills it from `files`
+  (paths, one per line) for the FTS indexes. Never cast or write it
+  directly. Both FTS5 indexes have three columns: `name, description,
+  file_names`.
 - **`magnet_url` is a complete `magnet:?xt=urn:btih:` URI.**
 - **Categories are Torznab only.** Never invent one. Each crawler maps its
   site's most stable key with `Categories.mapping!/3` and a `:fallback`.
@@ -87,6 +117,9 @@ Breaking any of these causes bugs that tests may not catch:
   rowid, which the `torrents_search` and `torrents_words` FTS5 tables join
   on. Never use `:binary_id`, UUIDs, nanoid, `ecto_identifier`, or
   `--binary-id`.
+- **The FTS update triggers fire only when the text changes** (a `WHEN`
+  clause). An upsert names the text columns in its SET list; without the
+  `WHEN`, every swarm refresh would re-index the text.
 - **Never pass raw user text to FTS5 `MATCH`.** Go through
   `Torrents.search_torrents/2`, where `Torrents.Search` tokenizes the text
   and quotes each token.
@@ -158,6 +191,11 @@ Breaking any of these causes bugs that tests may not catch:
 - Database tests use `Magnetissimo.DataCase, async: false`, because SQLite
   has one writer. Pure tests use `async: true`.
 - Never make real network calls. Use `Req.Test.stub(Module, fn conn -> … end)`.
+  DHT tests use `Magnetissimo.DHT.FakeTransport` (UDP packets go to the
+  test, which answers them) and `FakeMetadata` (`test/support/dht/`). The
+  DHT's `Runner` starts `FakeCrawler` in tests (`config/test.exs`), so
+  switching the DHT on never reaches the network; start its real processes
+  with `start_supervised!/1`.
 - `Magnetissimo.FastCrawler` and `SlowCrawler` (`test/support/crawlers/`)
   stand in for sources in `SourceSearch` and LiveView tests. Point
   `config :magnetissimo, Magnetissimo.SourceSearch, crawlers: […]` at them.

@@ -7,7 +7,9 @@ defmodule Magnetissimo.Crawlers.Crawler do
   way for every source.
 
   Nothing is crawled on a timer. A site is asked only when someone searches
-  for a term, so the index holds what readers have looked for.
+  for a term, so the index holds what readers have looked for. The one
+  source crawled in the background, the DHT, is not a site and not a
+  crawler: see `Magnetissimo.DHT`.
   """
 
   @typedoc "Attrs for `Magnetissimo.Torrents.index_torrents/1`."

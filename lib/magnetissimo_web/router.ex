@@ -20,6 +20,8 @@ defmodule MagnetissimoWeb.Router do
 
     live "/", HomeLive
     live "/torrents/:id", TorrentLive
+    live "/dht", DhtLive
+    post "/dht/settings", DhtSettingsController, :update
     get "/theme/:mode", ThemeController, :update
   end
 

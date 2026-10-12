@@ -136,6 +136,8 @@
   /* `backwards`, not `both`: once it ends the row's own hover background
      applies again instead of the last keyframe's. */
   --animate-arrive: arrive 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  /* A number that just changed: glows mint, then settles. */
+  --animate-flash: flash 1.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
   --animate-spin-slow: spin 3.2s linear infinite;
   --animate-twinkle: twinkle 3.6s ease-in-out infinite;
   --animate-drift: drift 14s linear infinite;
@@ -157,6 +159,11 @@
     0% { opacity: 0; transform: translateX(-16px); background-color: var(--color-azure-100); }
     18% { opacity: 1; transform: translateX(0); background-color: var(--color-azure-100); }
     100% { background-color: transparent; }
+  }
+
+  @keyframes flash {
+    0% { background-color: var(--color-mint-soft); box-shadow: 0 0 0 4px var(--color-mint-soft); }
+    100% { background-color: transparent; box-shadow: 0 0 0 4px transparent; }
   }
 
   @keyframes twinkle {
@@ -336,7 +343,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-ticker, .animate-drift, .animate-rise, .animate-arrive, .animate-spin-slow,
+  .animate-ticker, .animate-drift, .animate-rise, .animate-arrive, .animate-flash, .animate-spin-slow,
   .animate-orb, .animate-float, .sparkle, .orb::before, .ticker > * {
     animation: none !important;
   }
@@ -670,6 +677,49 @@
 :root[data-theme=dark] .theme-switch > [data-mode=dark] {
   color: white;
   filter: drop-shadow(0 1px 1px rgb(13 33 50 / 0.45));
+}
+
+/* An on/off switch: a .well track with a .gel thumb that slides right when
+   the checkbox before it (visually hidden) is checked. The track turns mint,
+   which means alive. Defined after .gel so its position wins. */
+.toggle {
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+  width: 3.1rem;
+  height: 1.8rem;
+  border-radius: 9999px;
+  transition: background 300ms ease;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 0.2rem;
+  left: 0.2rem;
+  width: 1.4rem;
+  height: 1.4rem;
+  pointer-events: none;
+  /* Overshoots a little, like the theme switch. */
+  transition: translate 450ms cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+
+input:checked + .toggle {
+  background: linear-gradient(180deg, var(--color-mint-soft), rgb(255 255 255 / 0.9));
+
+  @variant dark {
+    background: linear-gradient(180deg, rgb(17 160 124 / 0.45), rgb(14 32 50 / 0.75));
+  }
+}
+
+input:checked + .toggle .toggle-thumb { translate: 1.3rem 0; }
+
+input:focus-visible + .toggle {
+  outline: 2px solid var(--color-azure-400);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle, .toggle-thumb { transition: none; }
 }
 
 /* A phone's single button: only the current mode's shows. */

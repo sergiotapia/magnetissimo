@@ -43,14 +43,13 @@ defmodule Magnetissimo.Torrents do
   @doc """
   Returns `%{category_id => torrent_count}` for every category with torrents
   filed directly under it. A top-level category's own count leaves out its
-  children; see `Magnetissimo.Taxonomy.family_ids/1`.
+  children; see `Magnetissimo.Taxonomy.family_ids/1`. Like
+  `list_latest_torrents/1`, it leaves out what the DHT found.
   """
   def count_torrents_by_category do
-    Repo.all(
-      from t in Torrent,
-        group_by: t.category_id,
-        select: {t.category_id, count(t.id)}
-    )
+    from(t in Torrent, group_by: t.category_id, select: {t.category_id, count(t.id)})
+    |> without_dht([])
+    |> Repo.all()
     |> Map.new()
   end
 
@@ -61,6 +60,11 @@ defmodule Magnetissimo.Torrents do
 
   @doc """
   Returns the most recently published torrents.
+
+  Torrents the DHT found are left out unless `:source_ids` names the DHT. It
+  finds thousands an hour, of every age, and would bury what the sites
+  publish; they have a page of their own (`list_dht_torrents/1`), and
+  searches find them like any other.
 
   ## Options
 
@@ -108,7 +112,22 @@ defmodule Magnetissimo.Torrents do
     Repo.aggregate(filtered(from(t in Torrent), opts), :count)
   end
 
+  @dht "DHT"
+
+  # Without a source filter, the DHT's torrents stay out of the views that
+  # list without a search. Picking the DHT as a source shows them.
+  defp without_dht(query, opts) do
+    if Keyword.get(opts, :source_ids, []) == [] do
+      dht = from s in Source, where: s.name == @dht, select: s.id
+      where(query, [t], t.source_id not in subquery(dht))
+    else
+      query
+    end
+  end
+
   defp filtered(query, opts) do
+    query = without_dht(query, opts)
+
     query =
       for {column, ids} <- filters(opts), ids != [], reduce: query do
         query -> where(query, [t], field(t, ^column) in ^ids)
@@ -172,6 +191,66 @@ defmodule Magnetissimo.Torrents do
   end
 
   @doc """
+  Gets the torrents with these ids, with their sources, in the order given.
+  An id with no torrent is skipped.
+  """
+  def get_torrents(ids), do: load_torrents_in_order(ids)
+
+  @doc """
+  Returns the hex infohashes, of those given, that are already indexed.
+  """
+  @spec known_hashes([String.t()]) :: MapSet.t(String.t())
+  def known_hashes([]), do: MapSet.new()
+
+  def known_hashes(hashes) do
+    hashes
+    |> Enum.uniq()
+    |> Enum.chunk_every(500)
+    |> Enum.flat_map(fn chunk ->
+      Repo.all(from t in Torrent, where: t.magnet_hash in ^chunk, select: t.magnet_hash)
+    end)
+    |> MapSet.new()
+  end
+
+  @doc """
+  Returns the torrents the DHT found most recently, newest first.
+
+  ## Options
+
+    * `:limit` - how many, 100 by default
+  """
+  def list_dht_torrents(opts \\ []) do
+    limit = Keyword.get(opts, :limit, 100)
+
+    Repo.all(
+      from t in Torrent,
+        join: s in assoc(t, :source),
+        where: s.name == @dht,
+        order_by: [desc: t.inserted_at, desc: t.id],
+        limit: ^limit,
+        preload: [source: s]
+    )
+  end
+
+  @doc """
+  Sets the swarm of the torrent with this hex infohash, as a DHT scrape
+  estimated it. Returns `{:ok, id}`, or `:error` when no such torrent is
+  indexed. The search indexes are not touched.
+  """
+  @spec update_swarm(String.t(), non_neg_integer(), non_neg_integer()) ::
+          {:ok, integer()} | :error
+  def update_swarm(hash, seeders, leechers) do
+    query = from t in Torrent, where: t.magnet_hash == ^hash, select: t.id
+
+    case Repo.update_all(query,
+           set: [seeders: seeders, leechers: leechers, updated_at: DateTime.utc_now()]
+         ) do
+      {1, [id]} -> {:ok, id}
+      {_count, _ids} -> :error
+    end
+  end
+
+  @doc """
   Returns the torrents already indexed at any of `urls`, keyed by
   `canonical_url`.
 
@@ -204,7 +283,13 @@ defmodule Magnetissimo.Torrents do
   A torrent not yet indexed is inserted. One already indexed, matched by
   `magnet_hash`, keeps everything it has except its swarm: `seeders` and
   `leechers` take the fresh numbers, so a torrent a search or crawl sees again
-  stops showing the swarm it had on the day it was first found.
+  stops showing the swarm it had on the day it was first found. A source that
+  knows no swarm, and sends `nil` for both, leaves the numbers as they are:
+  AudioBookBay or the DHT seeing a torrent again is no reason to zero what
+  The Pirate Bay last counted.
+
+  A torrent indexed without a file list gains one when a source that has it,
+  the DHT, sees the torrent too.
 
   The one other exception is a torrent filed under the fallback category.
   TorrentDownloads' search feed carries no category, so a torrent it finds
@@ -227,21 +312,21 @@ defmodule Magnetissimo.Torrents do
     {valid, rejected} =
       Enum.reduce(attrs_list, {[], []}, fn attrs, {valid, rejected} ->
         case Torrent.changeset(%Torrent{}, attrs) do
-          %{valid?: true} = changeset -> {[row(changeset) | valid], rejected}
+          %{valid?: true} = changeset -> {[{swarm?(changeset), row(changeset)} | valid], rejected}
           changeset -> {valid, [{attrs, changeset.errors} | rejected]}
         end
       end)
 
     # One statement cannot upsert the same row twice, so a batch that lists a
     # hash twice keeps the first.
-    rows = valid |> Enum.reverse() |> Enum.uniq_by(& &1.magnet_hash)
+    rows = valid |> Enum.reverse() |> Enum.uniq_by(fn {_swarm?, row} -> row.magnet_hash end)
 
     {:ok, {ids, inserted}} =
       Repo.transact(fn ->
         {ids, inserted} = upsert(rows)
 
         if term = opts[:search_term] do
-          insert_search_hits(term, Enum.zip(Enum.map(rows, & &1.source_id), ids))
+          insert_search_hits(term, Enum.zip(Enum.map(rows, &elem(&1, 1).source_id), ids))
         end
 
         {:ok, {ids, inserted}}
@@ -261,8 +346,16 @@ defmodule Magnetissimo.Torrents do
     :magnet_hash,
     :magnet_url,
     :category_id,
-    :source_id
+    :source_id,
+    :files,
+    :file_count,
+    :file_names
   ]
+
+  # Read from the params, as the schema's default of 0 hides a nil.
+  defp swarm?(%{params: params}) do
+    params["seeders"] != nil or params["leechers"] != nil
+  end
 
   defp row(changeset) do
     now = DateTime.utc_now()
@@ -278,45 +371,66 @@ defmodule Magnetissimo.Torrents do
 
   defp upsert([]), do: {[], 0}
 
+  # Rows with a swarm and rows without go in separate statements, as only the
+  # first refresh it.
   defp upsert(rows) do
-    hashes = Enum.map(rows, & &1.magnet_hash)
+    hashes = Enum.map(rows, fn {_swarm?, row} -> row.magnet_hash end)
     known = Repo.all(from t in Torrent, where: t.magnet_hash in ^hashes, select: t.magnet_hash)
+
+    # Chunked to stay well under SQLite's limit on bound parameters, 16 a row.
+    id_by_hash =
+      rows
+      |> Enum.group_by(&elem(&1, 0), &elem(&1, 1))
+      |> Enum.flat_map(fn {swarm?, rows} ->
+        rows
+        |> Enum.chunk_every(500)
+        |> Enum.flat_map(fn chunk ->
+          {_count, returned} =
+            Repo.insert_all(Torrent, chunk,
+              on_conflict: refresh(swarm?),
+              conflict_target: :magnet_hash,
+              returning: [:id, :magnet_hash]
+            )
+
+          returned
+        end)
+      end)
+      |> Map.new(&{&1.magnet_hash, &1.id})
+
+    {Enum.map(hashes, &Map.fetch!(id_by_hash, &1)), length(hashes) - length(known)}
+  end
+
+  defp refresh(swarm?) do
     fallback_id = Taxonomy.other_id()
 
-    refresh =
-      from t in Torrent,
-        update: [
-          set: [
-            seeders: fragment("excluded.seeders"),
-            leechers: fragment("excluded.leechers"),
-            updated_at: fragment("excluded.updated_at"),
-            category_id:
+    swarm =
+      if swarm?,
+        do: [
+          seeders: dynamic(fragment("excluded.seeders")),
+          leechers: dynamic(fragment("excluded.leechers"))
+        ],
+        else: []
+
+    set =
+      swarm ++
+        [
+          updated_at: dynamic(fragment("excluded.updated_at")),
+          category_id:
+            dynamic(
+              [t],
               fragment(
                 "CASE WHEN ? = ? THEN excluded.category_id ELSE ? END",
                 t.category_id,
                 ^fallback_id,
                 t.category_id
               )
-          ]
+            ),
+          files: dynamic([t], fragment("coalesce(?, excluded.files)", t.files)),
+          file_count: dynamic([t], fragment("coalesce(?, excluded.file_count)", t.file_count)),
+          file_names: dynamic([t], fragment("coalesce(?, excluded.file_names)", t.file_names))
         ]
 
-    # Chunked to stay well under SQLite's limit on bound parameters, 13 a row.
-    id_by_hash =
-      rows
-      |> Enum.chunk_every(500)
-      |> Enum.flat_map(fn chunk ->
-        {_count, returned} =
-          Repo.insert_all(Torrent, chunk,
-            on_conflict: refresh,
-            conflict_target: :magnet_hash,
-            returning: [:id, :magnet_hash]
-          )
-
-        returned
-      end)
-      |> Map.new(&{&1.magnet_hash, &1.id})
-
-    {Enum.map(hashes, &Map.fetch!(id_by_hash, &1)), length(hashes) - length(known)}
+    from(t in Torrent, update: [set: ^set])
   end
 
   @doc "Returns `{source_name, torrent_count}` for every source."
@@ -333,7 +447,7 @@ defmodule Magnetissimo.Torrents do
   ## Search
 
   @doc """
-  Searches torrents by name and description, best match first.
+  Searches torrents by name, description and file names, best match first.
 
   `query` is a `t:Magnetissimo.Torrents.Query.t/0`, which may hold
   operators, or plain text, where nothing is an operator: Torznab clients
@@ -342,8 +456,8 @@ defmodule Magnetissimo.Torrents do
   Returns `[]` for input with nothing to search for.
 
   Takes the same options as `list_latest_torrents/1`, where `:sort` replaces
-  best match first, and `:scope`: `:all` (the default) to match names and
-  descriptions, or `:name` for names only. The filters and the page are
+  best match first, and `:scope`: `:all` (the default) to match names,
+  descriptions and file names, or `:name` for names only. The filters and the page are
   applied in SQL, so a page is always full while matches remain.
   """
   def search_torrents(term, opts \\ []) do

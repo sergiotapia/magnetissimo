@@ -1,7 +1,10 @@
 defmodule MagnetissimoWeb.TorrentLive do
   @moduledoc """
-  One torrent: fingerprint, orb, the facts in rows, the magnet, and
-  whatever the source said about it.
+  One torrent: fingerprint, orb, the facts in rows, the magnet, whatever
+  the source said about it, and its files when the source knew them.
+
+  A torrent the DHT found has no page anywhere to link to, so its source
+  links to the DHT page instead of "View on".
   """
   use MagnetissimoWeb, :live_view
 
@@ -98,7 +101,15 @@ defmodule MagnetissimoWeb.TorrentLive do
                 <dt class="text-ink-500">Source</dt>
                 <span class="leader"></span>
                 <dd>
-                  <a href={@torrent.canonical_url} class="link font-semibold" rel="noopener">
+                  <.link :if={dht?(@torrent)} navigate={~p"/dht"} class="link font-semibold">
+                    {@torrent.source.name}
+                  </.link>
+                  <a
+                    :if={!dht?(@torrent)}
+                    href={@torrent.canonical_url}
+                    class="link font-semibold"
+                    rel="noopener"
+                  >
                     {@torrent.source.name} ↗
                   </a>
                 </dd>
@@ -148,6 +159,7 @@ defmodule MagnetissimoWeb.TorrentLive do
                 <.magnet_icon class="size-5" /> Get magnet
               </a>
               <a
+                :if={!dht?(@torrent)}
                 id="source-link"
                 href={@torrent.canonical_url}
                 rel="noopener"
@@ -173,6 +185,31 @@ defmodule MagnetissimoWeb.TorrentLive do
           </p>
         </div>
 
+        <%!-- Files, when the source knew them: only the DHT does --%>
+        <div :if={@torrent.files} id="files" class="border-t border-frost-300/70 p-6 sm:p-8">
+          <div class="label mb-3">
+            Files · {number(@torrent.file_count || length(@torrent.files))}
+          </div>
+          <ol class="well max-h-96 divide-y divide-frost-200/70 overflow-y-auto rounded-2xl px-4 py-1">
+            <li
+              :for={file <- @torrent.files}
+              class="flex items-baseline justify-between gap-4 py-2 text-sm"
+            >
+              <span class="min-w-0 break-words text-ink-700">{file["path"]}</span>
+              <span class="shrink-0 font-mono text-xs text-ink-500 tabular-nums">
+                {bytes(file["size"])}
+              </span>
+            </li>
+          </ol>
+          <p
+            :if={(@torrent.file_count || 0) > length(@torrent.files)}
+            id="files-more"
+            class="mt-2 text-sm text-ink-500"
+          >
+            and {number(@torrent.file_count - length(@torrent.files))} more
+          </p>
+        </div>
+
         <.signal id="subject-signal" class="h-14 w-full" />
       </article>
 
@@ -184,4 +221,6 @@ defmodule MagnetissimoWeb.TorrentLive do
     </Layouts.app>
     """
   end
+
+  defp dht?(torrent), do: torrent.source.name == "DHT"
 end

@@ -101,6 +101,12 @@ All in `app.css`:
   place and reveals it in a circle growing from the button (a view
   transition, skipped under reduced motion).
 
+- `.toggle` — an on/off switch: a `.well` track and a `.gel` thumb
+  (`.toggle-thumb`) that springs right when the visually hidden checkbox
+  just before it is checked, and a track that turns mint. It is a real
+  checkbox in a label, so it works without JavaScript and with a keyboard.
+  The DHT page's crawler switch.
+
 `prefers-reduced-motion` stops every animation, including the orb and the CD.
 
 Components in `MagnetissimoWeb.DossierComponents`: the magnet icon, sparkle,

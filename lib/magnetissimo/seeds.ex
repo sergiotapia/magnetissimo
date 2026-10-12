@@ -1,6 +1,7 @@
 defmodule Magnetissimo.Seeds do
   @moduledoc """
-  The crawl sources: one row per site a crawler files torrents under.
+  The crawl sources: one row per site a crawler files torrents under, and
+  one for the DHT.
 
   The categories are not seeded. They are the Torznab standard and live in
   code, in `Magnetissimo.Taxonomy`, and each crawler maps its own site's
@@ -12,8 +13,11 @@ defmodule Magnetissimo.Seeds do
   alias Magnetissimo.Repo
   alias Magnetissimo.Torrents.Source
 
-  # Every source here has a crawler in Magnetissimo.Crawlers.all/0.
+  # Every source here but the DHT has a crawler in
+  # Magnetissimo.Crawlers.all/0. The DHT is crawled in the background by
+  # Magnetissimo.DHT, when it is enabled, and has a row whether or not it is.
   @sources [
+    {"DHT", "https://www.bittorrent.org/beps/bep_0005.html"},
     # The crawler hardcodes the domain too; the site moves every so often.
     {"AudioBookBay", "https://audiobookbay.lu"},
     # The crawler asks the site's API, the only part not behind Cloudflare's
