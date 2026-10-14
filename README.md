@@ -146,7 +146,17 @@ Magnetissimo speaks plain HTTP. To serve it over HTTPS, put it behind a
 reverse proxy such as Caddy, Traefik or nginx, and forward WebSockets, which
 is what makes results stream in. The app answers on any host name or IP it is
 reached at, and the live-update socket accepts pages served from that same
-host.
+host. The proxy has to pass the `Host` header through and send
+`X-Forwarded-Proto`, so the app knows the page was served over HTTPS. Caddy
+and Traefik do both by default. In nginx, add:
+
+```nginx
+proxy_set_header Host $host;
+proxy_set_header X-Forwarded-Proto $scheme;
+proxy_http_version 1.1;
+proxy_set_header Upgrade $http_upgrade;
+proxy_set_header Connection "upgrade";
+```
 
 ### For development
 

@@ -15,6 +15,9 @@ config :magnetissimo, Magnetissimo.Repo,
 config :magnetissimo, MagnetissimoWeb.Endpoint,
   http: [ip: {127, 0, 0, 1}, port: 4002],
   secret_key_base: "jTHOYWPY5CEEpcqgGI5cD8gdXtLbWhDlt58/UCg9DVdJJyUYShrrG21chSKJgGZ4",
+  # As in production (config/runtime.exs), so tests check the socket's origin
+  # the way a release does.
+  check_origin: :conn,
   server: false
 
 # In test we don't send emails

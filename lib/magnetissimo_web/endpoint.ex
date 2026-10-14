@@ -15,6 +15,17 @@ defmodule MagnetissimoWeb.Endpoint do
     websocket: [connect_info: [session: @session_options]],
     longpoll: [connect_info: [session: @session_options]]
 
+  # Behind a reverse proxy that ends TLS, a request arrives as plain http and
+  # the proxy's X-Forwarded-Proto says it was https. The socket's origin check
+  # (`check_origin: :conn`) compares the page's https origin with this conn's
+  # scheme and port, and Phoenix dispatches sockets before any plug below
+  # runs, so the scheme is corrected here, first. A browser can't set the
+  # header on another site's behalf, so trusting it opens no cross-site hole.
+  @rewrite_on Plug.RewriteOn.init([:x_forwarded_proto])
+
+  @impl Plug
+  def call(conn, opts), do: super(Plug.RewriteOn.call(conn, @rewrite_on), opts)
+
   # Serve at "/" the static files from "priv/static" directory.
   #
   # When code reloading is disabled (e.g., in production),

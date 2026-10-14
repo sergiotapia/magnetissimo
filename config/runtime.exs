@@ -96,6 +96,8 @@ if config_env() == :prod do
     url: url,
     # The LiveView socket accepts the host the page was served from, so the
     # app works at whatever IP or name it is reached by without listing them.
+    # Behind a TLS-ending proxy, the endpoint takes the scheme the page was
+    # served with from X-Forwarded-Proto before this check runs.
     check_origin: :conn,
     http: [
       # All interfaces, IPv6 and IPv4. See the documentation on
