@@ -93,7 +93,7 @@ from source, so `docker compose up -d` works straight from the checkout. To upgr
 `git pull && docker compose up -d --build`.
 
 `:latest` is the newest release. `:edge` follows every commit to `master`,
-and `:3`, `:3.1` or `:3.1.0` pin a version.
+and `:3`, `:3.1` or `:3.1.1` pin a version.
 
 ### As an Elixir release
 
