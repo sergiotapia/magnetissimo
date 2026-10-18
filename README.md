@@ -6,6 +6,10 @@
 </p>
 
 <p align="center">
+  <a href="https://discord.gg/PWYfybKfcw">Join the Discord</a>
+</p>
+
+<p align="center">
   <img src="docs/demo.gif" alt="A search for x265 on the Magnetissimo home page: every source's status under the search box and the results listed with size, swarm and age. The theme switch in the nav turns the page from light to dark in a circle that grows from the button, then back to light" width="820">
 </p>
 
